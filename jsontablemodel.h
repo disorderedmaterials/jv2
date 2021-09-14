@@ -15,7 +15,6 @@ public:
     typedef QVector<Heading> Header;
     JsonTableModel( const Header& header, QObject * parent = 0);
 
-    bool setJson( const QJsonDocument& json );
     bool setJson( const QJsonArray& array );
 
     virtual QJsonObject getJsonObject( const QModelIndex &index ) const;
