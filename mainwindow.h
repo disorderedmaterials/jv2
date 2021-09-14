@@ -19,11 +19,11 @@ public:
 
     void fillInstruments();
 private slots:
-    void handle_result(HttpRequestWorker *worker);
-    void handle_result2(HttpRequestWorker *worker);
-    void on_testBox2_currentIndexChanged(const QString &arg1);
+    void handle_result_instruments(HttpRequestWorker *worker);
+    void handle_result_cycles(HttpRequestWorker *worker);
+    void on_instrumentsBox_currentIndexChanged(const QString &arg1);
 
-    void on_testBox_currentIndexChanged(const QString &arg1);
+    void on_cyclesBox_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
