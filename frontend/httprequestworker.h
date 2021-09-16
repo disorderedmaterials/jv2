@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2021 E. Devlin and T. Youngs
+
 #ifndef HTTPREQUESTWORKER_H
 #define HTTPREQUESTWORKER_H
 
@@ -9,24 +12,17 @@
 #include <QNetworkReply>
 #include <QObject>
 #include <QString>
-class HttpRequestInputFileElement {
 
-public:
-  QString variable_name;
-  QString local_filename;
-  QString request_filename;
-  QString mime_type;
-};
-
+// Object for request URL
 class HttpRequestInput {
 
 public:
   QString url_str;
 
   HttpRequestInput(QString v_url_str);
-  void initialize();
 };
 
+// Object for handling http request
 class HttpRequestWorker : public QObject {
   Q_OBJECT
 

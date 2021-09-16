@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2021 E. Devlin and T. Youngs
+
 #include "jsontablemodel.h"
 #include <QJsonObject>
 
+// Model to handle json data in table view
 JsonTableModel::JsonTableModel(const JsonTableModel::Header &header,
                                QObject *parent)
     : QAbstractTableModel(parent), m_header(header) {}
 
+// Sets json data to populate table
 bool JsonTableModel::setJson(const QJsonArray &array) {
   beginResetModel();
   m_json = array;
@@ -17,16 +22,16 @@ QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation,
   if (role != Qt::DisplayRole) {
     return QVariant();
   }
-  bool JsonTableModel::setJson(const QJsonDocument &json) {
-    return setJson(json.array());
+
+  switch (orientation) {
+  case Qt::Horizontal:
+    return m_header[section]["title"];
+  case Qt::Vertical:
+    // return section + 1;
+    return QVariant();
+  default:
+    return QVariant();
   }
-  return m_header[section]["title"];
-case Qt::Vertical:
-  // return section + 1;
-  return QVariant();
-default:
-  return QVariant();
-}
 }
 
 int JsonTableModel::rowCount(const QModelIndex &parent) const {
@@ -42,6 +47,7 @@ QJsonObject JsonTableModel::getJsonObject(const QModelIndex &index) const {
   return value.toObject();
 }
 
+// Fills table view
 QVariant JsonTableModel::data(const QModelIndex &index, int role) const {
   switch (role) {
   case Qt::DisplayRole: {

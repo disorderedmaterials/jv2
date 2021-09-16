@@ -1,7 +1,11 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2021 E. Devlin and T. Youngs
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSortFilterProxyModel>
 #include "httprequestworker.h"
 #include "jsontablemodel.h"
 
@@ -19,6 +23,8 @@ public:
 
     void fillInstruments();
 private slots:
+    void on_keysBox_currentIndexChanged(const QString &arg1);
+    void on_filterBox_textChanged(const QString &arg1);
     void handle_result_instruments(HttpRequestWorker *worker);
     void handle_result_cycles(HttpRequestWorker *worker);
     void on_instrumentsBox_currentIndexChanged(const QString &arg1);
@@ -28,5 +34,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     JsonTableModel *model;
+    QSortFilterProxyModel *proxyModel;
 };
 #endif // MAINWINDOW_H

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2021 E. Devlin and T. Youngs
+
 from flask import Flask
 from flask import jsonify
 
@@ -6,7 +9,7 @@ from xml.etree.ElementTree import parse
 
 app = Flask(__name__)
 
-
+# Get instrument cycle values
 @app.route('/getCycles/<instrument>')
 def getCycles(instrument):
     url = 'http://data.isis.rl.ac.uk/journals/ndx'+instrument+'/journal_main.xml'
@@ -21,7 +24,7 @@ def getCycles(instrument):
         cycles.append(data.get('name'))
     return jsonify(cycles)
 
-
+# Get cycle run data
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
     url = 'http://data.isis.rl.ac.uk/journals/ndx'+instrument+'/'+cycle
@@ -45,7 +48,8 @@ def getJournal(instrument, cycle):
         fields.append(runData)
     return jsonify(fields)
 
-
+# Redundant
+"""
 @app.route('/getFiltered/<instrument>/<cycle>/<filterValue>')
 def getFiltered(instrument, cycle, filterValue):
     try:
@@ -73,7 +77,7 @@ def getFiltered(instrument, cycle, filterValue):
         if found:
             fields.append(runData)
     return jsonify(fields)
-
+"""
 
 if __name__ == '__main__':
     app.run()

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2021 E. Devlin and T. Youngs
+
 #ifndef JSONTABLEMODEL_H
 #define JSONTABLEMODEL_H
 
@@ -8,9 +11,11 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
+// Model for json usage in table view
 class JsonTableModel : public QAbstractTableModel
 {
 public:
+    // Assigning custom data types for table headings
     typedef QMap<QString,QString> Heading;
     typedef QVector<Heading> Header;
     JsonTableModel( const Header& header, QObject * parent = 0);
