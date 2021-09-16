@@ -31,10 +31,6 @@ void MainWindow::fillInstruments() {
     ui->instrumentsBox->addItem(instrument);
   }
 }
-
-void MainWindow::on_keysBox_currentIndexChanged(const QString &arg1) {
-  return;
-}
   
 void MainWindow::on_instrumentsBox_currentIndexChanged(const QString &arg1) {
   // Handle possible undesired calls
@@ -104,22 +100,10 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker) {
     auto jsonArray = worker->json_array;
     auto jsonObject = jsonArray.at(0).toObject();
     JsonTableModel::Header header;
-    // Set key model for keys box
-    QStandardItemModel* keyModel = new QStandardItemModel;
-    
-    int index = 0;
     foreach (const QString &key, jsonObject.keys()) {
       header.push_back(
           JsonTableModel::Heading({{"title", key}, {"index", key}}));
-      
-      QStandardItem* keyOpt = new QStandardItem;
-      keyOpt->setText(key);
-      keyOpt->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-      keyOpt->setData(Qt::Checked, Qt::CheckStateRole);
-      keyModel->insertRow(index, keyOpt);
-      index++;
     }
-    ui->keysBox->setModel(keyModel);
 
     model = new JsonTableModel(header, this);
     proxyModel = new QSortFilterProxyModel;
