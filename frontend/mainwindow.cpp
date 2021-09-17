@@ -9,18 +9,38 @@
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QNetworkReply>
-#include <QStandardItemModel>
 #include <QSortFilterProxyModel>
-#include <QStandardItem>
 #include <QtGui>
+#include <QCheckBox>
+#include <QWidgetAction>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
   fillInstruments();
+  viewMenu = ui->menubar->addMenu("View");
 }
 
 MainWindow::~MainWindow() { delete ui; }
+
+// Hide column on view menu change
+void MainWindow::columnHider(int state){
+  QCheckBox* action = qobject_cast<QCheckBox*> (sender());
+
+  for (int i = 0; i<ui->runDataTable->horizontalHeader()->count(); i++)
+  {
+    if (action->text() == ui->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal))
+    {
+      switch(action->checkState()){
+        case Qt::Unchecked :
+          ui->runDataTable->setColumnHidden(i,true);
+        case Qt::Checked :
+          ui->runDataTable->setColumnHidden(i,false);
+      }
+      break;
+    }
+  }
+}
 
 // Fill instrument list
 void MainWindow::fillInstruments() {
@@ -30,8 +50,10 @@ void MainWindow::fillInstruments() {
   foreach (const QString instrument, instruments) {
     ui->instrumentsBox->addItem(instrument);
   }
+  ui->runDataTable->horizontalHeader()->setSectionsMovable(true);
+  ui->runDataTable->horizontalHeader()->setDragEnabled(true);
 }
-  
+
 void MainWindow::on_instrumentsBox_currentIndexChanged(const QString &arg1) {
   // Handle possible undesired calls
   if (arg1 == "default" || arg1 == "") {
@@ -64,11 +86,10 @@ void MainWindow::on_cyclesBox_currentIndexChanged(const QString &arg1) {
 }
 
 // Filter table data
-void MainWindow::on_filterBox_textChanged(const QString &arg1)
-{
-    proxyModel->setFilterFixedString(arg1.trimmed());
-    proxyModel->setFilterKeyColumn(-1);
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+void MainWindow::on_filterBox_textChanged(const QString &arg1) {
+  proxyModel->setFilterFixedString(arg1.trimmed());
+  proxyModel->setFilterKeyColumn(-1);
+  proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
 // Fills cycles box
@@ -80,7 +101,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker) {
     ui->cyclesBox->clear();
     ui->cyclesBox->addItem("default");
     foreach (const QJsonValue &value, worker->json_array) {
-      //removes header file
+      // removes header file
       if (value.toString() != "journal.xml")
         ui->cyclesBox->addItem(value.toString());
     }
@@ -100,11 +121,19 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker) {
     auto jsonArray = worker->json_array;
     auto jsonObject = jsonArray.at(0).toObject();
     JsonTableModel::Header header;
+    viewMenu->clear();
     foreach (const QString &key, jsonObject.keys()) {
       header.push_back(
           JsonTableModel::Heading({{"title", key}, {"index", key}}));
+      
+      QCheckBox *checkBox = new QCheckBox(viewMenu);
+      QWidgetAction *checkableAction = new QWidgetAction(viewMenu);
+      checkableAction->setDefaultWidget(checkBox);
+      connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
+      viewMenu->addAction(checkableAction);
+      checkBox->setText(key);
+      checkBox->setCheckState(Qt::Checked);
     }
-
     model = new JsonTableModel(header, this);
     proxyModel = new QSortFilterProxyModel;
     proxyModel->setSourceModel(model);

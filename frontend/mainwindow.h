@@ -8,6 +8,7 @@
 #include <QSortFilterProxyModel>
 #include "httprequestworker.h"
 #include "jsontablemodel.h"
+#include <QCheckBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,9 +31,11 @@ private slots:
 
     void on_cyclesBox_currentIndexChanged(const QString &arg1);
 
+    void columnHider(int state);
 private:
     Ui::MainWindow *ui;
     JsonTableModel *model;
     QSortFilterProxyModel *proxyModel;
+    QMenu *viewMenu;
 };
 #endif // MAINWINDOW_H
