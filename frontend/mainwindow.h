@@ -23,6 +23,7 @@ public:
     ~MainWindow();
 
     void fillInstruments();
+    void initialiseElements();
 private slots:
     void on_filterBox_textChanged(const QString &arg1);
     void handle_result_instruments(HttpRequestWorker *worker);
@@ -37,5 +38,6 @@ private:
     JsonTableModel *model;
     QSortFilterProxyModel *proxyModel;
     QMenu *viewMenu;
+    JsonTableModel::Header header;
 };
 #endif // MAINWINDOW_H

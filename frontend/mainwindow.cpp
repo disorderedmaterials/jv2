@@ -17,8 +17,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
   ui->setupUi(this);
-  fillInstruments();
-  viewMenu = ui->menubar->addMenu("View");
+  initialiseElements();
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -34,12 +33,21 @@ void MainWindow::columnHider(int state){
       switch(action->checkState()){
         case Qt::Unchecked :
           ui->runDataTable->setColumnHidden(i,true);
+          break;
         case Qt::Checked :
           ui->runDataTable->setColumnHidden(i,false);
+          break;
       }
       break;
     }
   }
+}
+
+void MainWindow::initialiseElements() {
+  fillInstruments();
+  viewMenu = ui->menubar->addMenu("View");
+  ui->runDataTable->horizontalHeader()->setSectionsMovable(true);
+  ui->runDataTable->horizontalHeader()->setDragEnabled(true);
 }
 
 // Fill instrument list
@@ -50,8 +58,6 @@ void MainWindow::fillInstruments() {
   foreach (const QString instrument, instruments) {
     ui->instrumentsBox->addItem(instrument);
   }
-  ui->runDataTable->horizontalHeader()->setSectionsMovable(true);
-  ui->runDataTable->horizontalHeader()->setDragEnabled(true);
 }
 
 void MainWindow::on_instrumentsBox_currentIndexChanged(const QString &arg1) {
@@ -120,7 +126,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker) {
     // Get keys from json data
     auto jsonArray = worker->json_array;
     auto jsonObject = jsonArray.at(0).toObject();
-    JsonTableModel::Header header;
+    header.clear();
     viewMenu->clear();
     foreach (const QString &key, jsonObject.keys()) {
       header.push_back(
@@ -129,10 +135,10 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker) {
       QCheckBox *checkBox = new QCheckBox(viewMenu);
       QWidgetAction *checkableAction = new QWidgetAction(viewMenu);
       checkableAction->setDefaultWidget(checkBox);
-      connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
-      viewMenu->addAction(checkableAction);
       checkBox->setText(key);
       checkBox->setCheckState(Qt::Checked);
+      connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
+      viewMenu->addAction(checkableAction);
     }
     model = new JsonTableModel(header, this);
     proxyModel = new QSortFilterProxyModel;
