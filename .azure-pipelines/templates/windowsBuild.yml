@@ -16,10 +16,12 @@ steps:
       versionSpec: '3.x'
   - script: |
       choco install -y antlr4
+      python3 -m pip install pyinstaller
+      python3 -m pip install flask
     displayName: 'Install Prerequisites'
   - script: |
-      python -m pip install aqtinstall
-      python -m aqt install --outputdir $(Build.BinariesDirectory)\\Qt ${{ parameters.qtver }} windows desktop win64_mingw81 -m qt6core qtgui qtwidgets qtprintsupport
+      python3 -m pip install aqtinstall
+      python3 -m aqt install-qt --outputdir $(Build.BinariesDirectory)\\Qt windows desktop ${{ parameters.qtver }} win64_mingw81 -m all
     displayName: 'Install Qt'
   - powershell: |
       $ErrorActionPreference = 'Stop'
@@ -37,4 +39,8 @@ steps:
       cd build
       cmake ../ -G "MinGW Makefiles" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake
       MinGW32-make.exe
+
+      cd ../
+      pyinstaller --hidden-import flask backend/isisTest.py 
+      pyinstaller backend/test.py
     displayName: 'Build'
