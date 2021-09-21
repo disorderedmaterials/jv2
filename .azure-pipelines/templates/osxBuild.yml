@@ -3,10 +3,6 @@ parameters:
     default: hdf5-1_10_7
   - name: extraflags
     default: ''
-  - name: ppa
-    default: 'beineri/opt-qt-6.1.2-focal'
-  - name: qtver
-    default: 6.1.2
   - name: gui
     default: true
   - name: threading
