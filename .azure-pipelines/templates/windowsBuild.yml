@@ -15,7 +15,6 @@ steps:
     inputs:
       versionSpec: '3.x'
   - script: |
-      choco install -y antlr4
       python3 -m pip install pyinstaller
       python3 -m pip install flask
     displayName: 'Install Prerequisites'
@@ -41,6 +40,6 @@ steps:
       MinGW32-make.exe
 
       cd ../
-      pyinstaller --hidden-import flask backend/isisTest.py 
-      pyinstaller backend/test.py
+      pyinstaller --hidden-import flask backend/backend.py 
+      pyinstaller backend/launch.py
     displayName: 'Build'

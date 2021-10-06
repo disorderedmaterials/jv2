@@ -3,7 +3,7 @@
   <id>com.projectaten.JournalViewer2.desktop</id>
   <name>JournalViewer2</name>
   <summary>ISIS Journal Viewer</summary>
-  <developer_name>Tristan Youngs and Ethan Devlin</developer_name>
+  <developer_name>Ethan Devlin and Tristan Youngs</developer_name>
   <description>
   <p>
  JournalViewer2 is a GUI app that allows journal (log) files from run data taken at the ISIS Pulsed Neutron and Muon Source, Rutherford Appleton Lab, to be probed and plotted.
@@ -11,11 +11,11 @@
 </description>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0</project_license>
-  <url type="bugtracker">https://www.projectaten.com</url>
-  <url type="donation">https://www.projectaten.com</url>
-  <url type="faq">https://www.projectaten.com</url>
-  <url type="help">https://www.projectaten.com</url>
-  <url type="homepage">https://www.projectaten.com</url>
+  <url type="bugtracker">https://www.github.com/disorderedmaterials/jv2</url>
+  <url type="donation">https://www.github.com/disorderedmaterials/jv2</url>
+  <url type="faq">https://www.github.com/disorderedmaterials/jv2</url>
+  <url type="help">https://www.github.com/disorderedmaterials/jv2</url>
+  <url type="homepage">https://www.github.com/disorderedmaterials/jv2</url>
   <screenshots>
     <screenshot type="default">
       <caption>JournalViewer2's main window</caption>
