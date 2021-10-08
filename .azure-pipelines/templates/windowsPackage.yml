@@ -16,11 +16,11 @@ steps:
       mkdir packages\jv2
       windeployqt --dir packages\jv2 build\jv2.exe
       mv build\jv2.exe packages\jv2
-      mv C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libgcc_s_seh-1.dll packages\jv2
-      mv C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libstdc++-6.dll packages\jv2
-      mv C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libwinpthread-1.dll packages\jv2
-      mv C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libquadmath-0.dll packages\jv2
-      mv distlaunch packages
+      cp C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libgcc_s_seh-1.dll packages\jv2
+      cp C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libstdc++-6.dll packages\jv2
+      cp C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libwinpthread-1.dll packages\jv2
+      cp C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libquadmath-0.dll packages\jv2
+      mv dist\launch packages
       mv dist\backend packages
       Compress-Archive -Path 'packages' -DestinationPath 'packageZip.zip'
     displayName: 'Create Packages'

@@ -41,5 +41,5 @@ steps:
 
       cd ../
       pyinstaller --hidden-import flask backend/backend.py 
-      pyinstaller backendlaunch.py
+      pyinstaller backend/launch.py
     displayName: 'Build'

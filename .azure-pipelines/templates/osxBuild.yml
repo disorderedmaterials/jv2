@@ -43,5 +43,5 @@ steps:
 
       cd ../
       pyinstaller backend/backend.py
-      pyinstaller backendlaunch.py
+      pyinstaller backend/launch.py
     displayName: 'Build'
