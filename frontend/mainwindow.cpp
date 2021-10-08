@@ -53,7 +53,8 @@ void MainWindow::initialiseElements() {
   ui->runDataTable->setAlternatingRowColors(true);
   ui->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
 
-  connect(ui->groupButton, SIGNAL(toggled(bool)), this, SLOT(groupButtonToggle(bool)));
+  connect(ui->groupButton, SIGNAL(toggled(bool)), this,
+          SLOT(groupButtonToggle(bool)));
 }
 
 // Fill instrument list
@@ -162,13 +163,11 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker) {
     QMessageBox::information(this, "", msg);
   }
 }
-void MainWindow::groupButtonToggle(bool checked)
-{
-  if (checked){
+
+void MainWindow::groupButtonToggle(bool checked) {
+  if (checked) {
     model->groupData();
-  }
-  else{
+  } else {
     model->unGroupData();
   }
 }
-
