@@ -81,7 +81,7 @@ void MainWindow::recentCycle() {
       ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count());
     }
   } else {
-    ui->cyclesBox->setCurrentIndex(0);
+    ui->cyclesBox->addItem("default");
   }
 }
 
