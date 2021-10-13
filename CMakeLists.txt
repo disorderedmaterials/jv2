@@ -67,7 +67,6 @@ if(APPLE)
   add_definitions(-D_MAC)
 endif(APPLE)
 
-
 # Resources
 set(jv2_RES_QRC "frontend/icons.qrc")
 

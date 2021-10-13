@@ -9,7 +9,7 @@
 #include <QCheckBox>
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
-#include<tuple>
+#include <tuple>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -47,7 +47,7 @@ private:
   QSortFilterProxyModel *proxyModel;
   QMenu *viewMenu;
   JsonTableModel::Header header;
-  std::tuple <QModelIndexList, int> matchesTuple;
+  std::tuple<QModelIndexList, int> matchesTuple;
   bool init;
 };
 #endif // MAINWINDOW_H
