@@ -58,7 +58,6 @@ void MainWindow::initialiseElements() {
 
   QSettings settings;
   QString recentInstrument = settings.value("recentInstrument").toString();
-  qDebug() << "Recent Inst: " << recentInstrument;
   int instrumentIndex = ui->instrumentsBox->findText(recentInstrument);
   if (instrumentIndex != -1) {
     ui->instrumentsBox->setCurrentIndex(instrumentIndex);
@@ -72,7 +71,6 @@ void MainWindow::initialiseElements() {
 void MainWindow::recentCycle() {
   QSettings settings;
   QString recentCycle = settings.value("recentCycle").toString();
-  qDebug() << "Recent Cycle: " << recentCycle;
   int cycleIndex = ui->cyclesBox->findText(recentCycle);
   if (ui->instrumentsBox->currentText() != "default" &&
       ui->instrumentsBox->currentText() != "") {
@@ -100,7 +98,6 @@ void MainWindow::fillInstruments() {
 }
 
 void MainWindow::instrumentsBoxChange(const QString &arg1) {
-  qDebug() << "inst change: " << arg1;
   QSettings settings;
   settings.setValue("recentInstrument", arg1);
   // Handle possible undesired calls
@@ -120,7 +117,6 @@ void MainWindow::instrumentsBoxChange(const QString &arg1) {
 }
 
 void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1) {
-  qDebug() << "cycle change: " << arg1;
   QSettings settings;
   settings.setValue("recentCycle", arg1);
   // Handle possible undesired calls
@@ -161,12 +157,7 @@ void MainWindow::on_searchBox_textChanged(const QString &arg1) {
                                     arg1, -1, Qt::MatchContains));
     }
   }
-  for (QModelIndex match : std::get<0>(matchesTuple)) {
-    qDebug() << match.data().toString();
-  }
-  qDebug() << "";
   if (std::get<0>(matchesTuple).size() > 0) {
-    qDebug() << "selecting" << std::get<0>(matchesTuple)[0].data().toString();
     ui->runDataTable->selectionModel()->clearSelection();
     ui->runDataTable->selectionModel()->setCurrentIndex(
         std::get<0>(matchesTuple)[0],
@@ -181,10 +172,6 @@ void MainWindow::on_findUp_clicked() {
     } else {
       std::get<1>(matchesTuple) = 0;
     }
-    qDebug() << "selecting"
-             << std::get<0>(matchesTuple)[std::get<1>(matchesTuple)]
-                    .data()
-                    .toString();
     ui->runDataTable->selectionModel()->clearSelection();
     ui->runDataTable->selectionModel()->setCurrentIndex(
         std::get<0>(matchesTuple)[std::get<1>(matchesTuple)],
@@ -197,10 +184,6 @@ void MainWindow::on_findDown_clicked() {
     if (std::get<1>(matchesTuple) < std::get<0>(matchesTuple).size() - 1) {
       std::get<1>(matchesTuple) += 1;
     }
-    qDebug() << "selecting"
-             << std::get<0>(matchesTuple)[std::get<1>(matchesTuple)]
-                    .data()
-                    .toString();
     ui->runDataTable->selectionModel()->clearSelection();
     ui->runDataTable->selectionModel()->setCurrentIndex(
         std::get<0>(matchesTuple)[std::get<1>(matchesTuple)],
@@ -222,7 +205,6 @@ void MainWindow::on_searchAll_clicked() {
 // Fills cycles box
 void MainWindow::handle_result_instruments(HttpRequestWorker *worker) {
   QString msg;
-  qDebug() << "fill";
   if (worker->error_type == QNetworkReply::NoError) {
     auto response = worker->response;
     ui->cyclesBox->blockSignals(true);
