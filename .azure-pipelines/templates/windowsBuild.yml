@@ -40,6 +40,6 @@ steps:
       MinGW32-make.exe
 
       cd ../
-      pyinstaller --hidden-import flask backend/backend.py 
+      pyinstaller --hidden-import flask backend/isisInternal.py 
       pyinstaller backend/launch.py
     displayName: 'Build'

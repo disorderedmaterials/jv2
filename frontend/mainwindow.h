@@ -9,6 +9,7 @@
 #include <QCheckBox>
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
+#include<tuple>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -27,12 +28,18 @@ public:
   void initialiseElements();
 private slots:
   void on_filterBox_textChanged(const QString &arg1);
+  void on_searchBox_textChanged(const QString &arg1);
   void handle_result_instruments(HttpRequestWorker *worker);
   void handle_result_cycles(HttpRequestWorker *worker);
-  void on_instrumentsBox_currentTextChanged(const QString &arg1);
+  void instrumentsBoxChange(const QString &arg1);
   void on_cyclesBox_currentTextChanged(const QString &arg1);
   void on_groupButton_clicked(bool checked);
   void columnHider(int state);
+  void on_clearSearchButton_clicked();
+  void on_findUp_clicked();
+  void on_findDown_clicked();
+  void on_searchAll_clicked();
+  void recentCycle();
 
 private:
   Ui::MainWindow *ui;
@@ -40,5 +47,7 @@ private:
   QSortFilterProxyModel *proxyModel;
   QMenu *viewMenu;
   JsonTableModel::Header header;
+  std::tuple <QModelIndexList, int> matchesTuple;
+  bool init;
 };
 #endif // MAINWINDOW_H
