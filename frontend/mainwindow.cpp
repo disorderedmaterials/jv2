@@ -52,9 +52,6 @@ void MainWindow::initialiseElements() {
   ui->runDataTable->horizontalHeader()->setDragEnabled(true);
   ui->runDataTable->setAlternatingRowColors(true);
   ui->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
-
-  connect(ui->groupButton, SIGNAL(toggled(bool)), this,
-          SLOT(groupButtonToggle(bool)));
 }
 
 // Fill instrument list
@@ -164,7 +161,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker) {
   }
 }
 
-void MainWindow::groupButtonToggle(bool checked) {
+void MainWindow::on_groupButton_clicked(bool checked) {
   if (checked) {
     model->groupData();
   } else {
