@@ -187,12 +187,14 @@ void MainWindow::on_searchAll_clicked() {
           foundIndices[i],
           QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
+    ui->runDataTable->setFocus();
   }
 }
 
 void MainWindow::goToCurrentFoundIndex(QModelIndex index) {
   ui->runDataTable->selectionModel()->setCurrentIndex(
       index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  ui->runDataTable->setFocus();
 }
 
 // Fills cycles box
