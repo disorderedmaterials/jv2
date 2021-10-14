@@ -190,8 +190,9 @@ void MainWindow::on_searchAll_clicked() {
   }
 }
 
-void MainWindow::goToCurrentFoundIndex(QModelIndex index){
-  ui->runDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+void MainWindow::goToCurrentFoundIndex(QModelIndex index) {
+  ui->runDataTable->selectionModel()->setCurrentIndex(
+      index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
 // Fills cycles box

@@ -42,7 +42,7 @@ private slots:
   void recentCycle();
 
 protected:
-	// Window close event
+  // Window close event
   void closeEvent(QCloseEvent *event);
 
 private:
