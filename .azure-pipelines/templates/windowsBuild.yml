@@ -15,7 +15,7 @@ steps:
     inputs:
       versionSpec: '3.x'
   - script: |
-      python3 -m pip install pyinstaller
+      python3 -m pip install pyinstaller --exclude-module _bootlocale
       python3 -m pip install flask
     displayName: 'Install Prerequisites'
   - script: |
