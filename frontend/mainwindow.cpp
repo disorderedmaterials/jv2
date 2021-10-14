@@ -203,6 +203,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker) {
   if (worker->error_type == QNetworkReply::NoError) {
     auto response = worker->response;
     ui->cyclesBox->blockSignals(true);
+    QString cycleText = ui->cyclesBox->currentText();
     ui->cyclesBox->clear();
     ui->cyclesBox->addItem("default");
     foreach (const QJsonValue &value, worker->json_array) {
@@ -211,6 +212,12 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker) {
         ui->cyclesBox->addItem(value.toString());
     }
     ui->cyclesBox->blockSignals(false);
+    int cycleIndex = ui->cyclesBox->findText(cycleText);
+    if (cycleIndex != -1) {
+      ui->cyclesBox->setCurrentIndex(cycleIndex);
+    }else{
+      ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count());
+    }
   } else {
     // an error occurred
     msg = "Error1: " + worker->error_str;
