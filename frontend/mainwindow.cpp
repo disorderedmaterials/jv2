@@ -62,7 +62,7 @@ void MainWindow::initialiseElements() {
   if (instrumentIndex != -1) {
     ui->instrumentsBox->setCurrentIndex(instrumentIndex);
   } else {
-    ui->instrumentsBox->setCurrentIndex(0);
+    ui->instrumentsBox->setCurrentIndex(ui->instrumentsBox->count());
   }
 
   recentCycle();
@@ -89,17 +89,15 @@ void MainWindow::recentCycle() {
 void MainWindow::fillInstruments() {
   QList<QString> instruments = {"default", "merlin", "nimrod", "sandals",
                                 "iris"};
+  ui->instrumentsBox->blockSignals(true);
   ui->instrumentsBox->clear();
   foreach (const QString instrument, instruments) {
     ui->instrumentsBox->addItem(instrument);
   }
-  connect(ui->instrumentsBox, SIGNAL(currentTextChanged(const QString)), this,
-          SLOT(instrumentsBoxChange(const QString)));
+  ui->instrumentsBox->blockSignals(false);
 }
 
-void MainWindow::instrumentsBoxChange(const QString &arg1) {
-  QSettings settings;
-  settings.setValue("recentInstrument", arg1);
+void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1) {
   // Handle possible undesired calls
   if (arg1 == "default" || arg1 == "") {
     ui->cyclesBox->clear();
@@ -117,8 +115,6 @@ void MainWindow::instrumentsBoxChange(const QString &arg1) {
 }
 
 void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1) {
-  QSettings settings;
-  settings.setValue("recentCycle", arg1);
   // Handle possible undesired calls
   if (arg1 == "default" || arg1 == "") {
     ui->filterBox->setEnabled(false);
@@ -144,64 +140,60 @@ void MainWindow::on_filterBox_textChanged(const QString &arg1) {
 
 // Filter table data
 void MainWindow::on_searchBox_textChanged(const QString &arg1) {
-  std::get<0>(matchesTuple).clear();
-  std::get<1>(matchesTuple) = 0;
+  foundIndices.clear();
+  currentFoundIndex = 0;
   if (arg1 == "") {
     ui->runDataTable->selectionModel()->clearSelection();
     return;
   }
   for (int i = 0; i < proxyModel->rowCount(); i++) {
     if (ui->runDataTable->isColumnHidden(i) == false) {
-      std::get<0>(matchesTuple)
-          .append(proxyModel->match(proxyModel->index(0, i), Qt::DisplayRole,
-                                    arg1, -1, Qt::MatchContains));
+      foundIndices.append(proxyModel->match(proxyModel->index(0, i),
+                                            Qt::DisplayRole, arg1, -1,
+                                            Qt::MatchContains));
     }
   }
-  if (std::get<0>(matchesTuple).size() > 0) {
-    ui->runDataTable->selectionModel()->clearSelection();
-    ui->runDataTable->selectionModel()->setCurrentIndex(
-        std::get<0>(matchesTuple)[0],
-        QItemSelectionModel::Select | QItemSelectionModel::Rows);
+  if (foundIndices.size() > 0) {
+    goToCurrentFoundIndex(foundIndices[0]);
   }
 }
 
 void MainWindow::on_findUp_clicked() {
-  if (std::get<0>(matchesTuple).size() > 0) {
-    if (std::get<1>(matchesTuple) >= 1) {
-      std::get<1>(matchesTuple) -= 1;
+  if (foundIndices.size() > 0) {
+    if (currentFoundIndex >= 1) {
+      currentFoundIndex -= 1;
     } else {
-      std::get<1>(matchesTuple) = 0;
+      currentFoundIndex = 0;
     }
-    ui->runDataTable->selectionModel()->clearSelection();
-    ui->runDataTable->selectionModel()->setCurrentIndex(
-        std::get<0>(matchesTuple)[std::get<1>(matchesTuple)],
-        QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    goToCurrentFoundIndex(foundIndices[currentFoundIndex]);
   }
 }
 
 void MainWindow::on_findDown_clicked() {
-  if (std::get<0>(matchesTuple).size() > 0) {
-    if (std::get<1>(matchesTuple) < std::get<0>(matchesTuple).size() - 1) {
-      std::get<1>(matchesTuple) += 1;
+  if (foundIndices.size() > 0) {
+    if (currentFoundIndex < foundIndices.size() - 1) {
+      currentFoundIndex += 1;
     }
-    ui->runDataTable->selectionModel()->clearSelection();
-    ui->runDataTable->selectionModel()->setCurrentIndex(
-        std::get<0>(matchesTuple)[std::get<1>(matchesTuple)],
-        QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    goToCurrentFoundIndex(foundIndices[currentFoundIndex]);
   }
 }
 
 void MainWindow::on_searchAll_clicked() {
-  if (std::get<0>(matchesTuple).size() > 0) {
+  if (foundIndices.size() > 0) {
     ui->runDataTable->selectionModel()->clearSelection();
-    std::get<1>(matchesTuple) = -1;
-    for (int i = 0; i < std::get<0>(matchesTuple).size(); i++) {
+    currentFoundIndex = -1;
+    for (int i = 0; i < foundIndices.size(); i++) {
       ui->runDataTable->selectionModel()->setCurrentIndex(
-          std::get<0>(matchesTuple)[i],
+          foundIndices[i],
           QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
   }
 }
+
+void MainWindow::goToCurrentFoundIndex(QModelIndex index){
+  ui->runDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+}
+
 // Fills cycles box
 void MainWindow::handle_result_instruments(HttpRequestWorker *worker) {
   QString msg;
@@ -272,3 +264,10 @@ void MainWindow::on_groupButton_clicked(bool checked) {
 }
 
 void MainWindow::on_clearSearchButton_clicked() { ui->filterBox->clear(); }
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+  QSettings settings;
+  settings.setValue("recentInstrument", ui->instrumentsBox->currentText());
+  settings.setValue("recentCycle", ui->cyclesBox->currentText());
+  event->accept();
+}
