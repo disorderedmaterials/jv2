@@ -12,6 +12,7 @@
 #include <QNetworkReply>
 #include <QSettings>
 #include <QWidgetAction>
+#include <algorithm>
 
 // Gathers all fields based on selected runs
 void MainWindow::on_graph_clicked()
@@ -265,12 +266,33 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
     if (worker->error_type == QNetworkReply::NoError)
     {
         contextMenu_->clear();
-        foreach (const QJsonValue &value, worker->json_array)
+
+        foreach (const QJsonValue &log, worker->json_array)
         {
-            // Fills contextMenu with all columns
-            QAction *action = new QAction(value.toString(), this);
-            connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
-            contextMenu_->addAction(action);
+            QJsonArray logArray = log.toArray();
+            // contextMenu_->addSection(logArray.first().toString());
+            QMenu *subMenu = new QMenu(logArray.first().toString());
+            logArray.removeFirst();
+            contextMenu_->addMenu(subMenu);
+            if (logArray.size() < 1)
+                subMenu->setVisible(false);
+            // QAction *action = new QAction(logArray.first().toString(), this);
+            // action->setEnabled(false);
+            // contextMenu_->addAction(action);
+
+            QVariantList logArrayVar = logArray.toVariantList();
+            std::sort(logArrayVar.begin(), logArrayVar.end(),
+                      [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
+
+            foreach (const QVariant &block, logArrayVar)
+            {
+                // Fills contextMenu with all columns
+                QString path = block.toString();
+                QAction *action = new QAction(path.right(path.size() - path.lastIndexOf("/") - 1), this);
+                action->setData(path);
+                connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
+                subMenu->addAction(action);
+            }
         }
         contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos_));
     }
@@ -316,7 +338,7 @@ void MainWindow::contextGraph()
 
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = ui_->cyclesBox->currentText().replace(0, 7, "cycle").replace(".xml", "");
-    QString field = contextAction->text().replace("/", ":");
+    QString field = contextAction->data().toString().replace("/", ":");
     url_str += ui_->instrumentsBox->currentText() + "/" + cycle + "/" + runNos + "/" + field;
 
     HttpRequestInput input(url_str);

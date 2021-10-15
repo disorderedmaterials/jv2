@@ -27,9 +27,11 @@ def dataFields(file):
 
     for key in mainGroup.keys():
         if key.endswith('log'):
+            blockFields = []
+            blockFields.append(key)
             for block in mainGroup[key].values():
-                fields.append(block.name)
-
+                blockFields.append(block.name)
+            fields.append(blockFields)
     return fields
 
 # Access run log data
@@ -72,12 +74,10 @@ def runData(file, fields, run):
 
 
 def runFields(instrument, cycle, runs):
-    fields = []
     runArr = runs.split(";")
-    for run in runArr:
-        nxsFile = file(instrument, cycle, run)
-        fields += (dataFields(nxsFile))
-    return list(set(fields))
+    nxsFile = file(instrument, cycle, runArr[0])
+    fields = (dataFields(nxsFile))
+    return fields
 
 # Get block data over all runs
 
