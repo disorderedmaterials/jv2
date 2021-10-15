@@ -62,7 +62,7 @@ void MainWindow::initialiseElements() {
   if (instrumentIndex != -1) {
     ui->instrumentsBox->setCurrentIndex(instrumentIndex);
   } else {
-    ui->instrumentsBox->setCurrentIndex(ui->instrumentsBox->count());
+    ui->instrumentsBox->setCurrentIndex(ui->instrumentsBox->count()-1);
   }
 
   recentCycle();
@@ -188,6 +188,7 @@ void MainWindow::on_searchAll_clicked() {
           QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
     ui->runDataTable->setFocus();
+    ui->searchBox->setFocus();
   }
 }
 
@@ -195,6 +196,7 @@ void MainWindow::goToCurrentFoundIndex(QModelIndex index) {
   ui->runDataTable->selectionModel()->setCurrentIndex(
       index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   ui->runDataTable->setFocus();
+  ui->searchBox->setFocus();
 }
 
 // Fills cycles box
