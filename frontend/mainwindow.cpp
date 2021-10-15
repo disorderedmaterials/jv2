@@ -215,7 +215,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker) {
     int cycleIndex = ui->cyclesBox->findText(cycleText);
     if (cycleIndex != -1) {
       ui->cyclesBox->setCurrentIndex(cycleIndex);
-    }else{
+    } else {
       ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count());
     }
   } else {
