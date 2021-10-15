@@ -55,8 +55,6 @@ void MainWindow::initialiseElements() {
   ui->runDataTable->horizontalHeader()->setDragEnabled(true);
   ui->runDataTable->setAlternatingRowColors(true);
   ui->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
-  ui->runDataTable->setStyleSheet("selection-background-color: darkblue;");
-  ui->runDataTable->setStyleSheet("selection-color: white;");
 
   QSettings settings;
   QString recentInstrument = settings.value("recentInstrument").toString();
