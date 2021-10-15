@@ -18,6 +18,14 @@ def file(instrument, cycle, run):
     except(Exception):
         return {"response:", "ERR. File failed to open"}
 
+# Get run times
+
+
+def runTimes(file):
+    mainGroup = file['raw_data_1']
+    startTime = mainGroup['start_time'][0].decode('UTF-8')
+    endTime = mainGroup['end_time'][0].decode('UTF-8')
+    return [startTime, endTime]
 # Access run data fields
 
 
@@ -40,6 +48,7 @@ def dataFields(file):
 def runData(file, fields, run):
     fieldsArr = fields.split(";")
     runData = []
+    runData.append(runTimes(file))
     for field in fieldsArr:
         dataBlock = file[field.replace(":", "/")]
         blockData = []
