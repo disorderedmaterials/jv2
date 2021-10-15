@@ -78,7 +78,7 @@ void MainWindow::recentCycle() {
       ui->cyclesBox->setCurrentIndex(cycleIndex);
     } else if (ui->cyclesBox->currentText() != "default" &&
                ui->cyclesBox->currentText() != "") {
-      ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count());
+      ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
     }
   } else {
     ui->cyclesBox->addItem("default");
@@ -218,7 +218,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker) {
     if (cycleIndex != -1) {
       ui->cyclesBox->setCurrentIndex(cycleIndex);
     } else {
-      ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count());
+      ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
     }
   } else {
     // an error occurred
