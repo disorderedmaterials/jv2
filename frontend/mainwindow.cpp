@@ -62,7 +62,7 @@ void MainWindow::initialiseElements() {
   if (instrumentIndex != -1) {
     ui->instrumentsBox->setCurrentIndex(instrumentIndex);
   } else {
-    ui->instrumentsBox->setCurrentIndex(ui->instrumentsBox->count()-1);
+    ui->instrumentsBox->setCurrentIndex(ui->instrumentsBox->count() - 1);
   }
 
   recentCycle();
