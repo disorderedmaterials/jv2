@@ -64,20 +64,20 @@ void MainWindow::recentCycle()
     QString recentCycle = settings.value("recentCycle").toString();
     int cycleIndex = ui->cyclesBox->findText(recentCycle);
     // Sets cycle to last used/ most recent if unavailable
-    if (ui->instrumentsBox->currentText() != "default" && ui->instrumentsBox->currentText() != "")
+    if (ui->instrumentsBox->currentText() != "")
     {
         if (cycleIndex != -1)
         {
             ui->cyclesBox->setCurrentIndex(cycleIndex);
         }
-        else if (ui->cyclesBox->currentText() != "default" && ui->cyclesBox->currentText() != "")
+        else if (ui->cyclesBox->currentText() != "")
         {
             ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
         }
     }
     else
     {
-        ui->cyclesBox->addItem("default");
+        ui->cyclesBox->setEnabled(false);
     }
     if (cycleIndex != -1)
     {
@@ -92,7 +92,7 @@ void MainWindow::recentCycle()
 // Fill instrument list
 void MainWindow::fillInstruments()
 {
-    QList<QString> instruments = {"default", "merlin", "nimrod", "sandals", "iris"};
+    QList<QString> instruments = {"merlin", "nimrod", "sandals", "iris"};
     // Only allow calls after initial population
     ui->instrumentsBox->blockSignals(true);
     ui->instrumentsBox->clear();

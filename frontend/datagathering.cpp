@@ -18,7 +18,6 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
         ui->cyclesBox->blockSignals(true);
         QString cycleText = ui->cyclesBox->currentText();
         ui->cyclesBox->clear();
-        ui->cyclesBox->addItem("default");
         foreach (const QJsonValue &value, worker->json_array)
         {
             // removes header file
@@ -95,14 +94,16 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
 {
     // Handle possible undesired calls
-    if (arg1 == "default" || arg1 == "")
+    if (arg1 == "")
     {
         ui->cyclesBox->clear();
-        ui->cyclesBox->addItem("default");
+        ui->instrumentsBox->setEnabled(false);
+        ui->cyclesBox->setEnabled(false);
         ui->filterBox->setEnabled(false);
         ui->searchBox->setEnabled(false);
         return;
     }
+    ui->instrumentsBox->setEnabled(true);
     // Configure api call
     QString url_str = "http://127.0.0.1:5000/getCycles/" + arg1;
     HttpRequestInput input(url_str);
@@ -117,12 +118,14 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
 void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
 {
     // Handle possible undesired calls
-    if (arg1 == "default" || arg1 == "")
+    if (arg1 == "")
     {
+        ui->cyclesBox->setEnabled(false);
         ui->filterBox->setEnabled(false);
         ui->searchBox->setEnabled(false);
         return;
     }
+    ui->cyclesBox->setEnabled(true);
     ui->filterBox->setEnabled(true);
     ui->searchBox->setEnabled(true);
     QString url_str = "http://127.0.0.1:5000/getJournal/" + ui->instrumentsBox->currentText() + "/" + arg1;
