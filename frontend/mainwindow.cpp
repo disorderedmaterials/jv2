@@ -79,8 +79,6 @@ void MainWindow::recentCycle()
     {
         ui->cyclesBox->addItem("default");
     }
-    ui->cyclesBox->blockSignals(false);
-    int cycleIndex = ui->cyclesBox->findText(cycleText);
     if (cycleIndex != -1)
     {
         ui->cyclesBox->setCurrentIndex(cycleIndex);
@@ -89,13 +87,6 @@ void MainWindow::recentCycle()
     {
         ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
     }
-}
-else { ui->cyclesBox->addItem("default"); }
-if (init)
-{
-    recentCycle();
-    init = false;
-}
 }
 
 // Fill instrument list
