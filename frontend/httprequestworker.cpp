@@ -13,10 +13,10 @@
 // Object for request URL
 HttpRequestInput::HttpRequestInput(QString v_url_str) { url_str = v_url_str; }
 
-HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager(NULL)
+HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager_(NULL)
 {
-    manager = new QNetworkAccessManager(this);
-    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_manager_finished(QNetworkReply *)));
+    manager_ = new QNetworkAccessManager(this);
+    connect(manager_, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_manager_finished(QNetworkReply *)));
 }
 
 // Execute request
@@ -32,7 +32,7 @@ void HttpRequestWorker::execute(HttpRequestInput *input)
     // execute connection
     QNetworkRequest request = QNetworkRequest(QUrl(input->url_str));
     request.setRawHeader("User-Agent", "Agent name goes here");
-    manager->get(request);
+    manager_->get(request);
 }
 
 // Process request

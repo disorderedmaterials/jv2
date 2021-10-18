@@ -1,24 +1,28 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2021 E. Devlin and T. Youngs
+
 #include "mainwindow.h"
+#include "./ui_mainwindow.h"
 
 // Hide column on view menu change
 void MainWindow::columnHider(int state)
 {
     QCheckBox *action = qobject_cast<QCheckBox *>(sender());
 
-    for (int i = 0; i < ui->runDataTable->horizontalHeader()->count(); i++)
+    for (int i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
     {
-        if (action->text() == ui->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal))
+        if (action->text() == ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal))
         {
             switch (action->checkState())
             {
                 case Qt::Unchecked:
-                    ui->runDataTable->setColumnHidden(i, true);
+                    ui_->runDataTable->setColumnHidden(i, true);
                     break;
                 case Qt::Checked:
-                    ui->runDataTable->setColumnHidden(i, false);
+                    ui_->runDataTable->setColumnHidden(i, false);
                     break;
                 default:
-                    ui->runDataTable->setColumnHidden(i, false);
+                    ui_->runDataTable->setColumnHidden(i, false);
             }
             break;
         }
@@ -28,9 +32,9 @@ void MainWindow::columnHider(int state)
 // Filter table data
 void MainWindow::on_filterBox_textChanged(const QString &arg1)
 {
-    proxyModel->setFilterFixedString(arg1.trimmed());
-    proxyModel->setFilterKeyColumn(-1);
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxyModel_->setFilterFixedString(arg1.trimmed());
+    proxyModel_->setFilterKeyColumn(-1);
+    proxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
 // Groups table data
@@ -38,13 +42,13 @@ void MainWindow::on_groupButton_clicked(bool checked)
 {
     if (checked)
     {
-        model->groupData();
+        model_->groupData();
     }
     else
     {
-        model->unGroupData();
+        model_->unGroupData();
     }
 }
 
 // Clears filter parameters
-void MainWindow::on_clearSearchButton_clicked() { ui->filterBox->clear(); }
+void MainWindow::on_clearSearchButton_clicked() { ui_->filterBox->clear(); }

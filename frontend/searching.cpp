@@ -1,28 +1,32 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2021 E. Devlin and T. Youngs
+
 #include "mainwindow.h"
+#include "./ui_mainwindow.h"
 #include <tuple>
 
 // Search table data
 void MainWindow::on_searchBox_textChanged(const QString &arg1)
 {
-    foundIndices.clear();
-    currentFoundIndex = 0;
-    if (arg1 == "")
+    foundIndices_.clear();
+    currentFoundIndex_ = 0;
+    if (arg1.isEmpty())
     {
-        ui->runDataTable->selectionModel()->clearSelection();
+        ui_->runDataTable->selectionModel()->clearSelection();
         return;
     }
     // Find all occurences of search string in table elements
-    for (int i = 0; i < proxyModel->rowCount(); i++)
+    for (int i = 0; i < proxyModel_->rowCount(); ++i)
     {
-        if (ui->runDataTable->isColumnHidden(i) == false)
+        if (ui_->runDataTable->isColumnHidden(i) == false)
         {
-            foundIndices.append(proxyModel->match(proxyModel->index(0, i), Qt::DisplayRole, arg1, -1, Qt::MatchContains));
+            foundIndices_.append(proxyModel_->match(proxyModel_->index(0, i), Qt::DisplayRole, arg1, -1, Qt::MatchContains));
         }
     }
     // Select first match
-    if (foundIndices.size() > 0)
+    if (foundIndices_.size() > 0)
     {
-        goToCurrentFoundIndex(foundIndices[0]);
+        goToCurrentFoundIndex(foundIndices_[0]);
     }
 }
 
@@ -30,17 +34,17 @@ void MainWindow::on_searchBox_textChanged(const QString &arg1)
 void MainWindow::on_findUp_clicked()
 {
     // Boundary/ error handling
-    if (foundIndices.size() > 0)
+    if (foundIndices_.size() > 0)
     {
-        if (currentFoundIndex >= 1)
+        if (currentFoundIndex_ >= 1)
         {
-            currentFoundIndex -= 1;
+            currentFoundIndex_ -= 1;
         }
         else
         {
-            currentFoundIndex = 0;
+            currentFoundIndex_ = 0;
         }
-        goToCurrentFoundIndex(foundIndices[currentFoundIndex]);
+        goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
     }
 }
 
@@ -48,13 +52,13 @@ void MainWindow::on_findUp_clicked()
 void MainWindow::on_findDown_clicked()
 {
     // Boundary/ error handling
-    if (foundIndices.size() > 0)
+    if (foundIndices_.size() > 0)
     {
-        if (currentFoundIndex < foundIndices.size() - 1)
+        if (currentFoundIndex_ < foundIndices_.size() - 1)
         {
-            currentFoundIndex += 1;
+            currentFoundIndex_ += 1;
         }
-        goToCurrentFoundIndex(foundIndices[currentFoundIndex]);
+        goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
     }
 }
 
@@ -62,18 +66,19 @@ void MainWindow::on_findDown_clicked()
 void MainWindow::on_searchAll_clicked()
 {
     // Error handling
-    if (foundIndices.size() > 0)
+    if (foundIndices_.size() > 0)
     {
-        ui->runDataTable->selectionModel()->clearSelection();
-        currentFoundIndex = -1;
-        for (int i = 0; i < foundIndices.size(); i++)
+        ui_->runDataTable->selectionModel()->clearSelection();
+        currentFoundIndex_ = -1;
+        for (int i = 0; i < foundIndices_.size(); ++i)
         {
-            ui->runDataTable->selectionModel()->setCurrentIndex(foundIndices[i],
-                                                                QItemSelectionModel::Select | QItemSelectionModel::Rows);
+            ui_->runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
+                                                                 QItemSelectionModel::Select | QItemSelectionModel::Rows);
         }
     }
 }
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
 {
-    ui->runDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    ui_->runDataTable->selectionModel()->setCurrentIndex(index,
+                                                         QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }

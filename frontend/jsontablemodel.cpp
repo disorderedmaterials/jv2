@@ -5,8 +5,8 @@
 #include <QJsonObject>
 
 // Model to handle json data in table view
-JsonTableModel::JsonTableModel(const JsonTableModel::Header &header, QObject *parent)
-    : QAbstractTableModel(parent), m_header(header)
+JsonTableModel::JsonTableModel(const JsonTableModel::Header &header_, QObject *parent)
+    : QAbstractTableModel(parent), m_header(header_)
 {
 }
 
@@ -21,7 +21,7 @@ bool JsonTableModel::setJson(const QJsonArray &array)
 
 QJsonArray JsonTableModel::getJson() { return m_json; }
 
-// Sets header data to define table
+// Sets header_ data to define table
 bool JsonTableModel::setHeader(const Header &array)
 {
     beginResetModel();
@@ -139,12 +139,12 @@ void JsonTableModel::groupData()
     m_holdHeader = m_header;
 
     // Get and assign array headers
-    Header header;
+    Header header_;
     foreach (const QString &key, groupedJson.at(0).toObject().keys())
     {
-        header.push_back(Heading({{"title", key}, {"index", key}}));
+        header_.push_back(Heading({{"title", key}, {"index", key}}));
     }
-    setHeader(header);
+    setHeader(header_);
     setJson(groupedJson);
 }
 

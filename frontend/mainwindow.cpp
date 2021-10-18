@@ -3,10 +3,7 @@
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "datagathering.cpp"
-#include "filtering.cpp"
 #include "jsontablemodel.h"
-#include "searching.cpp"
 #include <QCheckBox>
 #include <QDebug>
 #include <QJsonArray>
@@ -19,39 +16,39 @@
 #include <QWidgetAction>
 #include <QtGui>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    ui_->setupUi(this);
     initialiseElements();
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() { delete ui_; }
 
 // Configure initial application state
 void MainWindow::initialiseElements()
 {
     fillInstruments();
     // First Iteration variable for set-up commands
-    init = true;
+    init_ = true;
     // View menu for column toggles
-    viewMenu = ui->menubar->addMenu("View");
+    viewMenu_ = ui_->menubar->addMenu("View");
     // Allows re-arranging of table columns
-    ui->runDataTable->horizontalHeader()->setSectionsMovable(true);
-    ui->runDataTable->horizontalHeader()->setDragEnabled(true);
-    ui->runDataTable->setAlternatingRowColors(true);
-    ui->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
+    ui_->runDataTable->horizontalHeader()->setSectionsMovable(true);
+    ui_->runDataTable->horizontalHeader()->setDragEnabled(true);
+    ui_->runDataTable->setAlternatingRowColors(true);
+    ui_->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
 
     // Sets instrument to last used
     QSettings settings;
     QString recentInstrument = settings.value("recentInstrument").toString();
-    int instrumentIndex = ui->instrumentsBox->findText(recentInstrument);
+    int instrumentIndex = ui_->instrumentsBox->findText(recentInstrument);
     if (instrumentIndex != -1)
     {
-        ui->instrumentsBox->setCurrentIndex(instrumentIndex);
+        ui_->instrumentsBox->setCurrentIndex(instrumentIndex);
     }
     else
     {
-        ui->instrumentsBox->setCurrentIndex(ui->instrumentsBox->count() - 1);
+        ui_->instrumentsBox->setCurrentIndex(ui_->instrumentsBox->count() - 1);
     }
     // Sets cycle to most recently viewed
     recentCycle();
@@ -62,30 +59,30 @@ void MainWindow::recentCycle()
 {
     QSettings settings;
     QString recentCycle = settings.value("recentCycle").toString();
-    int cycleIndex = ui->cyclesBox->findText(recentCycle);
+    int cycleIndex = ui_->cyclesBox->findText(recentCycle);
     // Sets cycle to last used/ most recent if unavailable
-    if (ui->instrumentsBox->currentText() != "")
+    if (ui_->instrumentsBox->currentText() != "")
     {
         if (cycleIndex != -1)
         {
-            ui->cyclesBox->setCurrentIndex(cycleIndex);
+            ui_->cyclesBox->setCurrentIndex(cycleIndex);
         }
-        else if (ui->cyclesBox->currentText() != "")
+        else if (ui_->cyclesBox->currentText() != "")
         {
-            ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
+            ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
         }
     }
     else
     {
-        ui->cyclesBox->setEnabled(false);
+        ui_->cyclesBox->setEnabled(false);
     }
     if (cycleIndex != -1)
     {
-        ui->cyclesBox->setCurrentIndex(cycleIndex);
+        ui_->cyclesBox->setCurrentIndex(cycleIndex);
     }
     else
     {
-        ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
+        ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
     }
 }
 
@@ -94,20 +91,20 @@ void MainWindow::fillInstruments()
 {
     QList<QString> instruments = {"merlin", "nimrod", "sandals", "iris"};
     // Only allow calls after initial population
-    ui->instrumentsBox->blockSignals(true);
-    ui->instrumentsBox->clear();
+    ui_->instrumentsBox->blockSignals(true);
+    ui_->instrumentsBox->clear();
     foreach (const QString instrument, instruments)
     {
-        ui->instrumentsBox->addItem(instrument);
+        ui_->instrumentsBox->addItem(instrument);
     }
-    ui->instrumentsBox->blockSignals(false);
+    ui_->instrumentsBox->blockSignals(false);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings;
-    settings.setValue("recentInstrument", ui->instrumentsBox->currentText());
-    settings.setValue("recentCycle", ui->cyclesBox->currentText());
+    settings.setValue("recentInstrument", ui_->instrumentsBox->currentText());
+    settings.setValue("recentCycle", ui_->cyclesBox->currentText());
     event->accept();
 }

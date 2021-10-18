@@ -43,7 +43,7 @@ class HttpRequestWorker : public QObject
     void on_execution_finished(HttpRequestWorker *worker);
 
     private:
-    QNetworkAccessManager *manager;
+    QNetworkAccessManager *manager_;
 
     private slots:
     void on_manager_finished(QNetworkReply *reply);

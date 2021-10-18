@@ -48,13 +48,13 @@ class MainWindow : public QMainWindow
     void closeEvent(QCloseEvent *event);
 
     private:
-    Ui::MainWindow *ui;
-    JsonTableModel *model;
-    QSortFilterProxyModel *proxyModel;
-    QMenu *viewMenu;
-    JsonTableModel::Header header;
-    QModelIndexList foundIndices;
-    int currentFoundIndex;
-    bool init;
+    Ui::MainWindow *ui_;
+    JsonTableModel *model_;
+    QSortFilterProxyModel *proxyModel_;
+    QMenu *viewMenu_;
+    JsonTableModel::Header header_;
+    QModelIndexList foundIndices_;
+    int currentFoundIndex_;
+    bool init_;
 };
 #endif // MAINWINDOW_H
