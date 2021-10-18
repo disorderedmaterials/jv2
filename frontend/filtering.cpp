@@ -7,13 +7,13 @@
 // Hide column on view menu change
 void MainWindow::columnHider(int state)
 {
-    QCheckBox *action = qobject_cast<QCheckBox *>(sender());
+    auto *action = qobject_cast<QCheckBox *>(sender());
 
-    for (int i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
     {
         if (action->text() == ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal))
         {
-            switch (action->checkState())
+            switch (state)
             {
                 case Qt::Unchecked:
                     ui_->runDataTable->setColumnHidden(i, true);

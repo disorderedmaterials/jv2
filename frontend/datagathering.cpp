@@ -18,6 +18,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
     if (worker->error_type == QNetworkReply::NoError)
     {
         auto response = worker->response;
+        
         // Prevents unwanted firing
         ui_->cyclesBox->blockSignals(true);
         QString cycleText = ui_->cyclesBox->currentText();
@@ -29,8 +30,9 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
                 ui_->cyclesBox->addItem(value.toString());
         }
         ui_->cyclesBox->blockSignals(false);
+        
         // Keep cycle over instruments
-        int cycleIndex = ui_->cyclesBox->findText(cycleText);
+        auto cycleIndex = ui_->cyclesBox->findText(cycleText);
         if (cycleIndex != -1)
         {
             ui_->cyclesBox->setCurrentIndex(cycleIndex);
@@ -104,10 +106,12 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
         return;
     }
     ui_->instrumentsBox->setDisabled(arg1.isEmpty());
+    
     // Configure api call
     QString url_str = "http://127.0.0.1:5000/getCycles/" + arg1;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
+    
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_instruments(HttpRequestWorker *)));
@@ -128,6 +132,7 @@ void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
     QString url_str = "http://127.0.0.1:5000/getJournal/" + ui_->instrumentsBox->currentText() + "/" + arg1;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
+    
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(&input);

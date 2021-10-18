@@ -103,18 +103,20 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
 void JsonTableModel::groupData()
 {
     QJsonArray groupedJson;
+    
     // holds data in tuple as QJson referencing is incomplete
     std::vector<std::tuple<QString, QString, QString>> groupedData;
     for (QJsonValue value : m_json)
     {
         const QJsonObject &valueObj = value.toObject();
         bool unique = true;
+        
         // add duplicate title data to stack
         for (std::tuple<QString, QString, QString> &data : groupedData)
         {
             if (std::get<0>(data) == valueObj["title"].toString())
             {
-                int totalRunTime = std::get<1>(data).toInt() + valueObj["duration"].toString().toInt();
+                auto totalRunTime = std::get<1>(data).toInt() + valueObj["duration"].toString().toInt();
                 std::get<1>(data) = QString::number(totalRunTime);
                 std::get<2>(data) += "-" + valueObj["run_number"].toString();
                 unique = false;

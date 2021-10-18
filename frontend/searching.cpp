@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2021 E. Devlin and T. Youngs
 
-#include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "mainwindow.h"
 #include <tuple>
 
 // Search table data
@@ -16,7 +16,7 @@ void MainWindow::on_searchBox_textChanged(const QString &arg1)
         return;
     }
     // Find all occurences of search string in table elements
-    for (int i = 0; i < proxyModel_->rowCount(); ++i)
+    for (auto i = 0; i < proxyModel_->rowCount(); ++i)
     {
         if (ui_->runDataTable->isColumnHidden(i) == false)
         {
@@ -70,7 +70,7 @@ void MainWindow::on_searchAll_clicked()
     {
         ui_->runDataTable->selectionModel()->clearSelection();
         currentFoundIndex_ = -1;
-        for (int i = 0; i < foundIndices_.size(); ++i)
+        for (auto i = 0; i < foundIndices_.size(); ++i)
         {
             ui_->runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
                                                                  QItemSelectionModel::Select | QItemSelectionModel::Rows);
