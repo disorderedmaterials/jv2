@@ -81,18 +81,21 @@ void MainWindow::recentCycle()
     }
     ui->cyclesBox->blockSignals(false);
     int cycleIndex = ui->cyclesBox->findText(cycleText);
-    if (cycleIndex != -1) {
-      ui->cyclesBox->setCurrentIndex(cycleIndex);
-    } else {
-      ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
+    if (cycleIndex != -1)
+    {
+        ui->cyclesBox->setCurrentIndex(cycleIndex);
     }
-  } else {
-    ui->cyclesBox->addItem("default");
-  }
-  if (init) {
+    else
+    {
+        ui->cyclesBox->setCurrentIndex(ui->cyclesBox->count() - 1);
+    }
+}
+else { ui->cyclesBox->addItem("default"); }
+if (init)
+{
     recentCycle();
     init = false;
-  }
+}
 }
 
 // Fill instrument list
@@ -109,28 +112,11 @@ void MainWindow::fillInstruments()
     ui->instrumentsBox->blockSignals(false);
 }
 
-<<<<<<< HEAD
-void MainWindow::on_groupButton_clicked(bool checked) {
-  if (checked) {
-    model->groupData();
-  } else {
-    model->unGroupData();
-  }
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    // Update history on close
+    QSettings settings;
+    settings.setValue("recentInstrument", ui->instrumentsBox->currentText());
+    settings.setValue("recentCycle", ui->cyclesBox->currentText());
+    event->accept();
 }
-
-void MainWindow::on_clearSearchButton_clicked() { ui->filterBox->clear(); }
-
-void MainWindow::closeEvent(QCloseEvent *event) {
-=======
-void MainWindow::closeEvent(QCloseEvent *event) {
-  // Update history on close
->>>>>>> e3421ae... new feature Implementation (#29)
-  QSettings settings;
-  settings.setValue("recentInstrument", ui->instrumentsBox->currentText());
-  settings.setValue("recentCycle", ui->cyclesBox->currentText());
-  event->accept();
-<<<<<<< HEAD
-}
-=======
-}
->>>>>>> e3421ae... new feature Implementation (#29)
