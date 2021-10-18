@@ -11,7 +11,7 @@ void MainWindow::on_searchBox_textChanged(const QString &arg1)
         ui->runDataTable->selectionModel()->clearSelection();
         return;
     }
-    // Find all occurences of search string in table elements 
+    // Find all occurences of search string in table elements
     for (int i = 0; i < proxyModel->rowCount(); i++)
     {
         if (ui->runDataTable->isColumnHidden(i) == false)
