@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2021 E. Devlin and T. Youngs
 
-#include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "mainwindow.h"
 
 // Hide column on view menu change
 void MainWindow::columnHider(int state)

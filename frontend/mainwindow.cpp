@@ -28,13 +28,13 @@ MainWindow::~MainWindow() { delete ui_; }
 void MainWindow::initialiseElements()
 {
     fillInstruments();
-    
+
     // First Iteration variable for set-up commands
     init_ = true;
-    
+
     // View menu for column toggles
     viewMenu_ = ui_->menubar->addMenu("View");
-    
+
     // Allows re-arranging of table columns
     ui_->runDataTable->horizontalHeader()->setSectionsMovable(true);
     ui_->runDataTable->horizontalHeader()->setDragEnabled(true);
@@ -63,7 +63,7 @@ void MainWindow::recentCycle()
     QSettings settings;
     QString recentCycle = settings.value("recentCycle").toString();
     auto cycleIndex = ui_->cyclesBox->findText(recentCycle);
-    
+
     // Sets cycle to last used/ most recent if unavailable
     if (ui_->instrumentsBox->currentText() != "")
     {
@@ -94,7 +94,7 @@ void MainWindow::recentCycle()
 void MainWindow::fillInstruments()
 {
     QList<QString> instruments = {"merlin", "nimrod", "sandals", "iris"};
-    
+
     // Only allow calls after initial population
     ui_->instrumentsBox->blockSignals(true);
     ui_->instrumentsBox->clear();
