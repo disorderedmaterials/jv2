@@ -20,17 +20,16 @@ HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager
 }
 
 // Execute request
-void HttpRequestWorker::execute(HttpRequestInput *input)
+void HttpRequestWorker::execute(HttpRequestInput input)
 {
 
     // reset variables
-    QByteArray request_content = "";
     response = "";
     error_type = QNetworkReply::NoError;
     error_str = "";
 
     // execute connection
-    QNetworkRequest request = QNetworkRequest(QUrl(input->url_str));
+    QNetworkRequest request = QNetworkRequest(QUrl(input.url_str));
     request.setRawHeader("User-Agent", "Agent name goes here");
     manager_->get(request);
 }
@@ -46,9 +45,7 @@ void HttpRequestWorker::on_manager_finished(QNetworkReply *reply)
         json_array = jsonResponse.array();
     }
     else
-    {
         error_str = reply->errorString();
-    }
 
     reply->deleteLater();
 

@@ -34,13 +34,9 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
         // Keep cycle over instruments
         auto cycleIndex = ui_->cyclesBox->findText(cycleText);
         if (cycleIndex != -1)
-        {
             ui_->cyclesBox->setCurrentIndex(cycleIndex);
-        }
         else
-        {
             ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
-        }
     }
     else
     {
@@ -115,7 +111,7 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_instruments(HttpRequestWorker *)));
-    worker->execute(&input);
+    worker->execute(input);
 }
 
 // Populate table with cycle data
@@ -126,14 +122,12 @@ void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
     ui_->filterBox->setDisabled(arg1.isEmpty());
     ui_->searchBox->setDisabled(arg1.isEmpty());
     if (arg1.isEmpty())
-    {
         return;
-    }
     QString url_str = "http://127.0.0.1:5000/getJournal/" + ui_->instrumentsBox->currentText() + "/" + arg1;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
-    worker->execute(&input);
+    worker->execute(input);
 }

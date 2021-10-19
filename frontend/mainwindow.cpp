@@ -46,13 +46,9 @@ void MainWindow::initialiseElements()
     QString recentInstrument = settings.value("recentInstrument").toString();
     auto instrumentIndex = ui_->instrumentsBox->findText(recentInstrument);
     if (instrumentIndex != -1)
-    {
         ui_->instrumentsBox->setCurrentIndex(instrumentIndex);
-    }
     else
-    {
         ui_->instrumentsBox->setCurrentIndex(ui_->instrumentsBox->count() - 1);
-    }
     // Sets cycle to most recently viewed
     recentCycle();
 }
@@ -68,26 +64,16 @@ void MainWindow::recentCycle()
     if (ui_->instrumentsBox->currentText() != "")
     {
         if (cycleIndex != -1)
-        {
             ui_->cyclesBox->setCurrentIndex(cycleIndex);
-        }
         else if (ui_->cyclesBox->currentText() != "")
-        {
             ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
-        }
     }
     else
-    {
         ui_->cyclesBox->setEnabled(false);
-    }
     if (cycleIndex != -1)
-    {
         ui_->cyclesBox->setCurrentIndex(cycleIndex);
-    }
     else
-    {
         ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
-    }
 }
 
 // Fill instrument list

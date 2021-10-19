@@ -41,13 +41,9 @@ void MainWindow::on_filterBox_textChanged(const QString &arg1)
 void MainWindow::on_groupButton_clicked(bool checked)
 {
     if (checked)
-    {
         model_->groupData();
-    }
     else
-    {
         model_->unGroupData();
-    }
 }
 
 // Clears filter parameters

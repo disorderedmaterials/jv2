@@ -35,9 +35,7 @@ JsonTableModel::Header JsonTableModel::getHeader() { return m_header; }
 QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole)
-    {
         return QVariant();
-    }
 
     switch (orientation)
     {
@@ -75,22 +73,14 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
                 QJsonValue v = obj[key];
 
                 if (v.isString())
-                {
                     return v.toString();
-                }
                 else if (v.isDouble())
-                {
                     return QString::number(v.toDouble());
-                }
                 else
-                {
                     return QVariant();
-                }
             }
             else
-            {
                 return QVariant();
-            }
         }
         case Qt::ToolTipRole:
             return QVariant();
@@ -124,10 +114,8 @@ void JsonTableModel::groupData()
             }
         }
         if (unique)
-        {
             groupedData.push_back(std::make_tuple(valueObj["title"].toString(), valueObj["duration"].toString(),
                                                   valueObj["run_number"].toString()));
-        }
     }
     for (std::tuple<QString, QString, QString> data : groupedData)
     {

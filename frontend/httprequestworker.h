@@ -37,7 +37,7 @@ class HttpRequestWorker : public QObject
 
     explicit HttpRequestWorker(QObject *parent = 0);
 
-    void execute(HttpRequestInput *input);
+    void execute(HttpRequestInput input);
 
     signals:
     void on_execution_finished(HttpRequestWorker *worker);
