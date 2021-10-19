@@ -47,6 +47,7 @@ Source: "{#MinGWLibDir}\libgcc_s_seh-1.dll"; DestDir: "{app}\bin"
 Source: "{#MinGWLibDir}\libstdc++-6.dll"; DestDir: "{app}\bin"
 Source: "{#MinGWLibDir}\libwinpthread-1.dll"; DestDir: "{app}\bin"
 Source: "{#MinGWLibDir}\libquadmath-0.dll"; DestDir: "{app}\bin"
+Source: "{#QtDir}\bin\qwindows.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Gui.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Core.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6OpenGL.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
