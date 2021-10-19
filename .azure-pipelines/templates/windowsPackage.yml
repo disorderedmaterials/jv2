@@ -20,7 +20,9 @@ steps:
       cp C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libstdc++-6.dll packages\jv2
       cp C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libwinpthread-1.dll packages\jv2
       cp C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\libquadmath-0.dll packages\jv2
-      mv dist\launch packages
-      mv dist\isisInternal packages
+      pyinstaller --noconsole --onefile backend/isisInternal.py 
+      pyinstaller --noconsole --onefile -F --add-data "Dist/isisInternal.exe;." --add-data "packages/jv2;jv2" --icon=ci\windows\JournalViewer2.ico backend/launch.py
+      mv dist\launch.exe packages
+      mv dist\isisInternal.exe packages
       Compress-Archive -Path 'packages' -DestinationPath 'packageZip.zip'
     displayName: 'Create Packages'
