@@ -1,6 +1,9 @@
 import subprocess
 import sys
 import os
+import time
+
+time.sleep(30)
 
 if getattr(sys, 'frozen', False):
     # we are running in a bundle
