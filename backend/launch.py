@@ -15,5 +15,15 @@ else:
 while(True):
     if os.path.isfile(os.path.join(bundle_dir, 'jv2/platforms/qwindows.dll')):
         break
+    if os.path.isfile(os.path.join(bundle_dir, 'jv2/D3Dcompiler_47.dll')):
+        break
+    if os.path.isfile(os.path.join(bundle_dir, 'jv2/libgcc_s_seh-1.dll')):
+        break
+    if os.path.isfile(os.path.join(bundle_dir, 'jv2/libstdc++-6.dll')):
+        break
+    if os.path.isfile(os.path.join(bundle_dir, 'jv2/libwinpthread-1.dll')):
+        break
+    if os.path.isfile(os.path.join(bundle_dir, 'jv2/lopengl32sw.dll')):
+        break
 isisInternal = subprocess.Popen(os.path.join(bundle_dir, 'isisInternal'))
 frontend = subprocess.Popen(os.path.join(bundle_dir, 'jv2/jv2'))
