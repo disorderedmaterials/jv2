@@ -3,11 +3,22 @@
 
 from flask import Flask
 from flask import jsonify
+from flask import request
 
 from urllib.request import urlopen
 from xml.etree.ElementTree import parse
 
 app = Flask(__name__)
+
+# Shutdown flask server
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
 
 # Get instrument cycle values
 
@@ -52,6 +63,14 @@ def getJournal(instrument, cycle):
             runData[dataId] = dataValue
         fields.append(runData)
     return jsonify(fields)
+
+# Close server
+
+
+@app.route('/shutdown', methods=['GET'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
 
 
 if __name__ == '__main__':
