@@ -102,11 +102,5 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("recentInstrument", ui_->instrumentsBox->currentText());
     settings.setValue("recentCycle", ui_->cyclesBox->currentText());
 
-    // Close server
-    QString url_str = "http://127.0.0.1:5000/shutdown";
-    HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
-    worker->execute(input);
-
     event->accept();
 }
