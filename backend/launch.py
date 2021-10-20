@@ -3,7 +3,7 @@ import sys
 import os
 import time
 
-time.sleep(30)
+time.sleep(5)
 
 if getattr(sys, 'frozen', False):
     # we are running in a bundle
