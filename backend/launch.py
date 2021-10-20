@@ -12,7 +12,8 @@ else:
     # we are running in a normal Python environment
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
 
-while(os.path.isdir(bundle_dir) is False):
-    continue
+while(True):
+    if os.path.isfile(os.path.join(bundle_dir, 'jv2/platforms/qwindows.dll')):
+        break
 isisInternal = subprocess.Popen(os.path.join(bundle_dir, 'isisInternal'))
 frontend = subprocess.Popen(os.path.join(bundle_dir, 'jv2/jv2'))
