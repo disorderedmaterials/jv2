@@ -14,10 +14,10 @@ app = Flask(__name__)
 
 
 def shutdown_server():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
+    serverShutdownFunction = request.environ.get('werkzeug.server.shutdown')
+    if serverShutdownFunction is None:
+        raise RuntimeError('Not running with the Local Server')
+    serverShutdownFunction()
 
 
 # Get instrument cycle values
@@ -70,7 +70,7 @@ def getJournal(instrument, cycle):
 @app.route('/shutdown', methods=['GET'])
 def shutdown():
     shutdown_server()
-    return 'Server shutting down...'
+    return jsonify({"response": "Server shut down"})
 
 
 if __name__ == '__main__':
