@@ -9,7 +9,7 @@ pr:
     exclude:
     - .azure-pipelines/continuous.yml
     - .azure-pipelines/release.yml
-    - README.md
+    - README.mdx
 
 stages:
   - template: templates/codeQualityChecks.yml
