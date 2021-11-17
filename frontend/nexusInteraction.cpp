@@ -216,3 +216,151 @@ void MainWindow::handle_result_logData(HttpRequestWorker *worker)
         QMessageBox::information(this, "", msg);
     }
 }
+
+void MainWindow::customMenuRequested(QPoint pos)
+{
+    QModelIndex index = ui_->runDataTable->indexAt(pos);
+    QModelIndexList selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
+
+    // Finds run number location in table
+    int runNoColum;
+    for (auto column = 0; column < proxyModel_->columnCount(); column++)
+    {
+        if (proxyModel_->headerData(column, Qt::Horizontal).toString() == "run_number")
+        {
+            runNoColum = column;
+            break;
+        }
+    }
+
+    // Gets all selected run numbers and fills graphing toggles
+    QString runNos = "";
+    QString runNo;
+
+    for (auto run : selectedRuns)
+    {
+        runNo = proxyModel_->index(run.row(), runNoColum).data().toString();
+        runNos.append(runNo + ";");
+
+        // Fills runsMenu_ with all runNo's
+        QAction *action = new QAction(runNo, this);
+        action->setCheckable(true);
+        connect(action, SIGNAL(triggered()), this, SLOT(runToggled()));
+        runsMenu_->addAction(action);
+    }
+    // Removes final ";"
+    runNos.chop(1);
+
+    contextMenu_->clear();
+    contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos));
+
+    QString url_str = "http://127.0.0.1:5000/getNexusFields/";
+    QString cycle = ui_->cyclesBox->currentText().replace("journal", "cycle").replace(".xml", "");
+    url_str += ui_->instrumentsBox->currentText() + "/" + cycle + "/" + runNos;
+
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+            SLOT(handle_result_contextGraph(HttpRequestWorker *)));
+    worker->execute(input);
+
+}
+
+// Fills field menu
+void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
+{
+    QString msg;
+
+    if (worker->error_type == QNetworkReply::NoError)
+    {
+        foreach (const QJsonValue &value, worker->json_array)
+        {
+            // Fills contextMenu with all columns
+            QAction *action = new QAction(value.toString(), this);
+            connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
+            contextMenu_->addAction(action);
+        }
+    }
+    else
+    {
+        // an error occurred
+        msg = "Error2: " + worker->error_str;
+        QMessageBox::information(this, "", msg);
+    }
+}
+
+void MainWindow::contextGraph()
+{
+    // Gets signal object
+    auto *contextAction = qobject_cast<QAction *>(sender());
+
+    // Gathers all selected runs
+    QString runNos = "";
+    for (QAction *runAction : runsMenu_->actions())
+    {
+        if (runAction->isChecked() == true)
+            runNos.append(runAction->text() + ";");
+    }
+    runNos.chop(1);
+
+    if (runNos.size() == 0)
+        return;
+
+    QString url_str = "http://127.0.0.1:5000/getNexusData/";
+    QString cycle = ui_->cyclesBox->currentText().replace(0, 7, "cycle").replace(".xml", "");
+    QString field = contextAction->text().replace("/", ":");
+    url_str += ui_->instrumentsBox->currentText() + "/" + cycle + "/" + runNos + "/" + field;
+
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+            SLOT(handle_result_contextGraph(HttpRequestWorker *)));
+    worker->execute(input);
+}
+
+// Handles log data
+void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
+{
+    QChartView *contextChartView = new QChartView();
+    ui_->tabWidget->addTab(contextChartView, "graph");
+    QChart *contextChart = new QChart();
+    contextChartView->setChart(contextChart);
+
+    QString msg;
+    if (worker->error_type == QNetworkReply::NoError)
+    {
+        // For each Run
+        foreach (const QJsonValue &runFields, worker->json_array)
+        {
+            QJsonArray runFieldsArray = runFields.toArray();
+
+            // For each field
+            foreach (const QJsonValue &fieldData, runFieldsArray)
+            {
+                QJsonArray fieldDataArray = fieldData.toArray();
+
+                // For each plot point
+                QLineSeries *series = new QLineSeries();
+
+                // Set series ID
+                QString name = fieldDataArray.first()[0].toString() + " " + fieldDataArray.first()[1].toString();
+                series->setName(name);
+                fieldDataArray.removeFirst();
+                foreach (const QJsonValue &dataPair, fieldDataArray)
+                {
+                    QJsonArray dataPairArray = dataPair.toArray();
+                    series->append(dataPairArray[0].toDouble(), dataPairArray[1].toDouble());
+                }
+                contextChart->addSeries(series);
+            }
+        }
+        // Resize chart
+        contextChart->createDefaultAxes();
+    }
+    else
+    {
+        // an error occurred
+        msg = "Error2: " + worker->error_str;
+        QMessageBox::information(this, "", msg);
+    }
+}

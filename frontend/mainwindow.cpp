@@ -66,6 +66,13 @@ void MainWindow::initialiseElements()
     ui_->togglePage->addItem(tr("Data table"));
     ui_->togglePage->addItem(tr("Data graph"));
     connect(ui_->togglePage, QOverload<int>::of(&QComboBox::activated), ui_->stackedWidget, &QStackedWidget::setCurrentIndex);
+
+    // Disables closing data tab
+    ui_->tabWidget->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
+
+    // Context menu stuff
+    ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 }
 
 // Sets cycle to most recently viewed

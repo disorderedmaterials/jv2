@@ -48,6 +48,10 @@ class MainWindow : public QMainWindow
     void on_searchAll_clicked();
     void recentCycle();
     void on_graph_clicked();
+    void customMenuRequested(QPoint pos);
+    void handle_result_contextGraph(HttpRequestWorker *worker);
+    void contextGraph();
+    void handle_result_contextMenu(HttpRequestWorker *worker);
 
     protected:
     // Window close event
@@ -60,6 +64,7 @@ class MainWindow : public QMainWindow
     QMenu *viewMenu_;
     QMenu *nexusMenu_;
     QMenu *runsMenu_;
+    QMenu *contextMenu_;
     JsonTableModel::Header header_;
     QModelIndexList foundIndices_;
     int currentFoundIndex_;
