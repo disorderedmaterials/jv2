@@ -263,7 +263,6 @@ void MainWindow::customMenuRequested(QPoint pos)
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_contextGraph(HttpRequestWorker *)));
     worker->execute(input);
-
 }
 
 // Fills field menu
