@@ -31,7 +31,7 @@ find_package(
              Charts
              OpenGL
              OpenGLWidgets
-  REQUIRED)
+             REQUIRED)
 
 find_package(Qt6OpenGL 6.0 REQUIRED)
 find_package(Qt6OpenGLWidgets 6.0 REQUIRED)
