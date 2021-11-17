@@ -154,7 +154,7 @@ void MainWindow::runToggled()
     {
         for (auto series : chart_->series())
         {
-            if (series->name().contains(runAction->text().replace("/",":")))
+            if (series->name().contains(runAction->text().replace("/", ":")))
             {
                 chart_->removeSeries(series);
             }
