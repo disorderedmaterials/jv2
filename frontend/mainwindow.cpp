@@ -67,8 +67,9 @@ void MainWindow::initialiseElements()
     ui_->togglePage->addItem(tr("Data graph"));
     connect(ui_->togglePage, QOverload<int>::of(&QComboBox::activated), ui_->stackedWidget, &QStackedWidget::setCurrentIndex);
 
-    // Disables closing data tab
+    // Disables closing data tab + handles tab closing
     ui_->tabWidget->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
+    connect(ui_->tabWidget->tabBar(), &QTabBar::tabCloseRequested, ui_->tabWidget->tabBar(), &QTabBar::removeTab);
 
     // Context menu stuff
     ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
