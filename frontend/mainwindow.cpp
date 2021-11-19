@@ -73,6 +73,7 @@ void MainWindow::initialiseElements()
     // Context menu stuff
     ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+    contextMenu_ = new QMenu("Context");
 }
 
 // Sets cycle to most recently viewed
