@@ -245,11 +245,6 @@ void MainWindow::customMenuRequested(QPoint pos)
     // Removes final ";"
     runNos.chop(1);
 
-    contextMenu_->clear();
-    QAction *action = new QAction("why", this);
-    contextMenu_->addAction(action);
-    contextMenu_->exec(pos);
-
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
     QString cycle = ui_->cyclesBox->currentText().replace("journal", "cycle").replace(".xml", "");
     url_str += ui_->instrumentsBox->currentText() + "/" + cycle + "/" + runNos;
@@ -268,6 +263,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 
     if (worker->error_type == QNetworkReply::NoError)
     {
+        contextMenu_->clear();
         foreach (const QJsonValue &value, worker->json_array)
         {
             // Fills contextMenu with all columns
@@ -275,6 +271,9 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
             connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
             contextMenu_->addAction(action);
         }
+        QAction *action = new QAction("why", this);
+        contextMenu_->addAction(action);
+        contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos));
     }
     else
     {
