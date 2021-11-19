@@ -250,8 +250,7 @@ void MainWindow::customMenuRequested(QPoint pos)
     QMessageBox::information(this, "", "Clear menu");
     contextMenu_->clear();
     QMessageBox::information(this, "", "Add default action");
-    QAction *action = new QAction("why", this)
-    contextMenu_->addAction(action);
+    QAction *action = new QAction("why", this) contextMenu_->addAction(action);
     QMessageBox::information(this, "", "Show Menu");
     contextMenu_->exec(pos);
 
@@ -269,13 +268,11 @@ void MainWindow::customMenuRequested(QPoint pos)
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    QMessageBox::information(this, "", "Handle result")
-    QString msg;
+    QMessageBox::information(this, "", "Handle result") QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
     {
-        QMessageBox::information(this, "", "Fill menu")
-        foreach (const QJsonValue &value, worker->json_array)
+        QMessageBox::information(this, "", "Fill menu") foreach (const QJsonValue &value, worker->json_array)
         {
             // Fills contextMenu with all columns
             QAction *action = new QAction(value.toString(), this);
