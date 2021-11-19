@@ -219,6 +219,8 @@ void MainWindow::handle_result_logData(HttpRequestWorker *worker)
 
 void MainWindow::customMenuRequested(QPoint pos)
 {
+    QMessageBox::information(this, "", "Requested");
+
     QModelIndex index = ui_->runDataTable->indexAt(pos);
     QModelIndexList selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
 
@@ -241,19 +243,17 @@ void MainWindow::customMenuRequested(QPoint pos)
     {
         runNo = proxyModel_->index(run.row(), runNoColum).data().toString();
         runNos.append(runNo + ";");
-
-        // Fills runsMenu_ with all runNo's
-        QAction *action = new QAction(runNo, this);
-        action->setCheckable(true);
-        connect(action, SIGNAL(triggered()), this, SLOT(runToggled()));
-        runsMenu_->addAction(action);
     }
     // Removes final ";"
     runNos.chop(1);
 
+    QMessageBox::information(this, "", "Clear menu");
     contextMenu_->clear();
-    contextMenu_->addAction(new QAction("why", this));
-    contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos));
+    QMessageBox::information(this, "", "Add default action");
+    QAction *action = new QAction("why", this)
+    contextMenu_->addAction(action);
+    QMessageBox::information(this, "", "Show Menu");
+    contextMenu_->exec(pos);
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
     QString cycle = ui_->cyclesBox->currentText().replace("journal", "cycle").replace(".xml", "");
@@ -262,17 +262,19 @@ void MainWindow::customMenuRequested(QPoint pos)
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-            SLOT(handle_result_contextGraph(HttpRequestWorker *)));
+            SLOT(handle_result_contextMenu(HttpRequestWorker *)));
     worker->execute(input);
 }
 
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
+    QMessageBox::information(this, "", "Handle result")
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
     {
+        QMessageBox::information(this, "", "Fill menu")
         foreach (const QJsonValue &value, worker->json_array)
         {
             // Fills contextMenu with all columns
@@ -280,6 +282,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
             connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
             contextMenu_->addAction(action);
         }
+        QMessageBox::information(this, "", "Pow")
     }
     else
     {
