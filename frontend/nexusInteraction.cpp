@@ -252,6 +252,7 @@ void MainWindow::customMenuRequested(QPoint pos)
     runNos.chop(1);
 
     contextMenu_->clear();
+    contextMenu_->addAction(new QAction("why",this));
     contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos));
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
