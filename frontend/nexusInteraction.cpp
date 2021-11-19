@@ -296,7 +296,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 void MainWindow::contextGraph()
 {
     QMessageBox::information(this, "", "Graph");
-    
+
     // Gets signal object
     auto *contextAction = qobject_cast<QAction *>(sender());
     QMessageBox::information(this, "", "Action got");
