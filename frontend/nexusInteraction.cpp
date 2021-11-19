@@ -219,6 +219,7 @@ void MainWindow::handle_result_logData(HttpRequestWorker *worker)
 
 void MainWindow::customMenuRequested(QPoint pos)
 {
+    pos_ = pos;
     QModelIndex index = ui_->runDataTable->indexAt(pos);
     QModelIndexList selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
 
@@ -273,7 +274,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         }
         QAction *action = new QAction("why", this);
         contextMenu_->addAction(action);
-        contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos));
+        contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos_));
     }
     else
     {

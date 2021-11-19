@@ -70,5 +70,6 @@ class MainWindow : public QMainWindow
     int currentFoundIndex_;
     bool init_;
     QChart *chart_;
+    QPoint pos_;
 };
 #endif // MAINWINDOW_H
