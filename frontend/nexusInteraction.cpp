@@ -291,21 +291,40 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 
 void MainWindow::contextGraph()
 {
+    QMessageBox::information(this, "", "Graph")
+    
     // Gets signal object
     auto *contextAction = qobject_cast<QAction *>(sender());
+    QMessageBox::information(this, "", "Action got")
 
     // Gathers all selected runs
-    QString runNos = "";
-    for (QAction *runAction : runsMenu_->actions())
+    QModelIndexList selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
+    // Finds run number location in table
+    int runNoColum;
+    for (auto column = 0; column < proxyModel_->columnCount(); column++)
     {
-        if (runAction->isChecked() == true)
-            runNos.append(runAction->text() + ";");
+        if (proxyModel_->headerData(column, Qt::Horizontal).toString() == "run_number")
+        {
+            runNoColum = column;
+            break;
+        }
     }
+    // Gets all selected run numbers and fills graphing toggles
+    QString runNos = "";
+    QString runNo;
+    // Concats runs
+    for (auto run : selectedRuns)
+    {
+        runNo = proxyModel_->index(run.row(), runNoColum).data().toString();
+        runNos.append(runNo + ";");
+    }
+    // Removes final ";"
     runNos.chop(1);
-
+    // Error handling
     if (runNos.size() == 0)
         return;
 
+    QMessageBox::information(this, "", "Get log data")
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = ui_->cyclesBox->currentText().replace(0, 7, "cycle").replace(".xml", "");
     QString field = contextAction->text().replace("/", ":");
@@ -321,10 +340,13 @@ void MainWindow::contextGraph()
 // Handles log data
 void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 {
+    QMessageBox::information(this, "", "Data got")
+
     QChartView *contextChartView = new QChartView();
     ui_->tabWidget->addTab(contextChartView, "graph");
     QChart *contextChart = new QChart();
     contextChartView->setChart(contextChart);
+    QMessageBox::information(this, "", "Tab created")
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
@@ -354,6 +376,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                 contextChart->addSeries(series);
             }
         }
+        QMessageBox::information(this, "", "Chart filled")
         // Resize chart
         contextChart->createDefaultAxes();
     }
