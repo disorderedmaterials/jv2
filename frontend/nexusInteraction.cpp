@@ -219,8 +219,6 @@ void MainWindow::handle_result_logData(HttpRequestWorker *worker)
 
 void MainWindow::customMenuRequested(QPoint pos)
 {
-    QMessageBox::information(this, "", "Requested");
-
     QModelIndex index = ui_->runDataTable->indexAt(pos);
     QModelIndexList selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
 
@@ -247,12 +245,9 @@ void MainWindow::customMenuRequested(QPoint pos)
     // Removes final ";"
     runNos.chop(1);
 
-    QMessageBox::information(this, "", "Clear menu");
     contextMenu_->clear();
-    QMessageBox::information(this, "", "Add default action");
     QAction *action = new QAction("why", this);
     contextMenu_->addAction(action);
-    QMessageBox::information(this, "", "Show Menu");
     contextMenu_->exec(pos);
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
@@ -269,13 +264,10 @@ void MainWindow::customMenuRequested(QPoint pos)
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    QMessageBox::information(this, "", "Handle result");
-
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
     {
-        QMessageBox::information(this, "", "Fill menu");
         foreach (const QJsonValue &value, worker->json_array)
         {
             // Fills contextMenu with all columns
@@ -283,7 +275,6 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
             connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
             contextMenu_->addAction(action);
         }
-        QMessageBox::information(this, "", "menu Filled");
     }
     else
     {
