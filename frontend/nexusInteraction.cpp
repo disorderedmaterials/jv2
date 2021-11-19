@@ -270,7 +270,7 @@ void MainWindow::customMenuRequested(QPoint pos)
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
     QMessageBox::information(this, "", "Handle result");
-    
+
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
