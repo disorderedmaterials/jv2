@@ -250,7 +250,8 @@ void MainWindow::customMenuRequested(QPoint pos)
     QMessageBox::information(this, "", "Clear menu");
     contextMenu_->clear();
     QMessageBox::information(this, "", "Add default action");
-    QAction *action = new QAction("why", this) contextMenu_->addAction(action);
+    QAction *action = new QAction("why", this);
+    contextMenu_->addAction(action);
     QMessageBox::information(this, "", "Show Menu");
     contextMenu_->exec(pos);
 
@@ -268,18 +269,21 @@ void MainWindow::customMenuRequested(QPoint pos)
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    QMessageBox::information(this, "", "Handle result") QString msg;
+    QMessageBox::information(this, "", "Handle result");
+    
+    QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
     {
-        QMessageBox::information(this, "", "Fill menu") foreach (const QJsonValue &value, worker->json_array)
+        QMessageBox::information(this, "", "Fill menu");
+        foreach (const QJsonValue &value, worker->json_array)
         {
             // Fills contextMenu with all columns
             QAction *action = new QAction(value.toString(), this);
             connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
             contextMenu_->addAction(action);
         }
-        QMessageBox::information(this, "", "Pow")
+        QMessageBox::information(this, "", "menu Filled");
     }
     else
     {
@@ -291,11 +295,11 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 
 void MainWindow::contextGraph()
 {
-    QMessageBox::information(this, "", "Graph")
+    QMessageBox::information(this, "", "Graph");
     
     // Gets signal object
     auto *contextAction = qobject_cast<QAction *>(sender());
-    QMessageBox::information(this, "", "Action got")
+    QMessageBox::information(this, "", "Action got");
 
     // Gathers all selected runs
     QModelIndexList selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
@@ -324,7 +328,7 @@ void MainWindow::contextGraph()
     if (runNos.size() == 0)
         return;
 
-    QMessageBox::information(this, "", "Get log data")
+    QMessageBox::information(this, "", "Get log data");
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = ui_->cyclesBox->currentText().replace(0, 7, "cycle").replace(".xml", "");
     QString field = contextAction->text().replace("/", ":");
@@ -340,13 +344,13 @@ void MainWindow::contextGraph()
 // Handles log data
 void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 {
-    QMessageBox::information(this, "", "Data got")
+    QMessageBox::information(this, "", "Data got");
 
     QChartView *contextChartView = new QChartView();
     ui_->tabWidget->addTab(contextChartView, "graph");
     QChart *contextChart = new QChart();
     contextChartView->setChart(contextChart);
-    QMessageBox::information(this, "", "Tab created")
+    QMessageBox::information(this, "", "Tab created");
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
@@ -376,7 +380,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                 contextChart->addSeries(series);
             }
         }
-        QMessageBox::information(this, "", "Chart filled")
+        QMessageBox::information(this, "", "Chart filled");
         // Resize chart
         contextChart->createDefaultAxes();
     }
