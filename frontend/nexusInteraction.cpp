@@ -333,6 +333,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     QChart *contextChart = new QChart();
     contextChartView->setChart(contextChart);
     ui_->tabWidget->addTab(contextChartView, "graph");
+    ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count()-1);
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
