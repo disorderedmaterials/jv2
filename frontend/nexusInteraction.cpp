@@ -355,6 +355,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
                 // Set series ID
                 QString name = fieldDataArray.first()[0].toString() + " " + fieldDataArray.first()[1].toString();
+                QMessageBox::information(this, "", name);
                 series->setName(name);
                 fieldDataArray.removeFirst();
                 foreach (const QJsonValue &dataPair, fieldDataArray)
