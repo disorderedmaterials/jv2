@@ -331,11 +331,11 @@ void MainWindow::contextGraph()
 // Handles log data
 void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 {
+
+    QMessageBox::information(this, "", "Plot data from previous alert");
+
     QChartView *contextChartView = new QChartView();
     QChart *contextChart = new QChart();
-    contextChartView->setChart(contextChart);
-    QString name = QString("graph %1").arg(QString::number(ui_->tabWidget->count()));
-    ui_->tabWidget->setCurrentIndex(ui_->tabWidget->addTab(contextChartView, name));
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
@@ -367,6 +367,11 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         }
         // Resize chart
         contextChart->createDefaultAxes();
+
+        contextChartView->setChart(contextChart);
+        QString name = QString("graph");
+        ui_->tabWidget->addTab(contextChartView, name);
+        ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
     }
     else
     {
