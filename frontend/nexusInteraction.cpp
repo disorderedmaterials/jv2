@@ -319,6 +319,8 @@ void MainWindow::contextGraph()
     QString field = contextAction->text().replace("/", ":");
     url_str += ui_->instrumentsBox->currentText() + "/" + cycle + "/" + runNos + "/" + field;
 
+    QMessageBox::information(this, "", url_str);
+
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
