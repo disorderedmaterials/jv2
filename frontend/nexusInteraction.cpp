@@ -378,7 +378,6 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
 void MainWindow::removeTab(int index)
 {
-    QMessageBox::information(this, "", "Fired");
     delete ui_->tabWidget->widget(index);
     ui_->tabWidget->removeTab(index);
 }
