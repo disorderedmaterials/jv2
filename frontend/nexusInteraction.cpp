@@ -319,8 +319,6 @@ void MainWindow::contextGraph()
     QString field = contextAction->text().replace("/", ":");
     url_str += ui_->instrumentsBox->currentText() + "/" + cycle + "/" + runNos + "/" + field;
 
-    QMessageBox::information(this, "", url_str);
-
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
@@ -331,9 +329,6 @@ void MainWindow::contextGraph()
 // Handles log data
 void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 {
-
-    QMessageBox::information(this, "", "Plot data from previous alert");
-
     QChartView *contextChartView = new QChartView();
     QChart *contextChart = new QChart();
 
@@ -355,7 +350,6 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
                 // Set series ID
                 QString name = fieldDataArray.first()[0].toString() + " " + fieldDataArray.first()[1].toString();
-                QMessageBox::information(this, "", name);
                 series->setName(name);
                 fieldDataArray.removeFirst();
                 foreach (const QJsonValue &dataPair, fieldDataArray)
@@ -384,6 +378,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
 void MainWindow::removeTab(int index)
 {
+    QMessageBox::information(this, "", "Fired");
     delete ui_->tabWidget->widget(index);
     ui_->tabWidget->removeTab(index);
 }
