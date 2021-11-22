@@ -376,7 +376,4 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     }
 }
 
-void MainWindow::removeTab(int index)
-{
-    delete ui_->tabWidget->widget(index);
-}
+void MainWindow::removeTab(int index) { delete ui_->tabWidget->widget(index); }
