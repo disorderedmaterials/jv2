@@ -69,7 +69,7 @@ void MainWindow::initialiseElements()
 
     // Disables closing data tab + handles tab closing
     ui_->tabWidget->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
-    connect(ui_->tabWidget->tabBar(), &QTabBar::tabCloseRequested, ui_->tabWidget->tabBar(), &QTabBar::removeTab);
+    connect(ui_->tabWidget->tabBar(), SIGNAL(&QTabBar::tabCloseRequested(int)), this, SLOT(removeTab(int)));
 
     // Context menu stuff
     ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);

@@ -52,6 +52,7 @@ class MainWindow : public QMainWindow
     void handle_result_contextGraph(HttpRequestWorker *worker);
     void contextGraph();
     void handle_result_contextMenu(HttpRequestWorker *worker);
+    void removeTab(int index);
 
     protected:
     // Window close event

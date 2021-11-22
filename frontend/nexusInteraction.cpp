@@ -381,3 +381,10 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         QMessageBox::information(this, "", msg);
     }
 }
+
+void MainWindow::removeTab(int index)
+{
+    auto widget = ui_->tabWidget->widget(index);
+    delete widget;
+    ui_->tabWidget->removeTab(index);
+}
