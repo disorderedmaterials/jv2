@@ -270,15 +270,10 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         foreach (const QJsonValue &log, worker->json_array)
         {
             QJsonArray logArray = log.toArray();
-            // contextMenu_->addSection(logArray.first().toString());
             QMenu *subMenu = new QMenu(logArray.first().toString());
             logArray.removeFirst();
-            contextMenu_->addMenu(subMenu);
-            if (logArray.size() < 1)
-                subMenu->setVisible(false);
-            // QAction *action = new QAction(logArray.first().toString(), this);
-            // action->setEnabled(false);
-            // contextMenu_->addAction(action);
+            if (logArray.size() > 0)
+                contextMenu_->addMenu(subMenu);
 
             QVariantList logArrayVar = logArray.toVariantList();
             std::sort(logArrayVar.begin(), logArrayVar.end(),
