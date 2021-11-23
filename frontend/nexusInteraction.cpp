@@ -278,7 +278,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
             std::sort(logArrayVar.begin(), logArrayVar.end(),
                       [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
 
-            foreach (const QVariant &block, logArrayVar)
+            foreach (const auto &block, logArrayVar)
             {
                 // Fills contextMenu with all columns
                 QString path = block.toString();
