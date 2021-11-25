@@ -5,7 +5,7 @@ import os
 
 
 def file(instrument, cycle, run):
-    nxsRoot = "//ISISdata/inst$/NDX{}/Instrument/data/{}/".format(
+    nxsRoot = "/isisdata/NDX{}/Instrument/data/{}/".format(
         instrument.upper(), cycle)
     for root, dir, files in os.walk(nxsRoot):
         for file in files:

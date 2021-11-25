@@ -269,7 +269,10 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         foreach (const auto &log, worker->json_array)
         {
             auto logArray = log.toArray();
-            auto *subMenu = new QMenu("Plot from: " + logArray.first().toString());
+            auto name = logArray.first().toString().toUpper();
+            name.chop(2);
+            auto formattedName = name.append("og");
+            auto *subMenu = new QMenu("Plot from " + formattedName);
             logArray.removeFirst();
             if (logArray.size() > 0)
                 contextMenu_->addMenu(subMenu);
