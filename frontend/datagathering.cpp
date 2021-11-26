@@ -84,6 +84,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         ui_->runDataTable->setModel(proxyModel_);
         model_->setJson(jsonArray);
         ui_->runDataTable->show();
+
+        // Filter table based on desired headers
     }
     else
     {
