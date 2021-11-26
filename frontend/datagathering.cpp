@@ -80,7 +80,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         viewMenu_->clear();
         foreach (const QString &key, jsonObject.keys())
         {
-            
+
             QCheckBox *checkBox = new QCheckBox(viewMenu_);
             QWidgetAction *checkableAction = new QWidgetAction(viewMenu_);
             checkableAction->setDefaultWidget(checkBox);

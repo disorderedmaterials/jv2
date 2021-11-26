@@ -4,19 +4,19 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "jsontablemodel.h"
+#include <QChart>
+#include <QChartView>
 #include <QCheckBox>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLineSeries>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
-#include <QChart>
-#include <QChartView>
-#include <QLineSeries>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
@@ -48,9 +48,9 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
 
     // Default heading stuff
-    neutronHeader_.append({"run_number","title","start_time","duration","proton_charge","user_name"});
-    muonHeader_.append({"run_number","title","start_time","duration","proton_charge","user_name"});
-    
+    neutronHeader_.append({"run_number", "title", "start_time", "duration", "proton_charge", "user_name"});
+    muonHeader_.append({"run_number", "title", "start_time", "duration", "proton_charge", "user_name"});
+
     // Sets instrument to last used
     QSettings settings;
     QString recentInstrument = settings.value("recentInstrument").toString();
@@ -77,7 +77,6 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     contextMenu_ = new QMenu("Context");
-
 }
 
 // Sets cycle to most recently viewed
