@@ -5,7 +5,6 @@
 #include "./ui_mainwindow.h"
 #include "jsontablemodel.h"
 #include <QCheckBox>
-#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -15,7 +14,6 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
-
 #include <QChart>
 #include <QChartView>
 #include <QLineSeries>
@@ -49,6 +47,10 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setAlternatingRowColors(true);
     ui_->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
 
+    // Default heading stuff
+    neutronHeader_.append({"run_number","title","start_time","duration","proton_charge","user_name"});
+    muonHeader_.append({"run_number","title","start_time","duration","proton_charge","user_name"});
+    
     // Sets instrument to last used
     QSettings settings;
     QString recentInstrument = settings.value("recentInstrument").toString();
@@ -75,6 +77,7 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     contextMenu_ = new QMenu("Context");
+
 }
 
 // Sets cycle to most recently viewed
@@ -109,14 +112,14 @@ void MainWindow::recentCycle()
 // Fill instrument list
 void MainWindow::fillInstruments()
 {
-    QList<QString> instruments = {"merlin", "nimrod", "sandals", "iris"};
+    QList<QString> instruments = {"merlin neutron", "nimrod neutron", "sandals neutron", "iris neutron"};
 
     // Only allow calls after initial population
     ui_->instrumentsBox->blockSignals(true);
     ui_->instrumentsBox->clear();
     foreach (const QString instrument, instruments)
     {
-        ui_->instrumentsBox->addItem(instrument);
+        ui_->instrumentsBox->addItem(instrument.split(" ")[0], instrument.split(" ")[1]);
     }
     ui_->instrumentsBox->blockSignals(false);
 }

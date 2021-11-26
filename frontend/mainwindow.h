@@ -67,13 +67,9 @@ class MainWindow : public QMainWindow
     QMenu *runsMenu_;
     QMenu *contextMenu_;
     JsonTableModel::Header header_;
-    JsonTableModel::Header desiredHeader_;
     QList<QString> desiredHeader_;
-    /*
-        Header setup function
-        if muon, desired = fij
-        if heading not in desired, hide
-    */
+    QList<QString> muonHeader_;
+    QList<QString> neutronHeader_;
     QModelIndexList foundIndices_;
     int currentFoundIndex_;
     bool init_;
