@@ -1,5 +1,6 @@
 from h5py import File
 import os
+import sys
 
 # Access nexus file
 
@@ -31,6 +32,8 @@ def runTimes(file):
 
 def dataFields(file):
     fields = []
+    print("test debug", file=sys.stdout)
+    print("test debug error", file=sys.stderr)
     mainGroup = file[0]['raw_data_1']
 
     for key in mainGroup.keys():
