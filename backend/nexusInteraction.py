@@ -31,7 +31,7 @@ def runTimes(file):
 
 def dataFields(file):
     fields = []
-    mainGroup = file['raw_data_1']
+    mainGroup = file[0]['raw_data_1']
 
     for key in mainGroup.keys():
         if key.endswith('log'):
