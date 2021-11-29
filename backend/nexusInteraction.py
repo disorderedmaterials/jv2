@@ -9,7 +9,7 @@ def file(instrument, cycle, run):
     if platform.system() == "Windows":
         nxsRoot = "//ISISdata/inst$/NDX{}/Instrument/data/{}/".format(
             instrument.upper(), cycle)
-    else:   
+    else:
         nxsRoot = "/isisdata/NDX{}/Instrument/data/{}/".format(
             instrument.upper(), cycle)
     for root, dir, files in os.walk(nxsRoot):
