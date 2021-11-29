@@ -49,7 +49,7 @@ void MainWindow::initialiseElements()
 
     // Default heading stuff
     neutronHeader_.append({"run_number", "title", "start_time", "duration", "proton_charge", "user_name"});
-    muonHeader_.append({"run_number", "title", "start_time", "duration", "proton_charge", "user_name"});
+    muonHeader_.append({"run_number", "title", "start_time", "duration", "total_mevents", "user_name"});
 
     // Sets instrument to last used
     QSettings settings;
@@ -111,7 +111,7 @@ void MainWindow::recentCycle()
 // Fill instrument list
 void MainWindow::fillInstruments()
 {
-    QList<QString> instruments = {"merlin neutron", "nimrod neutron", "sandals neutron", "iris neutron"};
+    QList<QString> instruments = {"merlin neutron", "nimrod neutron", "sandals neutron", "iris neutron", "emu muon"};
 
     // Only allow calls after initial population
     ui_->instrumentsBox->blockSignals(true);
