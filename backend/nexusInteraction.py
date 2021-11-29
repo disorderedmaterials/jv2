@@ -16,7 +16,7 @@ def file(instrument, cycle, run):
         nxsFile = File(nxsDir)
         return nxsFile
     except(Exception):
-        return ["response:", "ERR. File failed to open"]
+        return ["ERR. File failed to open"]
 
 # Get run times
 
