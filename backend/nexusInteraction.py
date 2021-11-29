@@ -1,12 +1,17 @@
 from h5py import File
 import os
+import platform
 
 # Access nexus file
 
 
 def file(instrument, cycle, run):
-    nxsRoot = "//ISISdata/inst$/NDX{}/Instrument/data/{}/".format(
-        instrument.upper(), cycle)
+    if platform.system() == "Windows":
+        nxsRoot = "//ISISdata/inst$/NDX{}/Instrument/data/{}/".format(
+            instrument.upper(), cycle)
+    else:   
+        nxsRoot = "/isisdata/NDX{}/Instrument/data/{}/".format(
+            instrument.upper(), cycle)
     for root, dir, files in os.walk(nxsRoot):
         for file in files:
             if file.endswith('{}.nxs'.format(run)):
