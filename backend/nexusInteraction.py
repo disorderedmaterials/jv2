@@ -16,7 +16,7 @@ def file(instrument, cycle, run):
         nxsFile = File(nxsDir)
         return nxsFile
     except(Exception):
-        return {"response:", "ERR. File failed to open"}
+        return ["response:", "ERR. File failed to open"]
 
 # Get run times
 
@@ -70,7 +70,7 @@ def runData(file, fields, run):
                     value = dataBlock['value']
                     time = dataBlock['time']
                 except(Exception):
-                    return {"response:", "ERR. Data not found"}
+                    return ["response:", "ERR. Data not found"]
 
         blockShape = value.shape
         blockData.append([run, field])
