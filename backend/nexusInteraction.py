@@ -1,12 +1,11 @@
 from h5py import File
 import os
-import sys
 
 # Access nexus file
 
 
 def file(instrument, cycle, run):
-    nxsRoot = "/isisdata/NDX{}/Instrument/data/{}/".format(
+    nxsRoot = "//ISISdata/inst$/NDX{}/Instrument/data/{}/".format(
         instrument.upper(), cycle)
     for root, dir, files in os.walk(nxsRoot):
         for file in files:
@@ -32,9 +31,7 @@ def runTimes(file):
 
 def dataFields(file):
     fields = []
-    print("test debug", file=sys.stdout)
-    print("test debug error", file=sys.stderr)
-    mainGroup = file[0]['raw_data_1']
+    mainGroup = file['raw_data_1']
 
     for key in mainGroup.keys():
         if key.endswith('log'):
