@@ -14,6 +14,8 @@
 // Fills cycles box on request completion
 void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 {
+    QWidget::setEnabled(true);
+    QGuiApplication::restoreOverrideCursor();
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
@@ -55,6 +57,8 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 // Fills table view with run
 void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 {
+    QWidget::setEnabled(true);
+    QGuiApplication::restoreOverrideCursor();
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
@@ -133,6 +137,8 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_instruments(HttpRequestWorker *)));
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QWidget::setEnabled(false);
     worker->execute(input);
 }
 
@@ -151,5 +157,7 @@ void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
 
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QWidget::setEnabled(false);
     worker->execute(input);
 }
