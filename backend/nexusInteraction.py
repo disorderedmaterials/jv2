@@ -7,11 +7,12 @@ import platform
 
 def file(instrument, cycle, run):
     if platform.system() == "Windows":
-        nxsRoot = "//ISISdata/inst$/NDX{}/Instrument/data/{}/".format(
-            instrument.upper(), cycle)
+        root = "/ISISdata/inst$"
+
     else:
-        nxsRoot = "/isisdata/NDX{}/Instrument/data/{}/".format(
-            instrument.upper(), cycle)
+        root = "isisdata"
+    nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(root,
+                                                     instrument.upper(), cycle)
     for root, dir, files in os.walk(nxsRoot):
         for file in files:
             if file.endswith('{}.nxs'.format(run)):
