@@ -91,7 +91,6 @@
   <inst name="nimrod">
    <location>ndxnimrod</location>
    <type>Neutron</type>
-   <prefFields>duration,;proton_charge,;run_number,;start_time,;title,;user_name,</prefFields>
   </inst>
   <inst name="offspec">
    <location>ndxoffspec</location>
@@ -116,7 +115,6 @@
   <inst name="sandals">
    <location>ndxsandals</location>
    <type>Neutron</type>
-   <prefFields>duration,;proton_charge,;run_number,;start_time,;title,;user_name,</prefFields>
   </inst>
   <inst name="sans2d">
    <location>ndxsans2d</location>
