@@ -59,7 +59,6 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
     if (worker->error_type == QNetworkReply::NoError)
     {
-
         // Get keys from json data
         auto jsonArray = worker->json_array;
         auto jsonObject = jsonArray.at(0).toObject();
