@@ -141,7 +141,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::waitScreen(bool state)
 {
-    if(state)
+    if (state)
     {
         QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         QWidget::setEnabled(false);
