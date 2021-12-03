@@ -145,12 +145,4 @@
    <type>Neutron</type>
   </inst>
  </insts>
- <jv2Fields>
-  <Neutron>
-   <prefFields>run_number,Run No.;title,Title;proton_charge,UAmps;start_time,Start Time;duration,Duration;user_name,User Name</prefFields>
-  </Neutron>
-  <Muon>
-   <prefFields>run_number,Run No.;title,Title;total_mevents,Mev;start_time,Start Time;duration,Duration;user_name,User Name</prefFields>
-  </Muon>
- </jv2Fields>
 </xml>

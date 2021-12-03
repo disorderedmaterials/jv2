@@ -81,6 +81,19 @@ void MainWindow::initialiseElements()
     file.open(QIODevice::ReadOnly);
     dom_.setContent(&file);
     file.close();
+
+    QFile file("../extra/instrumentData.xml");
+    QDomDocument dom;
+    file.open(QIODevice::ReadOnly);
+    dom.setContent(&file);
+    file.close();
+    auto rootelem = dom.documentElement();
+    auto pingedDefault = rootelem.elementsByTagName(instType).item(0).toElement();
+    auto pingedDefaultFields = pingedDefault.elementsByTagName("prefFields").item(0).toElement().text();
+    for (auto field : pingedDefaultFields.split(";"))
+    {
+        defaultFields_.append(field.left(field.indexOf(",")));
+    }
 }
 
 // Sets cycle to most recently viewed
@@ -168,7 +181,7 @@ QList<QPair<QString, QString>> MainWindow::getInstruments()
 
 QList<QString> MainWindow::getFields(QString instrument, QString instType)
 {
-    QList<QString> bean;
+    QList<QString> desiredInstFields;
     QDomNodeList desiredInstrumentFields;
     auto rootelem = dom_.documentElement();
     auto instList = rootelem.elementsByTagName("inst");
@@ -185,34 +198,21 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
         auto configDefault = rootelem.elementsByTagName(instType).item(0).toElement();
         auto configDefaultFields = configDefault.elementsByTagName("prefFields");
         if (configDefaultFields.isEmpty())
-        {
-            QFile file("../extra/instrumentData.xml");
-            QDomDocument dom;
-            file.open(QIODevice::ReadOnly);
-            dom.setContent(&file);
-            file.close();
-            auto rootelem = dom.documentElement();
-            auto pingedDefault = rootelem.elementsByTagName(instType).item(0).toElement();
-            auto pingedDefaultFields = pingedDefault.elementsByTagName("prefFields").item(0).toElement().text();
-            for (auto field : pingedDefaultFields.split(";"))
-            {
-                bean.append(field.left(field.indexOf(",")));
-            }
-            return bean;
-        }
+            return defaultFields_
+            
         auto fieldsText = configDefaultFields.item(0).toElement().text();
         for (auto field : fieldsText.split(";"))
         {
-            bean.append(field.left(field.indexOf(",")));
+            desiredInstFields.append(field.left(field.indexOf(",")));
         }
-        return bean;
+        return desiredInstFields;
     }
     auto fieldsText = desiredInstrumentFields.item(0).toElement().text();
     for (auto field : fieldsText.split(";"))
     {
-        bean.append(field.left(field.indexOf(",")));
+        desiredInstFields.append(field.left(field.indexOf(",")));
     }
-    return bean;
+    return desiredInstFields;
 }
 
 void MainWindow::savePref()
