@@ -63,14 +63,14 @@ void MainWindow::on_graph_clicked()
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_fieldQuery(HttpRequestWorker *)));
-    waitScreen(true);
+    setLoadScreen(true);
     worker->execute(input);
 }
 
 // Fills field menu
 void MainWindow::handle_result_fieldQuery(HttpRequestWorker *worker)
 {
-    waitScreen(false);
+    setLoadScreen(false);
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
@@ -133,7 +133,7 @@ void MainWindow::fieldToggled()
         auto *worker = new HttpRequestWorker(this);
         connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
                 SLOT(handle_result_logData(HttpRequestWorker *)));
-        waitScreen(true);
+        setLoadScreen(true);
         worker->execute(input);
     }
 }
@@ -176,7 +176,7 @@ void MainWindow::runToggled()
         auto *worker = new HttpRequestWorker(this);
         connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
                 SLOT(handle_result_logData(HttpRequestWorker *)));
-        waitScreen(true);
+        setLoadScreen(true);
         worker->execute(input);
     }
 }
@@ -184,7 +184,7 @@ void MainWindow::runToggled()
 // Handles log data
 void MainWindow::handle_result_logData(HttpRequestWorker *worker)
 {
-    waitScreen(false);
+    setLoadScreen(false);
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
@@ -261,14 +261,14 @@ void MainWindow::customMenuRequested(QPoint pos)
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_contextMenu(HttpRequestWorker *)));
-    waitScreen(true);
+    setLoadScreen(true);
     worker->execute(input);
 }
 
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    waitScreen(false);
+    setLoadScreen(false);
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
@@ -351,14 +351,14 @@ void MainWindow::contextGraph()
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_contextGraph(HttpRequestWorker *)));
-    waitScreen(true);
+    setLoadScreen(true);
     worker->execute(input);
 }
 
 // Handles log data
 void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 {
-    waitScreen(false);
+    setLoadScreen(false);
     auto *window = new QWidget;
     auto *contextChart = new QChart();
     auto *contextChartView = new QChartView(contextChart, window);

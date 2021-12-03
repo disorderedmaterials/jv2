@@ -139,7 +139,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::waitScreen(bool state)
+void MainWindow::setLoadScreen(bool state)
 {
     if (state)
     {
