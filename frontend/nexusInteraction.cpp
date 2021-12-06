@@ -439,7 +439,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             contextChart->addAxis(stringAxis, Qt::AlignLeft);
             contextChart->axes()[1]->hide();
         }
-        
+
         auto *gridLayout = new QGridLayout(window);
         auto *testCheck = new QCheckBox("test", window);
 
