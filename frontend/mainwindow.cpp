@@ -81,19 +81,6 @@ void MainWindow::initialiseElements()
     file.open(QIODevice::ReadOnly);
     dom_.setContent(&file);
     file.close();
-
-    QFile file("../extra/instrumentData.xml");
-    QDomDocument dom;
-    file.open(QIODevice::ReadOnly);
-    dom.setContent(&file);
-    file.close();
-    auto rootelem = dom.documentElement();
-    auto pingedDefault = rootelem.elementsByTagName(instType).item(0).toElement();
-    auto pingedDefaultFields = pingedDefault.elementsByTagName("prefFields").item(0).toElement().text();
-    for (auto field : pingedDefaultFields.split(";"))
-    {
-        defaultFields_.append(field.left(field.indexOf(",")));
-    }
 }
 
 // Sets cycle to most recently viewed
@@ -189,28 +176,43 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
     {
         if (instList.item(i).toElement().attribute("name") == instrument)
         {
-            desiredInstrumentFields = instList.item(i).toElement().elementsByTagName("prefFields");
+            desiredInstrumentFields = instList.item(i).toElement().elementsByTagName("Column");
             break;
         }
     }
     if (desiredInstrumentFields.isEmpty())
     {
         auto configDefault = rootelem.elementsByTagName(instType).item(0).toElement();
-        auto configDefaultFields = configDefault.elementsByTagName("prefFields");
+        auto configDefaultFields = configDefault.elementsByTagName("Column");
+
         if (configDefaultFields.isEmpty())
-            return defaultFields_
-            
-        auto fieldsText = configDefaultFields.item(0).toElement().text();
-        for (auto field : fieldsText.split(";"))
         {
-            desiredInstFields.append(field.left(field.indexOf(",")));
+            QFile file("../extra/instrumentData.xml");
+            QDomDocument dom;
+            file.open(QIODevice::ReadOnly);
+            dom.setContent(&file);
+            file.close();
+            auto rootelem = dom.documentElement();
+            auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
+            for (int i = 0; i < defaultColumns.count(); i++)
+            {
+                desiredInstFields.append(
+                    defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
+            }
+            return desiredInstFields;
+        }
+
+        for (int i = 0; i < configDefaultFields.count(); i++)
+        {
+            desiredInstFields.append(
+                configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
         }
         return desiredInstFields;
     }
-    auto fieldsText = desiredInstrumentFields.item(0).toElement().text();
-    for (auto field : fieldsText.split(";"))
+    for (int i = 0; i < desiredInstrumentFields.count(); i++)
     {
-        desiredInstFields.append(field.left(field.indexOf(",")));
+        desiredInstFields.append(
+            desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
     }
     return desiredInstFields;
 }
@@ -233,30 +235,27 @@ void MainWindow::savePref()
 
     QDomNode node;
     QDomElement elem;
+    QDomElement columns;
     for (auto i = 0; i < nodelist.count(); i++)
     {
         node = nodelist.item(i);
         elem = node.toElement();
         if (elem.attribute("name") == ui_->instrumentsBox->currentText())
         {
-            auto preferredFields = elem.elementsByTagName("prefFields");
-            if (!preferredFields.isEmpty())
+            auto oldColumns = elem.elementsByTagName("Columns");
+            if(!oldColumns.isEmpty())
+                elem.removeChild(elem.elementsByTagName("Columns").item(0));
+            columns = dom_.createElement("Columns");
+            for (QString field : currentFields.split(";"))
             {
-                auto preferredFieldsElem = preferredFields.item(0).toElement();
-                if (!currentFields.isEmpty())
-                {
-                    preferredFieldsElem.replaceChild(dom_.createTextNode(currentFields), preferredFieldsElem.firstChild());
-                }
+                auto preferredFieldsElem = dom_.createElement("Column");
+                auto preferredFieldsDataElem = dom_.createElement("Data");
+                preferredFieldsElem.setAttribute("Title", "placeholder");
+                preferredFieldsDataElem.appendChild(dom_.createTextNode(field.left(field.indexOf(","))));
+                preferredFieldsElem.appendChild(preferredFieldsDataElem);
+                columns.appendChild(preferredFieldsElem);
             }
-            else
-            {
-                if (!currentFields.isEmpty())
-                {
-                    auto preferredFieldsElem = dom_.createElement("prefFields");
-                    preferredFieldsElem.appendChild(dom_.createTextNode(currentFields));
-                    elem.appendChild(preferredFieldsElem);
-                }
-            }
+            elem.appendChild(columns);
         }
     }
     if (!dom_.toByteArray().isEmpty())

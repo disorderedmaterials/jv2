@@ -73,7 +73,6 @@ class MainWindow : public QMainWindow
     QMenu *contextMenu_;
     JsonTableModel::Header header_;
     QList<QString> desiredHeader_;
-    QList<QString> defaultFields_;
     QModelIndexList foundIndices_;
     int currentFoundIndex_;
     bool init_;
