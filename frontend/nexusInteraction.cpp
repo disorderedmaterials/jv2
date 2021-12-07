@@ -362,6 +362,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         timeAxis->setFormat("yyyy-MM-dd<br>H:mm:ss");
         timeAxis->setTitleText("Real Time");
         auto *stringAxis = new QCategoryAxis();
+        QStringList categoryValues;
         bool firstRun = true;
         // For each Run
         foreach (const auto &runFields, worker->json_array)
@@ -390,22 +391,13 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
                 if (fieldDataArray.first()[1].isString())
                 {
-                    QStringList values;
                     foreach (const auto &dataPair, fieldDataArray)
                     {
                         auto dataPairArray = dataPair.toArray();
-                        values.append(dataPairArray[1].toString());
+                        categoryValues.append(dataPairArray[1].toString());
                         series->append(startTime.addSecs(dataPairArray[0].toDouble()).toSecsSinceEpoch(),
                                        dataPairArray[1].toString().right(2).toDouble());
                     }
-                    values.removeDuplicates();
-                    values.sort();
-                    stringAxis->setRange(values.first().right(2).toDouble(), values.last().right(2).toDouble());
-                    for (QString value : values)
-                    {
-                        stringAxis->append(value, value.right(2).toDouble());
-                    }
-                    stringAxis->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
                 }
                 else
                 {
@@ -422,6 +414,18 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                     timeAxis->setMax(endTime);
                 contextChart->addSeries(series);
             }
+        }
+
+        if (!categoryValues.isEmpty())
+        {
+            categoryValues.removeDuplicates();
+            categoryValues.sort();
+            stringAxis->setRange(0, categoryValues.count() - 1);
+            for (auto i = 0; i < categoryValues.count(); i++)
+            {
+                stringAxis->append(categoryValues[i], i);
+            }
+            stringAxis->setLabelsPosition(QCategoryAxis::AxisLabelsPositionOnValue);
         }
         // Resize chart
         contextChart->createDefaultAxes();
