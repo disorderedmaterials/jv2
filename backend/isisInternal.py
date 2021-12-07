@@ -94,7 +94,7 @@ def getAllJournals(instrument, search):
         tree = parse(response)
         root = tree.getroot()
         fields = []
-        for element in root.findall("./[run_number="+search+"]"):
+        for element in root.findall(".//NXentry/[run_number="+search+"]"):
             runData = {}
             for data in element:
                 dataId = data.tag.replace(
