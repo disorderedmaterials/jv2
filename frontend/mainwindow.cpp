@@ -243,7 +243,7 @@ void MainWindow::savePref()
         if (elem.attribute("name") == ui_->instrumentsBox->currentText())
         {
             auto oldColumns = elem.elementsByTagName("Columns");
-            if(!oldColumns.isEmpty())
+            if (!oldColumns.isEmpty())
                 elem.removeChild(elem.elementsByTagName("Columns").item(0));
             columns = dom_.createElement("Columns");
             for (QString field : currentFields.split(";"))
