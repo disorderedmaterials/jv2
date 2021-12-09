@@ -46,6 +46,8 @@ class MainWindow : public QMainWindow
     void on_findUp_clicked();
     void on_findDown_clicked();
     void on_searchAll_clicked();
+    void on_massSearchButton_clicked();
+    void handle_result_massSearch(HttpRequestWorker *worker);
     void recentCycle();
     void on_graph_clicked();
     void customMenuRequested(QPoint pos);

@@ -7,8 +7,12 @@ from flask import request
 
 from urllib.request import urlopen
 from xml.etree.ElementTree import parse
+import lxml.etree as ET
+
+from ast import literal_eval
 
 import nexusInteraction
+
 app = Flask(__name__)
 
 # Shutdown flask server
@@ -85,16 +89,26 @@ def getJournal(instrument, cycle):
 
 @app.route('/getAllJournals/<instrument>/<search>')
 def getAllJournals(instrument, search):
-    for cycle in getCycles(instrument):
-        url = 'http://data.isis.rl.ac.uk/journals/ndx'+instrument+'/'+cycle
+    allFields = []
+    nameSpace = {'data': 'http://definition.nexusformat.org/schema/3.0'}
+    cycles = literal_eval(getCycles(instrument).get_data().decode())
+    cycles.pop(0)
+
+    for cycle in (cycles):
+        print(instrument, " ", cycle)
+        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+            instrument+'/'+str(cycle)
         try:
             response = urlopen(url)
         except Exception:
             return jsonify({"response": "ERR. url not found"})
-        tree = parse(response)
+        tree = ET.parse(response)
         root = tree.getroot()
         fields = []
-        for element in root.findall(".//NXentry/[run_number="+search+"]"):
+        #foundElems = root.findall("./data:NXentry/[data:user_name='"+search+"']", nameSpace)
+        path = "//*[contains(data:user_name,'"+search+"')]"
+        foundElems = root.xpath(path, namespaces=nameSpace)
+        for element in foundElems:
             runData = {}
             for data in element:
                 dataId = data.tag.replace(
@@ -105,7 +119,9 @@ def getAllJournals(instrument, search):
                     dataValue = data.text
                 runData[dataId] = dataValue
             fields.append(runData)
-        return jsonify(fields)
+        allFields += (fields)
+        print(len(foundElems))
+    return jsonify(allFields)
 
 # Close server
 

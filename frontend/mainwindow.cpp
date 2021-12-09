@@ -133,8 +133,69 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
     worker->execute(input);
 
     event->accept();
+}
+
+void MainWindow::on_massSearchButton_clicked()
+{
+    QString url_str = "http://127.0.0.1:5000/getAllJournals/"+ui_->instrumentsBox->currentText()+"/"+ui_->massSearchBox->text();
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+                SLOT(handle_result_massSearch(HttpRequestWorker *)));
+    worker->execute(input);
+}
+
+void MainWindow::handle_result_massSearch(HttpRequestWorker *worker)
+{
+    QString msg;
+
+    if (worker->error_type == QNetworkReply::NoError)
+    {
+        // Get keys from json data
+        auto jsonArray = worker->json_array;
+        auto jsonObject = jsonArray.at(0).toObject();
+        header_.clear();
+        foreach (const QString &key, jsonObject.keys())
+        {
+            header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}}));
+        }
+
+        // Sets and fills table data
+        model_ = new JsonTableModel(header_, this);
+        proxyModel_ = new QSortFilterProxyModel;
+        proxyModel_->setSourceModel(model_);
+        ui_->runDataTable->setModel(proxyModel_);
+        model_->setJson(jsonArray);
+        ui_->runDataTable->show();
+
+        // Fills viewMenu_ with all columns
+        viewMenu_->clear();
+        foreach (const QString &key, jsonObject.keys())
+        {
+
+            QCheckBox *checkBox = new QCheckBox(viewMenu_);
+            QWidgetAction *checkableAction = new QWidgetAction(viewMenu_);
+            checkableAction->setDefaultWidget(checkBox);
+            checkBox->setText(key);
+            checkBox->setCheckState(Qt::PartiallyChecked);
+            viewMenu_->addAction(checkableAction);
+            connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
+
+            // Filter table based on desired headers
+            if (!desiredHeader_.contains(key))
+                checkBox->setCheckState(Qt::Unchecked);
+            else
+                checkBox->setCheckState(Qt::Checked);
+        }
+    }
+    else
+    {
+        // an error occurred
+        msg = "Error2: " + worker->error_str;
+        QMessageBox::information(this, "", msg);
+    }
 }
