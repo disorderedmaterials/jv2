@@ -141,10 +141,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_massSearchButton_clicked()
 {
-    QString url_str = "http://127.0.0.1:5000/getAllJournals/"+ui_->instrumentsBox->currentText()+"/"+ui_->massSearchBox->text();
+    QString url_str =
+        "http://127.0.0.1:5000/getAllJournals/" + ui_->instrumentsBox->currentText() + "/" + ui_->massSearchBox->text();
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-                SLOT(handle_result_cycles(HttpRequestWorker *)));
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
 }

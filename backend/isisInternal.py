@@ -105,7 +105,8 @@ def getAllJournals(instrument, search):
         tree = ET.parse(response)
         root = tree.getroot()
         fields = []
-        #foundElems = root.findall("./data:NXentry/[data:user_name='"+search+"']", nameSpace)
+        #foundElems = root.findall
+        # ("./data:NXentry/[data:user_name='"+search+"']", nameSpace)
         path = "//*[contains(data:user_name,'"+search+"')]"
         foundElems = root.xpath(path, namespaces=nameSpace)
         for element in foundElems:
