@@ -3,6 +3,7 @@
 
 #include "jsontablemodel.h"
 #include <QJsonObject>
+#include <QDebug>
 
 // Model to handle json data in table view
 JsonTableModel::JsonTableModel(const JsonTableModel::Header &header_, QObject *parent)

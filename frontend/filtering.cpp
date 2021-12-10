@@ -23,6 +23,9 @@ void MainWindow::columnHider(int state)
                     break;
                 default:
                     ui_->runDataTable->setColumnHidden(i, false);
+                    action->blockSignals(true);
+                    action->setCheckState(Qt::Checked);
+                    action->blockSignals(false);
             }
             break;
         }
@@ -44,9 +47,23 @@ void MainWindow::on_filterBox_textChanged(const QString &arg1)
 void MainWindow::on_groupButton_clicked(bool checked)
 {
     if (checked)
+    {
         model_->groupData();
+        for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+            ui_->runDataTable->setColumnHidden(i, false);
+    }
     else
+    {
         model_->unGroupData();
+        for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+        {
+            if (!desiredHeader_.contains(
+                    ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString()))
+            {
+                ui_->runDataTable->setColumnHidden(i, true);
+            }
+        }
+    }
 }
 
 // Clears filter parameters
