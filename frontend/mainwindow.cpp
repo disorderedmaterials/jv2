@@ -179,6 +179,7 @@ void MainWindow::on_closeFind_clicked()
     ui_->findDown->setVisible(false);
     ui_->searchAll->setVisible(false);
     ui_->closeFind->setVisible(false);
+    ui_->searchLabel->setText("");
 }
 
 void MainWindow::setLoadScreen(bool state)
