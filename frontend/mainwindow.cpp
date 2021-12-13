@@ -94,13 +94,9 @@ void MainWindow::recentCycle()
     if (ui_->instrumentsBox->currentText() != "")
     {
         if (cycleIndex != -1)
-        {
             ui_->cyclesBox->setCurrentIndex(cycleIndex);
-        }
         else
-        {
             ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
-        }
     }
     else
         ui_->cyclesBox->setEnabled(false);
@@ -145,7 +141,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             ui_->searchBox->setFocus();
         else
         {
-            ui_->line_2->setVisible(true);
+            ui_->searchSeperator->setVisible(true);
             ui_->searchBox->setVisible(true);
             ui_->findUp->setVisible(true);
             ui_->findDown->setVisible(true);
@@ -172,14 +168,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::on_closeFind_clicked()
 {
-    ui_->line_2->setVisible(false);
+    ui_->searchSeperator->setVisible(false);
     ui_->searchBox->setVisible(false);
     ui_->findUp->setVisible(false);
     ui_->findDown->setVisible(false);
     ui_->searchAll->setVisible(false);
     ui_->closeFind->setVisible(false);
+    if(ui_->searchLabel->text() != "")
+        ui_->runDataTable->selectionModel()->clearSelection();
     ui_->searchLabel->setText("");
-    ui_->runDataTable->selectionModel()->clearSelection();
 }
 
 void MainWindow::setLoadScreen(bool state)
