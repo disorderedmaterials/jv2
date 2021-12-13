@@ -2,8 +2,8 @@
 // Copyright (c) 2021 E. Devlin and T. Youngs
 
 #include "jsontablemodel.h"
-#include <QJsonObject>
 #include <QDebug>
+#include <QJsonObject>
 
 // Model to handle json data in table view
 JsonTableModel::JsonTableModel(const JsonTableModel::Header &header_, QObject *parent)
