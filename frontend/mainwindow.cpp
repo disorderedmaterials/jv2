@@ -180,6 +180,7 @@ void MainWindow::on_closeFind_clicked()
     ui_->searchAll->setVisible(false);
     ui_->closeFind->setVisible(false);
     ui_->searchLabel->setText("");
+    ui_->runDataTable->selectionModel()->clearSelection();
 }
 
 void MainWindow::setLoadScreen(bool state)
