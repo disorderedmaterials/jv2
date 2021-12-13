@@ -139,25 +139,25 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if(event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
+    if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
     {
-        if(ui_->searchBox->isVisible())
+        if (ui_->searchBox->isVisible())
             ui_->searchBox->setFocus();
         else
         {
-        ui_->line_2->setVisible(true);
-        ui_->searchBox->setVisible(true);
-        ui_->findUp->setVisible(true);
-        ui_->findDown->setVisible(true);
-        ui_->searchAll->setVisible(true);
-        ui_->closeFind->setVisible(true);
+            ui_->line_2->setVisible(true);
+            ui_->searchBox->setVisible(true);
+            ui_->findUp->setVisible(true);
+            ui_->findDown->setVisible(true);
+            ui_->searchAll->setVisible(true);
+            ui_->closeFind->setVisible(true);
 
-        ui_->searchBox->setFocus();
+            ui_->searchBox->setFocus();
         }
     }
-    if(event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
+    if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
     {
-        if(ui_->groupButton->isChecked())
+        if (ui_->groupButton->isChecked())
         {
             ui_->groupButton->setChecked(false);
             on_groupButton_clicked(false);
@@ -168,7 +168,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             on_groupButton_clicked(true);
         }
     }
-    
 }
 
 void MainWindow::on_closeFind_clicked()
