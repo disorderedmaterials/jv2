@@ -22,10 +22,7 @@ void MainWindow::columnHider(int state)
                     ui_->runDataTable->setColumnHidden(i, false);
                     break;
                 default:
-                    ui_->runDataTable->setColumnHidden(i, false);
-                    action->blockSignals(true);
                     action->setCheckState(Qt::Checked);
-                    action->blockSignals(false);
             }
             break;
         }
