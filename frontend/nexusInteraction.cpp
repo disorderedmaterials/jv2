@@ -469,13 +469,16 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
         auto *gridLayout = new QGridLayout(window);
         auto *testCheck = new QCheckBox("test", window);
+        auto *zoomReset = new QPushButton("reset", window);
 
         connect(testCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
+        connect(zoomReset, &QPushButton::clicked, [=](){contextChart->zoomReset();});
 
         contextChartView->setRubberBand(QChartView::HorizontalRubberBand);
         
-        gridLayout->addWidget(contextChartView, 0, 0);
+        gridLayout->addWidget(contextChartView, 0, 0, -1, -1);
         gridLayout->addWidget(testCheck, 1, 0);
+        gridLayout->addWidget(zoomReset, 1, 1);
         ui_->tabWidget->addTab(window, "graph");
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
     }
