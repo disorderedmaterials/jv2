@@ -174,7 +174,7 @@ void MainWindow::on_closeFind_clicked()
     ui_->findDown->setVisible(false);
     ui_->searchAll->setVisible(false);
     ui_->closeFind->setVisible(false);
-    if(ui_->searchLabel->text() != "")
+    if (ui_->searchLabel->text() != "")
         ui_->runDataTable->selectionModel()->clearSelection();
     ui_->searchLabel->setText("");
 }
