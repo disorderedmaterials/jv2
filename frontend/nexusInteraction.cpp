@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 #include <QAction>
 #include <QCategoryAxis>
+#include <QChartView>
 #include <QDateTimeAxis>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -16,7 +17,6 @@
 #include <QValueAxis>
 #include <QWidgetAction>
 #include <algorithm>
-#include <QChartView>
 
 void MainWindow::customMenuRequested(QPoint pos)
 {
