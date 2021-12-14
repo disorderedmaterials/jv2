@@ -375,9 +375,9 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         auto *absTimeAxis = new QValueAxis();
         absTimeAxis->setTitleText("Absolute Time");
         contextChart->addAxis(absTimeAxis, Qt::AlignBottom);
-        
+
         auto *valueAxis = new QValueAxis();
-        valueAxis->setRange(0,0);
+        valueAxis->setRange(0, 0);
         contextChart->addAxis(valueAxis, Qt::AlignLeft);
 
         auto *stringAxis = new QCategoryAxis();
@@ -440,7 +440,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                     timeAxis->setMin(startTime.addSecs(startTime.secsTo(QDateTime::fromMSecsSinceEpoch(series->at(0).x()))));
                 if (endTime > timeAxis->max())
                     timeAxis->setMax(endTime);
-                
+
                 contextChart->addSeries(series);
                 series->attachAxis(timeAxis);
                 series->attachAxis(absTimeAxis);
@@ -472,10 +472,10 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         auto *zoomReset = new QPushButton("reset", window);
 
         connect(testCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
-        connect(zoomReset, &QPushButton::clicked, [=](){contextChart->zoomReset();});
+        connect(zoomReset, &QPushButton::clicked, [=]() { contextChart->zoomReset(); });
 
         contextChartView->setRubberBand(QChartView::HorizontalRubberBand);
-        
+
         gridLayout->addWidget(contextChartView, 0, 0, -1, -1);
         gridLayout->addWidget(testCheck, 1, 0);
         gridLayout->addWidget(zoomReset, 1, 1);
