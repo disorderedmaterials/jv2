@@ -76,11 +76,6 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     contextMenu_ = new QMenu("Context");
-
-    QFile file("../extra/tableConfig.xml");
-    file.open(QIODevice::ReadOnly);
-    dom_.setContent(&file);
-    file.close();
 }
 
 // Sets cycle to most recently viewed
@@ -170,7 +165,14 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
 {
     QList<QString> desiredInstFields;
     QDomNodeList desiredInstrumentFields;
-    auto rootelem = dom_.documentElement();
+
+    QFile file("../extra/tableConfig.xml");
+    file.open(QIODevice::ReadOnly);
+    QDomDocument dom;
+    dom.setContent(&file);
+    file.close();
+
+    auto rootelem = dom.documentElement();
     auto instList = rootelem.elementsByTagName("inst");
     for (auto i = 0; i < instList.count(); i++)
     {
@@ -188,7 +190,6 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
         if (configDefaultFields.isEmpty())
         {
             QFile file("../extra/instrumentData.xml");
-            QDomDocument dom;
             file.open(QIODevice::ReadOnly);
             dom.setContent(&file);
             file.close();
@@ -219,7 +220,14 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
 
 void MainWindow::savePref()
 {
-    auto rootelem = dom_.documentElement();
+
+    QFile file("../extra/tableConfig.xml");
+    file.open(QIODevice::ReadOnly);
+    QDomDocument dom;
+    dom.setContent(&file);
+    file.close();
+
+    auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
 
     QString currentFields;
@@ -245,24 +253,24 @@ void MainWindow::savePref()
             auto oldColumns = elem.elementsByTagName("Columns");
             if (!oldColumns.isEmpty())
                 elem.removeChild(elem.elementsByTagName("Columns").item(0));
-            columns = dom_.createElement("Columns");
+            columns = dom.createElement("Columns");
             for (QString field : currentFields.split(";"))
             {
-                auto preferredFieldsElem = dom_.createElement("Column");
-                auto preferredFieldsDataElem = dom_.createElement("Data");
+                auto preferredFieldsElem = dom.createElement("Column");
+                auto preferredFieldsDataElem = dom.createElement("Data");
                 preferredFieldsElem.setAttribute("Title", "placeholder");
-                preferredFieldsDataElem.appendChild(dom_.createTextNode(field.left(field.indexOf(","))));
+                preferredFieldsDataElem.appendChild(dom.createTextNode(field.left(field.indexOf(","))));
                 preferredFieldsElem.appendChild(preferredFieldsDataElem);
                 columns.appendChild(preferredFieldsElem);
             }
             elem.appendChild(columns);
         }
     }
-    if (!dom_.toByteArray().isEmpty())
+    if (!dom.toByteArray().isEmpty())
     {
         QFile file("../extra/tableConfig.xml");
         file.open(QIODevice::WriteOnly);
-        file.write(dom_.toByteArray());
+        file.write(dom.toByteArray());
         file.close();
     }
 }

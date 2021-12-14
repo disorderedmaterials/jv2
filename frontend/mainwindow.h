@@ -78,6 +78,5 @@ class MainWindow : public QMainWindow
     bool init_;
     QChart *chart_;
     QPoint pos_;
-    QDomDocument dom_;
 };
 #endif // MAINWINDOW_H
