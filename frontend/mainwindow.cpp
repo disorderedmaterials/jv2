@@ -17,7 +17,6 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
-#include <QDateTimeAxis>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
