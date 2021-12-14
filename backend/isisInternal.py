@@ -7,9 +7,12 @@ from flask import request
 
 from urllib.request import urlopen
 from xml.etree.ElementTree import parse
+from flask.scaffold import F
 import lxml.etree as ET
 
 from ast import literal_eval
+
+from datetime import datetime
 
 import nexusInteraction
 
@@ -94,6 +97,8 @@ def getAllJournals(instrument, search):
     cycles = literal_eval(getCycles(instrument).get_data().decode())
     cycles.pop(0)
 
+    startTime = datetime.now()
+
     for cycle in (cycles):
         print(instrument, " ", cycle)
         url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
@@ -124,6 +129,9 @@ def getAllJournals(instrument, search):
             fields.append(runData)
         allFields += (fields)
         print(len(foundElems))
+    
+    endTime = datetime.now()
+    print(endTime - startTime)
     return jsonify(allFields)
 
 # Close server
