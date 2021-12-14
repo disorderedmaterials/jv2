@@ -16,6 +16,7 @@
 #include <QValueAxis>
 #include <QWidgetAction>
 #include <algorithm>
+#include <QChartView>
 
 void MainWindow::customMenuRequested(QPoint pos)
 {
