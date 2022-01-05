@@ -13,6 +13,7 @@ void MainWindow::on_searchBox_textChanged(const QString &arg1)
     if (arg1.isEmpty())
     {
         ui_->runDataTable->selectionModel()->clearSelection();
+        ui_->searchLabel->setText("");
         return;
     }
     // Find all occurences of search string in table elements

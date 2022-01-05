@@ -2,6 +2,7 @@
 // Copyright (c) 2022 E. Devlin and T. Youngs
 
 #include "./ui_mainwindow.h"
+#include "chartview.h"
 #include "mainwindow.h"
 #include <QAction>
 #include <QCategoryAxis>
@@ -155,7 +156,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     setLoadScreen(false);
     auto *window = new QWidget;
     auto *contextChart = new QChart();
-    auto *contextChartView = new QChartView(contextChart, window);
+    auto *contextChartView = new ChartView(contextChart, window);
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
@@ -263,11 +264,11 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         auto *gridLayout = new QGridLayout(window);
         auto *testCheck = new QCheckBox("test", window);
         auto *zoomReset = new QPushButton("reset", window);
+        auto width = zoomReset->fontMetrics().boundingRect(zoomReset->text()).width() + 40;
+        zoomReset->setMaximumWidth(width);
 
         connect(testCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
         connect(zoomReset, &QPushButton::clicked, [=]() { contextChart->zoomReset(); });
-
-        contextChartView->setRubberBand(QChartView::HorizontalRubberBand);
 
         gridLayout->addWidget(contextChartView, 0, 0, -1, -1);
         gridLayout->addWidget(testCheck, 1, 0);

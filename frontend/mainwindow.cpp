@@ -64,7 +64,7 @@ void MainWindow::initialiseElements()
     connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     contextMenu_ = new QMenu("Context");
 
-    on_closeFind_clicked();
+    ui_->searchContainer->setVisible(false);
 }
 
 // Sets cycle to most recently viewed
@@ -133,18 +133,20 @@ void MainWindow::on_massSearchButton_clicked()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
+    if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
+    {
+        if (ui_->searchContainer->isVisible())
+        {
+            ui_->searchContainer->setVisible(false);
+        }
+    }
     if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
     {
-        if (ui_->searchBox->isVisible())
+        if (ui_->searchContainer->isVisible())
             ui_->searchBox->setFocus();
         else
         {
-            ui_->searchSeperator->setVisible(true);
-            ui_->searchBox->setVisible(true);
-            ui_->findUp->setVisible(true);
-            ui_->findDown->setVisible(true);
-            ui_->searchAll->setVisible(true);
-            ui_->closeFind->setVisible(true);
+            ui_->searchContainer->setVisible(true);
 
             ui_->searchBox->setFocus();
         }
@@ -162,16 +164,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             on_groupButton_clicked(true);
         }
     }
+    if (event->key() == Qt::Key_F3)
+    {
+        on_findDown_clicked();
+    }
+    if (event->key() == Qt::Key_F3 && event->modifiers() == Qt::ShiftModifier)
+    {
+        on_findUp_clicked();
+    }
+
+    // SWITCH STATEMENT
 }
 
 void MainWindow::on_closeFind_clicked()
 {
-    ui_->searchSeperator->setVisible(false);
-    ui_->searchBox->setVisible(false);
-    ui_->findUp->setVisible(false);
-    ui_->findDown->setVisible(false);
-    ui_->searchAll->setVisible(false);
-    ui_->closeFind->setVisible(false);
+    ui_->searchContainer->setVisible(false);
     if (ui_->searchLabel->text() != "")
         ui_->runDataTable->selectionModel()->clearSelection();
     ui_->searchLabel->setText("");
