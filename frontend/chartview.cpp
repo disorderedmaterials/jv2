@@ -1,13 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-<<<<<<< HEAD
-<<<<<<< HEAD
 // Copyright (c) 2022 E. Devlin and T. Youngs
-=======
-// Copyright (c) 2021 E. Devlin and T. Youngs
->>>>>>> d771ac8... first commit
-=======
-// Copyright (c) 2022 E. Devlin and T. Youngs
->>>>>>> 6afd308... format fixes
 
 #include "chartview.h"
 #include <QtGui/QMouseEvent>
