@@ -8,6 +8,7 @@
 #include "jsontablemodel.h"
 #include <QChart>
 #include <QCheckBox>
+#include <QDomDocument>
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
 
@@ -26,52 +27,49 @@ class MainWindow : public QMainWindow
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void fillInstruments();
+    void fillInstruments(QList<QPair<QString, QString>> instruments);
     void initialiseElements();
     void goToCurrentFoundIndex(QModelIndex index);
+    QList<QPair<QString, QString>> getInstruments();
+    QList<QString> getFields(QString instrument, QString instType);
+    void setLoadScreen(bool state);
     private slots:
     void on_filterBox_textChanged(const QString &arg1);
     void on_searchBox_textChanged(const QString &arg1);
     void handle_result_instruments(HttpRequestWorker *worker);
     void handle_result_cycles(HttpRequestWorker *worker);
-    void handle_result_fieldQuery(HttpRequestWorker *worker);
-    void handle_result_logData(HttpRequestWorker *worker);
     void on_instrumentsBox_currentTextChanged(const QString &arg1);
     void on_cyclesBox_currentTextChanged(const QString &arg1);
     void on_groupButton_clicked(bool checked);
     void columnHider(int state);
-    void fieldToggled();
-    void runToggled();
     void on_clearSearchButton_clicked();
     void on_findUp_clicked();
     void on_findDown_clicked();
     void on_searchAll_clicked();
     void on_massSearchButton_clicked();
+    void on_closeFind_clicked();
     void recentCycle();
-    void on_graph_clicked();
     void customMenuRequested(QPoint pos);
     void handle_result_contextGraph(HttpRequestWorker *worker);
     void contextGraph();
     void handle_result_contextMenu(HttpRequestWorker *worker);
     void removeTab(int index);
     void toggleAxis(int state);
+    void savePref();
 
     protected:
     // Window close event
     void closeEvent(QCloseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
     private:
     Ui::MainWindow *ui_;
     JsonTableModel *model_;
     QSortFilterProxyModel *proxyModel_;
     QMenu *viewMenu_;
-    QMenu *nexusMenu_;
-    QMenu *runsMenu_;
     QMenu *contextMenu_;
     JsonTableModel::Header header_;
     QList<QString> desiredHeader_;
-    QList<QString> muonHeader_;
-    QList<QString> neutronHeader_;
     QModelIndexList foundIndices_;
     int currentFoundIndex_;
     bool init_;

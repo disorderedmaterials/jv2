@@ -14,6 +14,7 @@
 // Fills cycles box on request completion
 void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 {
+    setLoadScreen(false);
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
@@ -33,10 +34,13 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 
         // Keep cycle over instruments
         auto cycleIndex = ui_->cyclesBox->findText(cycleText);
-        if (cycleIndex != -1)
-            ui_->cyclesBox->setCurrentIndex(cycleIndex);
-        else
-            ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
+        if (!init_)
+        {
+            if (cycleIndex != -1)
+                ui_->cyclesBox->setCurrentIndex(cycleIndex);
+            else
+                ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
+        }
     }
     else
     {
@@ -55,6 +59,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 // Fills table view with run
 void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 {
+    setLoadScreen(false);
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
@@ -78,6 +83,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
         // Fills viewMenu_ with all columns
         viewMenu_->clear();
+        viewMenu_->addAction("savePref", this, SLOT(savePref()));
+        viewMenu_->addSeparator();
         foreach (const QString &key, jsonObject.keys())
         {
 
@@ -88,6 +95,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             checkBox->setCheckState(Qt::PartiallyChecked);
             viewMenu_->addAction(checkableAction);
             connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
+
+            desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
 
             // Filter table based on desired headers
             if (!desiredHeader_.contains(key))
@@ -115,16 +124,6 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
     }
     ui_->instrumentsBox->setDisabled(arg1.isEmpty());
 
-    QString instType = ui_->instrumentsBox->itemData(ui_->instrumentsBox->findText(arg1)).toString();
-    desiredHeader_.clear();
-    if (instType == "neutron")
-    {
-        desiredHeader_ = neutronHeader_;
-    }
-    else
-    {
-        desiredHeader_ = muonHeader_;
-    }
     // Configure api call
     QString url_str = "http://127.0.0.1:5000/getCycles/" + arg1;
     HttpRequestInput input(url_str);
@@ -133,6 +132,7 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_instruments(HttpRequestWorker *)));
+    setLoadScreen(true);
     worker->execute(input);
 }
 
@@ -145,11 +145,13 @@ void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
     ui_->searchBox->setDisabled(arg1.isEmpty());
     if (arg1.isEmpty())
         return;
+
     QString url_str = "http://127.0.0.1:5000/getJournal/" + ui_->instrumentsBox->currentText() + "/" + arg1;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
+    setLoadScreen(true);
     worker->execute(input);
 }
