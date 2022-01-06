@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2021 E. Devlin and T. Youngs
+# Copyright (c) 2022 E. Devlin and T. Youngs
 
 from flask import Flask
 from flask import jsonify
@@ -129,7 +129,7 @@ def getAllJournals(instrument, search):
             fields.append(runData)
         allFields += (fields)
         print(len(foundElems))
-    
+
     endTime = datetime.now()
     print(endTime - startTime)
     return jsonify(allFields)

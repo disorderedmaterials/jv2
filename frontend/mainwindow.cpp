@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2021 E. Devlin and T. Youngs
+// Copyright (c) 2022 E. Devlin and T. Youngs
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -130,201 +130,201 @@ void MainWindow::on_massSearchButton_clicked()
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
+    void MainWindow::keyPressEvent(QKeyEvent * event)
     {
-        if (ui_->searchBox->isVisible())
-            ui_->searchBox->setFocus();
-        else
+        if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
         {
-            ui_->searchSeperator->setVisible(true);
-            ui_->searchBox->setVisible(true);
-            ui_->findUp->setVisible(true);
-            ui_->findDown->setVisible(true);
-            ui_->searchAll->setVisible(true);
-            ui_->closeFind->setVisible(true);
+            if (ui_->searchBox->isVisible())
+                ui_->searchBox->setFocus();
+            else
+            {
+                ui_->searchSeperator->setVisible(true);
+                ui_->searchBox->setVisible(true);
+                ui_->findUp->setVisible(true);
+                ui_->findDown->setVisible(true);
+                ui_->searchAll->setVisible(true);
+                ui_->closeFind->setVisible(true);
 
-            ui_->searchBox->setFocus();
+                ui_->searchBox->setFocus();
+            }
+        }
+        if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
+        {
+            if (ui_->groupButton->isChecked())
+            {
+                ui_->groupButton->setChecked(false);
+                on_groupButton_clicked(false);
+            }
+            else
+            {
+                ui_->groupButton->setChecked(true);
+                on_groupButton_clicked(true);
+            }
         }
     }
-    if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
+
+    void MainWindow::on_closeFind_clicked()
     {
-        if (ui_->groupButton->isChecked())
-        {
-            ui_->groupButton->setChecked(false);
-            on_groupButton_clicked(false);
-        }
-        else
-        {
-            ui_->groupButton->setChecked(true);
-            on_groupButton_clicked(true);
-        }
+        ui_->searchSeperator->setVisible(false);
+        ui_->searchBox->setVisible(false);
+        ui_->findUp->setVisible(false);
+        ui_->findDown->setVisible(false);
+        ui_->searchAll->setVisible(false);
+        ui_->closeFind->setVisible(false);
+        if (ui_->searchLabel->text() != "")
+            ui_->runDataTable->selectionModel()->clearSelection();
+        ui_->searchLabel->setText("");
     }
-}
 
-void MainWindow::on_closeFind_clicked()
-{
-    ui_->searchSeperator->setVisible(false);
-    ui_->searchBox->setVisible(false);
-    ui_->findUp->setVisible(false);
-    ui_->findDown->setVisible(false);
-    ui_->searchAll->setVisible(false);
-    ui_->closeFind->setVisible(false);
-    if (ui_->searchLabel->text() != "")
-        ui_->runDataTable->selectionModel()->clearSelection();
-    ui_->searchLabel->setText("");
-}
-
-QList<QPair<QString, QString>> MainWindow::getInstruments()
-{
-    QFile file("../extra/instrumentData.xml");
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
-    auto rootelem = dom.documentElement();
-    auto nodelist = rootelem.elementsByTagName("inst");
-
-    QList<QPair<QString, QString>> instruments;
-    QPair<QString, QString> instrument;
-    QDomNode node;
-    QDomElement elem;
-    for (auto i = 0; i < nodelist.count(); i++)
+    QList<QPair<QString, QString>> MainWindow::getInstruments()
     {
-        node = nodelist.item(i);
-        elem = node.toElement();
-        instrument.first = elem.attribute("name");
-        instrument.second = elem.elementsByTagName("type").item(0).toElement().text();
-        instruments.append(instrument);
-    }
-    return instruments;
-}
+        QFile file("../extra/instrumentData.xml");
+        file.open(QIODevice::ReadOnly);
+        QDomDocument dom;
+        dom.setContent(&file);
+        file.close();
+        auto rootelem = dom.documentElement();
+        auto nodelist = rootelem.elementsByTagName("inst");
 
-QList<QString> MainWindow::getFields(QString instrument, QString instType)
-{
-    QList<QString> desiredInstFields;
-    QDomNodeList desiredInstrumentFields;
-
-    QFile file("../extra/tableConfig.xml");
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
-
-    auto rootelem = dom.documentElement();
-    auto instList = rootelem.elementsByTagName("inst");
-    for (auto i = 0; i < instList.count(); i++)
-    {
-        if (instList.item(i).toElement().attribute("name") == instrument)
+        QList<QPair<QString, QString>> instruments;
+        QPair<QString, QString> instrument;
+        QDomNode node;
+        QDomElement elem;
+        for (auto i = 0; i < nodelist.count(); i++)
         {
-            desiredInstrumentFields = instList.item(i).toElement().elementsByTagName("Column");
-            break;
+            node = nodelist.item(i);
+            elem = node.toElement();
+            instrument.first = elem.attribute("name");
+            instrument.second = elem.elementsByTagName("type").item(0).toElement().text();
+            instruments.append(instrument);
         }
+        return instruments;
     }
-    if (desiredInstrumentFields.isEmpty())
-    {
-        auto configDefault = rootelem.elementsByTagName(instType).item(0).toElement();
-        auto configDefaultFields = configDefault.elementsByTagName("Column");
 
-        if (configDefaultFields.isEmpty())
+    QList<QString> MainWindow::getFields(QString instrument, QString instType)
+    {
+        QList<QString> desiredInstFields;
+        QDomNodeList desiredInstrumentFields;
+
+        QFile file("../extra/tableConfig.xml");
+        file.open(QIODevice::ReadOnly);
+        QDomDocument dom;
+        dom.setContent(&file);
+        file.close();
+
+        auto rootelem = dom.documentElement();
+        auto instList = rootelem.elementsByTagName("inst");
+        for (auto i = 0; i < instList.count(); i++)
         {
-            QFile file("../extra/instrumentData.xml");
-            file.open(QIODevice::ReadOnly);
-            dom.setContent(&file);
-            file.close();
-            auto rootelem = dom.documentElement();
-            auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
-            for (int i = 0; i < defaultColumns.count(); i++)
+            if (instList.item(i).toElement().attribute("name") == instrument)
+            {
+                desiredInstrumentFields = instList.item(i).toElement().elementsByTagName("Column");
+                break;
+            }
+        }
+        if (desiredInstrumentFields.isEmpty())
+        {
+            auto configDefault = rootelem.elementsByTagName(instType).item(0).toElement();
+            auto configDefaultFields = configDefault.elementsByTagName("Column");
+
+            if (configDefaultFields.isEmpty())
+            {
+                QFile file("../extra/instrumentData.xml");
+                file.open(QIODevice::ReadOnly);
+                dom.setContent(&file);
+                file.close();
+                auto rootelem = dom.documentElement();
+                auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
+                for (int i = 0; i < defaultColumns.count(); i++)
+                {
+                    desiredInstFields.append(
+                        defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
+                }
+                return desiredInstFields;
+            }
+
+            for (int i = 0; i < configDefaultFields.count(); i++)
             {
                 desiredInstFields.append(
-                    defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
+                    configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
             }
             return desiredInstFields;
         }
-
-        for (int i = 0; i < configDefaultFields.count(); i++)
+        for (int i = 0; i < desiredInstrumentFields.count(); i++)
         {
             desiredInstFields.append(
-                configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
+                desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
         }
         return desiredInstFields;
     }
-    for (int i = 0; i < desiredInstrumentFields.count(); i++)
+
+    void MainWindow::savePref()
     {
-        desiredInstFields.append(
-            desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
-    }
-    return desiredInstFields;
-}
 
-void MainWindow::savePref()
-{
-
-    QFile file("../extra/tableConfig.xml");
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
-
-    auto rootelem = dom.documentElement();
-    auto nodelist = rootelem.elementsByTagName("inst");
-
-    QString currentFields;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (!ui_->runDataTable->isColumnHidden(i))
-        {
-            currentFields += ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString();
-            currentFields += ",;";
-        }
-    }
-    currentFields.chop(1);
-
-    QDomNode node;
-    QDomElement elem;
-    QDomElement columns;
-    for (auto i = 0; i < nodelist.count(); i++)
-    {
-        node = nodelist.item(i);
-        elem = node.toElement();
-        if (elem.attribute("name") == ui_->instrumentsBox->currentText())
-        {
-            auto oldColumns = elem.elementsByTagName("Columns");
-            if (!oldColumns.isEmpty())
-                elem.removeChild(elem.elementsByTagName("Columns").item(0));
-            columns = dom.createElement("Columns");
-            for (QString field : currentFields.split(";"))
-            {
-                auto preferredFieldsElem = dom.createElement("Column");
-                auto preferredFieldsDataElem = dom.createElement("Data");
-                preferredFieldsElem.setAttribute("Title", "placeholder");
-                preferredFieldsDataElem.appendChild(dom.createTextNode(field.left(field.indexOf(","))));
-                preferredFieldsElem.appendChild(preferredFieldsDataElem);
-                columns.appendChild(preferredFieldsElem);
-            }
-            elem.appendChild(columns);
-        }
-    }
-    if (!dom.toByteArray().isEmpty())
-    {
         QFile file("../extra/tableConfig.xml");
-        file.open(QIODevice::WriteOnly);
-        file.write(dom.toByteArray());
+        file.open(QIODevice::ReadOnly);
+        QDomDocument dom;
+        dom.setContent(&file);
         file.close();
-    }
-}
 
-void MainWindow::setLoadScreen(bool state)
-{
-    if (state)
-    {
-        QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        QWidget::setEnabled(false);
+        auto rootelem = dom.documentElement();
+        auto nodelist = rootelem.elementsByTagName("inst");
+
+        QString currentFields;
+        for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+        {
+            if (!ui_->runDataTable->isColumnHidden(i))
+            {
+                currentFields += ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString();
+                currentFields += ",;";
+            }
+        }
+        currentFields.chop(1);
+
+        QDomNode node;
+        QDomElement elem;
+        QDomElement columns;
+        for (auto i = 0; i < nodelist.count(); i++)
+        {
+            node = nodelist.item(i);
+            elem = node.toElement();
+            if (elem.attribute("name") == ui_->instrumentsBox->currentText())
+            {
+                auto oldColumns = elem.elementsByTagName("Columns");
+                if (!oldColumns.isEmpty())
+                    elem.removeChild(elem.elementsByTagName("Columns").item(0));
+                columns = dom.createElement("Columns");
+                for (QString field : currentFields.split(";"))
+                {
+                    auto preferredFieldsElem = dom.createElement("Column");
+                    auto preferredFieldsDataElem = dom.createElement("Data");
+                    preferredFieldsElem.setAttribute("Title", "placeholder");
+                    preferredFieldsDataElem.appendChild(dom.createTextNode(field.left(field.indexOf(","))));
+                    preferredFieldsElem.appendChild(preferredFieldsDataElem);
+                    columns.appendChild(preferredFieldsElem);
+                }
+                elem.appendChild(columns);
+            }
+        }
+        if (!dom.toByteArray().isEmpty())
+        {
+            QFile file("../extra/tableConfig.xml");
+            file.open(QIODevice::WriteOnly);
+            file.write(dom.toByteArray());
+            file.close();
+        }
     }
-    else
+
+    void MainWindow::setLoadScreen(bool state)
     {
-        QWidget::setEnabled(true);
-        QGuiApplication::restoreOverrideCursor();
+        if (state)
+        {
+            QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+            QWidget::setEnabled(false);
+        }
+        else
+        {
+            QWidget::setEnabled(true);
+            QGuiApplication::restoreOverrideCursor();
+        }
     }
-}
