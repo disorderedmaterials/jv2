@@ -17,6 +17,11 @@ class ChartView : public QChartView
     void keyReleaseEvent(QKeyEvent *event);
     void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+
+    private:
+    QPointF m_lastMousePos;
 };
 
 #endif // CHARTVIEW_H

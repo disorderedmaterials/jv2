@@ -2,11 +2,14 @@
 // Copyright (c) 2022 E. Devlin and T. Youngs
 
 #include "chartview.h"
+#include <QDebug>
 #include <QtGui/QMouseEvent>
 
 ChartView::ChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent)
 {
     setRubberBand(QChartView::HorizontalRubberBand);
+    setDragMode(QGraphicsView::NoDrag);
+    this->setMouseTracking(true);
 }
 
 void ChartView::keyPressEvent(QKeyEvent *event)
@@ -62,5 +65,37 @@ void ChartView::wheelEvent(QWheelEvent *event)
 void ChartView::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::MiddleButton)
-        chart()->zoomReset();
+    {
+        //QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor));
+        m_lastMousePos = event->pos();
+        event->accept();
+    }
+    QChartView::mousePressEvent(event);
 }
+
+void ChartView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        chart()->zoomReset();
+        return;
+    }
+    QChartView::mouseReleaseEvent(event);
+}
+
+void ChartView::mouseMoveEvent(QMouseEvent *event)
+    {
+        // pan the chart with a middle mouse drag
+        if (event->buttons() & Qt::MiddleButton)
+        {
+            auto dPos = event->pos() - m_lastMousePos;
+            chart()->scroll(-dPos.x(), dPos.y());
+
+            m_lastMousePos = event->pos();
+            event->accept();
+
+            //QApplication::restoreOverrideCursor();
+        }
+
+        QChartView::mouseMoveEvent(event);
+    }

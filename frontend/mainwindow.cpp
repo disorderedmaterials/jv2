@@ -136,42 +136,27 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
     {
         if (ui_->searchContainer->isVisible())
-        {
             ui_->searchContainer->setVisible(false);
-        }
     }
     if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
     {
-        if (ui_->searchContainer->isVisible())
-            ui_->searchBox->setFocus();
-        else
-        {
+        if (!ui_->searchContainer->isVisible())
             ui_->searchContainer->setVisible(true);
-
-            ui_->searchBox->setFocus();
-        }
+        ui_->searchBox->setFocus();
     }
     if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
     {
-        if (ui_->groupButton->isChecked())
-        {
-            ui_->groupButton->setChecked(false);
-            on_groupButton_clicked(false);
-        }
-        else
-        {
-            ui_->groupButton->setChecked(true);
-            on_groupButton_clicked(true);
-        }
-    }
-    if (event->key() == Qt::Key_F3)
-    {
-        on_findDown_clicked();
+        bool checked = ui_->groupButton->isChecked();
+        ui_->groupButton->setChecked(!checked);
+        on_groupButton_clicked(!checked);
     }
     if (event->key() == Qt::Key_F3 && event->modifiers() == Qt::ShiftModifier)
     {
         on_findUp_clicked();
+        return;
     }
+    if (event->key() == Qt::Key_F3)
+        on_findDown_clicked();
 
     // SWITCH STATEMENT
 }
@@ -179,9 +164,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::on_closeFind_clicked()
 {
     ui_->searchContainer->setVisible(false);
-    if (ui_->searchLabel->text() != "")
+    if (statusBar()->currentMessage() != "")
         ui_->runDataTable->selectionModel()->clearSelection();
-    ui_->searchLabel->setText("");
+    statusBar()->clearMessage();
 }
 
 QList<QPair<QString, QString>> MainWindow::getInstruments()
