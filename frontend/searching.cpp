@@ -46,7 +46,8 @@ void MainWindow::on_findUp_clicked()
         else
             currentFoundIndex_ = 0;
         goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
-        statusBar()->showMessage("Found run " + QString::number(currentFoundIndex_ + 1) + "/" + QString::number(foundIndices_.size()));
+        statusBar()->showMessage("Found run " + QString::number(currentFoundIndex_ + 1) + "/" +
+                                 QString::number(foundIndices_.size()));
     }
 }
 
@@ -59,7 +60,8 @@ void MainWindow::on_findDown_clicked()
         if (currentFoundIndex_ < foundIndices_.size() - 1)
             currentFoundIndex_ += 1;
         goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
-        statusBar()->showMessage("Found run " + QString::number(currentFoundIndex_ + 1) + "/" + QString::number(foundIndices_.size()));
+        statusBar()->showMessage("Found run " + QString::number(currentFoundIndex_ + 1) + "/" +
+                                 QString::number(foundIndices_.size()));
     }
 }
 
