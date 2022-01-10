@@ -157,6 +157,8 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     auto *window = new QWidget;
     auto *contextChart = new QChart();
     auto *contextChartView = new ChartView(contextChart, window);
+    auto *contextChart2 = new QChart();
+    auto *contextChartView2 = new ChartView(contextChart2, window);
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
@@ -178,6 +180,15 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         QStringList categoryValues;
         contextChart->addAxis(stringAxis, Qt::AlignLeft);
 
+        auto *valueAxis2 = new QValueAxis();
+        auto *absTimeAxis2 = new QValueAxis();
+        auto *stringAxis2 = new QCategoryAxis();
+        contextChart2->addAxis(valueAxis2, Qt::AlignLeft);
+        contextChart2->addAxis(absTimeAxis2, Qt::AlignBottom);
+        absTimeAxis2->setTitleText("Absolute Time");
+        contextChart2->addAxis(stringAxis2, Qt::AlignLeft);
+        
+
         bool firstRun = true;
         // For each Run
         foreach (const auto &runFields, worker->json_array)
@@ -191,6 +202,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             if (firstRun)
             {
                 timeAxis->setRange(startTime, endTime);
+                absTimeAxis2->setRange(0,0);
                 firstRun = false;
             }
 
@@ -201,10 +213,12 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
                 // For each plot point
                 auto *series = new QLineSeries();
+                auto *series2 = new QLineSeries();
 
                 // Set series ID
                 QString name = fieldDataArray.first()[0].toString() + " " + fieldDataArray.first()[1].toString();
                 series->setName(name);
+                series2->setName(name);
                 fieldDataArray.removeFirst();
 
                 if (fieldDataArray.first()[1].isString())
@@ -215,6 +229,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                         categoryValues.append(dataPairArray[1].toString());
                         series->append(startTime.addSecs(dataPairArray[0].toDouble()).toMSecsSinceEpoch(),
                                        dataPairArray[1].toString().right(2).toDouble());
+                        series2->append(dataPairArray[0].toDouble(), dataPairArray[1].toString().right(2).toDouble());
                     }
                 }
                 else
@@ -224,6 +239,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                         auto dataPairArray = dataPair.toArray();
                         series->append(startTime.addSecs(dataPairArray[0].toDouble()).toMSecsSinceEpoch(),
                                        dataPairArray[1].toDouble());
+                        series2->append(dataPairArray[0].toDouble(), dataPairArray[1].toDouble());
                         if (dataPairArray[1].toDouble() < valueAxis->min())
                             valueAxis->setMin(dataPairArray[1].toDouble());
                         if (dataPairArray[1].toDouble() > valueAxis->max())
@@ -234,6 +250,11 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                     timeAxis->setMin(startTime.addSecs(startTime.secsTo(QDateTime::fromMSecsSinceEpoch(series->at(0).x()))));
                 if (endTime > timeAxis->max())
                     timeAxis->setMax(endTime);
+                
+                if (series2->at(0).x() < absTimeAxis2->min())
+                    absTimeAxis2->setMin(series2->at(0).x());
+                if (series2->at(series2->count()-1).x() > absTimeAxis2->max())
+                    absTimeAxis2->setMax(series2->at(series2->count()-1).x());
 
                 contextChart->addSeries(series);
                 series->attachAxis(timeAxis);
@@ -242,6 +263,11 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                     series->attachAxis(valueAxis);
                 else
                     series->attachAxis(stringAxis);
+
+                contextChart2->addSeries(series2);
+                series2->attachAxis(valueAxis2);
+                series2->attachAxis(absTimeAxis2);
+                
             }
         }
 
@@ -258,6 +284,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         }
 
         absTimeAxis->setRange(timeAxis->min().toMSecsSinceEpoch(), timeAxis->max().toMSecsSinceEpoch());
+        valueAxis2->setRange(valueAxis->min(), valueAxis->max());
 
         contextChart->axes()[1]->hide();
 
@@ -271,6 +298,8 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         connect(zoomReset, &QPushButton::clicked, [=]() { contextChart->zoomReset(); });
 
         gridLayout->addWidget(contextChartView, 0, 0, -1, -1);
+        gridLayout->addWidget(contextChartView2, 0, 0, -1, -1);
+        contextChartView2->hide();
         gridLayout->addWidget(testCheck, 1, 0);
         gridLayout->addWidget(zoomReset, 1, 1);
         ui_->tabWidget->addTab(window, "graph");
@@ -293,12 +322,12 @@ void MainWindow::toggleAxis(int state)
     QList<QChartView *> help = graphParent->findChildren<QChartView *>();
     if (toggleBox->isChecked())
     {
-        help[0]->chart()->axes()[0]->hide();
-        help[0]->chart()->axes()[1]->show();
+        help[0]->hide();
+        help[1]->show();
     }
     else
     {
-        help[0]->chart()->axes()[0]->show();
-        help[0]->chart()->axes()[1]->hide();
+        help[0]->show();
+        help[1]->hide();
     }
 }
