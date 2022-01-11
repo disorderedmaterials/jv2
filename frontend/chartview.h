@@ -21,7 +21,8 @@ class ChartView : public QChartView
     void mouseMoveEvent(QMouseEvent *event);
 
     private:
-    QPointF m_lastMousePos;
+    QPointF lastMousePos_;
+    bool first_;
 };
 
 #endif // CHARTVIEW_H
