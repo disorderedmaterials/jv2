@@ -290,14 +290,14 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         absTimeYAxis->setRange(dateTimeYAxis->min(), dateTimeYAxis->max());
 
         auto *gridLayout = new QGridLayout(window);
-        auto *testCheck = new QCheckBox("test", window);
+        auto *axisToggleCheck = new QCheckBox("show absolute time", window);
 
-        connect(testCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
+        connect(axisToggleCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
 
-        gridLayout->addWidget(dateTimeChartView, 0, 0, -1, -1);
-        gridLayout->addWidget(absTimeChartView, 0, 0, -1, -1);
+        gridLayout->addWidget(dateTimeChartView, 1, 0, -1, -1);
+        gridLayout->addWidget(absTimeChartView, 1, 0, -1, -1);
         absTimeChartView->hide();
-        gridLayout->addWidget(testCheck, 1, 0);
+        gridLayout->addWidget(axisToggleCheck, 0, 0);
         ui_->tabWidget->addTab(window, "graph");
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
     }
