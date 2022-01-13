@@ -22,7 +22,6 @@ class ChartView : public QChartView
 
     private:
     QPointF lastMousePos_;
-    bool first_;
 };
 
 #endif // CHARTVIEW_H

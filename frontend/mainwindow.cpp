@@ -157,8 +157,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     if (event->key() == Qt::Key_F3)
         on_findDown_clicked();
-
-    // SWITCH STATEMENT
 }
 
 void MainWindow::on_closeFind_clicked()

@@ -11,7 +11,6 @@ ChartView::ChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent)
     setRubberBand(QChartView::HorizontalRubberBand);
     setDragMode(QGraphicsView::NoDrag);
     this->setMouseTracking(true);
-    first_ = true;
 }
 
 void ChartView::keyPressEvent(QKeyEvent *event)
@@ -68,12 +67,8 @@ void ChartView::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::MiddleButton)
     {
-        if (first_)
-        {
-            chart()->zoomIn();
-            chart()->zoomOut();
-            first_ = false;
-        }
+        chart()->zoomIn();
+        chart()->zoomOut();
         QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor));
         lastMousePos_ = event->pos();
         event->accept();
@@ -86,8 +81,6 @@ void ChartView::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() == Qt::RightButton)
     {
         chart()->zoomReset();
-        chart()->zoomIn();
-        chart()->zoomOut();
         return;
     }
     if (event->button() == Qt::MiddleButton)
