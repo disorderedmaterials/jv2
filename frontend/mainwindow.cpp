@@ -19,6 +19,7 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
@@ -121,14 +122,32 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::on_massSearchButton_clicked()
+void MainWindow::massSearch(QString name, QString value)
 {
-    QString url_str =
-        "http://127.0.0.1:5000/getAllJournals/" + ui_->instrumentsBox->currentText() + "/" + ui_->massSearchBox->text();
+    QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"), tr(name.append(":").toUtf8()), QLineEdit::Normal);
+    if (text.isEmpty())
+        return;
+
+    for (auto tuple : cachedMassSearch_)
+    {
+        if (std::get<1>(tuple) == text)
+        {
+            ui_->cyclesBox->setCurrentText("<" + std::get<1>(tuple) + ">");
+            setLoadScreen(true);
+            handle_result_cycles(std::get<0>(tuple));
+            return;
+        }
+    }
+
+    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + ui_->instrumentsBox->currentText() + "/" + value + "/" + text;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
+    cachedMassSearch_.append(std::make_tuple(worker, text));
+    ui_->cyclesBox->addItem("<" + text + ">");
+    ui_->cyclesBox->setCurrentText("<" + text + ">");
+    setLoadScreen(true);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -319,3 +338,9 @@ void MainWindow::setLoadScreen(bool state)
         QGuiApplication::restoreOverrideCursor();
     }
 }
+
+void MainWindow::on_actionRB_No_triggered() { massSearch("RB No.", "run_number"); }
+
+void MainWindow::on_actionTitle_triggered() { massSearch("Title", "title"); }
+
+void MainWindow::on_actionUser_triggered() { massSearch("User name", "user_name"); }
