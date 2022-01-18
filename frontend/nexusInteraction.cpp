@@ -177,7 +177,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         dateTimeChart->addAxis(dateTimeStringAxis, Qt::AlignLeft);
 
         auto *relTimeXAxis = new QValueAxis();
-        relTimeXAxis->setTitleText("Relative Time");
+        relTimeXAxis->setTitleText("Relative Time (s)");
         relTimeChart->addAxis(relTimeXAxis, Qt::AlignBottom);
 
         auto *relTimeYAxis = new QValueAxis();
