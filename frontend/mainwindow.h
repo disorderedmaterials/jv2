@@ -79,6 +79,6 @@ class MainWindow : public QMainWindow
     bool init_;
     QChart *chart_;
     QPoint pos_;
-    QList<std::tuple<HttpRequestWorker*, QString>> cachedMassSearch_;
+    QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
 };
 #endif // MAINWINDOW_H
