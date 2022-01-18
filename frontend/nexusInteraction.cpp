@@ -212,6 +212,15 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                 auto *dateSeries = new QLineSeries();
                 auto *absSeries = new QLineSeries();
 
+                connect(dateSeries, SIGNAL(hovered(const QPointF, bool)), dateTimeChartView,
+                        SLOT(setHovered(const QPointF, bool)));
+                connect(dateTimeChartView, SIGNAL(showCoordinates(qreal, qreal)), this, SLOT(showStatus(qreal, qreal)));
+                connect(dateTimeChartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
+                connect(absSeries, SIGNAL(hovered(const QPointF, bool)), absTimeChartView,
+                        SLOT(setHovered(const QPointF, bool)));
+                connect(absTimeChartView, SIGNAL(showCoordinates(qreal, qreal)), this, SLOT(showStatus(qreal, qreal)));
+                connect(absTimeChartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
+
                 // Set dateSeries ID
                 QString name = fieldDataArray.first()[0].toString() + " " + fieldDataArray.first()[1].toString();
                 dateSeries->setName(name);
@@ -325,5 +334,20 @@ void MainWindow::toggleAxis(int state)
     {
         tabCharts[0]->show();
         tabCharts[1]->hide();
+    }
+}
+
+void MainWindow::showStatus(qreal x, qreal y)
+{
+    auto *chartView = qobject_cast<ChartView *>(sender());
+    if (QString(chartView->chart()->axes(Qt::Horizontal)[0]->metaObject()->className()) == QString("QDateTimeAxis"))
+    {
+        QString message = QDateTime::fromMSecsSinceEpoch(x).toString("yyyy-MM-dd HH:mm:ss") + ", " + QString::number(y);
+        statusBar()->showMessage(message);
+    }
+    else
+    {
+        QString message = QString::number(x) + ", " + QString::number(y);
+        statusBar()->showMessage(message);
     }
 }

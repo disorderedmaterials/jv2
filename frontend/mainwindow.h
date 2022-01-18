@@ -56,6 +56,7 @@ class MainWindow : public QMainWindow
     void removeTab(int index);
     void toggleAxis(int state);
     void savePref();
+    void showStatus(qreal x, qreal y);
 
     protected:
     // Window close event
