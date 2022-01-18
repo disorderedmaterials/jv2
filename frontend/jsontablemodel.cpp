@@ -89,6 +89,7 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
                                        QString::number(seconds).rightJustified(2, '0'));
                     }
                     return v.toString();
+                }
                 else if (v.isDouble())
                     return QString::number(v.toDouble());
                 else
