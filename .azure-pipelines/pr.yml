@@ -40,8 +40,11 @@ stages:
         steps:
           - checkout: self
             fetchDepth: 1
-          - template: templates/linuxBuild.yml
-          - template: templates/linuxPackage.yml
+          - template: templates/newLinuxBuild.yml
+            parameters:
+              export: true
+              exportExe: false
+              exportSingularity: true
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "packages/"
