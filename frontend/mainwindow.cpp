@@ -9,6 +9,7 @@
 #include <QCheckBox>
 #include <QDebug>
 #include <QDomDocument>
+#include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -19,7 +20,6 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
-#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
