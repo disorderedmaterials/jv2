@@ -14,9 +14,9 @@
     let
       exe-name = mpi: gui:
         if mpi then
-          "dissolve-mpi"
+          "jv2-mpi"
         else
-          (if gui then "dissolve-gui" else "dissolve");
+          (if gui then "jv2-gui" else "jv2");
       cmake-bool = x: if x then "ON" else "OFF";
       version = "0.9.0";
       base_libs = pkgs:
@@ -49,7 +49,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         nixGL = import nixGL-src { inherit pkgs; };
         QTDIR = "${import ./nix/qt6.nix { inherit pkgs; }}/6.1.1/gcc_64";
-        dissolve =
+        jv2 =
           { mpi ? false, gui ? true, threading ? true, checks ? false }:
           assert (!(gui && mpi));
           pkgs.gcc9Stdenv.mkDerivation ({
@@ -104,33 +104,33 @@
           pkgs.singularity-tools.buildImage {
             name = "${exe-name mpi gui}-${version}";
             diskSize = 1024 * 25;
-            contents = [ (dissolve { inherit mpi gui threading; }) ];
+            contents = [ (jv2 { inherit mpi gui threading; }) ];
             runScript = if gui then
               "${nixGL.nixGLIntel}/bin/nixGLIntel ${
-                dissolve { inherit mpi gui threading; }
+                jv2 { inherit mpi gui threading; }
               }/bin/${exe-name mpi gui}"
             else
-              "${dissolve { inherit mpi gui threading; }}/bin/${
+              "${jv2 { inherit mpi gui threading; }}/bin/${
                 exe-name mpi gui
               }";
           };
       in {
-        checks.dissolve = dissolve { checks = true; };
-        checks.dissolve-mpi = dissolve {
+        checks.jv2 = jv2 { checks = true; };
+        checks.jv2-mpi = jv2 {
           mpi = true;
           gui = false;
           checks = true;
         };
-        checks.dissolve-threadless = dissolve {
+        checks.jv2-threadless = jv2 {
           threading = false;
           gui = false;
           checks = true;
         };
 
-        defaultPackage = self.packages.${system}.dissolve-gui;
+        defaultPackage = self.packages.${system}.jv2-gui;
 
         devShell = pkgs.gcc9Stdenv.mkDerivation {
-          name = "dissolve-shell";
+          name = "jv2-shell";
           buildInputs = base_libs pkgs ++ gui_libs pkgs ++ check_libs pkgs
             ++ (with pkgs; [
               (pkgs.clang-tools.override { llvmPackages = pkgs.llvmPackages; })
@@ -163,13 +163,13 @@
         };
 
         apps = {
-          dissolve =
-            flake-utils.lib.mkApp { drv = self.packages.${system}.dissolve; };
-          dissolve-mpi = flake-utils.lib.mkApp {
-            drv = self.packages.${system}.dissolve-mpi;
+          jv2 =
+            flake-utils.lib.mkApp { drv = self.packages.${system}.jv2; };
+          jv2-mpi = flake-utils.lib.mkApp {
+            drv = self.packages.${system}.jv2-mpi;
           };
-          dissolve-gui = flake-utils.lib.mkApp {
-            drv = self.packages.${system}.dissolve-gui;
+          jv2-gui = flake-utils.lib.mkApp {
+            drv = self.packages.${system}.jv2-gui;
           };
         };
 
@@ -177,16 +177,16 @@
           flake-utils.lib.mkApp { drv = self.defaultPackage.${system}; };
 
         packages = {
-          dissolve = dissolve { gui = false; };
-          dissolve-threadless = dissolve {
+          jv2 = jv2 { gui = false; };
+          jv2-threadless = jv2 {
             gui = false;
             threading = false;
           };
-          dissolve-mpi = dissolve {
+          jv2-mpi = jv2 {
             mpi = true;
             gui = false;
           };
-          dissolve-gui = dissolve { };
+          jv2-gui = jv2 { };
 
           singularity = mkSingularity { };
           singularity-mpi = mkSingularity { mpi = true; };
@@ -197,25 +197,25 @@
           };
 
           docker = pkgs.dockerTools.buildImage {
-            name = "dissolve";
+            name = "jv2";
             tag = "latest";
-            config.Cmd = [ "${self.packages.${system}.dissolve}/bin/dissolve" ];
+            config.Cmd = [ "${self.packages.${system}.jv2}/bin/jv2" ];
           };
 
           docker-gui = pkgs.dockerTools.buildImage {
-            name = "dissolve-gui";
+            name = "jv2-gui";
             tag = "latest";
             config.ENTRYPOINT = [
               "${nixGL.nixGLIntel}/bin/nixGLIntel"
-              "${self.packages.${system}.dissolve-gui}/bin/dissolve-gui"
+              "${self.packages.${system}.jv2-gui}/bin/jv2-gui"
             ];
           };
 
           docker-mpi = pkgs.dockerTools.buildImage {
-            name = "dissolve-mpi";
+            name = "jv2-mpi";
             tag = "latest";
             config.ENTRYPOINT =
-              [ "${self.packages.${system}.dissolve-mpi}/bin/dissolve-mpi" ];
+              [ "${self.packages.${system}.jv2-mpi}/bin/jv2-mpi" ];
           };
 
         };
