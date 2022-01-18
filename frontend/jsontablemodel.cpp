@@ -73,7 +73,7 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
             {
                 QJsonValue v = obj[key];
 
-                if (v.isString()) 
+                if (v.isString())
                 {
                     // if title = duration then format
                     if (m_header[index.column()]["title"] == "duration")
