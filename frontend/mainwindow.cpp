@@ -129,7 +129,7 @@ void MainWindow::massSearch(QString name, QString value)
     QString textInput =
         QInputDialog::getText(this, tr("Enter search query"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
     QString text = name.append(textInput);
-    if (text.isEmpty())
+    if (textInput.isEmpty())
         return;
 
     for (auto tuple : cachedMassSearch_)
@@ -361,5 +361,53 @@ void MainWindow::on_actionClear_cached_searches_triggered()
         {
             ui_->cyclesBox->removeItem(i);
         }
+    }
+}
+
+void MainWindow::on_actionGo_to_triggered()
+{
+    QString textInput = QInputDialog::getText(this, tr("Enter search query"), tr("Run No: "), QLineEdit::Normal);
+    if (textInput.isEmpty())
+        return;
+
+    QString url_str = "http://127.0.0.1:5000/getGoToCycle/" + ui_->instrumentsBox->currentText() + "/" + textInput;
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(goTo(HttpRequestWorker *)));
+    worker->execute(input);
+    setLoadScreen(true);
+}
+
+void MainWindow::goTo(HttpRequestWorker *worker)
+{
+    setLoadScreen(false);
+    QString msg;
+    if (worker->error_type == QNetworkReply::NoError)
+        ui_->cyclesBox->setCurrentText(worker->response);
+    else
+    {
+        // an error occurred
+        msg = "Error1: " + worker->error_str;
+        QMessageBox::information(this, "", msg);
+    }
+}
+
+void MainWindow::selectSimilar()
+{
+    int TitleColumn;
+    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+    {
+        if (ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString() == "title")
+        {
+            TitleColumn = i;
+            break;
+        }
+    }
+    QString title = model_->index(ui_->runDataTable->rowAt(pos_.y()), TitleColumn).data().toString();
+    for (auto i = 0; i < model_->rowCount(); i++)
+    {
+        if (model_->index(i, TitleColumn).data().toString() == title)
+            ui_->runDataTable->selectionModel()->setCurrentIndex(model_->index(i, TitleColumn),
+                                                         QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
