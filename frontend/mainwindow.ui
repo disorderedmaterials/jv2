@@ -366,8 +366,7 @@
      <string>File</string>
     </property>
     <addaction name="action_Quit"/>
-   </widget>
-   <addaction name="menuFile"/>                       
+   </widget>                       
    <widget class="QMenu" name="menuFind">
     <property name="title">
      <string>Find</string>
@@ -383,6 +382,7 @@
     <addaction name="menuSearch_across_cycles"/>
     <addaction name="actionClear_cached_searches"/>
    </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuFind"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -404,6 +404,8 @@
   <action name="actionClear_cached_searches">
    <property name="text">
     <string>Clear cached searches</string>
+   </property>
+  </action>
   <action name="action_Quit">
    <property name="text">
     <string>&amp;Quit</string>
