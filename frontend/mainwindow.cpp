@@ -408,6 +408,6 @@ void MainWindow::selectSimilar()
     {
         if (model_->index(i, TitleColumn).data().toString() == title)
             ui_->runDataTable->selectionModel()->setCurrentIndex(model_->index(i, TitleColumn),
-                                                         QItemSelectionModel::Select | QItemSelectionModel::Rows);
+                                                                 QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
