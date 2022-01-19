@@ -361,6 +361,13 @@
      <height>24</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_Quit"/>
+   </widget>
+   <addaction name="menuFile"/>                       
    <widget class="QMenu" name="menuFind">
     <property name="title">
      <string>Find</string>
@@ -397,6 +404,9 @@
   <action name="actionClear_cached_searches">
    <property name="text">
     <string>Clear cached searches</string>
+  <action name="action_Quit">
+   <property name="text">
+    <string>&amp;Quit</string>
    </property>
   </action>
  </widget>
