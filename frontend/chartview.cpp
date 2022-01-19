@@ -134,6 +134,7 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
         auto x = (event->pos()).x();
         auto y = (event->pos()).y();
 
+        // map mouse position to chart
         auto xVal = chart()->mapToValue(event->pos()).x();
         auto yVal = chart()->mapToValue(event->pos()).y();
 
@@ -141,17 +142,19 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
         qreal minX;
         qreal maxY;
         qreal minY;
+
+        //Configure coordinate boundaries to different chart types
         if (chart()->axes(Qt::Horizontal)[0]->type() == QAbstractAxis::AxisTypeValue)
         {
-            QValueAxis *axis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
-            maxX = axis->max();
-            minX = axis->min();
+            QValueAxis *xAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
+            maxX = xAxis->max();
+            minX = xAxis->min();
         }
         else
         {
-            QDateTimeAxis *axis = qobject_cast<QDateTimeAxis *>(chart()->axes(Qt::Horizontal)[0]);
-            maxX = axis->max().toMSecsSinceEpoch();
-            minX = axis->min().toMSecsSinceEpoch();
+            QDateTimeAxis *xAxis = qobject_cast<QDateTimeAxis *>(chart()->axes(Qt::Horizontal)[0]);
+            maxX = xAxis->max().toMSecsSinceEpoch();
+            minX = xAxis->min().toMSecsSinceEpoch();
         }
         if (chart()->axes(Qt::Vertical)[0]->type() == QAbstractAxis::AxisTypeCategory)
         {
@@ -160,33 +163,42 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
         }
         else
         {
-            maxY = qobject_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0])->max();
-            minY = qobject_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0])->min();
+            QValueAxis *yAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
+            maxY = yAxis->max();
+            minY = yAxis->min();
         }
-
+        // if mouse in chart boundaries
         if (xVal <= maxX && xVal >= minX && yVal <= maxY && yVal >= minY)
         {
+            // map mouse to axis position
             auto xPosOnAxis = chart()->mapToPosition(QPointF(x, minY));
             auto yPosOnAxis = chart()->mapToPosition(QPointF(minX, y));
 
+            // move labels to axis offset
             coordLabelX_->setPos(x, xPosOnAxis.y() + 5);
             coordLabelY_->setPos(yPosOnAxis.x() - 27, y);
+            
+            //configure stationary start labels
             if (coordStartLabelX_->text() == "")
                 coordStartLabelX_->setPos(x, xPosOnAxis.y() + 5);
             if (coordStartLabelY_->text() == "")
                 coordStartLabelY_->setPos(yPosOnAxis.x() - 27, y);
 
+            // change labels based on rubber band type
             if (rubberBand() == QChartView::HorizontalRubberBand)
             {
+                // configure label text to reflect axis type
                 if (chart()->axes(Qt::Horizontal)[0]->type() == QAbstractAxis::AxisTypeValue)
                 {
                     coordLabelX_->setText(QString::number(xVal));
+                    // holds initial mouse pos
                     if (coordStartLabelX_->text() == "")
                         coordStartLabelX_->setText(QString::number(xVal));
                 }
                 else
                 {
                     coordLabelX_->setText(QDateTime::fromMSecsSinceEpoch(xVal).toString("yyyy-MM-dd HH:mm:ss"));
+                    // holds initial mouse pos
                     if (coordStartLabelX_->text() == "")
                         coordStartLabelX_->setText(QDateTime::fromMSecsSinceEpoch(xVal).toString("yyyy-MM-dd HH:mm:ss"));
                 }
