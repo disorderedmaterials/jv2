@@ -124,7 +124,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::massSearch(QString name, QString value)
 {
-    QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"), tr(name.append(":").toUtf8()), QLineEdit::Normal);
+    QString textInput =
+        QInputDialog::getText(this, tr("Enter search query"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
+    QString text = name.append(textInput);
     if (text.isEmpty())
         return;
 
@@ -132,21 +134,22 @@ void MainWindow::massSearch(QString name, QString value)
     {
         if (std::get<1>(tuple) == text)
         {
-            ui_->cyclesBox->setCurrentText("<" + std::get<1>(tuple) + ">");
+            ui_->cyclesBox->setCurrentText("[" + std::get<1>(tuple) + "]");
             setLoadScreen(true);
             handle_result_cycles(std::get<0>(tuple));
             return;
         }
     }
 
-    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + ui_->instrumentsBox->currentText() + "/" + value + "/" + text;
+    QString url_str =
+        "http://127.0.0.1:5000/getAllJournals/" + ui_->instrumentsBox->currentText() + "/" + value + "/" + textInput;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
     cachedMassSearch_.append(std::make_tuple(worker, text));
-    ui_->cyclesBox->addItem("<" + text + ">");
-    ui_->cyclesBox->setCurrentText("<" + text + ">");
+    ui_->cyclesBox->addItem("[" + text + "]");
+    ui_->cyclesBox->setCurrentText("[" + text + "]");
     setLoadScreen(true);
 }
 
@@ -339,8 +342,20 @@ void MainWindow::setLoadScreen(bool state)
     }
 }
 
-void MainWindow::on_actionRB_No_triggered() { massSearch("RB No.", "run_number"); }
+void MainWindow::on_actionMassSearchRB_No_triggered() { massSearch("RB No.", "run_number"); }
 
-void MainWindow::on_actionTitle_triggered() { massSearch("Title", "title"); }
+void MainWindow::on_actionMassSearchTitle_triggered() { massSearch("Title", "title"); }
 
-void MainWindow::on_actionUser_triggered() { massSearch("User name", "user_name"); }
+void MainWindow::on_actionMassSearchUser_triggered() { massSearch("User name", "user_name"); }
+
+void MainWindow::on_actionClear_cached_searches_triggered()
+{
+    cachedMassSearch_.clear();
+    for (auto i = ui_->cyclesBox->count() - 1; i >= 0; i--)
+    {
+        if (ui_->cyclesBox->itemText(i)[0] == '[')
+        {
+            ui_->cyclesBox->removeItem(i);
+        }
+    }
+}

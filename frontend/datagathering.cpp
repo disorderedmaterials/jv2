@@ -148,7 +148,7 @@ void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
     if (arg1.isEmpty())
         return;
 
-    if (arg1[0] == '<')
+    if (arg1[0] == '[')
     {
         for (auto tuple : cachedMassSearch_)
         {

@@ -56,9 +56,10 @@ class MainWindow : public QMainWindow
     void toggleAxis(int state);
     void savePref();
     void massSearch(QString name, QString value);
-    void on_actionRB_No_triggered();
-    void on_actionTitle_triggered();
-    void on_actionUser_triggered();
+    void on_actionMassSearchRB_No_triggered();
+    void on_actionMassSearchTitle_triggered();
+    void on_actionMassSearchUser_triggered();
+    void on_actionClear_cached_searches_triggered();
 
     protected:
     // Window close event
