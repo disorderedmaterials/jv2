@@ -105,14 +105,13 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
                 checkBox->setCheckState(Qt::Unchecked);
         }
         int logIndex;
-        QString columnHeading;
-        for (auto i = 0; i < desiredHeader_.count(); i++)
+        for (auto i = 0; i < desiredHeader_.count(); ++i)
         {
-            for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); j++)
+            for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
-                columnHeading = ui_->runDataTable->horizontalHeader()->model()->headerData(logIndex, Qt::Horizontal).toString();
-                if (desiredHeader_[i] == columnHeading)
+                if (desiredHeader_[i] ==
+                    ui_->runDataTable->horizontalHeader()->model()->headerData(logIndex, Qt::Horizontal).toString())
                     ui_->runDataTable->horizontalHeader()->swapSections(j, i);
             }
         }
