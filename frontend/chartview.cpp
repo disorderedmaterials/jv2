@@ -143,7 +143,7 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
         qreal maxY;
         qreal minY;
 
-        //Configure coordinate boundaries to different chart types
+        // Configure coordinate boundaries to different chart types
         if (chart()->axes(Qt::Horizontal)[0]->type() == QAbstractAxis::AxisTypeValue)
         {
             QValueAxis *xAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
@@ -177,8 +177,8 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
             // move labels to axis offset
             coordLabelX_->setPos(x, xPosOnAxis.y() + 5);
             coordLabelY_->setPos(yPosOnAxis.x() - 27, y);
-            
-            //configure stationary start labels
+
+            // configure stationary start labels
             if (coordStartLabelX_->text() == "")
                 coordStartLabelX_->setPos(x, xPosOnAxis.y() + 5);
             if (coordStartLabelY_->text() == "")
