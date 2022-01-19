@@ -34,6 +34,8 @@ class ChartView : public QChartView
     bool hovered_;
     QGraphicsSimpleTextItem *coordLabelX_;
     QGraphicsSimpleTextItem *coordLabelY_;
+    QGraphicsSimpleTextItem *coordStartLabelX_;
+    QGraphicsSimpleTextItem *coordStartLabelY_;
 };
 
 #endif // CHARTVIEW_H

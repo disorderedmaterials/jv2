@@ -3,9 +3,11 @@
 
 #include "chartview.h"
 #include <QApplication>
+#include <QBrush>
 #include <QDateTime>
 #include <QDateTimeAxis>
 #include <QDebug>
+#include <QFont>
 #include <QGraphicsSimpleTextItem>
 #include <QValueAxis>
 #include <QtGui/QMouseEvent>
@@ -16,8 +18,18 @@ ChartView::ChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent)
     setDragMode(QGraphicsView::NoDrag);
     this->setMouseTracking(true);
     hovered_ = false;
-    coordLabelX_ = new QGraphicsSimpleTextItem(NULL, chart);
-    coordLabelY_ = new QGraphicsSimpleTextItem(NULL, chart);
+    coordLabelX_ = new QGraphicsSimpleTextItem(nullptr, chart);
+    coordLabelY_ = new QGraphicsSimpleTextItem(nullptr, chart);
+    coordStartLabelX_ = new QGraphicsSimpleTextItem(nullptr, chart);
+    coordStartLabelY_ = new QGraphicsSimpleTextItem(nullptr, chart);
+    coordLabelX_->setBrush(QColor(0, 0, 0, 127));
+    coordLabelY_->setBrush(QColor(0, 0, 0, 127));
+    coordLabelX_->setFont(QFont("Helvetica", 8));
+    coordLabelY_->setFont(QFont("Helvetica", 8));
+    coordStartLabelX_->setBrush(QColor(0, 0, 0, 127));
+    coordStartLabelY_->setBrush(QColor(0, 0, 0, 127));
+    coordStartLabelX_->setFont(QFont("Helvetica", 8));
+    coordStartLabelY_->setFont(QFont("Helvetica", 8));
 }
 
 void ChartView::keyPressEvent(QKeyEvent *event)
@@ -96,8 +108,10 @@ void ChartView::mouseReleaseEvent(QMouseEvent *event)
     }
     if (event->button() == Qt::LeftButton)
     {
-        coordLabelX_->setText(NULL);
-        coordLabelY_->setText(NULL);
+        coordLabelX_->setText("");
+        coordLabelY_->setText("");
+        coordStartLabelX_->setText("");
+        coordStartLabelY_->setText("");
     }
     QChartView::mouseReleaseEvent(event);
 }
@@ -157,15 +171,37 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
 
             coordLabelX_->setPos(x, xPosOnAxis.y() + 5);
             coordLabelY_->setPos(yPosOnAxis.x() - 27, y);
+            if (coordStartLabelX_->text() == "")
+                coordStartLabelX_->setPos(x, xPosOnAxis.y() + 5);
+            if (coordStartLabelY_->text() == "")
+                coordStartLabelY_->setPos(yPosOnAxis.x() - 27, y);
 
-            if (chart()->axes(Qt::Horizontal)[0]->type() == QAbstractAxis::AxisTypeValue)
-                coordLabelX_->setText(QString::number(xVal));
+            if (rubberBand() == QChartView::HorizontalRubberBand)
+            {
+                if (chart()->axes(Qt::Horizontal)[0]->type() == QAbstractAxis::AxisTypeValue)
+                {
+                    coordLabelX_->setText(QString::number(xVal));
+                    if (coordStartLabelX_->text() == "")
+                        coordStartLabelX_->setText(QString::number(xVal));
+                }
+                else
+                {
+                    coordLabelX_->setText(QDateTime::fromMSecsSinceEpoch(xVal).toString("yyyy-MM-dd HH:mm:ss"));
+                    if (coordStartLabelX_->text() == "")
+                        coordStartLabelX_->setText(QDateTime::fromMSecsSinceEpoch(xVal).toString("yyyy-MM-dd HH:mm:ss"));
+                }
+            }
             else
-                coordLabelX_->setText(QDateTime::fromMSecsSinceEpoch(xVal).toString("yyyy-MM-dd HH:mm:ss"));
-            if (chart()->axes(Qt::Vertical)[0]->type() == QAbstractAxis::AxisTypeCategory)
-                coordLabelY_->setText(NULL);
-            else
-                coordLabelY_->setText(QString::number(yVal));
+            {
+                if (chart()->axes(Qt::Vertical)[0]->type() == QAbstractAxis::AxisTypeCategory)
+                    coordLabelY_->setText("");
+                else
+                {
+                    coordLabelY_->setText(QString::number(yVal));
+                    if (coordStartLabelY_->text() == "")
+                        coordStartLabelY_->setText(QString::number(yVal));
+                }
+            }
         }
     }
     else

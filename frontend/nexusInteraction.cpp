@@ -309,6 +309,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         gridLayout->addWidget(axisToggleCheck, 0, 0);
         ui_->tabWidget->addTab(window, "graph");
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
+        dateTimeChartView->setFocus();
     }
     else
     {
@@ -329,10 +330,12 @@ void MainWindow::toggleAxis(int state)
     {
         tabCharts[0]->hide();
         tabCharts[1]->show();
+        tabCharts[1]->setFocus();
     }
     else
     {
         tabCharts[0]->show();
+        tabCharts[0]->setFocus();
         tabCharts[1]->hide();
     }
 }
