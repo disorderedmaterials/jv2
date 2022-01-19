@@ -310,6 +310,12 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                 tabName += ",";
         }
         ui_->tabWidget->addTab(window, tabName);
+        QString runs;
+        for (auto series : dateTimeChart->series())
+            runs.append(series->name() + ", ");
+        runs.chop(2);
+        QString toolTip = ui_->instrumentsBox->currentText() + "\n" + tabName + "\n" + runs;
+        ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
     }
     else
