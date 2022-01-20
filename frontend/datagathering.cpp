@@ -99,11 +99,23 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
 
             // Filter table based on desired headers
-            if (!desiredHeader_.contains(key))
-                checkBox->setCheckState(Qt::Unchecked);
-            else
+            if (desiredHeader_.contains(key))
                 checkBox->setCheckState(Qt::Checked);
+            else
+                checkBox->setCheckState(Qt::Unchecked);
         }
+        int logIndex;
+        for (auto i = 0; i < desiredHeader_.count(); ++i)
+        {
+            for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
+            {
+                logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
+                if (desiredHeader_[i] ==
+                    ui_->runDataTable->horizontalHeader()->model()->headerData(logIndex, Qt::Horizontal).toString())
+                    ui_->runDataTable->horizontalHeader()->swapSections(j, i);
+            }
+        }
+        ui_->runDataTable->resizeColumnsToContents();
     }
     else
     {
@@ -116,6 +128,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 // Update cycles list when Instrument changed
 void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
 {
+    cachedMassSearch_.clear();
+
     // Handle possible undesired calls
     if (arg1.isEmpty())
     {
@@ -145,6 +159,19 @@ void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
     ui_->searchBox->setDisabled(arg1.isEmpty());
     if (arg1.isEmpty())
         return;
+
+    if (arg1[0] == '[')
+    {
+        for (auto tuple : cachedMassSearch_)
+        {
+            if (std::get<1>(tuple) == arg1.mid(1, arg1.length() - 2))
+            {
+                setLoadScreen(true);
+                handle_result_cycles(std::get<0>(tuple));
+            }
+        }
+        return;
+    }
 
     QString url_str = "http://127.0.0.1:5000/getJournal/" + ui_->instrumentsBox->currentText() + "/" + arg1;
     HttpRequestInput input(url_str);
