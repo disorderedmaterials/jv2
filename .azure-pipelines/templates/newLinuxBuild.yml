@@ -57,6 +57,7 @@ steps:
   - bash: |
       set -ex
       PATH="/tmp/qt/${{ parameters.qtver }}/gcc_64/lib/cmake/Qt6Charts:$PATH"
+      PATH=/tmp/qt/${{ parameters.qtver }}/gcc_64/bin:$PATH
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
