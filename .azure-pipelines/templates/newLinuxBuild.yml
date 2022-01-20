@@ -23,7 +23,7 @@ steps:
       sudo apt-get update -q
       sudo apt-get install libgl1-mesa-dev
       sudo apt-get install libegl1-mesa-dev
-      sudo apt-get install libqt6charts6-dev
+      sudo apt-get install libqt5charts5-dev
     displayName: 'Install prerequisites'
   - bash: |
       set -ex
