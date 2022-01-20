@@ -22,8 +22,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules")
 
-set(CMAKE_PREFIX_PATH "${QTDIR}/lib/cmake/Qt6")
-
 set(QT_DEFAULT_MAJOR_VERSION 6)
 find_package(OpenGL REQUIRED)
 find_package(
