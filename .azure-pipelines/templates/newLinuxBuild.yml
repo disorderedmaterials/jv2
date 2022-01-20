@@ -23,6 +23,7 @@ steps:
       sudo apt-get update -q
       sudo apt-get install libgl1-mesa-dev
       sudo apt-get install libegl1-mesa-dev
+      sudo apt install libqt6charts6-dev
     displayName: 'Install prerequisites'
   - bash: |
       set -ex
@@ -55,10 +56,6 @@ steps:
       nix-env -iA nixos.jq
       cachix use jv2-nix
     displayName: 'Install Cachix'
-  - bash: |
-      set -ex
-      export Qt6Charts_DIR = /tmp/qt/${{ parameters.qtver }}/gcc_64/lib/cmake/Qt6Charts
-    displayName: 'Build'
   - bash: |
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
