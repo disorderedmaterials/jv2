@@ -21,6 +21,10 @@ steps:
       sudo apt-get update -q
       sudo apt-get install libgl1-mesa-dev
       sudo apt-get install libegl1-mesa-dev
+    displayName: 'Install prerequisites'
+  - bash: |
+      set -ex
+      # -- General
       sudo apt-get install curl gpg
       curl -o install-nix${{ parameters.nix_version }} https://releases.nixos.org/nix/nix-${{ parameters.nix_version }}/install
       curl -o install-nix${{ parameters.nix_version }}.asc https://releases.nixos.org/nix/nix-${{ parameters.nix_version }}/install.asc
