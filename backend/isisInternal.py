@@ -207,7 +207,7 @@ def getGoToCycle(instrument, search):
 
     endTime = datetime.now()
     print(endTime - startTime)
-    return jsonify({"response": "Not found"})
+    return "Not Found"
 
 # Close server
 

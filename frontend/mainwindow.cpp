@@ -373,7 +373,8 @@ void MainWindow::on_actionGo_to_triggered()
     QString url_str = "http://127.0.0.1:5000/getGoToCycle/" + ui_->instrumentsBox->currentText() + "/" + textInput;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
-    connect(worker, &HttpRequestWorker::on_execution_finished, [=](HttpRequestWorker *workerProxy) { goTo(workerProxy, textInput); });
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { goTo(workerProxy, textInput); });
     worker->execute(input);
     setLoadScreen(true);
 }
@@ -382,12 +383,20 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 {
     setLoadScreen(false);
     QString msg;
+    
     if (worker->error_type == QNetworkReply::NoError)
     {
-        ui_->cyclesBox->setCurrentText(worker->response);
+        if (worker->response == "Not Found")
+        {
+            statusBar()->showMessage("Run number not found", 5);
+            return;
+        }
 
-        //WHEN TABLE FILLED
+        ui_->cyclesBox->setCurrentText(worker->response);
+        statusBar()->showMessage("Found run " + runNumber + "in " + worker->response, 5);
         
+        // WHEN TABLE FILLED
+
         int RunNoColumn;
         for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
         {
