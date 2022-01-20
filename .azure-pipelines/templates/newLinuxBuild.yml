@@ -13,6 +13,8 @@ parameters:
     default: "singularity-gui"
   - name: nix_version
     default: 2.4
+  - name: qtver
+    default: 6.1.2
 
 steps:
   - bash: |
