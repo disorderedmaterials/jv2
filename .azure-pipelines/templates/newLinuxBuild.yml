@@ -14,17 +14,23 @@ parameters:
   - name: nix_version
     default: 2.4
   - name: qtver
-    default: 6.1.2
+    default: 6
 
 steps:
   - bash: |
       set -ex
       # -- General
       sudo apt-get update -q
+      sudo apt-get install ninja-build python3-setuptools uuid uuid-dev
       sudo apt-get install libgl1-mesa-dev
       sudo apt-get install mesa-utils-extra
       sudo apt-get install freeglut3-dev
-    displayName: 'Install prerequisites'
+      # -- Qt
+      sudo pip3 install aqtinstall
+      aqt install-qt --outputdir /tmp/qt linux desktop ${{ parameters.qtver }} -m all
+      # -- Python
+      pip3 install pyinstaller
+    displayName: 'Install Prerequisites'
   - bash: |
       set -ex
       # -- General
