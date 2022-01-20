@@ -175,14 +175,14 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
             auto yPosOnAxis = chart()->mapToPosition(QPointF(minX, y));
 
             // move labels to axis offset
-            coordLabelX_->setPos(x, xPosOnAxis.y() + 5);
-            coordLabelY_->setPos(yPosOnAxis.x() - 27, y);
+            coordLabelX_->setPos(x, xPosOnAxis.y() - 12);
+            coordLabelY_->setPos(yPosOnAxis.x() + 1, y - 11);
 
             // configure stationary start labels
             if (coordStartLabelX_->text() == "")
-                coordStartLabelX_->setPos(x, xPosOnAxis.y() + 5);
+                coordStartLabelX_->setPos(x + 1, xPosOnAxis.y() - 12);
             if (coordStartLabelY_->text() == "")
-                coordStartLabelY_->setPos(yPosOnAxis.x() - 27, y);
+                coordStartLabelY_->setPos(yPosOnAxis.x() + 1, y + 1);
 
             // change labels based on rubber band type
             if (rubberBand() == QChartView::HorizontalRubberBand)
