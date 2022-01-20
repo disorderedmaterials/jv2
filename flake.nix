@@ -96,6 +96,8 @@
             Qt6CoreTools_DIR = "${QTDIR}/lib/cmake/Qt6CoreTools";
             Qt6GuiTools_DIR = "${QTDIR}/lib/cmake/Qt6GuiTools";
             Qt6WidgetsTools_DIR = "${QTDIR}/lib/cmake/Qt6WidgetsTools";
+            Qt6ChartsTools_DIR = "${QTDIR}/lib/cmake/Qt6ChartsTools";
+            Qt6XmlTools_DIR = "${QTDIR}/lib/cmake/Qt6XmlTools";
 
           } else
             { }))
@@ -158,6 +160,8 @@
           Qt6CoreTools_DIR = "${QTDIR}/lib/cmake/Qt6CoreTools";
           Qt6GuiTools_DIR = "${QTDIR}/lib/cmake/Qt6GuiTools";
           Qt6WidgetsTools_DIR = "${QTDIR}/lib/cmake/Qt6WidgetsTools";
+          Qt6ChartsTools_DIR = "${QTDIR}/lib/cmake/Qt6ChartsTools";
+          Qt6XmlTools_DIR = "${QTDIR}/lib/cmake/Qt6XmlTools";
           PATH = "${QTDIR}/bin";
           THREADING_LINK_LIBS = "${pkgs.tbb}/lib/libtbb.so";
         };
