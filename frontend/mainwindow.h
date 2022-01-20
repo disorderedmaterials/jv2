@@ -61,7 +61,7 @@ class MainWindow : public QMainWindow
     void on_actionMassSearchUser_triggered();
     void on_actionClear_cached_searches_triggered();
     void on_actionGo_to_triggered();
-    void goTo(HttpRequestWorker *worker);
+    void goTo(HttpRequestWorker *worker, QString runNumber);
     void selectSimilar();
 
     protected:

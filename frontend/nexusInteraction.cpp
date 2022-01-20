@@ -96,7 +96,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
             }
         }
 
-        auto *action = new QAction("Select similar", this);
+        auto *action = new QAction("Select runs with same title", this);
         connect(action, SIGNAL(triggered()), this, SLOT(selectSimilar()));
         contextMenu_->addAction(action);
         contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos_));
