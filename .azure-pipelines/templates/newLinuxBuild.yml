@@ -55,6 +55,10 @@ steps:
     displayName: 'Install Cachix'
   - bash: |
       set -ex
+      Qt6Charts_DIR = /tmp/qt/${{ parameters.qtver }}/gcc_64/lib/cmake/Qt6Charts
+    displayName: 'Build'
+  - bash: |
+      set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
