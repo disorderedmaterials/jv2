@@ -57,7 +57,7 @@ steps:
     displayName: 'Install Cachix'
   - bash: |
       set -ex
-      Qt6Charts_DIR = /tmp/qt/${{ parameters.qtver }}/gcc_64/lib/cmake/Qt6Charts
+      export Qt6Charts_DIR = /tmp/qt/${{ parameters.qtver }}/gcc_64/lib/cmake/Qt6Charts
     displayName: 'Build'
   - bash: |
       set -ex
