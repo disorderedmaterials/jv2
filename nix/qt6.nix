@@ -49,7 +49,8 @@ let
     url =
       "https://mirrors.ukfast.co.uk/sites/qt.io/online/qtsdkrepository/linux_x64/addons/qtcharts/6.1.0/2021-03-18-1109_meta.7z";
     sha256 = "zO9CAMNN7k5k51V4JcrCZFbAag3sn2gmd0YoYvh+qng=";
-
+  };
+  
 in pkgs.stdenv.mkDerivation {
   name = "qt6";
   unpackPhase = ''
