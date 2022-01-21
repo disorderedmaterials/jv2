@@ -16,7 +16,7 @@ let
       semantic_version
       pkgs.p7zip
     ];
-    pipInstallFlags = [ "--no-deps -m all" ];
+    pipInstallFlags = [ "--no-deps" ];
 
     doCheck = false;
   };
