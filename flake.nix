@@ -75,7 +75,7 @@
               "-DBUILD_SYSTEM_TESTS:bool=${cmake-bool checks}"
               "-DBUILD_UNIT_TESTS:bool=${cmake-bool (checks && !mpi)}"
               ("-DCMAKE_BUILD_TYPE=" + (if checks then "Debug" else "Release"))
-              ("-DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake")
+              ("-Wl,-rpath,/tmp/qt/6.1.3/gcc_64/lib")
             ] ++ pkgs.lib.optional threading
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
