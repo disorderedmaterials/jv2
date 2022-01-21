@@ -16,7 +16,7 @@
         if mpi then
           "jv2-mpi"
         else
-          (if gui then "jv2-gui" else "jv2");
+          (if gui then "jv2" else "jv2");
       cmake-bool = x: if x then "ON" else "OFF";
       version = "0.9.0";
       base_libs = pkgs:
@@ -120,12 +120,12 @@
         checks.jv2 = jv2 { checks = true; };
         checks.jv2-mpi = jv2 {
           mpi = true;
-          gui = false;
+          gui = true;
           checks = true;
         };
         checks.jv2-threadless = jv2 {
           threading = false;
-          gui = false;
+          gui = true;
           checks = true;
         };
 
@@ -181,14 +181,14 @@
           flake-utils.lib.mkApp { drv = self.defaultPackage.${system}; };
 
         packages = {
-          jv2 = jv2 { gui = false; };
+          jv2 = jv2 { gui = true; };
           jv2-threadless = jv2 {
-            gui = false;
+            gui = true;
             threading = false;
           };
           jv2-mpi = jv2 {
             mpi = true;
-            gui = false;
+            gui = true;
           };
           jv2-gui = jv2 { };
 
@@ -196,7 +196,7 @@
           singularity-mpi = mkSingularity { mpi = true; };
           singularity-gui = mkSingularity { gui = true; };
           singularity-threadless = mkSingularity {
-            gui = false;
+            gui = true;
             threading = false;
           };
 
@@ -207,11 +207,11 @@
           };
 
           docker-gui = pkgs.dockerTools.buildImage {
-            name = "jv2-gui";
+            name = "jv2";
             tag = "latest";
             config.ENTRYPOINT = [
               "${nixGL.nixGLIntel}/bin/nixGLIntel"
-              "${self.packages.${system}.jv2-gui}/bin/jv2-gui"
+              "${self.packages.${system}.jv2}/bin/jv2"
             ];
           };
 
