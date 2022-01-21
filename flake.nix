@@ -75,8 +75,6 @@
               "-DBUILD_SYSTEM_TESTS:bool=${cmake-bool checks}"
               "-DBUILD_UNIT_TESTS:bool=${cmake-bool (checks && !mpi)}"
               ("-DCMAKE_BUILD_TYPE=" + (if checks then "Debug" else "Release"))
-              "-DQT6_DIR=/tmp/qt/6.1.3/gcc_64/lib/cmake/Qt6"
-              "-DCMAKE_PREFIX_PATH:path=/tmp/qt/6.1.3/gcc_64/lib/cmake"
             ] ++ pkgs.lib.optional threading
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
@@ -92,7 +90,7 @@
               # license = licenses.unlicense;
               maintainers = [ maintainers.rprospero ];
             };
-          } // (if gui then {
+          } // (if true then {
             inherit QTDIR;
             Qt6_DIR = "${QTDIR}/lib/cmake/Qt6";
             Qt6CoreTools_DIR = "${QTDIR}/lib/cmake/Qt6CoreTools";
@@ -109,7 +107,7 @@
             name = "${exe-name mpi gui}-${version}";
             diskSize = 1024 * 25;
             contents = [ (jv2 { inherit mpi gui threading; }) ];
-            runScript = if gui then
+            runScript = if true then
               "${nixGL.nixGLIntel}/bin/nixGLIntel ${
                 jv2 { inherit mpi gui threading; }
               }/bin/${exe-name mpi gui}"
