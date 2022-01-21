@@ -47,10 +47,10 @@ let
   };
   qtcharts = pkgs.fetchurl {
     url =
-      "https://mirrors.ukfast.co.uk/sites/qt.io/online/qtsdkrepository/linux_x64/addons/qtcharts/6.1.0/2021-03-18-1109_meta.7z";
+      "https://mirrors.ukfast.co.uk/sites/qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_611/qt.qt6.611.addons.qtcharts.gcc_64/6.1.1-0-202106031044qtcharts-Linux-CentOS_8_3-GCC-Linux-CentOS_8_3-X86_64.7z";
     sha256 = "zO9CAMNN7k5k51V4JcrCZFbAag3sn2gmd0YoYvh+qng=";
   };
-  
+
 in pkgs.stdenv.mkDerivation {
   name = "qt6";
   unpackPhase = ''
