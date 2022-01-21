@@ -217,10 +217,10 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                         SLOT(setHovered(const QPointF, bool)));
                 connect(dateTimeChartView, SIGNAL(showCoordinates(qreal, qreal)), this, SLOT(showStatus(qreal, qreal)));
                 connect(dateTimeChartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
-                connect(absSeries, SIGNAL(hovered(const QPointF, bool)), absTimeChartView,
+                connect(relSeries, SIGNAL(hovered(const QPointF, bool)), relTimeChartView,
                         SLOT(setHovered(const QPointF, bool)));
-                connect(absTimeChartView, SIGNAL(showCoordinates(qreal, qreal)), this, SLOT(showStatus(qreal, qreal)));
-                connect(absTimeChartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
+                connect(relTimeChartView, SIGNAL(showCoordinates(qreal, qreal)), this, SLOT(showStatus(qreal, qreal)));
+                connect(relTimeChartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
 
                 // Set dateSeries ID
                 QString name = fieldDataArray.first()[0].toString();
