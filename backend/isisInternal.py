@@ -186,7 +186,6 @@ def getGoToCycle(instrument, search):
     cycles.pop(0)
 
     startTime = datetime.now()
-
     for cycle in (cycles):
         print(instrument, " ", cycle)
         url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
@@ -197,7 +196,7 @@ def getGoToCycle(instrument, search):
             return jsonify({"response": "ERR. url not found"})
         tree = ET.parse(response)
         root = tree.getroot()
-        path = "//*[contains(data:run_number,'"+search+"')]"
+        path = "//*[data:run_number="+search+"]"
         foundElems = root.xpath(path, namespaces=nameSpace)
         if(len(foundElems) > 0):
             endTime = datetime.now()
