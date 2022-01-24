@@ -60,6 +60,7 @@ steps:
   - bash: |
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
+      nix-env -iA nixpkgs.hello
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
     displayName: 'Build'
