@@ -1,6 +1,25 @@
 { pkgs }:
 
 let
+  aqt = pkgs.python3.pkgs.buildPythonPackage rec {
+    pname = "aqtinstall";
+    version = "1.2.4";
+    src = pkgs.python3.pkgs.fetchPypi {
+      inherit pname version;
+      sha256 = "fmaAYOSHrx5LVUoPlIw0p/0jMRVGSPE+teEVlNurz10=";
+    };
+    propagatedBuildInputs = [
+      pkgs.python3.pkgs.setuptools-scm
+      pkgs.python3.pkgs.texttable
+      pkgs.python3.pkgs.patch
+      pkgs.python3.pkgs.requests
+      semantic_version
+      pkgs.p7zip
+    ];
+    pipInstallFlags = [ "--no-deps" ];
+
+    doCheck = false;
+  };
 
   semantic_version = pkgs.python3.pkgs.buildPythonPackage rec {
     pname = "semantic_version";
