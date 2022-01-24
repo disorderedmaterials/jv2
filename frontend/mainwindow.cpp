@@ -383,36 +383,24 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 {
     setLoadScreen(false);
     QString msg;
-    
+
     if (worker->error_type == QNetworkReply::NoError)
     {
         if (worker->response == "Not Found")
         {
-            statusBar()->showMessage("Run number not found", 5);
+            statusBar()->showMessage("Run number not found", 5000);
             return;
         }
 
+        if (ui_->cyclesBox->currentText() == worker->response)
+        {
+            selectIndex(runNumber);
+            statusBar()->showMessage("Found run " + runNumber + "in " + worker->response, 5000);
+            return;
+        }
+        connect(this, &MainWindow::tableFilled, [=]() { selectIndex(runNumber); });
         ui_->cyclesBox->setCurrentText(worker->response);
-        statusBar()->showMessage("Found run " + runNumber + "in " + worker->response, 5);
-        
-        // WHEN TABLE FILLED
-
-        int RunNoColumn;
-        for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
-        {
-            if (ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString() == "run_number")
-            {
-                RunNoColumn = i;
-                break;
-            }
-        }
-        QString title = model_->index(ui_->runDataTable->rowAt(pos_.y()), RunNoColumn).data().toString();
-        for (auto i = 0; i < model_->rowCount(); i++)
-        {
-            if (model_->index(i, RunNoColumn).data().toString() == runNumber)
-                ui_->runDataTable->selectionModel()->setCurrentIndex(model_->index(i, RunNoColumn),
-                                                                     QItemSelectionModel::Select | QItemSelectionModel::Rows);
-        }
+        statusBar()->showMessage("Found run " + runNumber + "in " + worker->response, 5000);
     }
     else
     {
@@ -420,6 +408,27 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
         msg = "Error1: " + worker->error_str;
         QMessageBox::information(this, "", msg);
     }
+}
+
+void MainWindow::selectIndex(QString runNumber)
+{
+    int RunNoColumn;
+    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+    {
+        if (ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString() == "run_number")
+        {
+            RunNoColumn = i;
+            break;
+        }
+    }
+    QString title = model_->index(ui_->runDataTable->rowAt(pos_.y()), RunNoColumn).data().toString();
+    for (auto i = 0; i < model_->rowCount(); i++)
+    {
+        if (model_->index(i, RunNoColumn).data().toString() == runNumber)
+            ui_->runDataTable->selectionModel()->setCurrentIndex(model_->index(i, RunNoColumn),
+                                                                 QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
+    disconnect(this, &MainWindow::tableFilled, nullptr, nullptr);
 }
 
 void MainWindow::selectSimilar()
