@@ -395,12 +395,10 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
         if (ui_->cyclesBox->currentText() == worker->response)
         {
             selectIndex(runNumber);
-            statusBar()->showMessage("Found run " + runNumber + " in " + worker->response, 5000);
             return;
         }
         connect(this, &MainWindow::tableFilled, [=]() { selectIndex(runNumber); });
         ui_->cyclesBox->setCurrentText(worker->response);
-        statusBar()->showMessage("Found run " + runNumber + " in " + worker->response, 5000);
     }
     else
     {
@@ -414,21 +412,8 @@ void MainWindow::selectIndex(QString runNumber)
 {
     ui_->runDataTable->selectionModel()->clearSelection();
 
-    int RunNoColumn;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString() == "run_number")
-        {
-            RunNoColumn = i;
-            break;
-        }
-    }
-    for (auto i = 0; i < model_->rowCount(); i++)
-    {
-        if (model_->index(i, RunNoColumn).data().toString() == runNumber)
-            ui_->runDataTable->selectionModel()->setCurrentIndex(
-                model_->index(i, RunNoColumn), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    }
+    on_searchBox_textChanged(runNumber);
+    statusBar()->showMessage("Found run " + runNumber + " in " + ui_->cyclesBox->currentText(), 5000);
     disconnect(this, &MainWindow::tableFilled, nullptr, nullptr);
 }
 
