@@ -21,7 +21,8 @@ void MainWindow::on_searchBox_textChanged(const QString &arg1)
     {
         auto location = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
         if (ui_->runDataTable->isColumnHidden(location) == false)
-            foundIndices_.append(proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, arg1, -1, Qt::MatchContains));
+            foundIndices_.append(
+                proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, arg1, -1, Qt::MatchContains));
     }
     // Select first match
     if (foundIndices_.size() > 0)
