@@ -26,16 +26,22 @@ let
       "https://mirrors.ukfast.co.uk/sites/qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_611/qt.qt6.611.gcc_64/6.1.1-0-202106031044qtsvg-Linux-CentOS_8_3-GCC-Linux-CentOS_8_3-X86_64.7z";
     sha256 = "zO9CAMNN7k5k51V4JcrCZFbAag3sn2gmd0YoYvh+qng=";
   };
-  qtcharts = pkgs.fetchurl {
+  qtchart = pkgs.fetchurl {
     url =
       "https://mirrors.ukfast.co.uk/sites/qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_611/qt.qt6.611.addons.qtcharts.gcc_64/6.1.1-0-202106031044qtcharts-Linux-CentOS_8_3-GCC-Linux-CentOS_8_3-X86_64.7z";
-    sha256 = "0000000000000000000000000000000000000000000000000000";
+    sha256 = "16kms6dfgxm2d54rdwz8r56s35rd8823nsjrmj7ak39wzlkzm173";
+  };
+  qtdeclarative = pkgs.fetchurl {
+    url = "https://mirrors.ukfast.co.uk/sites/qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_611/qt.qt6.611.gcc_64/6.1.1-0-202106031044qtdeclarative-Linux-CentOS_8_3-GCC-Linux-CentOS_8_3-X86_64.7z";
+    sha256 = "11r2nv6n9xr5lvvj1g3lhqqwxlnjn7xjz3jdgqqvlj3c7r73q8fk";
   };
 
 in pkgs.stdenv.mkDerivation {
   name = "qt6";
   unpackPhase = ''
     ${pkgs.p7zip}/bin/7z x ${qtbase} -o$out
+    ${pkgs.p7zip}/bin/7z x ${qtdeclarative} -o$out
+    ${pkgs.p7zip}/bin/7z x ${qtchart} -o$out
     ${pkgs.p7zip}/bin/7z x ${qtsvg} -o$out
   '';
   installPhase = ''
