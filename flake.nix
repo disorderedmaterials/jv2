@@ -81,6 +81,8 @@
             installPhase = ''
               mkdir -p $out/bin
               ls ../nix
+              find . -type d | grep bin
+              find . -type d | grep $out
               mv ./$out/bin/* $out/bin/
             '';
 
