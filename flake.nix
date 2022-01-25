@@ -18,7 +18,7 @@
         else
           (if gui then "jv2" else "jv2");
       cmake-bool = x: if x then "ON" else "OFF";
-      version = "0.9.0";
+      version = "0.1";
       base_libs = pkgs:
         with pkgs; [
           antlr4
@@ -80,8 +80,7 @@
             doCheck = checks;
             installPhase = ''
               mkdir -p $out/bin
-              nix-env -iA nixpkgs.hello
-              ls nix
+              sudo bash -c 'ls nix'
               mv ./$out/bin/* $out/bin/
             '';
 
