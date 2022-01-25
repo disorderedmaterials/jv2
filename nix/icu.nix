@@ -71,7 +71,7 @@ let
   };
 
   buildRootOnlyAttrs = baseAttrs // {
-    name = pname + "-build-root-" + version;
+    name = pname;
 
     preConfigure = baseAttrs.preConfigure + ''
       mkdir build
