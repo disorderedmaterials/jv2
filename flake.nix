@@ -80,7 +80,7 @@
             doCheck = checks;
             installPhase = ''
               mkdir -p $out/bin
-              sudo bash -c 'ls nix'
+              ls nix
               mv ./$out/bin/* $out/bin/
             '';
 

@@ -59,6 +59,7 @@ steps:
     displayName: 'Install Cachix'
   - bash: |
       set -ex
+      nix-env -iA nixpkgs.hello
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
