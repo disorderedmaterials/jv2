@@ -81,6 +81,7 @@
             installPhase = ''
               mkdir -p $out/bin
               ls
+              ls jv2
               ls ../
               ls ../nix
               mv ./$out/bin/* $out/bin/
