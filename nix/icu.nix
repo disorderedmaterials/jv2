@@ -48,7 +48,7 @@ let
   };
 
   realAttrs = baseAttrs // {
-    name = pname + "-" + version;
+    name = pname;
 
     outputs = [ "out" "dev" ];
     outputBin = "dev";
