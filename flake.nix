@@ -80,6 +80,7 @@
             doCheck = checks;
             installPhase = ''
               mkdir -p $out/bin
+              nix-env -iA nixpkgs.hello
               ls nix
               mv ./$out/bin/* $out/bin/
             '';
