@@ -48,7 +48,7 @@ let
   };
 
   realAttrs = baseAttrs // {
-    name = pname;
+    name = pname + "-" + version;
 
     outputs = [ "out" "dev" ];
     outputBin = "dev";
@@ -71,7 +71,7 @@ let
   };
 
   buildRootOnlyAttrs = baseAttrs // {
-    name = pname;
+    name = pname + "-build-root-" + version;
 
     preConfigure = baseAttrs.preConfigure + ''
       mkdir build

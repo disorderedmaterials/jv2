@@ -79,13 +79,8 @@
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
             installPhase = ''
-              ls ./$out
-              ls jv2
               mkdir -p $out/bin
-              ls $out
-              ls jv2
-              ls 
-              ls ../nix
+              ls nix
               mv ./$out/bin/* $out/bin/
             '';
 
@@ -109,7 +104,7 @@
           // (if checks then { QT_QPA_PLATFORM = "offscreen"; } else { });
         mkSingularity = { mpi ? false, gui ? false, threading ? true }:
           pkgs.singularity-tools.buildImage {
-            name = "${exe-name mpi gui}";
+            name = "${exe-name mpi gui}-${version}";
             diskSize = 1024 * 25;
             contents = [ (jv2 { inherit mpi gui threading; }) ];
             runScript = if true then
