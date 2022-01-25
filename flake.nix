@@ -18,7 +18,7 @@
         else
           (if gui then "jv2" else "jv2");
       cmake-bool = x: if x then "ON" else "OFF";
-
+      version = "0.1";
       base_libs = pkgs:
         with pkgs; [
           antlr4
@@ -109,7 +109,7 @@
           // (if checks then { QT_QPA_PLATFORM = "offscreen"; } else { });
         mkSingularity = { mpi ? false, gui ? false, threading ? true }:
           pkgs.singularity-tools.buildImage {
-            name = "${exe-name mpi gui}-${version}";
+            name = "${exe-name mpi gui}";
             diskSize = 1024 * 25;
             contents = [ (jv2 { inherit mpi gui threading; }) ];
             runScript = if true then
