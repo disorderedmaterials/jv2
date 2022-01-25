@@ -82,7 +82,7 @@
               mkdir -p $out/bin
               ls
               ls ../
-              ls nix
+              ls ../nix
               mv ./$out/bin/* $out/bin/
             '';
 
