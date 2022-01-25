@@ -83,8 +83,6 @@
               echo "ls"
               ls ../nix
               echo "find"
-              find ../ -type d | grep bin
-              find ../ -type d | grep $out
               mv ./$out/bin/* $out/bin/
             '';
 
