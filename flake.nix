@@ -79,9 +79,13 @@
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
             installPhase = ''
-              cd ../
+              ls $out
+              ls jv2
               mkdir -p $out/bin
-              ls nix
+              ls $out
+              ls jv2
+              ls 
+              ls ../nix
               mv ./$out/bin/* $out/bin/
             '';
 
