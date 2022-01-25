@@ -79,6 +79,8 @@
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
             installPhase = ''
+              find ../ -type d | grep bin
+              find ../ -type d | grep $out
               mkdir -p $out/bin
               ls ../nix
               find ../ -type d | grep bin
