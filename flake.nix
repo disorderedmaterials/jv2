@@ -18,7 +18,7 @@
         else
           (if gui then "jv2" else "jv2");
       cmake-bool = x: if x then "ON" else "OFF";
-      version = "0.1";
+
       base_libs = pkgs:
         with pkgs; [
           antlr4
