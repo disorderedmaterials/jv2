@@ -80,6 +80,8 @@
             doCheck = checks;
             installPhase = ''
               mkdir -p $out/bin
+              ls
+              ls ../
               ls nix
               mv ./$out/bin/* $out/bin/
             '';
