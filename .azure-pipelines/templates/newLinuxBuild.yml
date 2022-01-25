@@ -55,11 +55,11 @@ steps:
       mkdir -p .config/cachix
       nix-env -iA cachix -f https://cachix.org/api/v1/install
       nix-env -iA nixos.jq
+      nix-env -iA nixpkgs.hello
       cachix use jv2-nix
     displayName: 'Install Cachix'
   - bash: |
       set -ex
-      nix-env -iA nixpkgs.hello
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
