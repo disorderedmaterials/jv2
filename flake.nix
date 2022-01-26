@@ -90,6 +90,10 @@
               ls ../nix
               echo "cd ../"
               cd ../
+              echo "store?"
+              cd nix/store
+              ls
+              cd ../../
               echo "ls -r"
               ls -r
               cd build
