@@ -100,23 +100,12 @@
               echo "cd ../"
               cd ../
               
-              echo "store?"
-              cd nix/store
-              ls
-              cd ../../
-              
               echo "ls -r"
               ls -r
               
               echo "build"
               cd build
               ls -a
-              
-              echo $out
-              cd ../
-              echo $out
-              echo "mv"
-              mv ./$out/bin/* $out/bin/
             '';
 
             meta = with pkgs.lib; {
