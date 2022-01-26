@@ -80,11 +80,17 @@
             doCheck = checks;
             installPhase = ''
               mkdir -p $out/bin
-              echo "ls"
+              echo "CurrentDir:"
+              ls
+              echo "../"
+              ls ../
+              echo "../nix"
               ls ../nix
-              echo "find"
-              find . -name bin -type d
-              find . -name $out -type d
+              echo "cd ../"
+              cd../
+              echo "ls -r"
+              ls -r
+              echo "mv"
               mv ./$out/bin/* $out/bin/
             '';
 
