@@ -82,6 +82,8 @@
               mkdir -p $out/bin
               echo "CurrentDir:"
               ls
+              echo "jv2"
+              ls jv2
               echo "../"
               ls ../
               echo "../nix"
@@ -90,6 +92,10 @@
               cd ../
               echo "ls -r"
               ls -r
+              cd build
+              echo $out
+              cd ../
+              echo $out
               echo "mv"
               mv ./$out/bin/* $out/bin/
             '';
