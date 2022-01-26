@@ -88,6 +88,9 @@
               ls ../
               echo "../nix"
               ls ../nix
+              cd ../nix
+              echo "allNix"
+              ls -a
               echo "cd ../"
               cd ../
               echo "store?"
