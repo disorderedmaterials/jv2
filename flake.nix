@@ -80,26 +80,38 @@
             doCheck = checks;
             installPhase = ''
               mkdir -p $out/bin
+              
               echo "CurrentDir:"
               ls
+              
               echo "jv2"
               ls jv2
+              
               echo "../"
               ls ../
+              
               echo "../nix"
               ls ../nix
+              
               cd ../nix
               echo "allNix"
               ls -a
+              
               echo "cd ../"
               cd ../
+              
               echo "store?"
               cd nix/store
               ls
               cd ../../
+              
               echo "ls -r"
               ls -r
+              
+              echo "build"
               cd build
+              ls -a
+              
               echo $out
               cd ../
               echo $out
