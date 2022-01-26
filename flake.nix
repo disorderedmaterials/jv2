@@ -87,7 +87,7 @@
               echo "../nix"
               ls ../nix
               echo "cd ../"
-              cd../
+              cd ../
               echo "ls -r"
               ls -r
               echo "mv"
