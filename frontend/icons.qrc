@@ -1,5 +1,9 @@
 <RCC>
-    <qresource prefix="/">
-        <file alias="icon">../extra/JournalViewer2.png</file>
-    </qresource>
+  <qresource prefix="/">
+    <file>icons/library.svg</file>
+    <file>icons/group.svg</file>
+    <file>icons/cross.svg</file>
+    <file>icons/filter.svg</file>
+    <file alias="icon">../extra/JournalViewer2.png</file>
+  </qresource>
 </RCC>
