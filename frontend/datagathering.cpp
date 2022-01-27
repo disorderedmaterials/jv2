@@ -64,13 +64,14 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
     if (worker->error_type == QNetworkReply::NoError)
     {
+        // Get and store column names in map (map_ = getHeadings())
         // Get keys from json data
         auto jsonArray = worker->json_array;
         auto jsonObject = jsonArray.at(0).toObject();
         header_.clear();
         foreach (const QString &key, jsonObject.keys())
         {
-            header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}}));
+            header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}})); // title_key = map["heading"]
         }
 
         // Sets and fills table data
@@ -118,7 +119,6 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
                 if (std::get<0>(desiredHeader_[i]) == model_->headerData(logIndex, Qt::Horizontal, 32).toString())
                 {
-                    model_->setColumnTitle(logIndex, std::get<1>(desiredHeader_[i]));
                     ui_->runDataTable->horizontalHeader()->swapSections(j, i);
                 }
             }
