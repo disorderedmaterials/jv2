@@ -252,23 +252,26 @@ QList<std::tuple<QString, QString>> MainWindow::getFields(QString instrument, QS
             auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
             for (int i = 0; i < defaultColumns.count(); i++)
             {
-                desiredInstFields.append(std::make_tuple(
-                    defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(), defaultColumns.item(i).toElement().attribute("name"));
+                desiredInstFields.append(
+                    std::make_tuple(defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(),
+                                    defaultColumns.item(i).toElement().attribute("name")));
             }
             return desiredInstFields;
         }
 
         for (int i = 0; i < configDefaultFields.count(); i++)
         {
-            desiredInstFields.append(std::make_tuple(
-                    configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(), configDefaultFields.item(i).toElement().attribute("name"));
+            desiredInstFields.append(
+                std::make_tuple(configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(),
+                                configDefaultFields.item(i).toElement().attribute("name")));
         }
         return desiredInstFields;
     }
     for (int i = 0; i < desiredInstrumentFields.count(); i++)
     {
-        desiredInstFields.append(std::make_tuple(
-                    desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(), desiredInstrumentFields.item(i).toElement().attribute("name"));
+        desiredInstFields.append(
+            std::make_tuple(desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(),
+                            desiredInstrumentFields.item(i).toElement().attribute("name")));
     }
     return desiredInstFields;
 }
