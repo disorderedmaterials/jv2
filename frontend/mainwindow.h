@@ -65,6 +65,7 @@ class MainWindow : public QMainWindow
     void goTo(HttpRequestWorker *worker, QString runNumber);
     void selectIndex(QString runNumber);
     void selectSimilar();
+    void changeInst(QString instrument);
 
     protected:
     // Window close event
@@ -81,6 +82,7 @@ class MainWindow : public QMainWindow
     QMenu *viewMenu_;
     QMenu *findMenu_;
     QMenu *contextMenu_;
+    QMenu *testMenu_;
     JsonTableModel::Header header_;
     QList<QString> desiredHeader_;
     QModelIndexList foundIndices_;

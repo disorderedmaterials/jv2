@@ -101,13 +101,24 @@ void MainWindow::fillInstruments(QList<QPair<QString, QString>> instruments)
     // Only allow calls after initial population
     ui_->instrumentsBox->blockSignals(true);
     ui_->instrumentsBox->clear();
+    testMenu_ = new QMenu("test");
+    connect(ui_->instrumentButton, &QPushButton::clicked,
+            [=]() { testMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
     foreach (const auto instrument, instruments)
     {
+        auto *action = new QAction(instrument.first, this);
+        connect(action, &QAction::triggered, [=]() { changeInst(instrument.first); });
+        testMenu_->addAction(action);
         ui_->instrumentsBox->addItem(instrument.first, instrument.second);
     }
     ui_->instrumentsBox->blockSignals(false);
 }
 
+void MainWindow::changeInst(QString instrument)
+{
+    ui_->instrumentButton->setText(instrument.toUpper());
+    on_instrumentsBox_currentTextChanged(instrument);
+}
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close

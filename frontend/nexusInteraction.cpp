@@ -56,14 +56,15 @@ void MainWindow::customMenuRequested(QPoint pos)
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_contextMenu(HttpRequestWorker *)));
-    setLoadScreen(true);
+    //setLoadScreen(true);
+    contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos_));
     worker->execute(input);
 }
 
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    setLoadScreen(false);
+    //setLoadScreen(false);
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
@@ -99,7 +100,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         auto *action = new QAction("Select runs with same title", this);
         connect(action, SIGNAL(triggered()), this, SLOT(selectSimilar()));
         contextMenu_->addAction(action);
-        contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos_));
+        
     }
     else
     {
@@ -169,7 +170,6 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     {
         auto *timeAxis = new QDateTimeAxis();
         timeAxis->setFormat("yyyy-MM-dd<br>H:mm:ss");
-        timeAxis->setTitleText("Real Time");
         dateTimeChart->addAxis(timeAxis, Qt::AlignBottom);
 
         auto *dateTimeYAxis = new QValueAxis();
@@ -307,7 +307,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         relTimeYAxis->setRange(dateTimeYAxis->min(), dateTimeYAxis->max());
 
         auto *gridLayout = new QGridLayout(window);
-        auto *axisToggleCheck = new QCheckBox("show relative time", window);
+        auto *axisToggleCheck = new QCheckBox("Plot relative to run start times", window);
 
         connect(axisToggleCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
 

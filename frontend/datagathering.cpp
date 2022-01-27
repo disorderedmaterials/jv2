@@ -131,6 +131,7 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
 {
     cachedMassSearch_.clear();
 
+    ui_->instrumentButton->setText(arg1.toUpper());
     // Handle possible undesired calls
     if (arg1.isEmpty())
     {
