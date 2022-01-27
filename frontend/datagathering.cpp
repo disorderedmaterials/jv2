@@ -64,14 +64,24 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
     if (worker->error_type == QNetworkReply::NoError)
     {
-        // Get and store column names in map (map_ = getHeadings())
-        // Get keys from json data
+        desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
         auto jsonArray = worker->json_array;
         auto jsonObject = jsonArray.at(0).toObject();
         header_.clear();
         foreach (const QString &key, jsonObject.keys())
         {
-            header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}})); // title_key = map["heading"]
+            auto found = false;
+            for (auto i = 0; i < desiredHeader_.count(); i++)
+            {
+                if (std::get<0>(desiredHeader_[i]) == key)
+                {
+                    header_.push_back(JsonTableModel::Heading({{"title", std::get<1>(desiredHeader_[i])}, {"index", key}}));
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}})); // title_key = map["heading"]
         }
 
         // Sets and fills table data
@@ -96,8 +106,6 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             checkBox->setCheckState(Qt::PartiallyChecked);
             viewMenu_->addAction(checkableAction);
             connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
-
-            desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
 
             // Filter table based on desired headers
             auto found = false;
