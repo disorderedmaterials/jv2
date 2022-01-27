@@ -99,9 +99,15 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
 
             // Filter table based on desired headers
-            if (desiredHeader_.contains(key))
-                checkBox->setCheckState(Qt::Checked);
-            else
+            auto found = false;
+            foreach (const auto &header, desiredHeader_)
+                if (std::get<0>(header) == key)
+                {
+                    checkBox->setCheckState(Qt::Checked);
+                    found = true;
+                    break;
+                }
+            if (!found)
                 checkBox->setCheckState(Qt::Unchecked);
         }
         int logIndex;
@@ -110,9 +116,11 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
-                if (desiredHeader_[i] ==
-                    ui_->runDataTable->horizontalHeader()->model()->headerData(logIndex, Qt::Horizontal).toString())
-                    ui_->runDataTable->horizontalHeader()->swapSections(j, i);
+                if (std::get<0>(desiredHeader_[i]) == model_->headerData(logIndex, Qt::Horizontal, 32).toString())
+                {
+                    model_->setColumnTitle(logIndex, std::get<1>(desiredHeader_[i])) ui_->runDataTable->horizontalHeader()
+                        ->swapSections(j, i);
+                }
             }
         }
         ui_->runDataTable->resizeColumnsToContents();

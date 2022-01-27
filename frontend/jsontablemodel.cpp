@@ -35,6 +35,9 @@ JsonTableModel::Header JsonTableModel::getHeader() { return m_header; }
 
 QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    if (role == 32)
+        return m_header[section]["index"];
+
     if (role != Qt::DisplayRole)
         return QVariant();
 
@@ -160,3 +163,5 @@ void JsonTableModel::unGroupData()
     setHeader(m_holdHeader);
     setJson(m_holdJson);
 }
+
+void JsonTableModel::setColumnTitle(int section, QString title) { m_header[section]["index"] = title; }
