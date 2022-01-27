@@ -118,8 +118,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
                 if (std::get<0>(desiredHeader_[i]) == model_->headerData(logIndex, Qt::Horizontal, 32).toString())
                 {
-                    model_->setColumnTitle(logIndex, std::get<1>(desiredHeader_[i])) ui_->runDataTable->horizontalHeader()
-                        ->swapSections(j, i);
+                    model_->setColumnTitle(logIndex, std::get<1>(desiredHeader_[i]));
+                    ui_->runDataTable->horizontalHeader()->swapSections(j, i);
                 }
             }
         }
