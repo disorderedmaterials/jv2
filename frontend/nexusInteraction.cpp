@@ -56,7 +56,7 @@ void MainWindow::customMenuRequested(QPoint pos)
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_contextMenu(HttpRequestWorker *)));
-    //setLoadScreen(true);
+    // setLoadScreen(true);
     contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos_));
     worker->execute(input);
 }
@@ -64,7 +64,7 @@ void MainWindow::customMenuRequested(QPoint pos)
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    //setLoadScreen(false);
+    // setLoadScreen(false);
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
@@ -100,7 +100,6 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         auto *action = new QAction("Select runs with same title", this);
         connect(action, SIGNAL(triggered()), this, SLOT(selectSimilar()));
         contextMenu_->addAction(action);
-        
     }
     else
     {
