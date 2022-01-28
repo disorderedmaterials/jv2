@@ -485,6 +485,6 @@ void MainWindow::on_actionSearch_triggered()
     }
 }
 
-void MainWindow::on_actionSelectNext_triggered() { on_findDown_clicked() }
-void MainWindow::on_actionSelectPrevious_triggered() { on_findUp_clicked() }
-void MainWindow::on_actionSelectAll_triggered() { on_searchAll_clicked() }
+void MainWindow::on_actionSelectNext_triggered() { on_findDown_clicked(); }
+void MainWindow::on_actionSelectPrevious_triggered() { on_findUp_clicked(); }
+void MainWindow::on_actionSelectAll_triggered() { on_searchAll_clicked(); }

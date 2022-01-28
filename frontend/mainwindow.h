@@ -67,6 +67,9 @@ class MainWindow : public QMainWindow
     void selectSimilar();
     void changeInst(QString instrument);
     void on_actionSearch_triggered();
+    void on_actionSelectNext_triggered();
+    void on_actionSelectPrevious_triggered();
+    void on_actionSelectAll_triggered();
 
     protected:
     // Window close event

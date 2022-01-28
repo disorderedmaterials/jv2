@@ -108,3 +108,5 @@ def fieldData(instrument, cycle, runs, fields):
         nxsFile = file(instrument, cycle, run)
         data.append(runData(nxsFile, fields, run))
     return data
+
+#print(runTimes(file("nimrod", "journal_20_3.xmk", "71159")))
