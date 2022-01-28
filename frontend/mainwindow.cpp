@@ -185,6 +185,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         ui_->groupButton->setChecked(!checked);
         on_groupButton_clicked(!checked);
     }
+    if (event->key() == Qt::Key_F3 && event->modifiers() == Qt::ControlModifier)
+    {
+        on_searchAll_clicked();
+        return;
+    }
     if (event->key() == Qt::Key_F3 && event->modifiers() == Qt::ShiftModifier)
     {
         on_findUp_clicked();
@@ -447,3 +452,37 @@ void MainWindow::selectSimilar()
                                                                  QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
+void MainWindow::on_actionSearch_triggered()
+{
+    QString textInput =
+        QInputDialog::getText(this, tr("Enter search query"), tr("search runs for:"), QLineEdit::Normal);
+    
+    foundIndices_.clear();
+    currentFoundIndex_ = 0;
+    if (textInput.isEmpty())
+    {
+        ui_->runDataTable->selectionModel()->clearSelection();
+        statusBar()->clearMessage();
+        return;
+    }
+    // Find all occurences of search string in table elements
+    for (auto i = 0; i < proxyModel_->columnCount(); ++i)
+    {
+        auto location = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
+        if (ui_->runDataTable->isColumnHidden(location) == false)
+            foundIndices_.append(
+                proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, textInput, -1, Qt::MatchContains));
+    }
+    // Select first match
+    if (foundIndices_.size() > 0)
+    {
+        goToCurrentFoundIndex(foundIndices_[0]);
+        statusBar()->showMessage("1/" + QString::number(foundIndices_.size()));
+    }
+    else
+    {
+        ui_->runDataTable->selectionModel()->clearSelection();
+        statusBar()->showMessage("No results");
+    }
+}
+

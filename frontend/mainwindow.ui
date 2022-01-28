@@ -415,6 +415,7 @@
     <addaction name="menuSearch_across_cycles"/>
     <addaction name="actionClear_cached_searches"/>
     <addaction name="actionGo_to"/>
+    <addaction name="actionSearch"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuFind"/>
@@ -448,6 +449,11 @@
   <action name="actionGo_to">
    <property name="text">
     <string>Go to specific run number</string>
+   </property>
+  </action>
+  <action name="actionSearch">
+   <property name="text">
+    <string>Search</string>
    </property>
   </action>
  </widget>

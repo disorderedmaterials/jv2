@@ -66,6 +66,7 @@ class MainWindow : public QMainWindow
     void selectIndex(QString runNumber);
     void selectSimilar();
     void changeInst(QString instrument);
+    void on_actionSearch_triggered();
 
     protected:
     // Window close event
