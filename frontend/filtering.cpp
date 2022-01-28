@@ -57,10 +57,10 @@ void MainWindow::on_groupButton_clicked(bool checked)
             auto found = false;
             foreach (const auto &header, desiredHeader_)
                 if (std::get<0>(header) == model_->headerData(i, Qt::Horizontal, 32).toString())
-                    {
-                        found = true;
-                        break;
-                    }
+                {
+                    found = true;
+                    break;
+                }
             if (!found)
                 ui_->runDataTable->setColumnHidden(i, true);
         }
