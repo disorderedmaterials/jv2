@@ -416,6 +416,9 @@
     <addaction name="actionClear_cached_searches"/>
     <addaction name="actionGo_to"/>
     <addaction name="actionSearch"/>
+    <addaction name="actionSelectNext"/>
+    <addaction name="actionSelectPrevious"/>
+    <addaction name="actionSelectAll"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuFind"/>
@@ -454,6 +457,21 @@
   <action name="actionSearch">
    <property name="text">
     <string>Search</string>
+   </property>
+  </action>
+  <action name="actionSelectNext">
+   <property name="text">
+    <string>SelectNext</string>
+   </property>
+  </action>
+  <action name="actionSelectPrevious">
+   <property name="text">
+    <string>SelectPrevious</string>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="text">
+    <string>SelectAll</string>
    </property>
   </action>
  </widget>

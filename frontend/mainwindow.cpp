@@ -454,9 +454,8 @@ void MainWindow::selectSimilar()
 }
 void MainWindow::on_actionSearch_triggered()
 {
-    QString textInput =
-        QInputDialog::getText(this, tr("Enter search query"), tr("search runs for:"), QLineEdit::Normal);
-    
+    QString textInput = QInputDialog::getText(this, tr("Enter search query"), tr("search runs for:"), QLineEdit::Normal);
+
     foundIndices_.clear();
     currentFoundIndex_ = 0;
     if (textInput.isEmpty())
@@ -486,3 +485,6 @@ void MainWindow::on_actionSearch_triggered()
     }
 }
 
+void MainWindow::on_actionSelectNext_triggered() { on_findDown_clicked() }
+void MainWindow::on_actionSelectPrevious_triggered() { on_findUp_clicked() }
+void MainWindow::on_actionSelectAll_triggered() { on_searchAll_clicked() }
