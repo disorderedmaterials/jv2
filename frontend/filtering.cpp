@@ -11,7 +11,7 @@ void MainWindow::columnHider(int state)
 
     for (auto i = 0; i < model_->columnCount(); ++i)
     {
-        if (action->text() == model_->headerData(i, Qt::Horizontal, 32).toString())
+        if (action->text() == model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString())
         {
             switch (state)
             {
@@ -56,7 +56,7 @@ void MainWindow::on_groupButton_clicked(bool checked)
         {
             auto found = false;
             foreach (const auto &header, desiredHeader_)
-                if (std::get<0>(header) == model_->headerData(i, Qt::Horizontal, 32).toString())
+                if (std::get<0>(header) == model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString())
                 {
                     found = true;
                     break;

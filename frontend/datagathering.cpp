@@ -125,7 +125,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
-                if (std::get<0>(desiredHeader_[i]) == model_->headerData(logIndex, Qt::Horizontal, 32).toString())
+                if (std::get<0>(desiredHeader_[i]) == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                 {
                     ui_->runDataTable->horizontalHeader()->swapSections(j, i);
                 }

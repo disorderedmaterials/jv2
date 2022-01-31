@@ -35,7 +35,7 @@ JsonTableModel::Header JsonTableModel::getHeader() { return m_header; }
 
 QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == 32)
+    if (role == Qt::UserRole)
         return m_header[section]["index"];
 
     if (role != Qt::DisplayRole)
