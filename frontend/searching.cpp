@@ -64,7 +64,6 @@ void MainWindow::on_findDown_clicked()
         goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
         statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
                                  QString::number(foundIndices_.size()) + " Results");
-                                 
     }
 }
 
@@ -81,7 +80,8 @@ void MainWindow::on_searchAll_clicked()
             ui_->runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
                                                                  QItemSelectionModel::Select | QItemSelectionModel::Rows);
         }
-        statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) + " Results");
+        statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) +
+                                 " Results");
     }
 }
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
