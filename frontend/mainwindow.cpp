@@ -252,6 +252,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
             auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
             for (int i = 0; i < defaultColumns.count(); i++)
             {
+                // Get column index and title from xml
                 column.first = defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
                 column.second = defaultColumns.item(i).toElement().attribute("name");
                 desiredInstFields.push_back(column);

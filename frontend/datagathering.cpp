@@ -64,12 +64,15 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
     if (worker->error_type == QNetworkReply::NoError)
     {
+        // Get desired fields and titles from config files
         desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
         auto jsonArray = worker->json_array;
         auto jsonObject = jsonArray.at(0).toObject();
+        // Add columns to header and give titles where applicable
         header_.clear();
         foreach (const QString &key, jsonObject.keys())
         {
+            // Find matching indices
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
                                    [key](const std::pair<QString, QString> &data) { return data.first == key; });
             if (it != desiredHeader_.end())
@@ -104,6 +107,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             // Filter table based on desired headers
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
                                    [key](const std::pair<QString, QString> &data) { return data.first == key; });
+            // If match found
             if (it != desiredHeader_.end())
                 checkBox->setCheckState(Qt::Checked);
             else
@@ -115,6 +119,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
+                // If index matches model data, swap columns in view
                 if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                 {
                     ui_->runDataTable->horizontalHeader()->swapSections(j, i);
