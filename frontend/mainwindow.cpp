@@ -214,9 +214,9 @@ QList<QPair<QString, QString>> MainWindow::getInstruments()
     return instruments;
 }
 
-QList<std::tuple<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
+std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
 {
-    QList<std::tuple<QString, QString>> desiredInstFields;
+    std::vector<std::pair<QString, QString>> desiredInstFields;
     QDomNodeList desiredInstrumentFields;
 
     QFile file("../extra/tableConfig.xml");
@@ -224,6 +224,8 @@ QList<std::tuple<QString, QString>> MainWindow::getFields(QString instrument, QS
     QDomDocument dom;
     dom.setContent(&file);
     file.close();
+
+    std::pair<QString, QString> column;
 
     auto rootelem = dom.documentElement();
     auto instList = rootelem.elementsByTagName("inst");
@@ -250,26 +252,25 @@ QList<std::tuple<QString, QString>> MainWindow::getFields(QString instrument, QS
             auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
             for (int i = 0; i < defaultColumns.count(); i++)
             {
-                desiredInstFields.append(
-                    std::make_tuple(defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(),
-                                    defaultColumns.item(i).toElement().attribute("name")));
+                column.first = defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+                column.second = defaultColumns.item(i).toElement().attribute("name");
+                desiredInstFields.push_back(column);
             }
             return desiredInstFields;
         }
-
         for (int i = 0; i < configDefaultFields.count(); i++)
         {
-            desiredInstFields.append(
-                std::make_tuple(configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(),
-                                configDefaultFields.item(i).toElement().attribute("name")));
+            column.first = configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+            column.second = configDefaultFields.item(i).toElement().attribute("name");
+            desiredInstFields.push_back(column);
         }
         return desiredInstFields;
     }
     for (int i = 0; i < desiredInstrumentFields.count(); i++)
     {
-        desiredInstFields.append(
-            std::make_tuple(desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text(),
-                            desiredInstrumentFields.item(i).toElement().attribute("name")));
+        column.first = desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+        column.second = desiredInstrumentFields.item(i).toElement().attribute("name");
+        desiredInstFields.push_back(column);
     }
     return desiredInstFields;
 }

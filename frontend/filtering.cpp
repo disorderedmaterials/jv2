@@ -56,7 +56,7 @@ void MainWindow::on_groupButton_clicked(bool checked)
         {
             auto found = false;
             foreach (const auto &header, desiredHeader_)
-                if (std::get<0>(header) == model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString())
+                if (header.first == model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString())
                 {
                     found = true;
                     break;

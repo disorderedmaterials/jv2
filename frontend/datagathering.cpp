@@ -70,18 +70,12 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         header_.clear();
         foreach (const QString &key, jsonObject.keys())
         {
-            auto found = false;
-            for (auto i = 0; i < desiredHeader_.count(); i++)
-            {
-                if (std::get<0>(desiredHeader_[i]) == key)
-                {
-                    header_.push_back(JsonTableModel::Heading({{"title", std::get<1>(desiredHeader_[i])}, {"index", key}}));
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}})); // title_key = map["heading"]
+            auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
+                                   [key](const std::pair<QString, QString> &data) { return data.first == key; });
+            if (it != desiredHeader_.end())
+                header_.push_back(JsonTableModel::Heading({{"title", it->second}, {"index", key}}));
+            else
+                header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}}));
         }
 
         // Sets and fills table data
@@ -108,24 +102,20 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
 
             // Filter table based on desired headers
-            auto found = false;
-            foreach (const auto &header, desiredHeader_)
-                if (std::get<0>(header) == key)
-                {
-                    checkBox->setCheckState(Qt::Checked);
-                    found = true;
-                    break;
-                }
-            if (!found)
+            auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
+                                   [key](const std::pair<QString, QString> &data) { return data.first == key; });
+            if (it != desiredHeader_.end())
+                checkBox->setCheckState(Qt::Checked);
+            else
                 checkBox->setCheckState(Qt::Unchecked);
         }
         int logIndex;
-        for (auto i = 0; i < desiredHeader_.count(); ++i)
+        for (auto i = 0; i < desiredHeader_.size(); ++i)
         {
             for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
-                if (std::get<0>(desiredHeader_[i]) == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
+                if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                 {
                     ui_->runDataTable->horizontalHeader()->swapSections(j, i);
                 }
