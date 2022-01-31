@@ -130,6 +130,10 @@
                  <property name="text">
                   <string>Group</string>
                  </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../extra/group.svg</normaloff>../extra/group.svg</iconset>
+                 </property>
                  <property name="checkable">
                   <bool>true</bool>
                  </property>
@@ -412,13 +416,21 @@
      <addaction name="actionMassSearchTitle"/>
      <addaction name="actionMassSearchUser"/>
     </widget>
-    <addaction name="menuSearch_across_cycles"/>
-    <addaction name="actionClear_cached_searches"/>
-    <addaction name="actionGo_to"/>
+    <widget class="QMenu" name="menuGo_to_specific_run_number">
+     <property name="title">
+      <string>Go to specific run number</string>
+     </property>
+     <addaction name="actionRun_Number"/>
+    </widget>
     <addaction name="actionSearch"/>
     <addaction name="actionSelectNext"/>
     <addaction name="actionSelectPrevious"/>
     <addaction name="actionSelectAll"/>
+    <addaction name="separator"/>
+    <addaction name="menuSearch_across_cycles"/>
+    <addaction name="actionClear_cached_searches"/>
+    <addaction name="separator"/>
+    <addaction name="menuGo_to_specific_run_number"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuFind"/>
@@ -449,29 +461,29 @@
     <string>&amp;Quit</string>
    </property>
   </action>
-  <action name="actionGo_to">
-   <property name="text">
-    <string>Go to specific run number</string>
-   </property>
-  </action>
   <action name="actionSearch">
    <property name="text">
-    <string>Search</string>
+    <string>Find</string>
    </property>
   </action>
   <action name="actionSelectNext">
    <property name="text">
-    <string>SelectNext</string>
+    <string>Find Next (F3)</string>
    </property>
   </action>
   <action name="actionSelectPrevious">
    <property name="text">
-    <string>SelectPrevious</string>
+    <string>Find Previous (Shift + F3)</string>
    </property>
   </action>
   <action name="actionSelectAll">
    <property name="text">
-    <string>SelectAll</string>
+    <string>Select All Occurances (Ctrl + F3)</string>
+   </property>
+  </action>
+  <action name="actionRun_Number">
+   <property name="text">
+    <string>Run Number</string>
    </property>
   </action>
  </widget>

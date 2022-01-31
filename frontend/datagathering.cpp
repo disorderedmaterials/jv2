@@ -96,7 +96,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             viewMenu_->addAction(checkableAction);
             connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
 
-            desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
+            desiredHeader_ = getFields(instName_, instType_);
 
             // Filter table based on desired headers
             if (desiredHeader_.contains(key))
@@ -130,15 +130,6 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
 {
     cachedMassSearch_.clear();
-
-    ui_->instrumentButton->setText(arg1.toUpper());
-    // Handle possible undesired calls
-    if (arg1.isEmpty())
-    {
-        ui_->cyclesBox->clear();
-        return;
-    }
-    ui_->instrumentsBox->setDisabled(arg1.isEmpty());
 
     // Configure api call
     QString url_str = "http://127.0.0.1:5000/getCycles/" + arg1;
@@ -175,7 +166,7 @@ void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
         return;
     }
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + ui_->instrumentsBox->currentText() + "/" + arg1;
+    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + arg1;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
