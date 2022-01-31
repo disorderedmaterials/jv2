@@ -321,6 +321,16 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             if (i < chartFields.size() - 1)
                 tabName += ",";
         }
+        if (!categoryValues.isEmpty())
+        {
+            dateTimeStringAxis->setTitleText(tabName);
+            relTimeStringAxis->setTitleText(tabName);
+        }
+        else
+        {
+            dateTimeYAxis->setTitleText(tabName);
+            relTimeYAxis->setTitleText(tabName);
+        }
         ui_->tabWidget->addTab(window, tabName);
         QString runs;
         for (auto series : dateTimeChart->series())
