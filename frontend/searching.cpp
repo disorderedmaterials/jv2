@@ -3,8 +3,8 @@
 
 #include "./ui_mainwindow.h"
 #include "mainwindow.h"
-#include <tuple>
 #include <QInputDialog>
+#include <tuple>
 
 // Search table data
 void MainWindow::updateSearch(const QString &arg1)

@@ -290,7 +290,7 @@ void MainWindow::savePref() // Add title support
         realIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
         if (!ui_->runDataTable->isColumnHidden(realIndex))
         {
-            currentFields += model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString(); 
+            currentFields += model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString();
             currentFields += ",;";
         }
     }

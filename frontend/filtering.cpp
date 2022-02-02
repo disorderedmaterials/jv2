@@ -74,8 +74,7 @@ void MainWindow::on_groupButton_clicked(bool checked)
             for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
-                if (desiredHeader_[i].first ==
-                    model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
+                if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                     ui_->runDataTable->horizontalHeader()->swapSections(j, i);
             }
         }
