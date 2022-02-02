@@ -186,6 +186,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     event->accept();
 }
 
+// Get instrument data from config file
 QList<QPair<QString, QString>> MainWindow::getInstruments()
 {
     QFile file("../extra/instrumentData.xml");
