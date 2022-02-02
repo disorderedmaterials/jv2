@@ -74,7 +74,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         {
             // Find matching indices
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
-                                   [key](const std::pair<QString, QString> &data) { return data.first == key; });
+                                   [key](const auto &data) { return data.first == key; });
             if (it != desiredHeader_.end())
                 header_.push_back(JsonTableModel::Heading({{"title", it->second}, {"index", key}}));
             else
@@ -106,7 +106,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
             // Filter table based on desired headers
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
-                                   [key](const std::pair<QString, QString> &data) { return data.first == key; });
+                                   [key](const auto &data) { return data.first == key; });
             // If match found
             if (it != desiredHeader_.end())
                 checkBox->setCheckState(Qt::Checked);

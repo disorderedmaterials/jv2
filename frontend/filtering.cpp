@@ -54,14 +54,10 @@ void MainWindow::on_groupButton_clicked(bool checked)
         model_->unGroupData();
         for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
         {
-            auto found = false;
-            foreach (const auto &header, desiredHeader_)
-                if (header.first == model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString())
-                {
-                    found = true;
-                    break;
-                }
-            if (!found)
+            auto index = model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString();
+            auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
+                                   [index](const auto &data) { return data.first == index; });
+            if (it == desiredHeader_.end())
                 ui_->runDataTable->setColumnHidden(i, true);
         }
     }
