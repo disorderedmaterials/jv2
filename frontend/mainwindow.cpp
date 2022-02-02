@@ -114,6 +114,7 @@ void MainWindow::fillInstruments(QList<QPair<QString, QString>> instruments)
     }
 }
 
+// Handle Instrument selection
 void MainWindow::changeInst(QPair<QString, QString> instrument)
 {
     ui_->instrumentButton->setText(instrument.first.toUpper());
@@ -161,6 +162,7 @@ void MainWindow::massSearch(QString name, QString value)
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
+    
     cachedMassSearch_.append(std::make_tuple(worker, text));
     ui_->cyclesBox->addItem("[" + text + "]");
     ui_->cyclesBox->setCurrentText("[" + text + "]");
@@ -209,6 +211,7 @@ QList<QPair<QString, QString>> MainWindow::getInstruments()
     return instruments;
 }
 
+// Get the desired fields and their titles
 std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
 {
     std::vector<std::pair<QString, QString>> desiredInstFields;
@@ -232,11 +235,12 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
             break;
         }
     }
+    // If inst preferences blank
     if (desiredInstrumentFields.isEmpty())
     {
         auto configDefault = rootelem.elementsByTagName(instType).item(0).toElement();
         auto configDefaultFields = configDefault.elementsByTagName("Column");
-
+        // If config preferences blank
         if (configDefaultFields.isEmpty())
         {
             QFile file("../extra/instrumentData.xml");
@@ -245,6 +249,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
             file.close();
             auto rootelem = dom.documentElement();
             auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
+            // Get config preferences
             for (int i = 0; i < defaultColumns.count(); i++)
             {
                 // Get column index and title from xml
@@ -254,6 +259,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
             }
             return desiredInstFields;
         }
+        // Get config default
         for (int i = 0; i < configDefaultFields.count(); i++)
         {
             column.first = configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
@@ -262,6 +268,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
         }
         return desiredInstFields;
     }
+    // Get instrument preferences
     for (int i = 0; i < desiredInstrumentFields.count(); i++)
     {
         column.first = desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
@@ -290,7 +297,9 @@ void MainWindow::savePref() // Add title support
         realIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
         if (!ui_->runDataTable->isColumnHidden(realIndex))
         {
-            currentFields += model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString();
+            currentFields += model_->headerData(realIndex, Qt::Horizontal, Qt::UserRole).toString();
+            currentFields += ",";
+            currentFields += model_->headerData(realIndex, Qt::Horizontal).toString();
             currentFields += ",;";
         }
     }
@@ -313,8 +322,8 @@ void MainWindow::savePref() // Add title support
             {
                 auto preferredFieldsElem = dom.createElement("Column");
                 auto preferredFieldsDataElem = dom.createElement("Data");
-                preferredFieldsElem.setAttribute("Title", "placeholder");
-                preferredFieldsDataElem.appendChild(dom.createTextNode(field.left(field.indexOf(","))));
+                preferredFieldsElem.setAttribute("Title", field.split(",")[1]);
+                preferredFieldsDataElem.appendChild(dom.createTextNode(field.split(",")[0]));
                 preferredFieldsElem.appendChild(preferredFieldsDataElem);
                 columns.appendChild(preferredFieldsElem);
             }

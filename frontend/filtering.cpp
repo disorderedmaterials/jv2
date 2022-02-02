@@ -113,7 +113,7 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
     {
         if (worker->response == "Not Found")
         {
-            statusBar()->showMessage("Run number not found", 5000);
+            statusBar()->showMessage("Search query not found", 5000);
             return;
         }
 
@@ -133,6 +133,7 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
     }
 }
 
+// Go-To run number
 void MainWindow::on_actionRun_Number_triggered()
 {
     QString textInput = QInputDialog::getText(this, tr("Enter search query"), tr("Run No: "), QLineEdit::Normal);
