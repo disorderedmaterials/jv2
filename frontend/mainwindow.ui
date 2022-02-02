@@ -309,7 +309,7 @@
   </action>
   <action name="actionSearch">
    <property name="text">
-    <string>&amp;Find (Ctrl + F)</string>
+    <string>&amp;Find</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
@@ -317,7 +317,7 @@
   </action>
   <action name="actionSelectNext">
    <property name="text">
-    <string>Find Next (F3)</string>
+    <string>Find Next</string>
    </property>
    <property name="shortcut">
     <string>F3</string>
@@ -325,7 +325,7 @@
   </action>
   <action name="actionSelectPrevious">
    <property name="text">
-    <string>Find Previous (Shift + F3)</string>
+    <string>Find Previous</string>
    </property>
    <property name="shortcut">
     <string>Shift+F3</string>
@@ -333,7 +333,7 @@
   </action>
   <action name="actionSelectAll">
    <property name="text">
-    <string>Select All Occurances (Ctrl + F3)</string>
+    <string>Select All Occurrences</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F3</string>
