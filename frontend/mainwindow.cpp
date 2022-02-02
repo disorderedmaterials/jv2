@@ -162,7 +162,7 @@ void MainWindow::massSearch(QString name, QString value)
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
-    
+
     cachedMassSearch_.append(std::make_tuple(worker, text));
     ui_->cyclesBox->addItem("[" + text + "]");
     ui_->cyclesBox->setCurrentText("[" + text + "]");
@@ -278,7 +278,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
     return desiredInstFields;
 }
 
-void MainWindow::savePref() // Add title support
+void MainWindow::savePref()
 {
 
     QFile file("../extra/tableConfig.xml");
@@ -289,7 +289,7 @@ void MainWindow::savePref() // Add title support
 
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
-
+    // Get current table fields
     QString currentFields;
     int realIndex;
     for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
@@ -305,6 +305,7 @@ void MainWindow::savePref() // Add title support
     }
     currentFields.chop(1);
 
+    // Add preferences to xml file
     QDomNode node;
     QDomElement elem;
     QDomElement columns;
