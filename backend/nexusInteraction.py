@@ -93,7 +93,7 @@ def runData(file, fields, run):
 
 
 def runFields(instrument, cycle, runs):
-    runArr = runs.split("-")
+    runArr = runs.split(";")
     nxsFile = file(instrument, cycle, runArr[0])
     fields = (dataFields(nxsFile))
     return fields
@@ -103,7 +103,7 @@ def runFields(instrument, cycle, runs):
 
 def fieldData(instrument, cycle, runs, fields):
     data = []
-    runArr = runs.split("-")
+    runArr = runs.split(";")
     for run in runArr:
         nxsFile = file(instrument, cycle, run)
         data.append(runData(nxsFile, fields, run))

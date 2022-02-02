@@ -130,7 +130,7 @@ void JsonTableModel::groupData()
             {
                 auto totalRunTime = std::get<1>(data).toInt() + valueObj["duration"].toString().toInt();
                 std::get<1>(data) = QString::number(totalRunTime);
-                std::get<2>(data) += "-" + valueObj["run_number"].toString();
+                std::get<2>(data) += ";" + valueObj["run_number"].toString();
                 unique = false;
                 break;
             }
