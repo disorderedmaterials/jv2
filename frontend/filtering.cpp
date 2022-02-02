@@ -62,12 +62,12 @@ void MainWindow::on_groupButton_clicked(bool checked)
                 ui_->runDataTable->setColumnHidden(i, true);
         }
         int logIndex;
-        for (auto i = 0; i < desiredHeader_.count(); ++i)
+        for (auto i = 0; i < desiredHeader_.size(); ++i)
         {
             for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
-                if (desiredHeader_[i] ==
+                if (desiredHeader_[i].first ==
                     ui_->runDataTable->horizontalHeader()->model()->headerData(logIndex, Qt::Horizontal).toString())
                     ui_->runDataTable->horizontalHeader()->swapSections(j, i);
             }
