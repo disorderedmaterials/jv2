@@ -32,7 +32,6 @@ MainWindow::~MainWindow() { delete ui_; }
 // Configure initial application state
 void MainWindow::initialiseElements()
 {
-    ui_->instrumentsBox->hide();
     auto instruments = getInstruments();
     fillInstruments(instruments);
 

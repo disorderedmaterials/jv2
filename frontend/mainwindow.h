@@ -108,8 +108,5 @@ class MainWindow : public QMainWindow
     bool init_;
     QPoint pos_;
     QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
-    QString searchString_;
-    QString instType_;
-    QString instName_;
 };
 #endif // MAINWINDOW_H
