@@ -164,7 +164,7 @@ void MainWindow::massSearch(QString name, QString value)
     worker->execute(input);
 
     cachedMassSearch_.append(std::make_tuple(worker, text));
-    ui_->cyclesBox->addItem("[" + text + "]");
+    ui_->cyclesBox->addItem("[" + text + "]", text);
     ui_->cyclesBox->setCurrentText("[" + text + "]");
     setLoadScreen(true);
 }

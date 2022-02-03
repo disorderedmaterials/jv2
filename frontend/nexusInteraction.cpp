@@ -49,7 +49,7 @@ void MainWindow::customMenuRequested(QPoint pos)
     runNos.chop(1);
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
-    QString cycle = ui_->cyclesBox->currentText().replace("journal", "cycle").replace(".xml", "");
+    QString cycle = ui_->cyclesBox->currentData().toString().replace("journal", "cycle").replace(".xml", "");
     url_str += instName_ + "/" + cycle + "/" + runNos;
 
     HttpRequestInput input(url_str);
@@ -142,7 +142,7 @@ void MainWindow::contextGraph()
         return;
 
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
-    QString cycle = ui_->cyclesBox->currentText().replace(0, 7, "cycle").replace(".xml", "");
+    QString cycle = ui_->cyclesBox->currentData().toString().replace(0, 7, "cycle").replace(".xml", "");
     QString field = contextAction->data().toString().replace("/", ":");
     url_str += instName_ + "/" + cycle + "/" + runNos + "/" + field;
 

@@ -81,6 +81,17 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
 
                 if (v.isString())
                 {
+                    /*
+                    // if title = duration then format
+                    if (m_header[index.column()]["title"] == "Run Numbers")
+                    {
+                        if (v.toString().split(";").size() > 1)
+                            return QString(v.toString().split(";")[0] + "-" + v.toString().split(";")[v.toString().split(";").size() - 1]);
+                        else   
+                            return QString(v.toString());
+                    }
+                    */
+                   
                     // if title = duration then format
                     if (m_header[index.column()]["index"] == "duration")
                     {

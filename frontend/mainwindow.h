@@ -60,7 +60,7 @@ class MainWindow : public QMainWindow
     void handle_result_instruments(HttpRequestWorker *worker);
     void handle_result_cycles(HttpRequestWorker *worker);
     void currentInstrumentChanged(const QString &arg1);
-    void on_cyclesBox_currentTextChanged(const QString &arg1);
+    void on_cyclesBox_currentIndexChanged(int index);
     void recentCycle();
     void changeInst(QPair<QString, QString> instrument);
     // Grouping
