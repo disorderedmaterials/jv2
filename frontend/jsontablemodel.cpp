@@ -81,17 +81,55 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
 
                 if (v.isString())
                 {
-                    /*
                     // if title = duration then format
                     if (m_header[index.column()]["title"] == "Run Numbers")
-                    {
-                        if (v.toString().split(";").size() > 1)
-                            return QString(v.toString().split(";")[0] + "-" + v.toString().split(";")[v.toString().split(";").size() - 1]);
-                        else   
-                            return QString(v.toString());
+                    { /*
+                         QString displayString;
+                         QString holdRun = "0";
+                         auto runArr = v.toString().split(";");
+                         qDebug() << runArr.size();
+                         for (auto i = 0; i < runArr.size(); i++)
+                         {
+                             if (runArr[i].toInt() == holdRun.toInt() + 1)
+                             {
+                                 if (displayString[-1] != '-')
+                                 {
+                                     displayString += "-";
+                                 }
+                                 if (i == runArr.size() - 1)
+                                     displayString += runArr[i];
+                                 holdRun = runArr[i];
+                             }
+                             else
+                             {
+                                 if (displayString[-1] == '-')
+                                     displayString += holdRun;
+                                 holdRun = runArr[i];
+                                 displayString += "," + runArr[i];
+                             }
+                         }
+                         return QString(displayString.remove(0,1) + " " + v.toString());*/
+
+                        auto runArr = v.toString().split(";");
+                        if (runArr.size() == 1)
+                            return runArr[0];
+                        QString displayString = runArr[0];
+                        for (auto i = 1; i < runArr.size(); i++)
+                            if (runArr[i].toInt() == runArr[i - 1].toInt() + 1)
+                                displayString += "-" + runArr[i];
+                            else
+                                displayString += "," + runArr[i];
+                        QStringList splitDisplay;
+                        foreach(const auto &string, displayString.split(","))
+                        {
+                            if (string.contains("-"))
+                                splitDisplay.append(string.left(string.indexOf("-") + 1) + string.right(string.size() - string.lastIndexOf("-") - 1));
+                            else
+                                splitDisplay.append(string);
+                        }
+                        
+                        return splitDisplay.join(",");
                     }
-                    */
-                   
                     // if title = duration then format
                     if (m_header[index.column()]["index"] == "duration")
                     {

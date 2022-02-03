@@ -91,7 +91,10 @@ void MainWindow::recentCycle()
     if (instName_ != "")
     {
         if (cycleIndex != -1)
+        {
             ui_->cyclesBox->setCurrentIndex(cycleIndex);
+            on_cyclesBox_currentIndexChanged(cycleIndex);
+        }
         else
             ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
     }

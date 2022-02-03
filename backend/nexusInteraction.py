@@ -104,7 +104,7 @@ def runFields(instrument, cycle, runs):
 def fieldData(instrument, cycle, runs, fields):
     data = []
     runArr = runs.split(";")
-    for run in runArr:
+    for run in runArr: #if run contain "-" expand
         nxsFile = file(instrument, cycle, run)
         data.append(runData(nxsFile, fields, run))
     return data
