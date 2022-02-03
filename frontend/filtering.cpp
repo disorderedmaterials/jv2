@@ -139,7 +139,7 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 // Go-To run number
 void MainWindow::on_actionRun_Number_triggered()
 {
-    QString textInput = QInputDialog::getText(this, tr("Enter search query"), tr("Run No: "), QLineEdit::Normal);
+    QString textInput = QInputDialog::getText(this, tr("Find"), tr("Run No: "), QLineEdit::Normal);
     if (textInput.isEmpty())
         return;
 

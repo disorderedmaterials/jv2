@@ -121,7 +121,7 @@ void MainWindow::selectSimilar()
 }
 void MainWindow::on_actionSearch_triggered()
 {
-    QString textInput = QInputDialog::getText(this, tr("Enter search query"), tr("search runs for:"), QLineEdit::Normal);
+    QString textInput = QInputDialog::getText(this, tr("Find"), tr("Find in current run data (RB, user, title,...):"), QLineEdit::Normal);
     searchString_ = textInput;
     foundIndices_.clear();
     currentFoundIndex_ = 0;

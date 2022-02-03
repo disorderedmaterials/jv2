@@ -145,7 +145,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::massSearch(QString name, QString value)
 {
     QString textInput =
-        QInputDialog::getText(this, tr("Enter search query"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
+        QInputDialog::getText(this, tr("Find"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
     QString text = name.append(textInput);
     if (textInput.isEmpty())
         return;
