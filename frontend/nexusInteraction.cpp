@@ -43,7 +43,25 @@ void MainWindow::customMenuRequested(QPoint pos)
     for (auto run : selectedRuns)
     {
         runNo = model_->index(run.row(), runNoColumn).data().toString();
-        runNos.append(runNo + ";");
+        if (runNo.contains("-") || runNo.contains(","))
+        {
+            QString groupedRuns;
+            auto runArr = runNo.split(",");
+            foreach (const auto &string, runArr)
+            {
+                if (string.contains("-"))
+                {
+                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
+                        groupedRuns += QString::number(i) + ";";
+                }
+                else
+                    groupedRuns += string + ";";
+            }
+            groupedRuns.chop(1);
+            runNos.append(groupedRuns + ";");
+        }
+        else
+            runNos.append(runNo + ";");
     }
     // Removes final ";"
     runNos.chop(1);
@@ -133,14 +151,31 @@ void MainWindow::contextGraph()
     for (auto run : selectedRuns)
     {
         runNo = model_->index(run.row(), runNoColumn).data().toString();
-        runNos.append(runNo + ";");
+        if (runNo.contains("-") || runNo.contains(","))
+        {
+            QString groupedRuns;
+            auto runArr = runNo.split(",");
+            foreach (const auto &string, runArr)
+            {
+                if (string.contains("-"))
+                {
+                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
+                        groupedRuns += QString::number(i) + ";";
+                }
+                else
+                    groupedRuns += string + ";";
+            }
+            groupedRuns.chop(1);
+            runNos.append(groupedRuns + ";");
+        }
+        else
+            runNos.append(runNo + ";");
     }
     // Removes final ";"
     runNos.chop(1);
     // Error handling
     if (runNos.size() == 0)
         return;
-
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = ui_->cyclesBox->currentData().toString().replace(0, 7, "cycle").replace(".xml", "");
     QString field = contextAction->data().toString().replace("/", ":");
