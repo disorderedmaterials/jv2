@@ -68,7 +68,7 @@ void MainWindow::customMenuRequested(QPoint pos)
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
     QString cycle = ui_->cyclesBox->currentData().toString().replace("journal", "cycle").replace(".xml", "");
-    url_str += instName_.toLower() + "/" + cycle + "/" + runNos;
+    url_str += instName_ + "/" + cycle + "/" + runNos;
 
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -179,7 +179,7 @@ void MainWindow::contextGraph()
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = ui_->cyclesBox->currentData().toString().replace(0, 7, "cycle").replace(".xml", "");
     QString field = contextAction->data().toString().replace("/", ":");
-    url_str += instName_.toLower() + "/" + cycle + "/" + runNos + "/" + field;
+    url_str += instName_ + "/" + cycle + "/" + runNos + "/" + field;
 
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -371,7 +371,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         for (auto series : dateTimeChart->series())
             runs.append(series->name() + ", ");
         runs.chop(2);
-        QString toolTip = instName_.toLower() + "\n" + tabName + "\n" + runs;
+        QString toolTip = instDisplayName_ + "\n" + tabName + "\n" + runs;
         ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
         dateTimeChartView->setFocus();

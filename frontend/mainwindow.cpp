@@ -103,7 +103,7 @@ void MainWindow::recentCycle()
 }
 
 // Fill instrument list
-void MainWindow::fillInstruments(QList<QPair<QString, QString>> instruments)
+void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> instruments)
 {
     // Only allow calls after initial population
     instrumentsMenu_ = new QMenu("test");
@@ -111,25 +111,26 @@ void MainWindow::fillInstruments(QList<QPair<QString, QString>> instruments)
             [=]() { instrumentsMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
     foreach (const auto instrument, instruments)
     {
-        auto *action = new QAction(instrument.first, this);
+        auto *action = new QAction(std::get<2>(instrument), this);
         connect(action, &QAction::triggered, [=]() { changeInst(instrument); });
         instrumentsMenu_->addAction(action);
     }
 }
 
 // Handle Instrument selection
-void MainWindow::changeInst(QPair<QString, QString> instrument)
+void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
 {
-    ui_->instrumentButton->setText(instrument.first);
-    currentInstrumentChanged(instrument.first.toLower());
-    instType_ = instrument.second;
-    instName_ = instrument.first;
+    instType_ = std::get<1>(instrument);
+    instName_ = std::get<0>(instrument);
+    instDisplayName_= std::get<2>(instrument);
+    ui_->instrumentButton->setText(instDisplayName_);
+    currentInstrumentChanged(instName_);
 }
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings;
-    settings.setValue("recentInstrument", instName_.toLower());
+    settings.setValue("recentInstrument", instDisplayName_);
     settings.setValue("recentCycle", ui_->cyclesBox->currentText());
 
     // Close server
@@ -160,7 +161,7 @@ void MainWindow::massSearch(QString name, QString value)
         }
     }
 
-    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_.toLower() + "/" + value + "/" + textInput;
+    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_ + "/" + value + "/" + textInput;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
@@ -190,7 +191,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 }
 
 // Get instrument data from config file
-QList<QPair<QString, QString>> MainWindow::getInstruments()
+QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
 {
     QFile file("../extra/instrumentData.xml");
     file.open(QIODevice::ReadOnly);
@@ -200,17 +201,18 @@ QList<QPair<QString, QString>> MainWindow::getInstruments()
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
 
-    QList<QPair<QString, QString>> instruments;
-    QPair<QString, QString> instrument;
+    QList<std::tuple<QString, QString, QString>> instruments;
+    std::tuple<QString, QString, QString> instrument;
     QDomNode node;
     QDomElement elem;
     for (auto i = 0; i < nodelist.count(); i++)
     {
         node = nodelist.item(i);
         elem = node.toElement();
-        instrument.first = elem.elementsByTagName("displayName").item(0).toElement().text();
-        instrument.second = elem.elementsByTagName("type").item(0).toElement().text();
-        instruments.append(instrument);
+        auto instrumentDisplayName = elem.elementsByTagName("displayName").item(0).toElement().text();
+        auto instrumentType = elem.elementsByTagName("type").item(0).toElement().text();
+        auto instrumentName = elem.attribute("name");
+        instruments.append(std::make_tuple(instrumentName, instrumentType, instrumentDisplayName));
     }
     return instruments;
 }
@@ -317,7 +319,7 @@ void MainWindow::savePref()
     {
         node = nodelist.item(i);
         elem = node.toElement();
-        if (elem.attribute("name") == instName_.toLower())
+        if (elem.attribute("name") == instName_)
         {
             auto oldColumns = elem.elementsByTagName("Columns");
             if (!oldColumns.isEmpty())
