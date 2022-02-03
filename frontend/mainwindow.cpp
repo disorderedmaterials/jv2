@@ -120,8 +120,8 @@ void MainWindow::fillInstruments(QList<QPair<QString, QString>> instruments)
 // Handle Instrument selection
 void MainWindow::changeInst(QPair<QString, QString> instrument)
 {
-    ui_->instrumentButton->setText(instrument.first.toUpper());
-    currentInstrumentChanged(instrument.first);
+    ui_->instrumentButton->setText(instrument.first);
+    currentInstrumentChanged(instrument.first.toLower());
     instType_ = instrument.second;
     instName_ = instrument.first;
 }
@@ -160,7 +160,7 @@ void MainWindow::massSearch(QString name, QString value)
         }
     }
 
-    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_ + "/" + value + "/" + textInput;
+    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_.toLower() + "/" + value + "/" + textInput;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
@@ -208,7 +208,7 @@ QList<QPair<QString, QString>> MainWindow::getInstruments()
     {
         node = nodelist.item(i);
         elem = node.toElement();
-        instrument.first = elem.attribute("name");
+        instrument.first = elem.elementsByTagName("displayName").item(0).toElement().text();
         instrument.second = elem.elementsByTagName("type").item(0).toElement().text();
         instruments.append(instrument);
     }
@@ -317,7 +317,7 @@ void MainWindow::savePref()
     {
         node = nodelist.item(i);
         elem = node.toElement();
-        if (elem.attribute("name") == instName_)
+        if (elem.attribute("name") == instName_.toLower())
         {
             auto oldColumns = elem.elementsByTagName("Columns");
             if (!oldColumns.isEmpty())

@@ -68,7 +68,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
     if (worker->error_type == QNetworkReply::NoError)
     {
         // Get desired fields and titles from config files
-        desiredHeader_ = getFields(instName_, instType_);
+        desiredHeader_ = getFields(instName_.toLower(), instType_);
         auto jsonArray = worker->json_array;
         auto jsonObject = jsonArray.at(0).toObject();
         // Add columns to header and give titles where applicable
@@ -182,7 +182,7 @@ void MainWindow::on_cyclesBox_currentIndexChanged(int index)
         return;
     }
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + ui_->cyclesBox->itemData(index).toString();
+    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_.toLower() + "/" + ui_->cyclesBox->itemData(index).toString();
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
