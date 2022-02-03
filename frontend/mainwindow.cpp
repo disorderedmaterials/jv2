@@ -20,6 +20,7 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {

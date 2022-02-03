@@ -119,6 +119,8 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
                                        QString::number(minutes).rightJustified(2, '0') + ":" +
                                        QString::number(seconds).rightJustified(2, '0'));
                     }
+                    if(QDateTime::fromString(v.toString(), "yyyy-MM-dd'T'HH:mm:ss").isValid())
+                        return QDateTime::fromString(v.toString(), "yyyy-MM-dd'T'HH:mm:ss").toString("dd/MM/yyyy HH:mm:ss");
                     return v.toString();
                 }
                 else if (v.isDouble())
