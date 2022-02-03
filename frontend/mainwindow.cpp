@@ -324,7 +324,7 @@ void MainWindow::savePref()
             {
                 auto preferredFieldsElem = dom.createElement("Column");
                 auto preferredFieldsDataElem = dom.createElement("Data");
-                preferredFieldsElem.setAttribute("Title", field.split(",")[1]);
+                preferredFieldsElem.setAttribute("name", field.split(",")[1]);
                 preferredFieldsDataElem.appendChild(dom.createTextNode(field.split(",")[0]));
                 preferredFieldsElem.appendChild(preferredFieldsDataElem);
                 columns.appendChild(preferredFieldsElem);
