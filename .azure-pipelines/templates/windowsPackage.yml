@@ -3,6 +3,9 @@ parameters:
     default: 6.1.2
     
 steps:
+  - script: |
+      choco install -y zip innoextract
+    displayName: 'Install Prerequisites'
   - powershell: |
       $ErrorActionPreference = 'Stop'
       # Set paths
@@ -11,6 +14,23 @@ steps:
       echo $env:Qt6_DIR
       $env:MINGW_LIB_DIR = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
       $env:JV2_DIR = $(Get-Location).path + "\build"
+      
+      # Run Inno Setup Compiler
+      iscc.exe /O.\ .\ci\windows\jv2.iss
+      $exe = Get-ChildItem  .\*.exe
+      echo "Executable installer is "$exe.Name
+
+      # Create Zip from Exe
+      innoextract.exe $exe.Name -d $exe.BaseName
+      mv "$($exe.BaseName)\app\bin\*" $exe.BaseName
+      mv "$($exe.BaseName)\app" ./
+      #rm -Force "$($exe.BaseName)\app"
+      $zip = $exe.BaseName + ".zip"
+      zip -r $zip $exe.BaseName
+
+      mv $zip packages
+      mv $exe.Name packages
+
       # Collect artifacts
       mkdir packages
       mkdir packages\jv2
