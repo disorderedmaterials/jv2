@@ -8,7 +8,7 @@
 #define MyAppExeName "jv2.exe"
 
 ; Locations of bin directories of Dissolve, Qt, GnuWin, MinGW etc.
-#define JvDir GetEnv('JV2_DIR')
+#define Jv2Dir GetEnv('JV2_DIR')
 #define QtDir GetEnv('Qt6_DIR')
 #define MinGWLibDir GetEnv('MINGW_LIB_DIR')
 
