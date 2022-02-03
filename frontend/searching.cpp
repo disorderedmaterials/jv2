@@ -47,7 +47,7 @@ void MainWindow::findUp()
         if (currentFoundIndex_ >= 1)
             currentFoundIndex_ -= 1;
         else
-            currentFoundIndex_ = 0;
+            currentFoundIndex_ = foundIndices_.size() - 1;
         goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
         statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
                                  QString::number(foundIndices_.size()) + " Results");
@@ -62,6 +62,8 @@ void MainWindow::findDown()
     {
         if (currentFoundIndex_ < foundIndices_.size() - 1)
             currentFoundIndex_ += 1;
+        else
+            currentFoundIndex_ = 0;
         goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
         statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
                                  QString::number(foundIndices_.size()) + " Results");
