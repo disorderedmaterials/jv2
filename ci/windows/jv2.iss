@@ -51,6 +51,7 @@ Source: "{#MinGWLibDir}\libquadmath-0.dll"; DestDir: "{app}\bin"
 Source: "{#QtDir}\bin\Qt6Gui.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Core.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6OpenGL.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "{#QtDir}\bin\OpenGLWidgets.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Svg.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Widgets.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Network.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
@@ -71,4 +72,4 @@ Name: "{group}\{#MyAppName}"; IconFilename: "{app}\bin\JournalViewer2.ico"; File
 Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\JournalViewer2.ico"; Filename: "{app}\bin\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\bin\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\bin\launch\launch.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
