@@ -40,7 +40,7 @@ steps:
       cd build
       cmake ../ -G "MinGW Makefiles" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake
       cmake --build . --config Release
-      cmake --install
+      cmake --install .
 
       cd ../
       pyinstaller backend/isisInternal.py 
