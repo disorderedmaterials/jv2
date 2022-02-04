@@ -6,6 +6,7 @@
 #include <QBrush>
 #include <QDateTime>
 #include <QDateTimeAxis>
+#include <QCategoryAxis>
 #include <QDebug>
 #include <QFont>
 #include <QGraphicsSimpleTextItem>
@@ -159,8 +160,10 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
         }
         if (chart()->axes(Qt::Vertical)[0]->type() == QAbstractAxis::AxisTypeCategory)
         {
-            maxY = yVal;
-            minY = yVal;
+            QCategoryAxis *yAxis = qobject_cast<QCategoryAxis *>(chart()->axes(Qt::Vertical)[0]);
+            maxY = yAxis->max();
+            minY = yAxis->min();
+            qDebug() << "maxY = " << maxY << "minY = " << minY << "yVal = " << yVal;
         }
         else
         {
