@@ -7,6 +7,7 @@
 #include <QChart>
 #include <QChartView>
 #include <QCheckBox>
+#include <QDateTime>
 #include <QDebug>
 #include <QDomDocument>
 #include <QInputDialog>
@@ -20,7 +21,6 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
-#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
@@ -123,7 +123,7 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
 {
     instType_ = std::get<1>(instrument);
     instName_ = std::get<0>(instrument);
-    instDisplayName_= std::get<2>(instrument);
+    instDisplayName_ = std::get<2>(instrument);
     ui_->instrumentButton->setText(instDisplayName_);
     currentInstrumentChanged(instName_);
 }
@@ -145,8 +145,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::massSearch(QString name, QString value)
 {
-    QString textInput =
-        QInputDialog::getText(this, tr("Find"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
+    QString textInput = QInputDialog::getText(this, tr("Find"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
     QString text = name.append(textInput);
     if (textInput.isEmpty())
         return;

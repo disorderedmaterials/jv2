@@ -29,7 +29,8 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
             // removes header_ file
             if (value.toString() != "journal.xml")
             {
-                auto displayName = "cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
+                auto displayName =
+                    "cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
                 ui_->cyclesBox->addItem(displayName, value.toString());
             }
         }

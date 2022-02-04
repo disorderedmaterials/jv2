@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
     void fillInstruments(QList<std::tuple<QString, QString, QString>> instruments);
     void initialiseElements();
     // Misc
-    void goToCurrentFoundIndex(QModelIndex index);   // Selects given index
+    void goToCurrentFoundIndex(QModelIndex index);                 // Selects given index
     QList<std::tuple<QString, QString, QString>> getInstruments(); // Get Instruments from config file
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType); // Get Fields from config file
     void setLoadScreen(bool state);
