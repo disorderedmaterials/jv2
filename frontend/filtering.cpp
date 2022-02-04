@@ -136,6 +136,7 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
         QMessageBox::information(this, "", msg);
     }
 }
+
 // Go-To run number
 void MainWindow::on_actionRun_Number_triggered()
 {

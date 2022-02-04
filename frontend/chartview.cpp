@@ -4,9 +4,9 @@
 #include "chartview.h"
 #include <QApplication>
 #include <QBrush>
+#include <QCategoryAxis>
 #include <QDateTime>
 #include <QDateTimeAxis>
-#include <QCategoryAxis>
 #include <QDebug>
 #include <QFont>
 #include <QGraphicsSimpleTextItem>
@@ -158,21 +158,12 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
             maxX = xAxis->max().toMSecsSinceEpoch();
             minX = xAxis->min().toMSecsSinceEpoch();
         }
-        if (chart()->axes(Qt::Vertical)[0]->type() == QAbstractAxis::AxisTypeCategory)
-        {
-            QCategoryAxis *yAxis = qobject_cast<QCategoryAxis *>(chart()->axes(Qt::Vertical)[0]);
-            maxY = yAxis->max();
-            minY = yAxis->min();
-            qDebug() << "maxY = " << maxY << "minY = " << minY << "yVal = " << yVal;
-        }
-        else
-        {
-            QValueAxis *yAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
-            maxY = yAxis->max();
-            minY = yAxis->min();
-        }
+        QValueAxis *yAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
+        maxY = yAxis->max();
+        minY = yAxis->min();
+
         // if mouse in chart boundaries
-        if (xVal <= maxX && xVal >= minX && yVal <= maxY && yVal >= minY)
+        if (xVal <= maxX && xVal >= minX && (yVal <= maxY && yVal >= minY || maxY == 0 && minY == 0))
         {
             // map mouse to axis position
             auto xPosOnAxis = chart()->mapToPosition(QPointF(x, minY));
@@ -209,7 +200,7 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
             }
             else
             {
-                if (chart()->axes(Qt::Vertical)[0]->type() == QAbstractAxis::AxisTypeCategory)
+                if (maxY == 0 && minY == 0)
                     coordLabelY_->setText("");
                 else
                 {
