@@ -42,7 +42,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "{#Jv2Dir}\jv2.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "JournalViewer2.ico"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "{#Jv2Dir}\launch"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "{#Jv2Dir}\..\launch"; DestDir: "{app}\bin"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "{#MinGWLibDir}\libgcc_s_seh-1.dll"; DestDir: "{app}\bin"
 Source: "{#MinGWLibDir}\libstdc++-6.dll"; DestDir: "{app}\bin"

@@ -14,9 +14,6 @@ steps:
       echo $env:Qt6_DIR
       $env:MINGW_LIB_DIR = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
       $env:JV2_DIR = $(Get-Location).path + "\build"
-
-      mv dist\launch build
-      mv dist\isisInternal build\launch
       
       # Run Inno Setup Compiler
       iscc.exe /O.\ .\ci\windows\jv2.iss
