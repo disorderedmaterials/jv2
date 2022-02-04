@@ -30,7 +30,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
             if (value.toString() != "journal.xml")
             {
                 auto displayName =
-                    "cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
+                    "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
                 ui_->cyclesBox->addItem(displayName, value.toString());
             }
         }
@@ -172,13 +172,13 @@ void MainWindow::on_cyclesBox_currentIndexChanged(int index)
 
     if (currentText[0] == '[')
     {
-        for (auto tuple : cachedMassSearch_)
+        auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
+                               [currentText](const auto &tuple)
+                               { return std::get<1>(tuple) == currentText.mid(1, currentText.length() - 2); });
+        if (it != desiredHeader_.end())
         {
-            if (std::get<1>(tuple) == currentText.mid(1, currentText.length() - 2))
-            {
-                setLoadScreen(true);
-                handle_result_cycles(std::get<0>(tuple));
-            }
+            setLoadScreen(true);
+            handle_result_cycles(std::get<0>(it));
         }
         return;
     }

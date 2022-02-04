@@ -60,10 +60,7 @@ void MainWindow::findDown()
     // Boundary/ error handling
     if (foundIndices_.size() > 0)
     {
-        if (currentFoundIndex_ < foundIndices_.size() - 1)
-            currentFoundIndex_ += 1;
-        else
-            currentFoundIndex_ = 0;
+        currentFoundIndex_ = ++currentFoundIndex_ % foundIndices_.size();
         goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
         statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
                                  QString::number(foundIndices_.size()) + " Results");

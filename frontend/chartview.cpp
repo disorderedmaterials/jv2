@@ -148,17 +148,17 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
         // Configure coordinate boundaries to different chart types
         if (chart()->axes(Qt::Horizontal)[0]->type() == QAbstractAxis::AxisTypeValue)
         {
-            QValueAxis *xAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
+            auto *xAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Horizontal)[0]);
             maxX = xAxis->max();
             minX = xAxis->min();
         }
         else
         {
-            QDateTimeAxis *xAxis = qobject_cast<QDateTimeAxis *>(chart()->axes(Qt::Horizontal)[0]);
+            auto *xAxis = qobject_cast<QDateTimeAxis *>(chart()->axes(Qt::Horizontal)[0]);
             maxX = xAxis->max().toMSecsSinceEpoch();
             minX = xAxis->min().toMSecsSinceEpoch();
         }
-        QValueAxis *yAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
+        auto *yAxis = qobject_cast<QValueAxis *>(chart()->axes(Qt::Vertical)[0]);
         maxY = yAxis->max();
         minY = yAxis->min();
 
