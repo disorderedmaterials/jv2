@@ -46,7 +46,4 @@ steps:
       pyinstaller backend/isisInternal.py 
       pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
       mv dist/isisInternal dist/launch
-
-      ls ${Qt6_DIR}
-      ls ${Qt6_DIR/bin}
     displayName: 'Build'
