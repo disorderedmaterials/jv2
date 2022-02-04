@@ -172,13 +172,13 @@ void MainWindow::on_cyclesBox_currentIndexChanged(int index)
 
     if (currentText[0] == '[')
     {
-        auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
-                               [currentText](const auto &tuple)
-                               { return std::get<1>(tuple) == currentText.mid(1, currentText.length() - 2); });
-        if (it != desiredHeader_.end())
+        auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(), [currentText](const auto &tuple) {
+            return std::get<1>(tuple) == currentText.mid(1, currentText.length() - 2);
+        });
+        if (it != cachedMassSearch_.end())
         {
             setLoadScreen(true);
-            handle_result_cycles(std::get<0>(it));
+            handle_result_cycles(std::get<0>(*it));
         }
         return;
     }

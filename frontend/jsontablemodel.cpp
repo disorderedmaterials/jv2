@@ -120,13 +120,15 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
                                        QString::number(seconds).rightJustified(2, '0'));
                     }
                     if (QDateTime::fromString(v.toString(), "yyyy-MM-dd'T'HH:mm:ss").isValid())
-                        QDateTime time = QDateTime::fromString(v.toString(), "yyyy-MM-dd'T'HH:mm:ss")
+                    {
+                        QDateTime time = QDateTime::fromString(v.toString(), "yyyy-MM-dd'T'HH:mm:ss");
                         if (time.toString("dd/MM/yyyy") == QDateTime::currentDateTime().toString("dd/MM/yyyy"))
                             return QString("Today at: ").append(time.toString("dd/MM/yyyy HH:mm:ss"));
                         else if (time.addDays(-1).toString("dd/MM/yyyy") == QDateTime::currentDateTime().toString("dd/MM/yyyy"))
                             return QString("Yesterday at: ").append(time.toString("dd/MM/yyyy HH:mm:ss"));
-                        else:
+                        else
                             return time.toString("dd/MM/yyyy HH:mm:ss");
+                    }
                     return v.toString();
                 }
                 else if (v.isDouble())
