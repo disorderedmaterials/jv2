@@ -11,6 +11,7 @@
 #define Jv2Dir GetEnv('JV2_DIR')
 #define QtDir GetEnv('Qt6_DIR')
 #define MinGWLibDir GetEnv('MINGW_LIB_DIR')
+#define BackendDir GetEnv('BACKEND_DIR')
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -42,7 +43,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "{#Jv2Dir}\jv2.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "JournalViewer2.ico"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "{#Jv2Dir}\..\launch"; DestDir: "{app}\bin"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "{#MinGWLibDir}\libgcc_s_seh-1.dll"; DestDir: "{app}\bin"
 Source: "{#MinGWLibDir}\libstdc++-6.dll"; DestDir: "{app}\bin"
@@ -58,6 +58,7 @@ Source: "{#QtDir}\bin\Qt6PrintSupport.dll"; DestDir: "{app}\bin"; Flags: ignorev
 Source: "{#QtDir}\plugins\iconengines\qsvgicon.dll"; DestDir: "{app}\bin\iconengines"; Flags: ignoreversion
 Source: "{#QtDir}\plugins\platforms\qwindows.dll"; DestDir: "{app}\bin\platforms"; Flags: ignoreversion
 Source: "{#QtDir}\plugins\imageformats\*.dll"; DestDir: "{app}\bin\imageformats"; Flags: ignoreversion
+Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion
 ; Windows 7
 ;Source: "C:\Windows\System32\D3DCompiler_43.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 ; Windows 10
