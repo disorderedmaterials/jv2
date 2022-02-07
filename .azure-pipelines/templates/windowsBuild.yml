@@ -38,7 +38,7 @@ steps:
       PATH="${PATH}:${Qt6_DIR}"
       mkdir build
       cd build
-      cmake ../ -G "Visual Studio 16 2019" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake -A x64
+      cmake ../ -G "Visual Studio 16 2019" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake
       cmake --build . --config Release
       cmake --install .
 
