@@ -7,7 +7,7 @@ from flask import request
 
 from urllib.request import urlopen
 from xml.etree.ElementTree import parse
-import lxml.etree as ET
+from lxml import etree as ET
 
 from ast import literal_eval
 
