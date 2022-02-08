@@ -18,7 +18,8 @@ steps:
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python3 -m pip install lxml‑4.7.1‑cp39‑cp39‑win_amd64
+      python -m pip uninstall lxml
+      python -m pip install lxml==3.6.0
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
