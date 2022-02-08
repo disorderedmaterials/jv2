@@ -19,7 +19,8 @@ steps:
       python3 -m pip install flask
       python3 -m pip install h5py
       python3 -m pip install wheel
-      python -m pip uninstall lxml
+      python -m pip install lxml.etree
+      python -m pip install lxml2
       python -m pip install lxml==3.6.0
     displayName: 'Install Prerequisites'
   - script: |
