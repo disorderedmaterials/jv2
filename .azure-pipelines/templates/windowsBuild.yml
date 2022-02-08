@@ -14,16 +14,11 @@ steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.9'
-  - powershell: |
-      $ErrorActionPreference = 'Stop'
-      wget --referer https://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml/ 'https://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml/lxml%E2%80%914.7.1%E2%80%91cp39%E2%80%91cp39%E2%80%91win_amd64.whl'
-    displayName: 'Download python scripts'
   - script: |
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python3 -m pip install h5py
-      python3 -m wheel install lxml‑4.7.1‑cp39‑cp39‑win_amd64.whl
+      python3 -m pip install lxml‑4.7.1‑cp39‑cp39‑win_amd64
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
