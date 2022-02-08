@@ -14,14 +14,19 @@ steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.9'
+  - powershell: |
+      $ErrorActionPreference = 'Stop'
+      $LXML_WHEEL = "https://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml/lxml‑4.7.1‑cp39‑cp39‑win_amd64.whl"
+      lxml‑4.7.1‑cp39‑cp39‑win_amd64.whl
+      wget $LXML_WHEEL
+    displayName: 'Download python scripts'
   - script: |
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python3 -m pip uninstall lxml
-      python3 -m pip install lxml==3.9.0
-
-      python3 -m pip install --upgrade lxml
+      python3 -m pip install h5py
+      python3 -m pip install wheel
+      python3 -m wheel install lxml‑4.7.1‑cp39‑cp39‑win_amd64.whl
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
