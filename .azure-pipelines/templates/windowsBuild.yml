@@ -17,7 +17,6 @@ steps:
   - powershell: |
       $ErrorActionPreference = 'Stop'
       $LXML_WHEEL = "https://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml/lxml‑4.7.1‑cp39‑cp39‑win_amd64.whl"
-      lxml‑4.7.1‑cp39‑cp39‑win_amd64.whl
       wget $LXML_WHEEL
     displayName: 'Download python scripts'
   - script: |
