@@ -6,6 +6,7 @@ from flask import jsonify
 from flask import request
 
 from urllib.request import urlopen
+from xml.etree.ElementTree import parse
 import lxml.etree as ET
 
 from ast import literal_eval
@@ -52,7 +53,7 @@ def getCycles(instrument):
         response = urlopen(url)
     except Exception:
         return jsonify({"response": "ERR. url not found"})
-    tree = ET.parse(response)
+    tree = parse(response)
     root = tree.getroot()
     cycles = []
     for data in root:
@@ -69,7 +70,7 @@ def getJournal(instrument, cycle):
         response = urlopen(url)
     except Exception:
         return jsonify({"response": "ERR. url not found"})
-    tree = ET.parse(response)
+    tree = parse(response)
     root = tree.getroot()
     fields = []
     for run in root:
