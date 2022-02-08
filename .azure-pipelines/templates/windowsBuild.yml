@@ -14,11 +14,19 @@ steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.9'
+  - powershell: |
+      $ErrorActionPreference = 'Stop'
+      $HDF5_ARTIFACTS = "https://github.com/disorderedmaterials/HDF5/releases/download/" + "${{ parameters.hdf5tag }}/${{ parameters.hdf5tag }}-windows.zip"
+      wget $HDF5_ARTIFACTS -O hdf5.zip
+      7z x hdf5.zip
+    displayName: 'Download HDF5 Artifacts'
   - script: |
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python3 -m pip install lxml
+      python3 -m pip uninstall lxml
+      python3 -m pip install lxml==3.9.0
+
       python3 -m pip install --upgrade lxml
     displayName: 'Install Prerequisites'
   - script: |
