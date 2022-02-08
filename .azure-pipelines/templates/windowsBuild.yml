@@ -22,6 +22,8 @@ steps:
       python3 -m pip install premailer
       python3 -m pip install lxml
       python3 -m pip install --upgrade lxml
+      python2 -m ensurepip
+      python2 -m pip install --upgrade pip
       python2 -m pip install lxml
       python2 -m pip install --upgrade lxml
     displayName: 'Install Prerequisites'
