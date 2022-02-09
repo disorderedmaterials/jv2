@@ -71,7 +71,7 @@ class MainWindow : public QMainWindow
     void contextGraph();
     void handle_result_contextMenu(HttpRequestWorker *worker);
     void toggleAxis(int state);
-    void showStatus(qreal x, qreal y);
+    void showStatus(qreal x, qreal y, QString title);
     // Misc Interface Functions
     void removeTab(int index);
     void savePref();
