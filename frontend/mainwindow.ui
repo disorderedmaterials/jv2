@@ -264,7 +264,7 @@
     </widget>
     <widget class="QMenu" name="menuGo_to_specific_run_number">
      <property name="title">
-      <string>Go to specific run number</string>
+      <string>Go to specific value</string>
      </property>
      <addaction name="actionRun_Number"/>
     </widget>
