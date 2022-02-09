@@ -68,6 +68,10 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
     if (worker->error_type == QNetworkReply::NoError)
     {
+        // Error handling
+        if(ui_->groupButton->isChecked())
+            ui_->groupButton->setChecked(false);
+
         // Get desired fields and titles from config files
         desiredHeader_ = getFields(instName_, instType_);
         auto jsonArray = worker->json_array;
