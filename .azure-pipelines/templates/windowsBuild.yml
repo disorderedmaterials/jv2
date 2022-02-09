@@ -18,12 +18,7 @@ steps:
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python --version
-      python3 --version
-      python3 -m pip show lxml
       python3 -m pip install --upgrade pip
-      python3 -m pip install --upgrade pyinstaller
-      python3 -m pip show lxml
       python3 -m pip install lxml
     displayName: 'Install Prerequisites'
   - script: |
