@@ -82,25 +82,19 @@ void MainWindow::initialiseElements()
 void MainWindow::recentCycle()
 {
     // Disable selections if api fails
-    if (ui_->cyclesBox->count() == 0)
+    if (ui_->cyclesMenu_->actions()->count() == 0)
         QWidget::setEnabled(false);
     QSettings settings;
     QString recentCycle = settings.value("recentCycle").toString();
-    auto cycleIndex = ui_->cyclesBox->findText(recentCycle);
 
     // Sets cycle to last used/ most recent if unavailable
-    if (instName_ != "")
-    {
-        if (cycleIndex != -1)
-        {
-            ui_->cyclesBox->setCurrentIndex(cycleIndex);
-            on_cyclesBox_currentIndexChanged(cycleIndex);
-        }
-        else
-            ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
-    }
+    auto it = std::find_if(cyclessMenu_->actions().begin(), cyclessMenu_->actions().end(),
+                           [key](const auto &action) { return action.text() == recentCycle; });
+    // If match found
+    if (it != cyclessMenu_->actions().end())
+        it->trigger();
     else
-        ui_->cyclesBox->setEnabled(false);
+        cyclessMenu_->actions()[cyclessMenu_->actions().count() - 1]->trigger();
 }
 
 // Fill instrument list
@@ -132,7 +126,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Update history on close
     QSettings settings;
     settings.setValue("recentInstrument", instDisplayName_);
-    settings.setValue("recentCycle", ui_->cyclesBox->currentText());
+    settings.setValue("recentCycle", ui_->cycleButton->text());
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";
@@ -154,9 +148,12 @@ void MainWindow::massSearch(QString name, QString value)
     {
         if (std::get<1>(tuple) == text)
         {
-            ui_->cyclesBox->setCurrentText("[" + std::get<1>(tuple) + "]");
+            foreach (QAction action : cyclesMenu_->actions())
+            {
+                if (action.text() == "[" + std::get<1>(tuple) + "]")
+                    action.trigger();
+            }
             setLoadScreen(true);
-            handle_result_cycles(std::get<0>(tuple));
             return;
         }
     }
@@ -168,8 +165,11 @@ void MainWindow::massSearch(QString name, QString value)
     worker->execute(input);
 
     cachedMassSearch_.append(std::make_tuple(worker, text));
-    ui_->cyclesBox->addItem("[" + text + "]", text);
-    ui_->cyclesBox->setCurrentText("[" + text + "]");
+
+    auto *action = new QAction("[" + text + "]", this);
+    connect(action, &QAction::triggered, [=]() { changeCycle("[" + text + "]"); });
+    cyclesMenu_->addAction(action);
+    ui_->cycleButton->setCurrentText("[" + text + "]");
     setLoadScreen(true);
 }
 

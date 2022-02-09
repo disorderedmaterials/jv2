@@ -96,11 +96,11 @@ void MainWindow::on_actionMassSearchUser_triggered() { massSearch("User name", "
 void MainWindow::on_actionClear_cached_searches_triggered()
 {
     cachedMassSearch_.clear();
-    for (auto i = ui_->cyclesBox->count() - 1; i >= 0; i--)
+    for (auto i = ui_->cyclesMenu_->actions()->count() - 1; i >= 0; i--)
     {
-        if (ui_->cyclesBox->itemText(i)[0] == '[')
+        if (ui_->cyclesMenu_->actions()[i]->text()[0] == '[')
         {
-            ui_->cyclesBox->removeItem(i);
+            ui_->cyclesMenu_->removeItem(i);
         }
     }
 }
@@ -118,16 +118,16 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
             return;
         }
 
-        if (ui_->cyclesBox->currentData().toString() == worker->response)
+        if (cyclesMap_[ui_->cycleButton->text()] == worker->response)
         {
             selectIndex(runNumber);
             return;
         }
         connect(this, &MainWindow::tableFilled, [=]() { selectIndex(runNumber); });
-        for (auto i = 0; i < ui_->cyclesBox->count(); i++)
+        for (auto i = 0; i < cyclesMenu_->actions()->count(); i++)
         {
-            if (ui_->cyclesBox->itemData(i).toString() == worker->response)
-                ui_->cyclesBox->setCurrentIndex(i);
+            if (cyclesMenu_->actions()[i].text() == worker->response)
+                changeCycle(cyclesMenu_->actions()[i].text());
         }
     }
     else

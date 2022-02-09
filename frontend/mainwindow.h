@@ -60,7 +60,7 @@ class MainWindow : public QMainWindow
     void handle_result_instruments(HttpRequestWorker *worker);
     void handle_result_cycles(HttpRequestWorker *worker);
     void currentInstrumentChanged(const QString &arg1);
-    void on_cyclesBox_currentIndexChanged(int index);
+    void changeCycle(QString value);
     void recentCycle();
     void changeInst(std::tuple<QString, QString, QString> instrument);
     // Grouping
@@ -97,6 +97,7 @@ class MainWindow : public QMainWindow
     QMenu *findMenu_;
     QMenu *contextMenu_;
     QMenu *instrumentsMenu_;
+    QMenu *cyclesMenu_;
 
     QModelIndexList foundIndices_;
     int currentFoundIndex_;

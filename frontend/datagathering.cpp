@@ -20,31 +20,42 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
     {
         auto response = worker->response;
 
-        // Prevents unwanted firing
-        ui_->cyclesBox->blockSignals(true);
-        QString cycleText = ui_->cyclesBox->currentText();
-        ui_->cyclesBox->clear();
+        ui_->cyclesMenu_->clear();
         foreach (const QJsonValue &value, worker->json_array)
         {
+            // QMap<QString, QString> cyclesMap_;
+            cyclesMap_.clear();
             // removes header_ file
             if (value.toString() != "journal.xml")
             {
                 auto displayName =
                     "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
-                ui_->cyclesBox->addItem(displayName, value.toString());
+                cyclesMap_.push_back({displayName, value.toString()});
+
+                auto *action = new QAction(displayName, this);
+                connect(action, &QAction::triggered, [=]() { changeCycle(cyclesMap_["displayName"]); });
+                cyclesMenu_->addAction(action);
             }
         }
-        ui_->cyclesBox->blockSignals(false);
 
         // Keep cycle over instruments
-        auto cycleIndex = ui_->cyclesBox->findText(cycleText);
-        if (!init_)
-        {
-            if (cycleIndex != -1)
-                ui_->cyclesBox->setCurrentIndex(cycleIndex);
-            else
-                ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
-        }
+        bool found = false;
+        for (auto i = 0; i < instrumentsMenu_->actions().count(); i++)
+            if (instrumentsMenu_->actions()[i]->text() == recentInstrument)
+            {
+                instrumentsMenu_->actions()[i]->trigger();
+                found = true;
+            }
+        if (!found)
+            instrumentsMenu_->actions()[instrumentsMenu_->actions().count() - 1]->trigger();
+
+        auto it = std::find_if(cyclessMenu_->actions().begin(), cyclessMenu_->actions().end(),
+                               [key](const auto &action) { return action.text() == ui_->cycleButton->text(); });
+        // If match found
+        if (it != cyclessMenu_->actions().end())
+            it->trigger();
+        else
+            cyclessMenu_->actions()[cyclessMenu_->actions().count() - 1]->trigger();
     }
     else
     {
@@ -69,7 +80,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
     if (worker->error_type == QNetworkReply::NoError)
     {
         // Error handling
-        if(ui_->groupButton->isChecked())
+        if (ui_->groupButton->isChecked())
             ui_->groupButton->setChecked(false);
 
         // Get desired fields and titles from config files
@@ -165,20 +176,13 @@ void MainWindow::currentInstrumentChanged(const QString &arg1)
 }
 
 // Populate table with cycle data
-void MainWindow::on_cyclesBox_currentIndexChanged(int index)
+void MainWindow::changeCycle(QString value)
 {
-    // Handle possible undesired calls
-    auto currentText = ui_->cyclesBox->itemText(index);
-    ui_->cyclesBox->setDisabled(currentText.isEmpty());
-    ui_->filterBox->setDisabled(currentText.isEmpty());
-    if (currentText.isEmpty())
-        return;
-
-    if (currentText[0] == '[')
+    if (value[0] == '[')
     {
-        auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(), [currentText](const auto &tuple) {
-            return std::get<1>(tuple) == currentText.mid(1, currentText.length() - 2);
-        });
+        auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
+                               [value](const auto &tuple)
+                               { return std::get<1>(tuple) == value.mid(1, value.length() - 2); });
         if (it != cachedMassSearch_.end())
         {
             setLoadScreen(true);
@@ -187,7 +191,7 @@ void MainWindow::on_cyclesBox_currentIndexChanged(int index)
         return;
     }
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + ui_->cyclesBox->itemData(index).toString();
+    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + value;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
