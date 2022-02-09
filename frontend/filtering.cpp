@@ -40,7 +40,8 @@ void MainWindow::on_filterBox_textChanged(const QString &arg1)
     proxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     // Update search to new data
-    updateSearch(searchString_);
+    if (searchString_ != "")
+        updateSearch(searchString_);
 }
 
 // Groups table data
