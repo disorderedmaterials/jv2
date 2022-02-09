@@ -106,6 +106,7 @@ class MainWindow : public QMainWindow
     QString instType_;
     QString instName_;
     QString instDisplayName_;
+    QMap<QString, QString> cyclesMap_;
     // Misc
     bool init_;
     QPoint pos_;

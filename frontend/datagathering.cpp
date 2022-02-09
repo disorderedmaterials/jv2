@@ -20,54 +20,47 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
     {
         auto response = worker->response;
 
-        ui_->cyclesMenu_->clear();
+        cyclesMenu_->clear();
+        cyclesMap_.clear();
         foreach (const QJsonValue &value, worker->json_array)
         {
-            // QMap<QString, QString> cyclesMap_;
-            cyclesMap_.clear();
             // removes header_ file
             if (value.toString() != "journal.xml")
             {
                 auto displayName =
                     "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
-                cyclesMap_.push_back({displayName, value.toString()});
+                cyclesMap_[displayName] = value.toString();
 
                 auto *action = new QAction(displayName, this);
-                connect(action, &QAction::triggered, [=]() { changeCycle(cyclesMap_["displayName"]); });
+                connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
                 cyclesMenu_->addAction(action);
             }
         }
 
+        if (init_)
+        {
+            qDebug() << "init";
+            // Sets cycle to most recently viewed
+            recentCycle();
+            init_ = false;
+            return;
+        }
         // Keep cycle over instruments
-        bool found = false;
-        for (auto i = 0; i < instrumentsMenu_->actions().count(); i++)
-            if (instrumentsMenu_->actions()[i]->text() == recentInstrument)
+        for (QAction *action : cyclesMenu_->actions())
+        {
+            if (action->text() == ui_->cycleButton->text())
             {
-                instrumentsMenu_->actions()[i]->trigger();
-                found = true;
+                action->trigger();
+                return;
             }
-        if (!found)
-            instrumentsMenu_->actions()[instrumentsMenu_->actions().count() - 1]->trigger();
-
-        auto it = std::find_if(cyclessMenu_->actions().begin(), cyclessMenu_->actions().end(),
-                               [key](const auto &action) { return action.text() == ui_->cycleButton->text(); });
-        // If match found
-        if (it != cyclessMenu_->actions().end())
-            it->trigger();
-        else
-            cyclessMenu_->actions()[cyclessMenu_->actions().count() - 1]->trigger();
+        }
+        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
     }
     else
     {
         // an error occurred
         msg = "Error1: " + worker->error_str;
         QMessageBox::information(this, "", msg);
-    }
-    if (init_)
-    {
-        // Sets cycle to most recently viewed
-        recentCycle();
-        init_ = false;
     }
 }
 
@@ -178,20 +171,23 @@ void MainWindow::currentInstrumentChanged(const QString &arg1)
 // Populate table with cycle data
 void MainWindow::changeCycle(QString value)
 {
+    qDebug() << "Change to " << value;
+    qDebug() << "using " << cyclesMap_[value];
     if (value[0] == '[')
     {
         auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
-                               [value](const auto &tuple)
-                               { return std::get<1>(tuple) == value.mid(1, value.length() - 2); });
+                               [value](const auto &tuple) { return std::get<1>(tuple) == value.mid(1, value.length() - 2); });
         if (it != cachedMassSearch_.end())
         {
+            ui_->cycleButton->setText(value);
             setLoadScreen(true);
             handle_result_cycles(std::get<0>(*it));
         }
         return;
     }
+    ui_->cycleButton->setText(value);
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + value;
+    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + cyclesMap_[value];
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 

@@ -96,11 +96,11 @@ void MainWindow::on_actionMassSearchUser_triggered() { massSearch("User name", "
 void MainWindow::on_actionClear_cached_searches_triggered()
 {
     cachedMassSearch_.clear();
-    for (auto i = ui_->cyclesMenu_->actions()->count() - 1; i >= 0; i--)
+    for (auto i = cyclesMenu_->actions().count() - 1; i >= 0; i--)
     {
-        if (ui_->cyclesMenu_->actions()[i]->text()[0] == '[')
+        if (cyclesMenu_->actions()[i]->text()[0] == '[')
         {
-            ui_->cyclesMenu_->removeItem(i);
+            cyclesMenu_->removeAction(cyclesMenu_->actions()[i]);
         }
     }
 }
@@ -124,10 +124,10 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
             return;
         }
         connect(this, &MainWindow::tableFilled, [=]() { selectIndex(runNumber); });
-        for (auto i = 0; i < cyclesMenu_->actions()->count(); i++)
+        for (auto i = 0; i < cyclesMenu_->actions().count(); i++)
         {
-            if (cyclesMenu_->actions()[i].text() == worker->response)
-                changeCycle(cyclesMenu_->actions()[i].text());
+            if (cyclesMenu_->actions()[i]->text() == worker->response)
+                changeCycle(cyclesMenu_->actions()[i]->text());
         }
     }
     else

@@ -82,19 +82,20 @@ void MainWindow::initialiseElements()
 void MainWindow::recentCycle()
 {
     // Disable selections if api fails
-    if (ui_->cyclesMenu_->actions()->count() == 0)
+    if (cyclesMenu_->actions().count() == 0)
         QWidget::setEnabled(false);
     QSettings settings;
     QString recentCycle = settings.value("recentCycle").toString();
-
     // Sets cycle to last used/ most recent if unavailable
-    auto it = std::find_if(cyclessMenu_->actions().begin(), cyclessMenu_->actions().end(),
-                           [key](const auto &action) { return action.text() == recentCycle; });
-    // If match found
-    if (it != cyclessMenu_->actions().end())
-        it->trigger();
-    else
-        cyclessMenu_->actions()[cyclessMenu_->actions().count() - 1]->trigger();
+    for (QAction *action : cyclesMenu_->actions())
+    {
+        if (action->text() == recentCycle)
+        {
+            action->trigger();
+            return;
+        }
+    }
+    cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
 }
 
 // Fill instrument list
@@ -102,8 +103,11 @@ void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> in
 {
     // Only allow calls after initial population
     instrumentsMenu_ = new QMenu("test");
+    cyclesMenu_ = new QMenu("test2");
     connect(ui_->instrumentButton, &QPushButton::clicked,
             [=]() { instrumentsMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
+    connect(ui_->cycleButton, &QPushButton::clicked,
+            [=]() { cyclesMenu_->exec(ui_->cycleButton->mapToGlobal(QPoint(0, ui_->cycleButton->height()))); });
     foreach (const auto instrument, instruments)
     {
         auto *action = new QAction(std::get<2>(instrument), this);
@@ -148,10 +152,10 @@ void MainWindow::massSearch(QString name, QString value)
     {
         if (std::get<1>(tuple) == text)
         {
-            foreach (QAction action : cyclesMenu_->actions())
+            for (QAction *action : cyclesMenu_->actions())
             {
-                if (action.text() == "[" + std::get<1>(tuple) + "]")
-                    action.trigger();
+                if (action->text() == "[" + std::get<1>(tuple) + "]")
+                    action->trigger();
             }
             setLoadScreen(true);
             return;
@@ -169,7 +173,7 @@ void MainWindow::massSearch(QString name, QString value)
     auto *action = new QAction("[" + text + "]", this);
     connect(action, &QAction::triggered, [=]() { changeCycle("[" + text + "]"); });
     cyclesMenu_->addAction(action);
-    ui_->cycleButton->setCurrentText("[" + text + "]");
+    ui_->cycleButton->setText("[" + text + "]");
     setLoadScreen(true);
 }
 
