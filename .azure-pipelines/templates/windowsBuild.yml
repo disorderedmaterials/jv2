@@ -41,12 +41,12 @@ steps:
       PATH="${Qt6_DIR}:${PATH}"
       mkdir build
       cd build
-      cmake ../ -G "Visual Studio 16 2019" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake -DCMAKE_GENERATOR_TOOLSET=v142
+      cmake ../ -G "Visual Studio 16 2019" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake
       cmake --build . --config Release
       cmake --install .
 
       cd ../
-      pyinstaller backend/isisInternal.py --collect-submodules=lxml --debug
+      pyinstaller backend/isisInternal.py --collect-submodules lxml
       pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
       ls dist/isisInternal
       ls dist/isisInternal/lxml
