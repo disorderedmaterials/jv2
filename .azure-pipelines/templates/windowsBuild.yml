@@ -18,9 +18,8 @@ steps:
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python3 -m pip install wheel
-      python3 -m pip install premailer
       python3 -m pip install lxml
+      python3 -m pip list --format=freeze
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
@@ -37,7 +36,7 @@ steps:
       ls C:/ProgramData/chocolatey/lib/mingw
       HDF5_DIR="$(pwd)/${{ parameters.hdf5tag }}"
       Qt6_DIR="/d/a/1/b/Qt/6.1.2/msvc2019_64"
-      PATH="${PATH}:${Qt6_DIR}"
+      PATH="${Qt6_DIR}:${PATH}"
       mkdir build
       cd build
       cmake ../ -G "Visual Studio 16 2019" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake
