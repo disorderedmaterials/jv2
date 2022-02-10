@@ -6,7 +6,7 @@ from flask import jsonify
 from flask import request
 
 from urllib.request import urlopen
-import lxml.etree as ET
+from lxml import etree as ET
 from xml.etree.ElementTree import parse
 
 from ast import literal_eval
