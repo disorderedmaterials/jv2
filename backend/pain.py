@@ -7,5 +7,9 @@ import lxml
 
 path = os.path.abspath(lxml.__file__)
 print(path)
-#print(os.listdir(path))
+print(os.listdir(path))
 
+try:
+  import lxml.etree
+except:
+  print("WTRAFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
