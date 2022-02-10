@@ -18,7 +18,8 @@ steps:
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python3 -m pip install --upgrade pip
+      python3 -m pip install wheel
+      python3 -m pip install premailer
       python3 -m pip install lxml
     displayName: 'Install Prerequisites'
   - script: |
@@ -44,7 +45,7 @@ steps:
       cmake --install .
 
       cd ../
-      pyinstaller backend/isisInternal.py -—hidden-import lxml -—hidden-import lxml.etree
+      pyinstaller backend/isisInternal.py 
       pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
       mv dist/isisInternal dist/launch
     displayName: 'Build'
