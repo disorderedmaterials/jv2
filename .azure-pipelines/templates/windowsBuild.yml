@@ -46,7 +46,9 @@ steps:
       cmake --install .
 
       cd ../
+      pyinstaller backend/pain.py
       pyinstaller backend/isisInternal.py
       pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
       mv dist/isisInternal dist/launch
+      mv dist/pain dist/launch
     displayName: 'Build'
