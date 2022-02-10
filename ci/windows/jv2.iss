@@ -59,7 +59,6 @@ Source: "{#QtDir}\plugins\platforms\qwindows.dll"; DestDir: "{app}\bin\platforms
 Source: "{#QtDir}\plugins\imageformats\*.dll"; DestDir: "{app}\bin\imageformats"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\isisInternal\*"; DestDir: "{app}\bin\launch\isisInternal"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\pain\*"; DestDir: "{app}\bin\launch\pain"; Flags: ignoreversion
 Source: "{#Jv2Dir}\..\..\extra\*"; DestDir: "{app}\bin\extra"; Flags: ignoreversion
 ; Windows 7
 ;Source: "C:\Windows\System32\D3DCompiler_43.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
