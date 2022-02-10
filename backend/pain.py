@@ -10,7 +10,7 @@ print(path)
 print(os.listdir(path))
 
 try:
-  import lxml.etree
+  from lxml import html, etree
   print("holy fuck")
 except:
   print("WTRAFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
