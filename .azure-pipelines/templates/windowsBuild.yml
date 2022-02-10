@@ -46,7 +46,9 @@ steps:
       cmake --install .
 
       cd ../
-      pyinstaller backend/isisInternal.py --collect-submodules=lxml
+      pyinstaller backend/isisInternal.py --collect-submodules=lxml --debug
       pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
+      ls dist/isisInternal
+      ls dist/isisInternal/lxml
       mv dist/isisInternal dist/launch
     displayName: 'Build'
