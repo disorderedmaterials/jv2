@@ -18,8 +18,6 @@ steps:
       python3 -m pip install pyinstaller
       python3 -m pip install flask
       python3 -m pip install h5py
-      python3 -m pip install wheel
-      python3 -m pip install premailer
       python3 -m pip install lxml
     displayName: 'Install Prerequisites'
   - script: |
