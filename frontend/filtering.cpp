@@ -103,6 +103,8 @@ void MainWindow::on_actionClear_cached_searches_triggered()
             cyclesMenu_->removeAction(cyclesMenu_->actions()[i]);
         }
     }
+    if (ui_->cycleButton->text()[0] == '[')
+        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
 }
 
 void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
