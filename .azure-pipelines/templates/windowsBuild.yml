@@ -14,17 +14,6 @@ steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.9'
-  - powershell: |
-      vs_enterprise.exe --allWorkloads --includeRecommended --passive ^
-       --add Microsoft.Net.Component.4.7.SDK ^
-       --add Microsoft.Net.Component.4.7.TargetingPack ^
-       --add Microsoft.Net.Component.4.6.2.SDK ^
-       --add Microsoft.Net.Component.4.6.2.TargetingPack ^
-       --add Microsoft.Net.ComponentGroup.4.7.DeveloperTools ^
-       --add Microsoft.VisualStudio.Component.FSharp ^
-       --add Component.GitHub.VisualStudio ^
-       --add Microsoft.VisualStudio.Component.LinqToSql
-    displayName: 'god knows'
   - script: |
       python3 -m pip install pyinstaller
       python3 -m pip install flask
@@ -49,7 +38,7 @@ steps:
       PATH="${Qt6_DIR}:${PATH}"
       mkdir build
       cd build
-      cmake ../ -G "Visual Studio 17 2022" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }}
+      cmake ../ -G "Visual Studio 16 2019" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake -DCMAKE_GENERATOR_TOOLSET=v142
       cmake --build . --config Release
       cmake --install .
 
