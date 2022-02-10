@@ -20,6 +20,7 @@ steps:
       python3 -m pip install h5py
       python3 -m pip install lxml
       python3 -m pip list --format=freeze
+      python3 -m pip show lxml
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
@@ -43,7 +44,7 @@ steps:
       cmake --install .
 
       cd ../
-      pyinstaller backend/isisInternal.py --hidden-import lxml.etree
+      pyinstaller backend/isisInternal.py
       pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
       mv dist/isisInternal dist/launch
     displayName: 'Build'
