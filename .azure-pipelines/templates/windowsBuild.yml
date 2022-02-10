@@ -14,6 +14,17 @@ steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.9'
+  - powershell: |
+      vs_enterprise.exe --allWorkloads --includeRecommended --passive ^
+       --add Microsoft.Net.Component.4.7.SDK ^
+       --add Microsoft.Net.Component.4.7.TargetingPack ^
+       --add Microsoft.Net.Component.4.6.2.SDK ^
+       --add Microsoft.Net.Component.4.6.2.TargetingPack ^
+       --add Microsoft.Net.ComponentGroup.4.7.DeveloperTools ^
+       --add Microsoft.VisualStudio.Component.FSharp ^
+       --add Component.GitHub.VisualStudio ^
+       --add Microsoft.VisualStudio.Component.LinqToSql
+    displayName: 'god knows'
   - script: |
       python3 -m pip install pyinstaller
       python3 -m pip install flask
