@@ -11,5 +11,6 @@ print(os.listdir(path))
 
 try:
   import lxml.etree
+  print("holy fuck")
 except:
   print("WTRAFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
