@@ -110,7 +110,6 @@ void MainWindow::on_actionClear_cached_searches_triggered()
 void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 {
     setLoadScreen(false);
-    qDebug() << "goTo " << runNumber;
     QString msg;
 
     if (worker->error_type == QNetworkReply::NoError)
@@ -120,14 +119,11 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
             statusBar()->showMessage("Search query not found", 5000);
             return;
         }
-        qDebug() << "response: " << worker->response;
-        qDebug() << "ours: " << cyclesMap_[ui_->cycleButton->text()] << ui_->cycleButton->text();
         if (cyclesMap_[ui_->cycleButton->text()] == worker->response)
         {
             selectIndex(runNumber);
             return;
         }
-        qDebug() << "Selecting alternate cycle " << worker->response;
         connect(this, &MainWindow::tableFilled, [=]() { selectIndex(runNumber); });
         for (auto i = 0; i < cyclesMenu_->actions().count(); i++)
         {

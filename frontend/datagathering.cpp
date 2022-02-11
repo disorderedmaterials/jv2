@@ -39,7 +39,6 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 
         if (init_)
         {
-            qDebug() << "init";
             // Sets cycle to most recently viewed
             recentCycle();
             init_ = false;
@@ -171,8 +170,6 @@ void MainWindow::currentInstrumentChanged(const QString &arg1)
 // Populate table with cycle data
 void MainWindow::changeCycle(QString value)
 {
-    qDebug() << "Change to " << value;
-    qDebug() << "using " << cyclesMap_[value];
     if (value[0] == '[')
     {
         auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
