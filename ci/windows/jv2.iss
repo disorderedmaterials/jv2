@@ -60,6 +60,7 @@ Source: "{#QtDir}\plugins\imageformats\*.dll"; DestDir: "{app}\bin\imageformats"
 Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\isisInternal\*"; DestDir: "{app}\bin\launch\isisInternal"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\isisInternal\lxml\*"; DestDir: "{app}\bin\launch\isisInternal\lxml"; Flags: ignoreversion
+Source: "{#BackendDir}\launch\isisInternal\numpy\*"; DestDir: "{app}\bin\launch\isisInternal\numpy"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\isisInternal\h5py\*"; DestDir: "{app}\bin\launch\isisInternal\h5py"; Flags: ignoreversion
 Source: "{#Jv2Dir}\..\..\extra\*"; DestDir: "{app}\bin\extra"; Flags: ignoreversion
 ; Windows 7
