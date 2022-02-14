@@ -69,11 +69,11 @@ Source: "{#Jv2Dir}\..\..\extra\*"; DestDir: "{app}\bin\extra"; Flags: ignorevers
 ; Windows 7
 ;Source: "C:\Windows\System32\D3DCompiler_43.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 ; Windows 10
-Source: "C:\Windows\System32\D3DCompiler_47.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "C:\Windows\System32\D3DCompiler_47.dll"; DestDir: "{app}\bin\jv2; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; IconFilename: "{app}\bin\JournalViewer2.ico"; Filename: "{app}\bin\{#MyAppExeName}"; WorkingDir: "{app}"
-Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\JournalViewer2.ico"; Filename: "{app}\bin\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{group}\{#MyAppName}"; IconFilename: "{app}\bin\jv2\JournalViewer2.ico"; Filename: "{app}\bin\jv2\{#MyAppExeName}"; WorkingDir: "{app}"
+Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\jv2\JournalViewer2.ico"; Filename: "{app}\bin\jv2\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\bin\launch\launch.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
