@@ -3,6 +3,10 @@
 
 import subprocess
 import os
-os.chdir('./bin/launch')
+print(os.getcwd())
+os.chdir('/bin/launch')
+print(os.getcwd())
 isisInternal = subprocess.Popen('./isisInternal/isisInternal')
 frontend = subprocess.Popen('../jv2')
+for i in range(1, 10):
+  print("")
