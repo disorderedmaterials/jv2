@@ -76,4 +76,4 @@ Name: "{group}\{#MyAppName}"; IconFilename: "{app}\bin\JournalViewer2.ico"; File
 Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\JournalViewer2.ico"; Filename: "{app}\bin\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\bin\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\bin\launch\launch.exe"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
