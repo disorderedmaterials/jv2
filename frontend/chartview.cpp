@@ -213,7 +213,7 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
     }
     else
     {
-        if (hovered_ != "")
+        if (!hovered_.isEmpty())
             emit showCoordinates(chart()->mapToValue(event->pos()).x(), chart()->mapToValue(event->pos()).y(), hovered_);
         else
             emit clearCoordinates();
