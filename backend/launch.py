@@ -4,4 +4,4 @@
 import subprocess
 
 isisInternal = subprocess.Popen('./bin/launch/isisInternal/isisInternal')
-frontend = subprocess.Popen('./bin/jv2')
+frontend = subprocess.Popen('./bin/jv2/jv2')
