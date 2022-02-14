@@ -2,6 +2,7 @@
 # Copyright (c) 2022 E. Devlin and T. Youngs
 
 import subprocess
-
-isisInternal = subprocess.Popen('./bin/launch/isisInternal/isisInternal')
-frontend = subprocess.Popen('./bin/jv2')
+import os
+os.chdir('./bin/launch')
+isisInternal = subprocess.Popen('./isisInternal/isisInternal')
+frontend = subprocess.Popen('../jv2')
