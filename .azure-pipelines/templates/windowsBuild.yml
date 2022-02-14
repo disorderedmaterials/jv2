@@ -49,5 +49,9 @@ steps:
       ls dist/isisInternal
       ls dist/isisInternal/lxml
       ls dist/isisInternal/numpy
+      ls dist/isisInternal/numpy/core
+      ls dist/isisInternal/numpy/fft
+      ls dist/isisInternal/numpy/linalg
+      ls dist/isisInternal/numpy/random
       mv dist/isisInternal dist/launch
     displayName: 'Build'
