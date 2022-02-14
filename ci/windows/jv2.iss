@@ -54,9 +54,9 @@ Source: "{#QtDir}\bin\Qt6Network.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreve
 Source: "{#QtDir}\bin\Qt6PrintSupport.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Charts.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Xml.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
-Source: "{#QtDir}\plugins\iconengines\qsvgicon.dll"; DestDir: "{app}\bin\iconengines"; Flags: ignoreversion
-Source: "{#QtDir}\plugins\platforms\qwindows.dll"; DestDir: "{app}\bin\platforms"; Flags: ignoreversion
-Source: "{#QtDir}\plugins\imageformats\*.dll"; DestDir: "{app}\bin\imageformats"; Flags: ignoreversion
+Source: "{#QtDir}\plugins\iconengines\qsvgicon.dll"; DestDir: "{app}\bin\jv2\iconengines"; Flags: ignoreversion
+Source: "{#QtDir}\plugins\platforms\qwindows.dll"; DestDir: "{app}\bin\jv2\platforms"; Flags: ignoreversion
+Source: "{#QtDir}\plugins\imageformats\*.dll"; DestDir: "{app}\bin\jv2\imageformats"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\isisInternal\*"; DestDir: "{app}\bin\launch\isisInternal"; Flags: ignoreversion
 Source: "{#BackendDir}\launch\isisInternal\lxml\*"; DestDir: "{app}\bin\launch\isisInternal\lxml"; Flags: ignoreversion
