@@ -125,7 +125,7 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>./bin/extra/group.svg</normaloff>./bin/extra/group.svg</iconset>
+                   <normaloff>../extra/group.svg</normaloff>../extra/group.svg</iconset>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -150,7 +150,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>./bin/extra/filter.svg</pixmap>
+                  <pixmap>../extra/filter.svg</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -189,7 +189,7 @@
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normaloff>./bin/extra/cross.svg</normaloff>./bin/extra/cross.svg</iconset>
+                   <normaloff>../extra/cross.svg</normaloff>../extra/cross.svg</iconset>
                  </property>
                 </widget>
                </item>
