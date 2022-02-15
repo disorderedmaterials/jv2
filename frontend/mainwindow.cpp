@@ -189,7 +189,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 // Get instrument data from config file
 QList<QPair<QString, QString>> MainWindow::getInstruments()
 {
-    QFile file("../extra/instrumentData.xml");
+    QFile file("extra/instrumentData.xml");
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -218,7 +218,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
     std::vector<std::pair<QString, QString>> desiredInstFields;
     QDomNodeList desiredInstrumentFields;
 
-    QFile file("../extra/tableConfig.xml");
+    QFile file("extra/tableConfig.xml");
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -244,7 +244,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
         // If config preferences blank
         if (configDefaultFields.isEmpty())
         {
-            QFile file("../extra/instrumentData.xml");
+            QFile file("extra/instrumentData.xml");
             file.open(QIODevice::ReadOnly);
             dom.setContent(&file);
             file.close();
@@ -282,7 +282,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
 void MainWindow::savePref()
 {
 
-    QFile file("../extra/tableConfig.xml");
+    QFile file("extra/tableConfig.xml");
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -334,7 +334,7 @@ void MainWindow::savePref()
     }
     if (!dom.toByteArray().isEmpty())
     {
-        QFile file("../extra/tableConfig.xml");
+        QFile file("extra/tableConfig.xml");
         file.open(QIODevice::WriteOnly);
         file.write(dom.toByteArray());
         file.close();
