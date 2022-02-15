@@ -32,8 +32,6 @@ steps:
     displayName: 'Download HDF5 Artifacts'
   - bash: |
       set -ex
-      ls c:/hostedtoolcache/windows/python/3.9.9/x64/lib/site-packages/lxml
-      ls c:/hostedtoolcache/windows/python/3.9.9/x64/lib/site-packages/lxml-4.7.1.dist-info
       HDF5_DIR="$(pwd)/${{ parameters.hdf5tag }}"
       Qt6_DIR="/d/a/1/b/Qt/6.1.2/msvc2019_64"
       PATH="${Qt6_DIR}:${PATH}"
@@ -46,12 +44,5 @@ steps:
       cd ../
       pyinstaller backend/isisInternal.py --collect-submodules lxml
       pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
-      ls dist/isisInternal
-      ls dist/isisInternal/lxml
-      ls dist/isisInternal/numpy
-      ls dist/isisInternal/numpy/core
-      ls dist/isisInternal/numpy/fft
-      ls dist/isisInternal/numpy/linalg
-      ls dist/isisInternal/numpy/random
       mv dist/isisInternal dist/launch
     displayName: 'Build'

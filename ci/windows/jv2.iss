@@ -10,7 +10,6 @@
 ; Locations of bin directories of Dissolve, Qt, GnuWin, MinGW etc.
 #define Jv2Dir GetEnv('JV2_DIR')
 #define QtDir GetEnv('Qt6_DIR')
-#define MinGWLibDir GetEnv('MINGW_LIB_DIR')
 #define BackendDir GetEnv('BACKEND_DIR')
 
 [Setup]
