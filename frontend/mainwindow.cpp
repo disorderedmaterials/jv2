@@ -104,7 +104,7 @@ void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> in
     // Only allow calls after initial population
     instrumentsMenu_ = new QMenu("instrumentsMenu");
     cyclesMenu_ = new QMenu("cyclesMenu");
-  
+
     connect(ui_->instrumentButton, &QPushButton::clicked,
             [=]() { instrumentsMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
     connect(ui_->cycleButton, &QPushButton::clicked,

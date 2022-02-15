@@ -183,7 +183,7 @@ void MainWindow::contextGraph()
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-  
+
     QString field = contextAction->data().toString().replace("/", ":");
     url_str += instName_ + "/" + cycle + "/" + runNos + "/" + field;
 
