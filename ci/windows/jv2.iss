@@ -57,7 +57,7 @@ Source: "{#QtDir}\bin\Qt6Xml.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversio
 Source: "{#QtDir}\plugins\iconengines\qsvgicon.dll"; DestDir: "{app}\bin\jv2\iconengines"; Flags: ignoreversion
 Source: "{#QtDir}\plugins\platforms\qwindows.dll"; DestDir: "{app}\bin\jv2\platforms"; Flags: ignoreversion
 Source: "{#QtDir}\plugins\imageformats\*.dll"; DestDir: "{app}\bin\jv2\imageformats"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion recursesudirs createallsubdirs
+Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Jv2Dir}\..\..\extra\*"; DestDir: "{app}\bin\extra"; Flags: ignoreversion
 ; Windows 7
 ;Source: "C:\Windows\System32\D3DCompiler_43.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
