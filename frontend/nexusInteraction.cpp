@@ -182,17 +182,8 @@ void MainWindow::contextGraph()
         return;
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
-<<<<<<< HEAD
-<<<<<<< HEAD
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-=======
-    qDebug() << cyclesMap_[ui_->cycleButton->text()] << cycle;
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
-    qDebug() << cyclesMap_[ui_->cycleButton->text()] << cycle;
->>>>>>> a2ca425... Spectra qol
-=======
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
->>>>>>> bdb6174... refactor and rename
+  
     QString field = contextAction->data().toString().replace("/", ":");
     url_str += instName_ + "/" + cycle + "/" + runNos + "/" + field;
 
@@ -435,15 +426,8 @@ void MainWindow::showStatus(qreal x, qreal y, QString title)
     statusBar()->showMessage("Run " + title + ": " + message);
 }
 
-// Handles log data
-<<<<<<< HEAD
-void MainWindow::spectraTesting(HttpRequestWorker *worker)
-{
-    setLoadScreen(false);
-=======
 void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 {
->>>>>>> 4ad396b... spectra
     auto *window = new QWidget;
     auto *chart = new QChart();
     auto *chartView = new ChartView(chart, window);
@@ -451,17 +435,6 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
-<<<<<<< HEAD
-        /*auto *xAxis = new QValueAxis();
-        xAxis->setTitleText("Time of flight");
-        chart->addAxis(xAxis, Qt::AlignBottom);
-
-        auto *yAxis = new QValueAxis();
-        yAxis->setTitleText("Bin value");
-        chart->addAxis(yAxis, Qt::AlignLeft);*/
-
-=======
->>>>>>> 4ad396b... spectra
         QString field = "Spectra ";
         QString runs;
         bool init = true;
@@ -477,29 +450,17 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
             // For each plot point
             auto *series = new QLineSeries();
             // Set dateSeries ID
-<<<<<<< HEAD
-            qDebug() << runArray.first().toString();
-=======
->>>>>>> 4ad396b... spectra
             QString name = runArray.first().toString();
             runs += name + ", ";
             series->setName(name);
             runArray.removeFirst();
-<<<<<<< HEAD
-            qDebug() << runArray.first().toString();
-=======
->>>>>>> 4ad396b... spectra
+
             foreach (const auto &dataPair, runArray)
             {
                 auto dataPairArray = dataPair.toArray();
                 series->append(dataPairArray[0].toDouble(), dataPairArray[1].toDouble());
             }
             chart->addSeries(series);
-<<<<<<< HEAD
-            // series->attachAxis(xAxis);
-            // series->attachAxis(yAxis);
-=======
->>>>>>> 4ad396b... spectra
         }
         chart->createDefaultAxes();
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight");
@@ -523,15 +484,8 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
     }
 }
 
-<<<<<<< HEAD
-void MainWindow::plotSpectra()
-{
-    QString textInput = QInputDialog::getText(this, tr("Plot Spectra"), tr("Spectra No.: "), QLineEdit::Normal);
-
-=======
 void MainWindow::getSpectraCount()
 {
->>>>>>> 4ad396b... spectra
     // Gathers all selected runs
     auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
     // Finds run number location in table
@@ -578,19 +532,6 @@ void MainWindow::getSpectraCount()
         return;
 
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
-<<<<<<< HEAD
-    qDebug() << cyclesMap_[ui_->cycleButton->text()] << cycle;
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
-    qDebug() << cyclesMap_[ui_->cycleButton->text()] << cycle;
-
-    QString url_str = "http://127.0.0.1:5000/getSpectra/";
-    url_str += instName_ + "/" + cycle + "/" + runNos + "/" + textInput;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(spectraTesting(HttpRequestWorker *)));
-    setLoadScreen(true);
-    worker->execute(input);
-=======
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getSpectra/";
@@ -664,5 +605,4 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleSpectraCharting(HttpRequestWorker *)));
     worker->execute(input);
->>>>>>> 4ad396b... spectra
 }

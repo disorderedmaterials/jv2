@@ -104,6 +104,7 @@ void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> in
     // Only allow calls after initial population
     instrumentsMenu_ = new QMenu("instrumentsMenu");
     cyclesMenu_ = new QMenu("cyclesMenu");
+  
     connect(ui_->instrumentButton, &QPushButton::clicked,
             [=]() { instrumentsMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
     connect(ui_->cycleButton, &QPushButton::clicked,
@@ -152,24 +153,10 @@ void MainWindow::massSearch(QString name, QString value)
     {
         if (std::get<1>(tuple) == text)
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
             for (QAction *action : cyclesMenu_->actions())
             {
                 if (action->text() == "[" + std::get<1>(tuple) + "]")
                     action->trigger();
-=======
-            foreach (QAction action : cyclesMenu_->actions())
-            {
-                if (action.text() == "[" + std::get<1>(tuple) + "]")
-                    action.trigger();
->>>>>>> 7163299... broad cycle button implementation
-=======
-            for (QAction *action : cyclesMenu_->actions())
-            {
-                if (action->text() == "[" + std::get<1>(tuple) + "]")
-                    action->trigger();
->>>>>>> f7448d0... Cycle on button not combo
             }
             setLoadScreen(true);
             return;
@@ -187,15 +174,7 @@ void MainWindow::massSearch(QString name, QString value)
     auto *action = new QAction("[" + text + "]", this);
     connect(action, &QAction::triggered, [=]() { changeCycle("[" + text + "]"); });
     cyclesMenu_->addAction(action);
-<<<<<<< HEAD
-<<<<<<< HEAD
     ui_->cycleButton->setText("[" + text + "]");
-=======
-    ui_->cycleButton->setCurrentText("[" + text + "]");
->>>>>>> 7163299... broad cycle button implementation
-=======
-    ui_->cycleButton->setText("[" + text + "]");
->>>>>>> f7448d0... Cycle on button not combo
     setLoadScreen(true);
 }
 
