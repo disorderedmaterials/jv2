@@ -57,14 +57,7 @@ Source: "{#QtDir}\bin\Qt6Xml.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversio
 Source: "{#QtDir}\plugins\iconengines\qsvgicon.dll"; DestDir: "{app}\bin\jv2\iconengines"; Flags: ignoreversion
 Source: "{#QtDir}\plugins\platforms\qwindows.dll"; DestDir: "{app}\bin\jv2\platforms"; Flags: ignoreversion
 Source: "{#QtDir}\plugins\imageformats\*.dll"; DestDir: "{app}\bin\jv2\imageformats"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\isisInternal\*"; DestDir: "{app}\bin\launch\isisInternal"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\isisInternal\lxml\*"; DestDir: "{app}\bin\launch\isisInternal\lxml"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\isisInternal\h5py\*"; DestDir: "{app}\bin\launch\isisInternal\h5py"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\isisInternal\numpy\core\*"; DestDir: "{app}\bin\launch\isisInternal\numpy\core"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\isisInternal\numpy\fft\*"; DestDir: "{app}\bin\launch\isisInternal\numpy\fft"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\isisInternal\numpy\linalg\*"; DestDir: "{app}\bin\launch\isisInternal\numpy\linalg"; Flags: ignoreversion
-Source: "{#BackendDir}\launch\isisInternal\numpy\random\*"; DestDir: "{app}\bin\launch\isisInternal\numpy\random"; Flags: ignoreversion
+Source: "{#BackendDir}\launch\*"; DestDir: "{app}\bin\launch"; Flags: ignoreversion recursesudirs createallsubdirs
 Source: "{#Jv2Dir}\..\..\extra\*"; DestDir: "{app}\bin\extra"; Flags: ignoreversion
 ; Windows 7
 ;Source: "C:\Windows\System32\D3DCompiler_43.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
