@@ -82,34 +82,32 @@ void MainWindow::initialiseElements()
 void MainWindow::recentCycle()
 {
     // Disable selections if api fails
-    if (ui_->cyclesBox->count() == 0)
+    if (cyclesMenu_->actions().count() == 0)
         QWidget::setEnabled(false);
     QSettings settings;
     QString recentCycle = settings.value("recentCycle").toString();
-    auto cycleIndex = ui_->cyclesBox->findText(recentCycle);
-
     // Sets cycle to last used/ most recent if unavailable
-    if (instName_ != "")
+    for (QAction *action : cyclesMenu_->actions())
     {
-        if (cycleIndex != -1)
+        if (action->text() == recentCycle)
         {
-            ui_->cyclesBox->setCurrentIndex(cycleIndex);
-            on_cyclesBox_currentIndexChanged(cycleIndex);
+            action->trigger();
+            return;
         }
-        else
-            ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
     }
-    else
-        ui_->cyclesBox->setEnabled(false);
+    cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
 }
 
 // Fill instrument list
 void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> instruments)
 {
     // Only allow calls after initial population
-    instrumentsMenu_ = new QMenu("test");
+    instrumentsMenu_ = new QMenu("instrumentsMenu");
+    cyclesMenu_ = new QMenu("cyclesMenu");
     connect(ui_->instrumentButton, &QPushButton::clicked,
             [=]() { instrumentsMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
+    connect(ui_->cycleButton, &QPushButton::clicked,
+            [=]() { cyclesMenu_->exec(ui_->cycleButton->mapToGlobal(QPoint(0, ui_->cycleButton->height()))); });
     foreach (const auto instrument, instruments)
     {
         auto *action = new QAction(std::get<2>(instrument), this);
@@ -132,7 +130,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Update history on close
     QSettings settings;
     settings.setValue("recentInstrument", instDisplayName_);
-    settings.setValue("recentCycle", ui_->cyclesBox->currentText());
+    settings.setValue("recentCycle", ui_->cycleButton->text());
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";
@@ -154,9 +152,26 @@ void MainWindow::massSearch(QString name, QString value)
     {
         if (std::get<1>(tuple) == text)
         {
-            ui_->cyclesBox->setCurrentText("[" + std::get<1>(tuple) + "]");
+<<<<<<< HEAD
+<<<<<<< HEAD
+            for (QAction *action : cyclesMenu_->actions())
+            {
+                if (action->text() == "[" + std::get<1>(tuple) + "]")
+                    action->trigger();
+=======
+            foreach (QAction action : cyclesMenu_->actions())
+            {
+                if (action.text() == "[" + std::get<1>(tuple) + "]")
+                    action.trigger();
+>>>>>>> 7163299... broad cycle button implementation
+=======
+            for (QAction *action : cyclesMenu_->actions())
+            {
+                if (action->text() == "[" + std::get<1>(tuple) + "]")
+                    action->trigger();
+>>>>>>> f7448d0... Cycle on button not combo
+            }
             setLoadScreen(true);
-            handle_result_cycles(std::get<0>(tuple));
             return;
         }
     }
@@ -168,8 +183,19 @@ void MainWindow::massSearch(QString name, QString value)
     worker->execute(input);
 
     cachedMassSearch_.append(std::make_tuple(worker, text));
-    ui_->cyclesBox->addItem("[" + text + "]", text);
-    ui_->cyclesBox->setCurrentText("[" + text + "]");
+
+    auto *action = new QAction("[" + text + "]", this);
+    connect(action, &QAction::triggered, [=]() { changeCycle("[" + text + "]"); });
+    cyclesMenu_->addAction(action);
+<<<<<<< HEAD
+<<<<<<< HEAD
+    ui_->cycleButton->setText("[" + text + "]");
+=======
+    ui_->cycleButton->setCurrentText("[" + text + "]");
+>>>>>>> 7163299... broad cycle button implementation
+=======
+    ui_->cycleButton->setText("[" + text + "]");
+>>>>>>> f7448d0... Cycle on button not combo
     setLoadScreen(true);
 }
 
@@ -187,7 +213,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         updateSearch(searchString_);
         return;
     }
-    event->accept();
 }
 
 // Get instrument data from config file

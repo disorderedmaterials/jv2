@@ -208,6 +208,22 @@ def getGoToCycle(instrument, search):
     print(endTime - startTime)
     return "Not Found"
 
+# Get spectra data
+
+
+@app.route('/getSpectra/<instrument>/<cycle>/<runs>/<spectra>')
+def getSpectra(instrument, cycle, runs, spectra):
+    data = nexusInteraction.spectra(instrument, cycle, runs, spectra)
+    return jsonify(data)
+
+# Get spectra range
+
+
+@app.route('/getSpectra/<instrument>/<cycle>/<runs>')
+def spectraRange(instrument, cycle, runs):
+    data = nexusInteraction.spectraRange(instrument, cycle, runs)
+    return jsonify(data)
+
 # Close server
 
 
