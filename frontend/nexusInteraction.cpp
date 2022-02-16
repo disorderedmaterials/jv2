@@ -3,8 +3,8 @@
 
 #include "./ui_mainwindow.h"
 #include "chartview.h"
-#include "mainwindow.h"
 #include "graphwidget.h"
+#include "mainwindow.h"
 #include <QAction>
 #include <QCategoryAxis>
 #include <QChartView>

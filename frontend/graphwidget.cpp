@@ -15,4 +15,4 @@ GraphWidget::GraphWidget(QWidget *parent, QChart *chart) : QWidget(parent), ui_(
 
 GraphWidget::~GraphWidget() {}
 
-ChartView* GraphWidget::getChartView() { return ui_->chartView; }
+ChartView *GraphWidget::getChartView() { return ui_->chartView; }

@@ -4,13 +4,14 @@
 #ifndef GRAPHWIDGET_H
 #define GRAPHWIDGET_H
 
-#include <QWidget>
-#include <QChartView>
-#include <QChart>
 #include "chartview.h"
+#include <QChart>
+#include <QChartView>
+#include <QWidget>
 
-namespace Ui {
-    class GraphWidget;
+namespace Ui
+{
+class GraphWidget;
 }
 
 class GraphWidget : public QWidget
@@ -20,7 +21,8 @@ class GraphWidget : public QWidget
     public:
     GraphWidget(QWidget *parent = nullptr, QChart *chart = nullptr);
     ~GraphWidget();
-    ChartView* getChartView();
+    ChartView *getChartView();
+
     private:
     Ui::GraphWidget *ui_;
 };
