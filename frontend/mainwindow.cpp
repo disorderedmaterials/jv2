@@ -197,7 +197,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     if (event->key() == Qt::Key_J && event->modifiers() == Qt::ControlModifier)
     {
-        auto* window  = new GraphWidget(this);
+        auto *window = new GraphWidget(this);
         ui_->tabWidget->addTab(window, "test");
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
         return;
