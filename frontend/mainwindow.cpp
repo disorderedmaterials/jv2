@@ -22,6 +22,9 @@
 #include <QWidgetAction>
 #include <QtGui>
 
+#include "./ui_graphwidget.h"
+#include "graphwidget.h"
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
     ui_->setupUi(this);
@@ -190,6 +193,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
         searchString_ = "";
         updateSearch(searchString_);
+        return;
+    }
+    if (event->key() == Qt::Key_J && event->modifiers() == Qt::ControlModifier)
+    {
+        auto* window  = new GraphWidget(this);
+        ui_->tabWidget->addTab(window, "test");
+        ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
         return;
     }
 }
