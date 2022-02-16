@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>GraphWidget</class>
- <widget class="QWidget" name="GraphWidget">
- </widget>
  <widget class="QWidget" name="centralwidget">
   <property name="enabled">
    <bool>true</bool>
   </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1270</width>
+    <height>742</height>
+   </rect>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout_4">
    <item>
-    <widget class="QPushButton" name="testButton">
-     <property name="contextMenuPolicy">
-      <enum>Qt::CustomContextMenu</enum>
-     </property>
-     <property name="text">
-      <string>PushButton</string>
-     </property>
-    </widget>
+    <widget class="ChartView" name="chartView"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>QtCharts</header>
+  </customwidget>
+  <customwidget>
+   <class>ChartView</class>
+   <extends>QChartView</extends>
+   <header>frontend/chartview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

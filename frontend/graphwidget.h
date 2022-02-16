@@ -5,6 +5,9 @@
 #define GRAPHWIDGET_H
 
 #include <QWidget>
+#include <QChartView>
+#include <QChart>
+#include "chartview.h"
 
 namespace Ui {
     class GraphWidget;
@@ -15,8 +18,9 @@ class GraphWidget : public QWidget
     Q_OBJECT
 
     public:
-    GraphWidget(QWidget *parent = nullptr);
+    GraphWidget(QWidget *parent = nullptr, QChart *chart = nullptr);
     ~GraphWidget();
+    ChartView* getChartView();
     private:
     Ui::GraphWidget *ui_;
 };

@@ -3,13 +3,16 @@
 
 #include "graphwidget.h"
 #include "./ui_graphwidget.h"
-#include <QPainter>
-#include <QTime>
-#include <QTimer>
+#include "chartview.h"
+#include <QChart>
+#include <QChartView>
 
-GraphWidget::GraphWidget(QWidget *parent) : QWidget(parent), ui_(new Ui::GraphWidget)
+GraphWidget::GraphWidget(QWidget *parent, QChart *chart) : QWidget(parent), ui_(new Ui::GraphWidget)
 {
     ui_->setupUi(this);
+    ui_->chartView->assignChart(chart);
 }
 
 GraphWidget::~GraphWidget() {}
+
+ChartView* GraphWidget::getChartView() { return ui_->chartView; }

@@ -4,6 +4,7 @@
 #include "./ui_mainwindow.h"
 #include "chartview.h"
 #include "mainwindow.h"
+#include "graphwidget.h"
 #include <QAction>
 #include <QCategoryAxis>
 #include <QChartView>
@@ -428,9 +429,9 @@ void MainWindow::showStatus(qreal x, qreal y, QString title)
 
 void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 {
-    auto *window = new QWidget;
     auto *chart = new QChart();
-    auto *chartView = new ChartView(chart, window);
+    auto *window = new GraphWidget(this, chart);
+    ChartView *chartView = window->getChartView();
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
@@ -467,7 +468,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         chart->axes(Qt::Vertical)[0]->setTitleText("Bin value");
         auto *gridLayout = new QGridLayout(window);
 
-        gridLayout->addWidget(chartView, 1, 0, -1, -1);
+        gridLayout->addWidget(window, 1, 0, -1, -1);
         QString tabName = "Spectra";
         ui_->tabWidget->addTab(window, tabName);
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
