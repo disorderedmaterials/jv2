@@ -244,6 +244,25 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                 firstRun = false;
             }
 
+            foreach (const auto &fieldData, runFieldsArray)
+            {
+                auto fieldDataArray = fieldData.toArray();
+                fieldDataArray.removeFirst();
+                if (!fieldDataArray.first()[1].isString())
+                    break;
+                foreach (const auto &dataPair, fieldDataArray)
+                {
+                    auto dataPairArray = dataPair.toArray();
+                    categoryValues.append(dataPairArray[1].toString());
+                }
+            }
+
+            if (!categoryValues.isEmpty())
+            {
+                categoryValues.removeDuplicates();
+                categoryValues.sort();
+            }
+
             // For each field
             foreach (const auto &fieldData, runFieldsArray)
             {
@@ -280,10 +299,9 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                     foreach (const auto &dataPair, fieldDataArray)
                     {
                         auto dataPairArray = dataPair.toArray();
-                        categoryValues.append(dataPairArray[1].toString());
                         dateSeries->append(startTime.addSecs(dataPairArray[0].toDouble()).toMSecsSinceEpoch(),
-                                           dataPairArray[1].toString().right(2).toDouble());
-                        relSeries->append(dataPairArray[0].toDouble(), dataPairArray[1].toString().right(2).toDouble());
+                                           categoryValues.indexOf(dataPairArray[1].toString()));
+                        relSeries->append(dataPairArray[0].toDouble(), categoryValues.indexOf(dataPairArray[1].toString()));
                     }
                 }
                 else
