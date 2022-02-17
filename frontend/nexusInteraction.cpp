@@ -237,7 +237,6 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             {
                 timeAxis->setRange(startTime, endTime);
                 relTimeXAxis->setRange(0, 0);
-                firstRun = false;
             }
 
             foreach (const auto &fieldData, runFieldsArray)
@@ -257,15 +256,21 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             {
                 categoryValues.removeDuplicates();
                 categoryValues.sort();
-                dateTimeChart->addAxis(dateTimeStringAxis, Qt::AlignLeft);
-                relTimeChart->addAxis(relTimeStringAxis, Qt::AlignLeft);
             }
-            else
+            if (firstRun)
             {
-                dateTimeChart->addAxis(dateTimeYAxis, Qt::AlignLeft);
-                relTimeChart->addAxis(relTimeYAxis, Qt::AlignLeft);
+                if (!categoryValues.isEmpty())
+                {
+                    dateTimeChart->addAxis(dateTimeStringAxis, Qt::AlignLeft);
+                    relTimeChart->addAxis(relTimeStringAxis, Qt::AlignLeft);
+                }
+                else
+                {
+                    dateTimeChart->addAxis(dateTimeYAxis, Qt::AlignLeft);
+                    relTimeChart->addAxis(relTimeYAxis, Qt::AlignLeft);
+                }
+                firstRun = false;
             }
-
             // For each field
             foreach (const auto &fieldData, runFieldsArray)
             {
