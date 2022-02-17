@@ -20,14 +20,14 @@ ChartView *GraphWidget::getChartView() { return ui_->chartView; }
 
 void GraphWidget::on_binWidths_clicked(bool checked)
 {
-    for (auto* series : ui_->chartView->chart()->series())
+    for (auto *series : ui_->chartView->chart()->series())
     {
-        auto xySeries = qobject_cast<QXYSeries*>(series);
+        auto xySeries = qobject_cast<QXYSeries *>(series);
         auto points = xySeries->points();
         xySeries->clear();
         for (auto point : points)
         {
-            point.setY(point.y()+1);
+            point.setY(point.y() + 1);
             xySeries->append(point);
         }
     }
