@@ -12,8 +12,6 @@ pr:
     - README.md
 
 stages:
-  - template: templates/codeQualityChecks.yml
-
   - stage: 'build'
     displayName: 'Build and Package'
     jobs:
