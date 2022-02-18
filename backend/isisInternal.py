@@ -99,11 +99,10 @@ def getJournal(instrument, cycle):
                 if (dataId == "duration"):
                     dataValue = int(dataValue)
                     minutes = dataValue // 60
-                    seconds = dataValue % 60
-                    hours = minutes // 60
-                    minutes = minutes % 60
-                    runData[dataId] = str(hours).rjust(
-                        2, '0') + ":" + str(minutes).rjust(2, '0') + ":" + str(seconds).rjust(2, '0')
+                    seconds = str(dataValue % 60).rjust(2, '0')
+                    hours = str(minutes // 60).rjust(2, '0')
+                    minutes = str(minutes % 60).rjust(2, '0')
+                    runData[dataId] = hours + ":" + minutes + ":" + seconds
                 else:
                     runData[dataId] = dataValue
         fields.append(runData)
