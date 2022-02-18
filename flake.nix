@@ -79,6 +79,9 @@
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
             installPhase = ''
+              echo "MKDIR"
+              echo "make at"
+              echo $out
               mkdir -p $out/bin
               
               echo "CurrentDir:"
