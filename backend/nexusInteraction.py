@@ -112,6 +112,7 @@ def fieldData(instrument, cycle, runs, fields):
         data.append(runData(nxsFile, fields, run))
     return data
 
+
 def getSpectrum(instrument, cycle, runs, spectra):
     data = [spectra]
     for run in runs.split(";"):
@@ -124,6 +125,7 @@ def getSpectrum(instrument, cycle, runs, spectra):
                         counts.astype('float64')))
         data.append(runData)
     return data
+
 
 def getSpectrumRange(instrument, cycle, runs):
     run = runs.split(";")[0]
