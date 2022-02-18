@@ -22,7 +22,7 @@ class GraphWidget : public QWidget
     GraphWidget(QWidget *parent = nullptr, QChart *chart = nullptr);
     ~GraphWidget();
     ChartView *getChartView();
-    
+
     private slots:
     void on_binWidths_clicked(bool checked);
 
