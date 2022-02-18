@@ -25,10 +25,11 @@ void GraphWidget::on_binWidths_clicked(bool checked)
         auto xySeries = qobject_cast<QXYSeries *>(series);
         auto points = xySeries->points();
         xySeries->clear();
-        for (auto point : points)
+        for (auto i = 0; i < points.count() - 1; i++)
         {
-            point.setY(point.y() + 1);
-            xySeries->append(point);
+            auto binWidth = points[i + 1].x() - points[i].x();
+            checked ? points[i].setY(points[i].y() / binWidth) : points[i].setY(points[i].y() * binWidth);
+            xySeries->append(points[i]);
         }
     }
 }

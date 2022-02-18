@@ -456,10 +456,14 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
             series->setName(name);
             runArray.removeFirst();
 
-            foreach (const auto &dataPair, runArray)
+            for (auto i = 0; i < runArray.count() - 1; i++)
             {
-                auto dataPairArray = dataPair.toArray();
-                series->append(dataPairArray[0].toDouble(), dataPairArray[1].toDouble());
+                const auto &dataPairTOFStart = runArray.at(i);
+                auto dataPairTOFStartArray = dataPairTOFStart.toArray();
+                const auto &dataPairTOFEnd = runArray.at(i + 1);
+                auto dataPairTOFEndArray = dataPairTOFEnd.toArray();
+                auto binWidth = dataPairTOFStart[0].toDouble() + dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble();
+                series->append(binWidth, dataPairTOFStart[1].toDouble());
             }
             chart->addSeries(series);
         }
