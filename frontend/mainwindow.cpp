@@ -362,7 +362,7 @@ void MainWindow::clearPref()
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
 
-    // Add preferences to xml file
+    // Clear preferences from xml file
     QDomNode node;
     QDomElement elem;
     QDomElement columns;
