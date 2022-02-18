@@ -83,27 +83,6 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
     if (!v.isString())
         return QVariant();
 
-    // if title = duration then format
-    if (m_header[index.column()]["index"] == "duration")
-    {
-        total = v.toString().toInt();
-        minutes = total / 60;
-        seconds = total % 60;
-        hours = minutes / 60;
-        minutes = minutes % 60;
-        return QString(QString::number(hours).rightJustified(2, '0') + ":" + QString::number(minutes).rightJustified(2, '0') +
-                       ":" + QString::number(seconds).rightJustified(2, '0'));
-    }
-    // if value = date then format
-    auto date = QDateTime::fromString(v.toString(), "yyyy-MM-dd'T'HH:mm:ss");
-    if (date.isValid())
-    {
-        if (date.date() == QDateTime::currentDate())
-            return QString("Today at: ").append(date.toString("HH:mm:ss"));
-        if (date.addDays(1).date() == QDateTime::currentDate())
-            return QString("Yesterday at: ").append(date.toString("HH:mm:ss"));
-        return date.toString("dd/MM/yyyy HH:mm:ss");
-    }
     // if title = Run Numbers then format (for grouped data)
     if (m_header[index.column()]["title"] == "Run Numbers")
     {
