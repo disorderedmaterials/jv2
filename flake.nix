@@ -82,8 +82,9 @@
               echo "MKDIR"
               echo "make at"
               echo $out
+              cd ../
               mkdir -p $out/bin
-              
+              cd build
               echo "CurrentDir:"
               ls
               
