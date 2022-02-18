@@ -25,48 +25,7 @@ void MainWindow::customMenuRequested(QPoint pos)
 {
     pos_ = pos;
     auto index = ui_->runDataTable->indexAt(pos);
-    auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
-
-    // Finds run number location in table
-    int runNoColumn;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
-        {
-            runNoColumn = i;
-            break;
-        }
-    }
-
-    // Gets all selected run numbers and fills graphing toggles
-    QString runNos = "";
-    QString runNo;
-
-    for (auto run : selectedRuns)
-    {
-        runNo = model_->index(run.row(), runNoColumn).data().toString();
-        if (runNo.contains("-") || runNo.contains(","))
-        {
-            QString groupedRuns;
-            auto runArr = runNo.split(",");
-            foreach (const auto &string, runArr)
-            {
-                if (string.contains("-"))
-                {
-                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
-                        groupedRuns += QString::number(i) + ";";
-                }
-                else
-                    groupedRuns += string + ";";
-            }
-            groupedRuns.chop(1);
-            runNos.append(groupedRuns + ";");
-        }
-        else
-            runNos.append(runNo + ";");
-    }
-    // Removes final ";"
-    runNos.chop(1);
+    auto runNos = getRunNos();
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
@@ -121,7 +80,7 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         contextMenu_->addAction(action);
 
         auto *action2 = new QAction("Plot detector spectrum", this);
-        connect(action2, SIGNAL(triggered()), this, SLOT(getSpectraCount()));
+        connect(action2, SIGNAL(triggered()), this, SLOT(getSpectrumCount()));
         contextMenu_->addAction(action2);
     }
     else
@@ -132,11 +91,8 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
     }
 }
 
-void MainWindow::contextGraph()
+QString MainWindow::getRunNos()
 {
-    // Gets signal object
-    auto *contextAction = qobject_cast<QAction *>(sender());
-
     // Gathers all selected runs
     auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
     // Finds run number location in table
@@ -178,6 +134,16 @@ void MainWindow::contextGraph()
     }
     // Removes final ";"
     runNos.chop(1);
+    return runNos;
+}
+
+void MainWindow::contextGraph()
+{
+    // Gets signal object
+    auto *contextAction = qobject_cast<QAction *>(sender());
+
+    auto runNos = getRunNos();
+
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -215,21 +181,17 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
         auto *dateTimeYAxis = new QValueAxis();
         dateTimeYAxis->setRange(0, 0);
-        dateTimeChart->addAxis(dateTimeYAxis, Qt::AlignLeft);
 
         auto *dateTimeStringAxis = new QCategoryAxis();
         QStringList categoryValues;
-        dateTimeChart->addAxis(dateTimeStringAxis, Qt::AlignLeft);
 
         auto *relTimeXAxis = new QValueAxis();
         relTimeXAxis->setTitleText("Relative Time (s)");
         relTimeChart->addAxis(relTimeXAxis, Qt::AlignBottom);
 
         auto *relTimeYAxis = new QValueAxis();
-        relTimeChart->addAxis(relTimeYAxis, Qt::AlignLeft);
 
         auto *relTimeStringAxis = new QCategoryAxis();
-        relTimeChart->addAxis(relTimeStringAxis, Qt::AlignLeft);
 
         QList<QString> chartFields;
         bool firstRun = true;
@@ -246,9 +208,40 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             {
                 timeAxis->setRange(startTime, endTime);
                 relTimeXAxis->setRange(0, 0);
-                firstRun = false;
             }
 
+            foreach (const auto &fieldData, runFieldsArray)
+            {
+                auto fieldDataArray = fieldData.toArray();
+                fieldDataArray.removeFirst();
+                if (!fieldDataArray.first()[1].isString())
+                    break;
+                foreach (const auto &dataPair, fieldDataArray)
+                {
+                    auto dataPairArray = dataPair.toArray();
+                    categoryValues.append(dataPairArray[1].toString());
+                }
+            }
+
+            if (!categoryValues.isEmpty())
+            {
+                categoryValues.removeDuplicates();
+                categoryValues.sort();
+            }
+            if (firstRun)
+            {
+                if (!categoryValues.isEmpty())
+                {
+                    dateTimeChart->addAxis(dateTimeStringAxis, Qt::AlignLeft);
+                    relTimeChart->addAxis(relTimeStringAxis, Qt::AlignLeft);
+                }
+                else
+                {
+                    dateTimeChart->addAxis(dateTimeYAxis, Qt::AlignLeft);
+                    relTimeChart->addAxis(relTimeYAxis, Qt::AlignLeft);
+                }
+                firstRun = false;
+            }
             // For each field
             foreach (const auto &fieldData, runFieldsArray)
             {
@@ -285,10 +278,9 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                     foreach (const auto &dataPair, fieldDataArray)
                     {
                         auto dataPairArray = dataPair.toArray();
-                        categoryValues.append(dataPairArray[1].toString());
                         dateSeries->append(startTime.addSecs(dataPairArray[0].toDouble()).toMSecsSinceEpoch(),
-                                           dataPairArray[1].toString().right(2).toDouble());
-                        relSeries->append(dataPairArray[0].toDouble(), dataPairArray[1].toString().right(2).toDouble());
+                                           categoryValues.indexOf(dataPairArray[1].toString()));
+                        relSeries->append(dataPairArray[0].toDouble(), categoryValues.indexOf(dataPairArray[1].toString()));
                     }
                 }
                 else
@@ -336,8 +328,6 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
         if (!categoryValues.isEmpty())
         {
-            categoryValues.removeDuplicates();
-            categoryValues.sort();
             dateTimeStringAxis->setRange(0, categoryValues.count() - 1);
             relTimeStringAxis->setRange(0, categoryValues.count() - 1);
             for (auto i = 0; i < categoryValues.count(); i++)
@@ -420,10 +410,16 @@ void MainWindow::showStatus(qreal x, qreal y, QString title)
 {
     QString message;
     auto *chartView = qobject_cast<ChartView *>(sender());
+    auto yVal = QString::number(y);
+    if (QString(chartView->chart()->axes(Qt::Vertical)[0]->metaObject()->className()) == QString("QCategoryAxis"))
+    {
+        auto *yAxis = qobject_cast<QCategoryAxis *>(chartView->chart()->axes(Qt::Vertical)[0]);
+        yVal = yAxis->categoriesLabels()[(int)y];
+    }
     if (QString(chartView->chart()->axes(Qt::Horizontal)[0]->metaObject()->className()) == QString("QDateTimeAxis"))
-        message = QDateTime::fromMSecsSinceEpoch(x).toString("yyyy-MM-dd HH:mm:ss") + ", " + QString::number(y);
+        message = QDateTime::fromMSecsSinceEpoch(x).toString("yyyy-MM-dd HH:mm:ss") + ", " + yVal;
     else
-        message = QString::number(x) + ", " + QString::number(y);
+        message = QString::number(x) + ", " + yVal;
     statusBar()->showMessage("Run " + title + ": " + message);
 }
 
@@ -436,7 +432,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
-        QString field = "Spectra ";
+        QString field = "Detector ";
         QString runs;
         bool init = true;
         foreach (const auto &run, worker->json_array)
@@ -468,12 +464,12 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
             chart->addSeries(series);
         }
         chart->createDefaultAxes();
-        chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight");
-        chart->axes(Qt::Vertical)[0]->setTitleText("Bin value");
+        chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
+        chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
         auto *gridLayout = new QGridLayout(window);
 
-        gridLayout->addWidget(window, 1, 0, -1, -1);
-        QString tabName = "Spectra";
+        gridLayout->addWidget(chartView, 1, 0, -1, -1);
+        QString tabName = field;
         ui_->tabWidget->addTab(window, tabName);
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
         runs.chop(2);
@@ -489,49 +485,9 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
     }
 }
 
-void MainWindow::getSpectraCount()
+void MainWindow::getSpectrumCount()
 {
-    // Gathers all selected runs
-    auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
-    // Finds run number location in table
-    int runNoColumn;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
-        {
-            runNoColumn = i;
-            break;
-        }
-    }
-    // Gets all selected run numbers and fills graphing toggles
-    QString runNos = "";
-    QString runNo;
-    // Concats runs
-    for (auto run : selectedRuns)
-    {
-        runNo = model_->index(run.row(), runNoColumn).data().toString();
-        if (runNo.contains("-") || runNo.contains(","))
-        {
-            QString groupedRuns;
-            auto runArr = runNo.split(",");
-            foreach (const auto &string, runArr)
-            {
-                if (string.contains("-"))
-                {
-                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
-                        groupedRuns += QString::number(i) + ";";
-                }
-                else
-                    groupedRuns += string + ";";
-            }
-            groupedRuns.chop(1);
-            runNos.append(groupedRuns + ";");
-        }
-        else
-            runNos.append(runNo + ";");
-    }
-    // Removes final ";"
-    runNos.chop(1);
+    auto runNos = getRunNos();
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -539,7 +495,7 @@ void MainWindow::getSpectraCount()
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    QString url_str = "http://127.0.0.1:5000/getSpectra/";
+    QString url_str = "http://127.0.0.1:5000/getSpectrumRange/";
     url_str += instName_ + "/" + cycle + "/" + runNos;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -552,51 +508,10 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     setLoadScreen(false);
     auto spectraCount = count->response.toUtf8();
     spectraCount.chop(1);
-    auto spectrumNumber =
-        QInputDialog::getInt(this, tr("Plot Detector Spectrum"),
-                             tr("Enter detector spectrum to plot (0-" + spectraCount + "):"), 0, 0, count->response.toInt(), 1);
-
-    // Gathers all selected runs
-    auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
-    // Finds run number location in table
-    int runNoColumn;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
-        {
-            runNoColumn = i;
-            break;
-        }
-    }
-    // Gets all selected run numbers and fills graphing toggles
-    QString runNos = "";
-    QString runNo;
-    // Concats runs
-    for (auto run : selectedRuns)
-    {
-        runNo = model_->index(run.row(), runNoColumn).data().toString();
-        if (runNo.contains("-") || runNo.contains(","))
-        {
-            QString groupedRuns;
-            auto runArr = runNo.split(",");
-            foreach (const auto &string, runArr)
-            {
-                if (string.contains("-"))
-                {
-                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
-                        groupedRuns += QString::number(i) + ";";
-                }
-                else
-                    groupedRuns += string + ";";
-            }
-            groupedRuns.chop(1);
-            runNos.append(groupedRuns + ";");
-        }
-        else
-            runNos.append(runNo + ";");
-    }
-    // Removes final ";"
-    runNos.chop(1);
+    auto spectrumNumber = QInputDialog::getInt(this, tr("Plot Detector Spectrum"),
+                                               tr("Enter detector spectrum to plot (0-" + spectraCount + "):"), 0, 0,
+                                               count->response.toInt() - 1, 1);
+    auto runNos = getRunNos();
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -604,7 +519,7 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    QString url_str = "http://127.0.0.1:5000/getSpectra/";
+    QString url_str = "http://127.0.0.1:5000/getSpectrum/";
     url_str += instName_ + "/" + cycle + "/" + runNos + "/" + QString::number(spectrumNumber);
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);

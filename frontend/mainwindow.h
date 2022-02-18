@@ -34,6 +34,7 @@ class MainWindow : public QMainWindow
     QList<std::tuple<QString, QString, QString>> getInstruments(); // Get Instruments from config file
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType); // Get Fields from config file
     void setLoadScreen(bool state);
+    QString getRunNos();
     private slots:
     // Search Controls
     void updateSearch(const QString &arg1);
@@ -75,7 +76,8 @@ class MainWindow : public QMainWindow
 
     void handleSpectraCharting(HttpRequestWorker *worker);
     void plotSpectra(HttpRequestWorker *count);
-    void getSpectraCount();
+    void getSpectrumCount();
+
     // Misc Interface Functions
     void removeTab(int index);
     void savePref();

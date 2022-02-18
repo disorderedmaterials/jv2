@@ -6,8 +6,8 @@ from flask import jsonify
 from flask import request
 
 from urllib.request import urlopen
-from xml.etree.ElementTree import parse
 import lxml.etree as ET
+from xml.etree.ElementTree import parse
 
 from ast import literal_eval
 
@@ -211,17 +211,17 @@ def getGoToCycle(instrument, search):
 # Get spectra data
 
 
-@app.route('/getSpectra/<instrument>/<cycle>/<runs>/<spectra>')
-def getSpectra(instrument, cycle, runs, spectra):
-    data = nexusInteraction.spectra(instrument, cycle, runs, spectra)
+@app.route('/getSpectrum/<instrument>/<cycle>/<runs>/<spectra>')
+def getSpectrum(instrument, cycle, runs, spectra):
+    data = nexusInteraction.getSpectrum(instrument, cycle, runs, spectra)
     return jsonify(data)
 
 # Get spectra range
 
 
-@app.route('/getSpectra/<instrument>/<cycle>/<runs>')
-def spectraRange(instrument, cycle, runs):
-    data = nexusInteraction.spectraRange(instrument, cycle, runs)
+@app.route('/getSpectrumRange/<instrument>/<cycle>/<runs>')
+def getSpectrumRange(instrument, cycle, runs):
+    data = nexusInteraction.getSpectrumRange(instrument, cycle, runs)
     return jsonify(data)
 
 # Close server
