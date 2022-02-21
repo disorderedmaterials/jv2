@@ -57,7 +57,7 @@ set(PROJECT_SOURCES
     frontend/graphwidget.ui)
 
 if(MSVC)
-  set(CMAKE_EXE_LINKER_FLAGS 
+  set(CMAKE_EXE_LINKER_FLAGS
       "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
