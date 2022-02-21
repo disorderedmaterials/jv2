@@ -79,37 +79,10 @@
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
             installPhase = ''
-              echo "MKDIR"
-              echo "make at"
+              echo "MKDIR at"
               echo $out
-              cd ../
               mkdir -p $out/bin
-              cd build
-              echo "CurrentDir:"
-              ls
-              
-              echo "jv2"
-              ls jv2
-              
-              echo "../"
-              ls ../
-              
-              echo "../nix"
-              ls ../nix
-              
-              cd ../nix
-              echo "allNix"
-              ls -a
-              
-              echo "cd ../"
-              cd ../
-              
-              echo "ls -r"
-              ls -r
-              
-              echo "build"
-              cd build
-              ls -a
+              mv ./$out/bin/* $out/bin/
             '';
 
             meta = with pkgs.lib; {
