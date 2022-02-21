@@ -42,7 +42,7 @@ QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, in
         return m_header[section]["index"]; // Index == database name
 
     if (role != Qt::DisplayRole)
-        return QVariant();
+        return {};
 
     switch (orientation)
     {
@@ -50,9 +50,9 @@ QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, in
             return m_header[section]["title"]; // Title == desired display name
         case Qt::Vertical:
             // return section + 1;
-            return QVariant();
+            return {};
         default:
-            return QVariant();
+            return {};
     }
 }
 
@@ -70,18 +70,18 @@ QJsonObject JsonTableModel::getJsonObject(const QModelIndex &index) const
 QVariant JsonTableModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole)
-        return QVariant();
+        return {};
 
     QJsonObject obj = getJsonObject(index);
     const QString &key = m_header[index.column()]["index"];
     if (!obj.contains(key))
-        return QVariant();
+        return {};
     QJsonValue v = obj[key];
 
     if (v.isDouble())
         return QString::number(v.toDouble());
     if (!v.isString())
-        return QVariant();
+        return {};
 
     // if title = Run Numbers then format (for grouped data)
     if (m_header[index.column()]["title"] == "Run Numbers")
