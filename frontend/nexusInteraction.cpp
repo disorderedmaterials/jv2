@@ -458,17 +458,14 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
                 auto dataPairTOFStartArray = dataPairTOFStart.toArray();
                 const auto &dataPairTOFEnd = runArray.at(i + 1);
                 auto dataPairTOFEndArray = dataPairTOFEnd.toArray();
-                auto binWidth = dataPairTOFStart[0].toDouble() + dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble();
-                series->append(binWidth, dataPairTOFStart[1].toDouble());
+                auto centreBin = dataPairTOFStart[0].toDouble() + (dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble())/2;
+                series->append(centreBin, dataPairTOFStart[1].toDouble());
             }
             chart->addSeries(series);
         }
         chart->createDefaultAxes();
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
         chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
-        auto *gridLayout = new QGridLayout(window);
-
-        gridLayout->addWidget(chartView, 1, 0, -1, -1);
         QString tabName = field;
         ui_->tabWidget->addTab(window, tabName);
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
