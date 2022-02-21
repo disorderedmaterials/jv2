@@ -458,7 +458,8 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
                 auto dataPairTOFStartArray = dataPairTOFStart.toArray();
                 const auto &dataPairTOFEnd = runArray.at(i + 1);
                 auto dataPairTOFEndArray = dataPairTOFEnd.toArray();
-                auto centreBin = dataPairTOFStart[0].toDouble() + (dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble())/2;
+                auto centreBin =
+                    dataPairTOFStart[0].toDouble() + (dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble()) / 2;
                 series->append(centreBin, dataPairTOFStart[1].toDouble());
             }
             chart->addSeries(series);
