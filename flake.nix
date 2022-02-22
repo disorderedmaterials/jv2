@@ -90,7 +90,11 @@
               cd ../
               ls $out
               ls $out/bin
-              ls ./$out
+              echo "have something"
+              ls  -a ./nix
+              echo "have something"
+              ls  -R ./nix
+              echo "have something"
               mv ./$out/bin/* $out/bin/
             '';
 
