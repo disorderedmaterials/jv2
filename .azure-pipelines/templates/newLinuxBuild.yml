@@ -2,15 +2,15 @@ parameters:
   - name: package
     default : "jv2"
   - name: export
-    default : false
+    default : true
   - name: exportExe
     default : true
   - name: exportSingularity
-    default : false
+    default : true
   - name: docker
-    default: "docker-gui"
+    default: "jv2"
   - name: singularity
-    default: "singularity-gui"
+    default: "jv2"
   - name: nix_version
     default: 2.4
 
