@@ -91,7 +91,7 @@ steps:
       nix build -L .#${{ parameters.singularity }}
       # Get program version and move/rename artifact
       VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
-      mkdir -p singularity
-      cp result singularity/${{ parameters.package }}-${VERSION}.sif
+      mkdir -p packages
+      cp result packages/${{ parameters.package }}-${VERSION}.sif
     displayName: 'Package Singularity'
     condition: eq(1,1)
