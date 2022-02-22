@@ -66,7 +66,7 @@ steps:
   - bash: |
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
-      cat archive.json | jq -r '.[].outputs | to_entries[].value' | cachix push jv2-nix
+      cachix push jv2-nix 
       nix-collect-garbage -d
     displayName: 'Push to Cachix'
     env:
