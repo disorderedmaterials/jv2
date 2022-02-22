@@ -96,7 +96,8 @@
               ls  -R ./nix
               echo "have something"
               ls -R ./build
-              mv ./$out/bin/* $out/bin/
+              ls
+              mv ./build/jv2 $out/bin/
             '';
 
             meta = with pkgs.lib; {
