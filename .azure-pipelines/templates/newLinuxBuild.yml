@@ -66,11 +66,11 @@ steps:
   - bash: |
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
-      cachix push jv2-nix 
+      cat archive.json | jq -r '.[].outputs | to_entries[].value' | cachix push jv2-nix
       nix-collect-garbage -d
     displayName: 'Push to Cachix'
     env:
-      CACHIX_AUTH_TOKEN: $(cachix_token)
+      CACHIX_AUTH_TOKEN: eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIzNGQ1Y2U2ZS1iNWJiLTQ1YzctYjBmMi04N2VmZWY5Zjk5OTQiLCJzY29wZXMiOiJjYWNoZSJ9.snjSwK5gdyPMaE4uwKZxwji4qxBv3T2EdEVnE6li0TU
     condition: eq('${{ parameters.export }}', 'true')
   - bash: |
       set -ex
