@@ -89,6 +89,8 @@
               mkdir -p $out/bin
               cd ../
               ls $out
+              ls $out/bin
+              ls ./$out
               mv ./$out/bin/* $out/bin/
             '';
 
