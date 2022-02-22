@@ -95,6 +95,7 @@
               echo "have something"
               ls  -R ./nix
               echo "have something"
+              ls -R ./build
               mv ./$out/bin/* $out/bin/
             '';
 
