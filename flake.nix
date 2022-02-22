@@ -81,9 +81,14 @@
             installPhase = ''
               echo "MKDIR at"
               echo $out
-              echo "/nix/store/brl6ipfaksjqpzj5x0m207hggyv6y8fd-jv2-0.1/bin/"
-              ls /nix/store/brl6ipfaksjqpzj5x0m207hggyv6y8fd-jv2-0.1/bin/
               mkdir -p $out/bin
+              echo "/nix/store/brl6ipfaksjqpzj5x0m207hggyv6y8fd-jv2-0.1/bin/"
+              cd ../
+              mkdir -p $out/bin
+              cd nix
+              mkdir -p $out/bin
+              cd ../
+              ls $out
               mv ./$out/bin/* $out/bin/
             '';
 
