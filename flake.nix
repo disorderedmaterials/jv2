@@ -97,10 +97,15 @@
               echo "have something"
               ls -R ./build
               ls
+              echo "build"
               ls ./build
+              echo "autogen"
               ls ./build/jv2_autogen
+              echo "include"
               ls ./build/jv2_autogen/include
+              echo "extra"
               ls ./build/jv2_autogen/include/extra
+              echo "fin"
               mv ./build/jv2 $out/bin/
               
             '';
