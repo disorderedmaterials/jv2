@@ -25,6 +25,9 @@ steps:
       sudo apt-get install freeglut3-dev
       # -- Python
       pip3 install pyinstaller
+      pip3 install flask
+      pip3 install h5py
+      pip3 install lxml
     displayName: 'Install Prerequisites'
   - bash: |
       set -ex
@@ -62,6 +65,10 @@ steps:
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
+
+      pyinstaller backend/isisInternal.py
+      pyinstaller backend/launch.py
+      mv dist/isisInternal dist/launch
     displayName: 'Build'
   - bash: |
       set -ex
@@ -82,6 +89,7 @@ steps:
       mkdir -p packages
       cp ${{ parameters.package }} packages/${{ parameters.package }}-${VERSION}
       rm ${{ parameters.package }}
+      mv dist/launch packages/launch
     displayName: 'Package Executable'
     condition: eq(1,1)
   - bash: |
