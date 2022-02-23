@@ -34,7 +34,7 @@ stages:
       - job: 'linux'
         displayName: 'Linux'
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: 'ubuntu-18.04'
         steps:
           - checkout: self
             fetchDepth: 1
