@@ -83,7 +83,7 @@ steps:
       cp ${{ parameters.package }} packages/${{ parameters.package }}-${VERSION}
       rm ${{ parameters.package }}
     displayName: 'Package Executable'
-    condition: eq(1,0)
+    condition: eq(1,1)
   - bash: |
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
@@ -94,4 +94,4 @@ steps:
       mkdir -p packages
       cp result packages/${{ parameters.package }}-${VERSION}.sif
     displayName: 'Package Singularity'
-    condition: eq(1,1)
+    condition: eq(1,0)

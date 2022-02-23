@@ -169,7 +169,7 @@ void MainWindow::on_closeFind_clicked()
 
 QList<QPair<QString, QString>> MainWindow::getInstruments()
 {
-    QFile file("../extra/instrumentData.xml");
+    QFile file("extra/instrumentData.xml");
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -197,7 +197,7 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
     QList<QString> desiredInstFields;
     QDomNodeList desiredInstrumentFields;
 
-    QFile file("../extra/tableConfig.xml");
+    QFile file("extra/tableConfig.xml");
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -220,7 +220,7 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
 
         if (configDefaultFields.isEmpty())
         {
-            QFile file("../extra/instrumentData.xml");
+            QFile file("extra/instrumentData.xml");
             file.open(QIODevice::ReadOnly);
             dom.setContent(&file);
             file.close();
@@ -252,7 +252,7 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
 void MainWindow::savePref()
 {
 
-    QFile file("../extra/tableConfig.xml");
+    QFile file("extra/tableConfig.xml");
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -299,7 +299,7 @@ void MainWindow::savePref()
     }
     if (!dom.toByteArray().isEmpty())
     {
-        QFile file("../extra/tableConfig.xml");
+        QFile file("extra/tableConfig.xml");
         file.open(QIODevice::WriteOnly);
         file.write(dom.toByteArray());
         file.close();
