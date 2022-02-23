@@ -89,24 +89,6 @@
               mkdir -p $out/bin
               cd ../
               ls $out
-              ls $out/bin
-              echo "have something"
-              ls  -a ./nix
-              echo "have something"
-              ls  -R ./nix
-              echo "have something"
-              ls -R ./build
-              echo "potentially"
-              ls
-              echo "build"
-              ls ./build
-              echo "autogen"
-              ls ./build/jv2_autogen
-              echo "include"
-              ls ./build/jv2_autogen/include
-              echo "extra"
-              ls ./build/jv2_autogen/include/extra
-              echo "fin"
               cp ./extra $out/bin/
               mv ./build/jv2 $out/bin/
               
