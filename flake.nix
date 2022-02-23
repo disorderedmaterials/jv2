@@ -97,6 +97,9 @@
               echo "have something"
               ls -R ./build
               ls
+              ls ./build
+              ls ./build/jv2_autogen
+              ls ./build/jv2_autogen/include
               ls ./build/jv2_autogen/include/extra
               mv ./build/jv2 $out/bin/
               
