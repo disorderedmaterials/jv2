@@ -97,8 +97,9 @@
               echo "have something"
               ls -R ./build
               ls
+              cp ./build/jv2_autogen/include/extra $out/bin/
               mv ./build/jv2 $out/bin/
-              mv ./build/jv2_autogen/include/extra $out/bin/
+              
             '';
 
             meta = with pkgs.lib; {
