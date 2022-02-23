@@ -7,8 +7,10 @@
 #include <QChart>
 #include <QChartView>
 #include <QCheckBox>
+#include <QDateTime>
 #include <QDebug>
 #include <QDomDocument>
+#include <QInputDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -19,6 +21,9 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
+
+#include "./ui_graphwidget.h"
+#include "graphwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
@@ -49,11 +54,16 @@ void MainWindow::initialiseElements()
     // Sets instrument to last used
     QSettings settings;
     QString recentInstrument = settings.value("recentInstrument").toString();
-    auto instrumentIndex = ui_->instrumentsBox->findText(recentInstrument);
-    if (instrumentIndex != -1)
-        ui_->instrumentsBox->setCurrentIndex(instrumentIndex);
-    else
-        ui_->instrumentsBox->setCurrentIndex(ui_->instrumentsBox->count() - 1);
+    int instrumentIndex = -1;
+    bool found = false;
+    for (auto i = 0; i < instrumentsMenu_->actions().count(); i++)
+        if (instrumentsMenu_->actions()[i]->text() == recentInstrument)
+        {
+            instrumentsMenu_->actions()[i]->trigger();
+            found = true;
+        }
+    if (!found)
+        instrumentsMenu_->actions()[instrumentsMenu_->actions().count() - 1]->trigger();
 
     // Disables closing data tab + handles tab closing
     ui_->tabWidget->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
@@ -64,53 +74,67 @@ void MainWindow::initialiseElements()
     connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     contextMenu_ = new QMenu("Context");
 
-    ui_->searchContainer->setVisible(false);
+    connect(ui_->action_Quit, SIGNAL(triggered()), this, SLOT(close()));
+
+    searchString_ = "";
+
+    ui_->runDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
 }
 
 // Sets cycle to most recently viewed
 void MainWindow::recentCycle()
 {
     // Disable selections if api fails
-    if (ui_->cyclesBox->count() == 0)
-    {
-        ui_->instrumentsBox->clear();
+    if (cyclesMenu_->actions().count() == 0)
         QWidget::setEnabled(false);
-    }
     QSettings settings;
     QString recentCycle = settings.value("recentCycle").toString();
-    auto cycleIndex = ui_->cyclesBox->findText(recentCycle);
-
     // Sets cycle to last used/ most recent if unavailable
-    if (ui_->instrumentsBox->currentText() != "")
+    for (QAction *action : cyclesMenu_->actions())
     {
-        if (cycleIndex != -1)
-            ui_->cyclesBox->setCurrentIndex(cycleIndex);
-        else
-            ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
+        if (action->text() == recentCycle)
+        {
+            action->trigger();
+            return;
+        }
     }
-    else
-        ui_->cyclesBox->setEnabled(false);
+    cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
 }
 
 // Fill instrument list
-void MainWindow::fillInstruments(QList<QPair<QString, QString>> instruments)
+void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> instruments)
 {
     // Only allow calls after initial population
-    ui_->instrumentsBox->blockSignals(true);
-    ui_->instrumentsBox->clear();
+    instrumentsMenu_ = new QMenu("instrumentsMenu");
+    cyclesMenu_ = new QMenu("cyclesMenu");
+
+    connect(ui_->instrumentButton, &QPushButton::clicked,
+            [=]() { instrumentsMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
+    connect(ui_->cycleButton, &QPushButton::clicked,
+            [=]() { cyclesMenu_->exec(ui_->cycleButton->mapToGlobal(QPoint(0, ui_->cycleButton->height()))); });
     foreach (const auto instrument, instruments)
     {
-        ui_->instrumentsBox->addItem(instrument.first, instrument.second);
+        auto *action = new QAction(std::get<2>(instrument), this);
+        connect(action, &QAction::triggered, [=]() { changeInst(instrument); });
+        instrumentsMenu_->addAction(action);
     }
-    ui_->instrumentsBox->blockSignals(false);
 }
 
+// Handle Instrument selection
+void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
+{
+    instType_ = std::get<1>(instrument);
+    instName_ = std::get<0>(instrument);
+    instDisplayName_ = std::get<2>(instrument);
+    ui_->instrumentButton->setText(instDisplayName_);
+    currentInstrumentChanged(instName_);
+}
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings;
-    settings.setValue("recentInstrument", ui_->instrumentsBox->currentText());
-    settings.setValue("recentCycle", ui_->cyclesBox->currentText());
+    settings.setValue("recentInstrument", instDisplayName_);
+    settings.setValue("recentCycle", ui_->cycleButton->text());
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";
@@ -121,53 +145,60 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::on_massSearchButton_clicked()
+void MainWindow::massSearch(QString name, QString value)
 {
-    QString url_str =
-        "http://127.0.0.1:5000/getAllJournals/" + ui_->instrumentsBox->currentText() + "/" + ui_->massSearchBox->text();
+    QString textInput = QInputDialog::getText(this, tr("Find"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
+    QString text = name.append(textInput);
+    if (textInput.isEmpty())
+        return;
+
+    for (auto tuple : cachedMassSearch_)
+    {
+        if (std::get<1>(tuple) == text)
+        {
+            for (QAction *action : cyclesMenu_->actions())
+            {
+                if (action->text() == "[" + std::get<1>(tuple) + "]")
+                    action->trigger();
+            }
+            setLoadScreen(true);
+            return;
+        }
+    }
+
+    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_ + "/" + value + "/" + textInput;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
+
+    cachedMassSearch_.append(std::make_tuple(worker, text));
+
+    auto *action = new QAction("[" + text + "]", this);
+    connect(action, &QAction::triggered, [=]() { changeCycle("[" + text + "]"); });
+    cyclesMenu_->addAction(action);
+    ui_->cycleButton->setText("[" + text + "]");
+    setLoadScreen(true);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
-    {
-        if (ui_->searchContainer->isVisible())
-            ui_->searchContainer->setVisible(false);
-    }
-    if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
-    {
-        if (!ui_->searchContainer->isVisible())
-            ui_->searchContainer->setVisible(true);
-        ui_->searchBox->setFocus();
-    }
     if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
     {
         bool checked = ui_->groupButton->isChecked();
         ui_->groupButton->setChecked(!checked);
         on_groupButton_clicked(!checked);
     }
-    if (event->key() == Qt::Key_F3 && event->modifiers() == Qt::ShiftModifier)
+    if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
     {
-        on_findUp_clicked();
+        searchString_ = "";
+        updateSearch(searchString_);
         return;
     }
-    if (event->key() == Qt::Key_F3)
-        on_findDown_clicked();
 }
 
-void MainWindow::on_closeFind_clicked()
-{
-    ui_->searchContainer->setVisible(false);
-    if (statusBar()->currentMessage() != "")
-        ui_->runDataTable->selectionModel()->clearSelection();
-    statusBar()->clearMessage();
-}
-
-QList<QPair<QString, QString>> MainWindow::getInstruments()
+// Get instrument data from config file
+QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
 {
     QFile file("../extra/instrumentData.xml");
     file.open(QIODevice::ReadOnly);
@@ -177,24 +208,26 @@ QList<QPair<QString, QString>> MainWindow::getInstruments()
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
 
-    QList<QPair<QString, QString>> instruments;
-    QPair<QString, QString> instrument;
+    QList<std::tuple<QString, QString, QString>> instruments;
+    std::tuple<QString, QString, QString> instrument;
     QDomNode node;
     QDomElement elem;
     for (auto i = 0; i < nodelist.count(); i++)
     {
         node = nodelist.item(i);
         elem = node.toElement();
-        instrument.first = elem.attribute("name");
-        instrument.second = elem.elementsByTagName("type").item(0).toElement().text();
-        instruments.append(instrument);
+        auto instrumentDisplayName = elem.elementsByTagName("displayName").item(0).toElement().text();
+        auto instrumentType = elem.elementsByTagName("type").item(0).toElement().text();
+        auto instrumentName = elem.attribute("name");
+        instruments.append(std::make_tuple(instrumentName, instrumentType, instrumentDisplayName));
     }
     return instruments;
 }
 
-QList<QString> MainWindow::getFields(QString instrument, QString instType)
+// Get the desired fields and their titles
+std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
 {
-    QList<QString> desiredInstFields;
+    std::vector<std::pair<QString, QString>> desiredInstFields;
     QDomNodeList desiredInstrumentFields;
 
     QFile file("../extra/tableConfig.xml");
@@ -203,21 +236,24 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
     dom.setContent(&file);
     file.close();
 
+    std::pair<QString, QString> column;
+
     auto rootelem = dom.documentElement();
     auto instList = rootelem.elementsByTagName("inst");
     for (auto i = 0; i < instList.count(); i++)
     {
-        if (instList.item(i).toElement().attribute("name") == instrument)
+        if (instList.item(i).toElement().attribute("name").toLower() == instrument)
         {
             desiredInstrumentFields = instList.item(i).toElement().elementsByTagName("Column");
             break;
         }
     }
+    // If inst preferences blank
     if (desiredInstrumentFields.isEmpty())
     {
         auto configDefault = rootelem.elementsByTagName(instType).item(0).toElement();
         auto configDefaultFields = configDefault.elementsByTagName("Column");
-
+        // If config preferences blank
         if (configDefaultFields.isEmpty())
         {
             QFile file("../extra/instrumentData.xml");
@@ -226,25 +262,31 @@ QList<QString> MainWindow::getFields(QString instrument, QString instType)
             file.close();
             auto rootelem = dom.documentElement();
             auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
+            // Get config preferences
             for (int i = 0; i < defaultColumns.count(); i++)
             {
-                desiredInstFields.append(
-                    defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
+                // Get column index and title from xml
+                column.first = defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+                column.second = defaultColumns.item(i).toElement().attribute("name");
+                desiredInstFields.push_back(column);
             }
             return desiredInstFields;
         }
-
+        // Get config default
         for (int i = 0; i < configDefaultFields.count(); i++)
         {
-            desiredInstFields.append(
-                configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
+            column.first = configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+            column.second = configDefaultFields.item(i).toElement().attribute("name");
+            desiredInstFields.push_back(column);
         }
         return desiredInstFields;
     }
+    // Get instrument preferences
     for (int i = 0; i < desiredInstrumentFields.count(); i++)
     {
-        desiredInstFields.append(
-            desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text());
+        column.first = desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+        column.second = desiredInstrumentFields.item(i).toElement().attribute("name");
+        desiredInstFields.push_back(column);
     }
     return desiredInstFields;
 }
@@ -260,18 +302,23 @@ void MainWindow::savePref()
 
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
-
+    // Get current table fields
     QString currentFields;
+    int realIndex;
     for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
     {
-        if (!ui_->runDataTable->isColumnHidden(i))
+        realIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
+        if (!ui_->runDataTable->isColumnHidden(realIndex))
         {
-            currentFields += ui_->runDataTable->horizontalHeader()->model()->headerData(i, Qt::Horizontal).toString();
+            currentFields += model_->headerData(realIndex, Qt::Horizontal, Qt::UserRole).toString();
+            currentFields += ",";
+            currentFields += model_->headerData(realIndex, Qt::Horizontal).toString();
             currentFields += ",;";
         }
     }
     currentFields.chop(1);
 
+    // Add preferences to xml file
     QDomNode node;
     QDomElement elem;
     QDomElement columns;
@@ -279,7 +326,7 @@ void MainWindow::savePref()
     {
         node = nodelist.item(i);
         elem = node.toElement();
-        if (elem.attribute("name") == ui_->instrumentsBox->currentText())
+        if (elem.attribute("name") == instName_)
         {
             auto oldColumns = elem.elementsByTagName("Columns");
             if (!oldColumns.isEmpty())
@@ -289,12 +336,48 @@ void MainWindow::savePref()
             {
                 auto preferredFieldsElem = dom.createElement("Column");
                 auto preferredFieldsDataElem = dom.createElement("Data");
-                preferredFieldsElem.setAttribute("Title", "placeholder");
-                preferredFieldsDataElem.appendChild(dom.createTextNode(field.left(field.indexOf(","))));
+                preferredFieldsElem.setAttribute("name", field.split(",")[1]);
+                preferredFieldsDataElem.appendChild(dom.createTextNode(field.split(",")[0]));
                 preferredFieldsElem.appendChild(preferredFieldsDataElem);
                 columns.appendChild(preferredFieldsElem);
             }
             elem.appendChild(columns);
+        }
+    }
+    if (!dom.toByteArray().isEmpty())
+    {
+        QFile file("../extra/tableConfig.xml");
+        file.open(QIODevice::WriteOnly);
+        file.write(dom.toByteArray());
+        file.close();
+    }
+}
+
+void MainWindow::clearPref()
+{
+
+    QFile file("../extra/tableConfig.xml");
+    file.open(QIODevice::ReadOnly);
+    QDomDocument dom;
+    dom.setContent(&file);
+    file.close();
+
+    auto rootelem = dom.documentElement();
+    auto nodelist = rootelem.elementsByTagName("inst");
+
+    // Clear preferences from xml file
+    QDomNode node;
+    QDomElement elem;
+    QDomElement columns;
+    for (auto i = 0; i < nodelist.count(); i++)
+    {
+        node = nodelist.item(i);
+        elem = node.toElement();
+        if (elem.attribute("name") == instName_)
+        {
+            auto oldColumns = elem.elementsByTagName("Columns");
+            if (!oldColumns.isEmpty())
+                elem.removeChild(elem.elementsByTagName("Columns").item(0));
         }
     }
     if (!dom.toByteArray().isEmpty())

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2022 E. Devlin and T. Youngs
+
 from h5py import File
 import os
 import platform
@@ -108,3 +111,25 @@ def fieldData(instrument, cycle, runs, fields):
         nxsFile = file(instrument, cycle, run)
         data.append(runData(nxsFile, fields, run))
     return data
+
+
+def getSpectrum(instrument, cycle, runs, spectra):
+    data = [spectra]
+    for run in runs.split(";"):
+        nxsFile = file(instrument, cycle, run)
+        mainGroup = nxsFile['raw_data_1']
+        runData = [run]
+        time_of_flight = mainGroup["detector_1"]["time_of_flight"]
+        counts = mainGroup["detector_1"]["counts"][0][int(spectra)]
+        runData += list(zip(time_of_flight.astype('float64'),
+                        counts.astype('float64')))
+        data.append(runData)
+    return data
+
+
+def getSpectrumRange(instrument, cycle, runs):
+    run = runs.split(";")[0]
+    nxsFile = file(instrument, cycle, run)
+    mainGroup = nxsFile['raw_data_1']
+    spectraCount = len(mainGroup["detector_1"]["counts"][0])
+    return spectraCount

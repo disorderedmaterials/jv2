@@ -6,12 +6,13 @@ from flask import jsonify
 from flask import request
 
 from urllib.request import urlopen
-from xml.etree.ElementTree import parse
 import lxml.etree as ET
+from xml.etree.ElementTree import parse
 
 from ast import literal_eval
 
 from datetime import datetime
+from datetime import timedelta
 
 import nexusInteraction
 
@@ -82,7 +83,28 @@ def getJournal(instrument, cycle):
                 dataValue = data.text.strip()
             except Exception:
                 dataValue = data.text
-            runData[dataId] = dataValue
+            # If value is valid date
+            try:
+                time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
+                today = datetime.now()
+                if (today.date() == time.date()):
+                    runData[dataId] = "Today at: " + time.strftime("%H:%M:%S")
+                elif ((today + timedelta(-1)).date() == time.date()):
+                    runData[dataId] = "Yesterday at: " + \
+                        time.strftime("%H:%M:%S")
+                else:
+                    runData[dataId] = time.strftime("%d/%m/%Y %H:%M:%S")
+            except(Exception):
+                # If header is duration then format
+                if (dataId == "duration"):
+                    dataValue = int(dataValue)
+                    minutes = dataValue // 60
+                    seconds = str(dataValue % 60).rjust(2, '0')
+                    hours = str(minutes // 60).rjust(2, '0')
+                    minutes = str(minutes % 60).rjust(2, '0')
+                    runData[dataId] = hours + ":" + minutes + ":" + seconds
+                else:
+                    runData[dataId] = dataValue
         fields.append(runData)
     return jsonify(fields)
 
@@ -132,6 +154,97 @@ def getAllJournals(instrument, search):
     endTime = datetime.now()
     print(endTime - startTime)
     return jsonify(allFields)
+
+# Search all cycles with specified field
+
+
+@app.route('/getAllJournals/<instrument>/<field>/<search>')
+def getAllFieldJournals(instrument, field, search):
+    allFields = []
+    nameSpace = {'data': 'http://definition.nexusformat.org/schema/3.0'}
+    cycles = literal_eval(getCycles(instrument).get_data().decode())
+    cycles.pop(0)
+
+    startTime = datetime.now()
+
+    for cycle in (cycles):
+        print(instrument, " ", cycle)
+        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+            instrument+'/'+str(cycle)
+        try:
+            response = urlopen(url)
+        except Exception:
+            return jsonify({"response": "ERR. url not found"})
+        tree = ET.parse(response)
+        root = tree.getroot()
+        fields = []
+        path = "//*[contains(data:"+field+",'"+search+"')]"
+        foundElems = root.xpath(path, namespaces=nameSpace)
+        for element in foundElems:
+            runData = {}
+            for data in element:
+                dataId = data.tag.replace(
+                    '{http://definition.nexusformat.org/schema/3.0}', '')
+                try:
+                    dataValue = data.text.strip()
+                except Exception:
+                    dataValue = data.text
+                runData[dataId] = dataValue
+            fields.append(runData)
+        allFields += (fields)
+        print(len(foundElems))
+
+    endTime = datetime.now()
+    print(endTime - startTime)
+    return jsonify(allFields)
+
+# Go to functionality
+
+
+@app.route('/getGoToCycle/<instrument>/<search>')
+def getGoToCycle(instrument, search):
+    nameSpace = {'data': 'http://definition.nexusformat.org/schema/3.0'}
+    cycles = literal_eval(getCycles(instrument).get_data().decode())
+    cycles.pop(0)
+
+    startTime = datetime.now()
+    for cycle in (cycles):
+        print(instrument, " ", cycle)
+        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+            instrument+'/'+str(cycle)
+        try:
+            response = urlopen(url)
+        except Exception:
+            return jsonify({"response": "ERR. url not found"})
+        tree = ET.parse(response)
+        root = tree.getroot()
+        path = "//*[data:run_number="+search+"]"
+        foundElems = root.xpath(path, namespaces=nameSpace)
+        if(len(foundElems) > 0):
+            endTime = datetime.now()
+            print(endTime - startTime)
+            return cycle
+        print(len(foundElems))
+
+    endTime = datetime.now()
+    print(endTime - startTime)
+    return "Not Found"
+
+# Get spectra data
+
+
+@app.route('/getSpectrum/<instrument>/<cycle>/<runs>/<spectra>')
+def getSpectrum(instrument, cycle, runs, spectra):
+    data = nexusInteraction.getSpectrum(instrument, cycle, runs, spectra)
+    return jsonify(data)
+
+# Get spectra range
+
+
+@app.route('/getSpectrumRange/<instrument>/<cycle>/<runs>')
+def getSpectrumRange(instrument, cycle, runs):
+    data = nexusInteraction.getSpectrumRange(instrument, cycle, runs)
+    return jsonify(data)
 
 # Close server
 
