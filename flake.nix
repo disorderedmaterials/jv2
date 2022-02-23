@@ -79,18 +79,9 @@
               ("-DTHREADING_LINK_LIBS=${pkgs.tbb}/lib/libtbb.so");
             doCheck = checks;
             installPhase = ''
-              echo "MKDIR at"
-              echo $out
               mkdir -p $out/bin
-              echo "/nix/store/brl6ipfaksjqpzj5x0m207hggyv6y8fd-jv2-0.1/bin/"
-              cd ../
-              mkdir -p $out/bin
-              cd nix
-              mkdir -p $out/bin
-              cd ../
-              ls $out
-              cp ./extra $out/bin/
-              mv ./build/jv2 $out/bin/
+              cp -R ../extra $out/bin/
+              mv ./jv2 $out/bin/
               
             '';
 
