@@ -20,39 +20,46 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
     {
         auto response = worker->response;
 
-        // Prevents unwanted firing
-        ui_->cyclesBox->blockSignals(true);
-        QString cycleText = ui_->cyclesBox->currentText();
-        ui_->cyclesBox->clear();
+        cyclesMenu_->clear();
+        cyclesMap_.clear();
         foreach (const QJsonValue &value, worker->json_array)
         {
             // removes header_ file
             if (value.toString() != "journal.xml")
-                ui_->cyclesBox->addItem(value.toString());
-        }
-        ui_->cyclesBox->blockSignals(false);
+            {
+                auto displayName =
+                    "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
+                cyclesMap_[displayName] = value.toString();
 
-        // Keep cycle over instruments
-        auto cycleIndex = ui_->cyclesBox->findText(cycleText);
-        if (!init_)
-        {
-            if (cycleIndex != -1)
-                ui_->cyclesBox->setCurrentIndex(cycleIndex);
-            else
-                ui_->cyclesBox->setCurrentIndex(ui_->cyclesBox->count() - 1);
+                auto *action = new QAction(displayName, this);
+                connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
+                cyclesMenu_->addAction(action);
+            }
         }
+
+        if (init_)
+        {
+            // Sets cycle to most recently viewed
+            recentCycle();
+            init_ = false;
+            return;
+        }
+        // Keep cycle over instruments
+        for (QAction *action : cyclesMenu_->actions())
+        {
+            if (action->text() == ui_->cycleButton->text())
+            {
+                action->trigger();
+                return;
+            }
+        }
+        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
     }
     else
     {
         // an error occurred
         msg = "Error1: " + worker->error_str;
         QMessageBox::information(this, "", msg);
-    }
-    if (init_)
-    {
-        // Sets cycle to most recently viewed
-        recentCycle();
-        init_ = false;
     }
 }
 
@@ -64,13 +71,25 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
     if (worker->error_type == QNetworkReply::NoError)
     {
-        // Get keys from json data
+        // Error handling
+        if (ui_->groupButton->isChecked())
+            ui_->groupButton->setChecked(false);
+
+        // Get desired fields and titles from config files
+        desiredHeader_ = getFields(instName_, instType_);
         auto jsonArray = worker->json_array;
         auto jsonObject = jsonArray.at(0).toObject();
+        // Add columns to header and give titles where applicable
         header_.clear();
         foreach (const QString &key, jsonObject.keys())
         {
-            header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}}));
+            // Find matching indices
+            auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
+                                   [key](const auto &data) { return data.first == key; });
+            if (it != desiredHeader_.end())
+                header_.push_back(JsonTableModel::Heading({{"title", it->second}, {"index", key}}));
+            else
+                header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}}));
         }
 
         // Sets and fills table data
@@ -84,6 +103,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         // Fills viewMenu_ with all columns
         viewMenu_->clear();
         viewMenu_->addAction("savePref", this, SLOT(savePref()));
+        viewMenu_->addAction("clearPref", this, SLOT(clearPref()));
         viewMenu_->addSeparator();
         foreach (const QString &key, jsonObject.keys())
         {
@@ -96,14 +116,32 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             viewMenu_->addAction(checkableAction);
             connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
 
-            desiredHeader_ = getFields(ui_->instrumentsBox->currentText(), ui_->instrumentsBox->currentData().toString());
-
             // Filter table based on desired headers
-            if (!desiredHeader_.contains(key))
-                checkBox->setCheckState(Qt::Unchecked);
-            else
+            auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
+                                   [key](const auto &data) { return data.first == key; });
+            // If match found
+            if (it != desiredHeader_.end())
                 checkBox->setCheckState(Qt::Checked);
+            else
+                checkBox->setCheckState(Qt::Unchecked);
         }
+        int logIndex;
+        for (auto i = 0; i < desiredHeader_.size(); ++i)
+        {
+            for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
+            {
+                logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
+                // If index matches model data, swap columns in view
+                if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
+                {
+                    ui_->runDataTable->horizontalHeader()->swapSections(j, i);
+                }
+            }
+        }
+        ui_->runDataTable->resizeColumnsToContents();
+        updateSearch(searchString_);
+        ui_->filterBox->clear();
+        emit tableFilled();
     }
     else
     {
@@ -114,15 +152,9 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 }
 
 // Update cycles list when Instrument changed
-void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
+void MainWindow::currentInstrumentChanged(const QString &arg1)
 {
-    // Handle possible undesired calls
-    if (arg1.isEmpty())
-    {
-        ui_->cyclesBox->clear();
-        return;
-    }
-    ui_->instrumentsBox->setDisabled(arg1.isEmpty());
+    cachedMassSearch_.clear();
 
     // Configure api call
     QString url_str = "http://127.0.0.1:5000/getCycles/" + arg1;
@@ -137,16 +169,23 @@ void MainWindow::on_instrumentsBox_currentTextChanged(const QString &arg1)
 }
 
 // Populate table with cycle data
-void MainWindow::on_cyclesBox_currentTextChanged(const QString &arg1)
+void MainWindow::changeCycle(QString value)
 {
-    // Handle possible undesired calls
-    ui_->cyclesBox->setDisabled(arg1.isEmpty());
-    ui_->filterBox->setDisabled(arg1.isEmpty());
-    ui_->searchBox->setDisabled(arg1.isEmpty());
-    if (arg1.isEmpty())
+    if (value[0] == '[')
+    {
+        auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
+                               [value](const auto &tuple) { return std::get<1>(tuple) == value.mid(1, value.length() - 2); });
+        if (it != cachedMassSearch_.end())
+        {
+            ui_->cycleButton->setText(value);
+            setLoadScreen(true);
+            handle_result_cycles(std::get<0>(*it));
+        }
         return;
+    }
+    ui_->cycleButton->setText(value);
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + ui_->instrumentsBox->currentText() + "/" + arg1;
+    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + cyclesMap_[value];
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
