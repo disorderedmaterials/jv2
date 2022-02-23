@@ -98,6 +98,7 @@
               ls -R ./build
               ls
               mv ./build/jv2 $out/bin/
+              mv ./build/jv2_autogen/include/extra $out/bin/
             '';
 
             meta = with pkgs.lib; {
