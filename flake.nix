@@ -96,6 +96,7 @@
               ls  -R ./nix
               echo "have something"
               ls -R ./build
+              echo "potentially"
               ls
               echo "build"
               ls ./build
@@ -106,6 +107,7 @@
               echo "extra"
               ls ./build/jv2_autogen/include/extra
               echo "fin"
+              cp ./extra $out/bin/
               mv ./build/jv2 $out/bin/
               
             '';
