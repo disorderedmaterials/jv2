@@ -86,7 +86,7 @@ steps:
       cachix use jv2-nix
       mkdir -p packages
       echo "test"
-      cp ./extra packages
+      cp -R ./extra packages
       nix bundle -L .#${{ parameters.package }}
       # Get program version and move/rename artifact
       VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
