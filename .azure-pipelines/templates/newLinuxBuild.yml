@@ -85,7 +85,8 @@ steps:
       source ~/.nix-profile/etc/profile.d/nix.sh
       cachix use jv2-nix
       mkdir -p packages
-      echo "test"
+      ls -Rls?
+      
       cp -R ./extra packages
       nix bundle -L .#${{ parameters.package }}
       # Get program version and move/rename artifact
