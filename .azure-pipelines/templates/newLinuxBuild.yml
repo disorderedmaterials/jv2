@@ -84,12 +84,13 @@ steps:
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
       cachix use jv2-nix
+      mkdir -p packages
       echo "test"
-      ls -R
+      cp ./extra packages
       nix bundle -L .#${{ parameters.package }}
       # Get program version and move/rename artifact
       VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
-      mkdir -p packages
+      
       cp ${{ parameters.package }} packages/${{ parameters.package }}-${VERSION}
       rm ${{ parameters.package }}
       mv dist/launch packages/launch
