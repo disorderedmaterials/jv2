@@ -84,6 +84,8 @@ steps:
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
       cachix use jv2-nix
+      echo "test"
+      ls -R
       nix bundle -L .#${{ parameters.package }}
       # Get program version and move/rename artifact
       VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
