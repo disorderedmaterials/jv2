@@ -80,7 +80,7 @@
             doCheck = checks;
             installPhase = ''
               mkdir -p $out/bin
-              mv ./jv2 $out/bin/
+              cp -R ./jv2 $out/bin/
               
             '';
 
