@@ -68,7 +68,7 @@ steps:
       cd build
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
-
+      cd ../
       pyinstaller backend/isisInternal.py
       pyinstaller backend/launch.py
       mv dist/isisInternal dist/launch
