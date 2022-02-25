@@ -87,7 +87,7 @@ steps:
       mkdir -p packages
       ls -R
       cp -R ./extra packages
-      nix bundle -L .#${{ parameters.package }} --include ./extra
+      nix bundle -L .#${{ parameters.package }}
       # Get program version and move/rename artifact
       VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
       

@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>../extra/group.svg</file>
-        <file>../extra/cross.svg</file>
-        <file>../extra/filter.svg</file>
+        <file alias="group.svg">../extra/group.svg</file>
+        <file alias="cross.svg">../extra/cross.svg</file>
+        <file alias="filter.svg">../extra/filter.svg</file>
         <file alias="icon">../extra/JournalViewer2.png</file>
     </qresource>
 </RCC>
