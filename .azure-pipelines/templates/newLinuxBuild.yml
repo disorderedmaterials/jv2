@@ -63,14 +63,11 @@ steps:
     displayName: 'Install Cachix'
   - bash: |
       set -ex
-      mkdir build
-      cp flake.nix build
-      cp flake.lock build
-      cd build
       source ~/.nix-profile/etc/profile.d/nix.sh
+      ls
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
-      cd ../
+      ls
       pyinstaller backend/isisInternal.py
       pyinstaller backend/launch.py
       mv dist/isisInternal dist/launch
