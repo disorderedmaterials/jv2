@@ -53,6 +53,8 @@ steps:
     condition: eq( '${{ parameters.export }}', 'true' )
   - bash: |
       set -ex
+      mkdir build
+      cd build
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix-channel --add https://nixos.org/channels/nixos-21.11 nixos
       nix-channel --update
@@ -64,8 +66,6 @@ steps:
   - bash: |
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
-      mkdir build
-      cd build
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
       cd ../
