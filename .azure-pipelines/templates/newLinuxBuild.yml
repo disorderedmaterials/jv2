@@ -53,8 +53,6 @@ steps:
     condition: eq( '${{ parameters.export }}', 'true' )
   - bash: |
       set -ex
-      mkdir build
-      cd build
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix-channel --add https://nixos.org/channels/nixos-21.11 nixos
       nix-channel --update
@@ -65,6 +63,10 @@ steps:
     displayName: 'Install Cachix'
   - bash: |
       set -ex
+      mkdir build
+      mv flake.nix build
+      mv flake.lock build
+      cd build
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
