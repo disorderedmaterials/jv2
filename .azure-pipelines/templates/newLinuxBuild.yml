@@ -64,8 +64,8 @@ steps:
   - bash: |
       set -ex
       mkdir build
-      mv flake.nix build
-      mv flake.lock build
+      cp flake.nix build
+      cp flake.lock build
       cd build
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}

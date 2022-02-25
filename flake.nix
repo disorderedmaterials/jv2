@@ -56,7 +56,7 @@
             inherit version;
             pname = exe-name mpi gui;
             src =
-              builtins.filterSource (path: type: baseNameOf path != "flake.nix")
+              builtins.filterSource (path: type: baseNameOf path != "build/flake.nix")
               ./.;
             patches = [ ./nix/patches/ctest.patch ];
             buildInputs = base_libs pkgs ++ pkgs.lib.optional mpi pkgs.openmpi
