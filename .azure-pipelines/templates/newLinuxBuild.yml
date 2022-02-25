@@ -66,8 +66,6 @@ steps:
       source ~/.nix-profile/etc/profile.d/nix.sh
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
-      ls -R result
-      cp ./extra result
       pyinstaller backend/isisInternal.py
       pyinstaller backend/launch.py
       mv dist/isisInternal dist/launch
@@ -86,8 +84,6 @@ steps:
       source ~/.nix-profile/etc/profile.d/nix.sh
       cachix use jv2-nix
       mkdir -p packages
-      ls -R
-      cp -R ./extra packages
       nix bundle -L .#${{ parameters.package }}
       # Get program version and move/rename artifact
       VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
