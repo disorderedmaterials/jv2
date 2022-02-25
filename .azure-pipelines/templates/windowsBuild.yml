@@ -43,6 +43,6 @@ steps:
 
       cd ../
       pyinstaller backend/isisInternal.py
-      pyinstaller --icon=ci/windows/JournalViewer2.ico backend/launch.py
-      mv dist/isisInternal dist/launch
+      pyinstaller --icon=ci/windows/JournalViewer2.ico backend/jv2Setup.py
+      mv dist/isisInternal dist/jv2Setup
     displayName: 'Build'
