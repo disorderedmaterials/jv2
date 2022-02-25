@@ -67,6 +67,7 @@ steps:
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
       ls -R result
+      cp ./extra result
       pyinstaller backend/isisInternal.py
       pyinstaller backend/launch.py
       mv dist/isisInternal dist/launch
