@@ -64,10 +64,9 @@ steps:
   - bash: |
       set -ex
       source ~/.nix-profile/etc/profile.d/nix.sh
-      ls
       nix build -L .#${{ parameters.package }}
       nix build --json .#${{ parameters.package }} > archive.json
-      ls
+      ls -R result
       pyinstaller backend/isisInternal.py
       pyinstaller backend/launch.py
       mv dist/isisInternal dist/launch
