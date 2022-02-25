@@ -88,7 +88,7 @@ steps:
       # Get program version and move/rename artifact
       VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
       
-      cp ${{ parameters.package }} packages/${{ parameters.package }}-${VERSION}
+      cp ${{ parameters.package }} packages/jv2/${{ parameters.package }}
       rm ${{ parameters.package }}
       mv dist/launch packages/launch
     displayName: 'Package Executable'
