@@ -12,12 +12,13 @@ pr:
     - README.md
 
 stages:
+  - template: templates/codeQualityChecks.yml
+
   - stage: 'build'
     displayName: 'Build and Package'
     jobs:
       - job: 'windows'
         displayName: 'Windows'
-        condition: eq(1,0)
         pool:
           vmImage: 'windows-2019'
         steps:
@@ -38,11 +39,7 @@ stages:
         steps:
           - checkout: self
             fetchDepth: 1
-          - template: templates/newLinuxBuild.yml
-            parameters:
-              export: true
-              exportExe: false
-              exportSingularity: true
+          - template: templates/linuxBuild.yml
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "packages/"
