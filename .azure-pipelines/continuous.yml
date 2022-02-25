@@ -12,9 +12,10 @@ trigger:
 pr: none
 
 stages:
+  - template: templates/codeQualityChecks.yml
+
   - stage: 'build'
     displayName: 'Build and Package'
-    condition: eq(1,0)
     jobs:
       - job: 'windows'
         displayName: 'Windows'
@@ -34,11 +35,11 @@ stages:
       - job: 'linux'
         displayName: 'Linux'
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: 'ubuntu-18.04'
         steps:
           - checkout: self
             fetchDepth: 1
-          - template: templates/newLinuxBuild.yml
+          - template: templates/linuxBuild.yml
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "packages/"
