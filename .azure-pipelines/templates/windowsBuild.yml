@@ -42,9 +42,7 @@ steps:
       cmake --install .
 
       cd ../
-      pyinstaller --clean
-      pyinstaller backend/isisInternal.py --noconsole
-      pyinstaller --clean
-      pyinstaller --noconsole
+      pyinstaller backend/isisInternal.py --noconsole --clean
+      pyinstaller --noconsole --clean
       mv dist/isisInternal dist/jv2Setup
     displayName: 'Build'
