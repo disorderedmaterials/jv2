@@ -15,7 +15,7 @@ steps:
     inputs:
       versionSpec: '3.9'
   - script: |
-      python3 -m pip install pyinstaller
+      python3 -m pip install pyinstaller==4.1.0
       python3 -m pip install flask
       python3 -m pip install h5py
       python3 -m pip install lxml
@@ -42,7 +42,9 @@ steps:
       cmake --install .
 
       cd ../
+      pyinstaller --clean
       pyinstaller backend/isisInternal.py --noconsole
+      pyinstaller --clean
       pyinstaller --noconsole
       mv dist/isisInternal dist/jv2Setup
     displayName: 'Build'
