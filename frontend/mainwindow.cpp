@@ -133,11 +133,15 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
 }
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QString textInput = QInputDialog::getText(this, tr("closeEvent"), tr("woofe"), QLineEdit::Normal);
     // Update history on close
     QSettings settings;
     settings.setValue("recentInstrument", instDisplayName_);
     settings.setValue("recentCycle", ui_->cycleButton->text());
+
+    QString afararafaf =
+        QInputDialog::getText(this, tr(instDisplayName_.toUtf8()), tr(ui_->cycleButton->text().toUtf8()), QLineEdit::Normal);
+    QString afafccccaf = QInputDialog::getText(this, tr(settings.value("recentInstrument").toString().toUtf8()),
+                                           tr(settings.value("recentCycle").toString().toUtf8()), QLineEdit::Normal);
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";
