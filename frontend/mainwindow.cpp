@@ -53,8 +53,6 @@ void MainWindow::initialiseElements()
 
     // Sets instrument to last used
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    QString afafaf = QInputDialog::getText(this, tr(settings.value("recentInstrument").toString().toUtf8()),
-                                           tr(settings.value("recentCycle").toString().toUtf8()), QLineEdit::Normal);
     QString recentInstrument = settings.value("recentInstrument").toString();
     int instrumentIndex = -1;
     bool found = false;
@@ -137,11 +135,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("recentInstrument", instDisplayName_);
     settings.setValue("recentCycle", ui_->cycleButton->text());
-
-    QString afararafaf =
-        QInputDialog::getText(this, tr(instDisplayName_.toUtf8()), tr(ui_->cycleButton->text().toUtf8()), QLineEdit::Normal);
-    QString afafccccaf = QInputDialog::getText(this, tr(settings.value("recentInstrument").toString().toUtf8()),
-                                               tr(settings.value("recentCycle").toString().toUtf8()), QLineEdit::Normal);
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";
