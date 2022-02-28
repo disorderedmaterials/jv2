@@ -52,9 +52,9 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
 
     // Sets instrument to last used
-    QString afafaf = QInputDialog::getText(this, tr(settings.value("recentInstrument").toString()),
-                                           tr(settings.value("recentCycle").toString()), QLineEdit::Normal);
     QSettings settings;
+    QString afafaf = QInputDialog::getText(this, tr(settings.value("recentInstrument").toString().toUtf8()),
+                                           tr(settings.value("recentCycle").toString().toUtf8()), QLineEdit::Normal);
     QString recentInstrument = settings.value("recentInstrument").toString();
     int instrumentIndex = -1;
     bool found = false;
