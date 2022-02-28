@@ -52,6 +52,7 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
 
     // Sets instrument to last used
+    QString afafaf = QInputDialog::getText(this, tr(settings.value("recentInstrument").toString()), tr(settings.value("recentCycle").toString()), QLineEdit::Normal);
     QSettings settings;
     QString recentInstrument = settings.value("recentInstrument").toString();
     int instrumentIndex = -1;
@@ -131,6 +132,7 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
 }
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    QString textInput = QInputDialog::getText(this, tr("closeEvent"), tr("woofe"), QLineEdit::Normal);
     // Update history on close
     QSettings settings;
     settings.setValue("recentInstrument", instDisplayName_);
