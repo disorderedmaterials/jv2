@@ -15,7 +15,8 @@ steps:
     inputs:
       versionSpec: '3.9'
   - script: |
-      python3 -m pip install pyinstaller==4.1.0
+      python3 -m pip install pyinstaller
+      python3 -m pip install nuitka
       python3 -m pip install flask
       python3 -m pip install h5py
       python3 -m pip install lxml
@@ -42,7 +43,11 @@ steps:
       cmake --install .
 
       cd ../
-      pyinstaller backend/isisInternal.py --noconsole --clean
-      pyinstaller --noconsole --clean
+      pyinstaller backend/isisInternal.py --noconsole
+      pyinstaller backend/jv2Setup.py --noconsole
+      ls
+      python3 -m nuitka --standalone backend/isisInternal.py
+      python3 -m nuitka --standalone backend/jv2Setup.py
+      ls
       mv dist/isisInternal dist/jv2Setup
     displayName: 'Build'
