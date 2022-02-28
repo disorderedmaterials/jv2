@@ -52,7 +52,7 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
 
     // Sets instrument to last used
-    QSettings settings(QSettings::UserScope);
+    QSettings settings(QSettings::IniFormat, "ISIS", "jv2");
     QString afafaf = QInputDialog::getText(this, tr(settings.value("recentInstrument").toString().toUtf8()),
                                            tr(settings.value("recentCycle").toString().toUtf8()), QLineEdit::Normal);
     QString recentInstrument = settings.value("recentInstrument").toString();
@@ -89,7 +89,7 @@ void MainWindow::recentCycle()
     // Disable selections if api fails
     if (cyclesMenu_->actions().count() == 0)
         QWidget::setEnabled(false);
-    QSettings settings(QSettings::UserScope);
+    QSettings settings(QSettings::IniFormat, "ISIS", "jv2");
     QString recentCycle = settings.value("recentCycle").toString();
     // Sets cycle to last used/ most recent if unavailable
     for (QAction *action : cyclesMenu_->actions())
@@ -134,7 +134,7 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
-    QSettings settings(QSettings::UserScope);
+    QSettings settings(QSettings::IniFormat, "ISIS", "jv2");
     settings.setValue("recentInstrument", instDisplayName_);
     settings.setValue("recentCycle", ui_->cycleButton->text());
 
