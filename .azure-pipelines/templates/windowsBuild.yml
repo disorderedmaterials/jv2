@@ -15,7 +15,6 @@ steps:
     inputs:
       versionSpec: '3.9'
   - script: |
-      python3 -m pip install pyinstaller
       python3 -m pip install nuitka
       python3 -m pip install flask
       python3 -m pip install h5py
@@ -43,11 +42,8 @@ steps:
       cmake --install .
 
       cd ../
-      pyinstaller backend/isisInternal.py --noconsole
-      pyinstaller backend/jv2Setup.py --noconsole
       ls
-      yes | python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress backend/isisInternal.py
-      yes | python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress backend/jv2Setup.py
+      yes | python3 -m nuitka --onefile --msvc=14.2 backend/isisInternal.py
+      yes | python3 -m nuitka --onefile --msvc=14.2 backend/jv2Setup.py
       ls
-      mv dist/isisInternal dist/jv2Setup
     displayName: 'Build'
