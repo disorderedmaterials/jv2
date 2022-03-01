@@ -21,7 +21,7 @@ steps:
       python3 -m pip install h5py
       python3 -m pip install lxml
       choco install dependencywalker
-      cp -R C:\ProgramData\chocolatey\lib\dependencywalker C:\Users\VssAdministrator\AppData\Local\Nuitka\Nuitka\depends\x86_64\dependencywalker
+      cp -R C:\ProgramData\chocolatey\lib\dependencywalker C:\Users\VssAdministrator\AppData\Local\Nuitka\Nuitka\depends\x86_64
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
