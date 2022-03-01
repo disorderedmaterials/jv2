@@ -21,6 +21,7 @@ steps:
       python3 -m pip install lxml
       python3 -m pip uninstall numpy
       conda install numpy
+      python3 -m pip install numpy
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
