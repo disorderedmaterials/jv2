@@ -21,8 +21,6 @@ steps:
       python3 -m pip install h5py
       python3 -m pip install lxml
       choco install dependencywalker
-      ls C:\Users\VssAdministrator\AppData\Local\Nuitka
-      cp -R C:\ProgramData\chocolatey\lib\dependencywalker C:\Users\VssAdministrator\AppData\Local\Nuitka\Nuitka\depends\x86_64
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
@@ -39,6 +37,7 @@ steps:
       HDF5_DIR="$(pwd)/${{ parameters.hdf5tag }}"
       Qt6_DIR="/d/a/1/b/Qt/6.1.2/msvc2019_64"
       PATH="${Qt6_DIR}:${PATH}"
+      PATH="C:\ProgramData\chocolatey\lib\dependencywalker:${PATH}"
       mkdir build
       cd build
       cmake ../ -G "Visual Studio 16 2019" -A "x64" -DLOCAL_STATIC_HDF5:bool=True -DHDF5_DIR:path=${HDF5_DIR} ${{ parameters.extraflags }} -DCMAKE_PREFIX_PATH:path=${Qt6_DIR}/lib/cmake
