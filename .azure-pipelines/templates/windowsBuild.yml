@@ -48,8 +48,8 @@ steps:
       pyinstaller backend/isisInternal.py --noconsole
       pyinstaller backend/jv2Setup.py --noconsole
       ls
-      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress --yes backend/isisInternal.py
-      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress --yes backend/jv2Setup.py
+      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress backend/isisInternal.py
+      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress backend/jv2Setup.py
       ls
       mv dist/isisInternal dist/jv2Setup
     displayName: 'Build'
