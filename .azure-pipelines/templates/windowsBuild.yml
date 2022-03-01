@@ -21,6 +21,7 @@ steps:
       python3 -m pip install h5py
       python3 -m pip install lxml
       choco install dependencywalker
+      cp -R C:\ProgramData\chocolatey\lib\dependencywalker C:\Users\VssAdministrator\AppData\Local\Nuitka\Nuitka\depends\x86_64\dependencywalker
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
@@ -47,8 +48,8 @@ steps:
       pyinstaller backend/isisInternal.py --noconsole
       pyinstaller backend/jv2Setup.py --noconsole
       ls
-      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress backend/isisInternal.py
-      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress backend/jv2Setup.py
+      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress --yes backend/isisInternal.py
+      python3 -m nuitka --standalone --msvc=14.2 --show-memory --show-progress --yes backend/jv2Setup.py
       ls
       mv dist/isisInternal dist/jv2Setup
     displayName: 'Build'
