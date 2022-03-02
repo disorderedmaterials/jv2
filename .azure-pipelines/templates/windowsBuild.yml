@@ -19,9 +19,6 @@ steps:
       python3 -m pip install flask
       python3 -m pip install h5py
       python3 -m pip install lxml
-      python3 -m pip uninstall numpy
-      conda install numpy
-      python3 -m pip install numpy
     displayName: 'Install Prerequisites'
   - script: |
       python3 -m pip install aqtinstall
@@ -45,7 +42,7 @@ steps:
       cmake --install .
 
       cd ../
-      yes | python3 -m nuitka --standalone --msvc=14.2 backend/isisInternal.py
-      yes | python3 -m nuitka --standalone --msvc=14.2 backend/jv2Setup.py
+      yes | python3 -m nuitka --standalone --plugin-enable=qt-plugins --plugin-enable=numpy --recurse-all --msvc=14.2 backend/isisInternal.py
+      yes | python3 -m nuitka --standalone --plugin-enable=qt-plugins --plugin-enable=numpy --recurse-all --msvc=14.2 backend/jv2Setup.py
       ls -R
     displayName: 'Build'
