@@ -42,7 +42,7 @@ steps:
       cmake --install .
 
       cd ../
-      yes | python3 -m nuitka --standalone --plugin-enable=numpy --msvc=14.2 backend/isisInternal.py
-      yes | python3 -m nuitka --standalone --plugin-enable=numpy --msvc=14.2 backend/jv2Setup.py
+      yes | python3 -m nuitka --standalone --plugin-enable=numpy --msvc=14.2 --windows-disable-console backend/isisInternal.py
+      yes | python3 -m nuitka --standalone --plugin-enable=numpy --msvc=14.2 --windows-disable-console backend/jv2Setup.py
       ls -R
     displayName: 'Build'
