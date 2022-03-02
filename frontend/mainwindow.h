@@ -35,6 +35,7 @@ class MainWindow : public QMainWindow
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType); // Get Fields from config file
     void setLoadScreen(bool state);
     QString getRunNos();
+    QDomDocument getConfig();
     private slots:
     // Search Controls
     void updateSearch(const QString &arg1);

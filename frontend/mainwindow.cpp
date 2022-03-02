@@ -224,15 +224,11 @@ QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
     return instruments;
 }
 
-// Get the desired fields and their titles
-std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
+QDomDocument MainWindow::getConfig()
 {
-    std::vector<std::pair<QString, QString>> desiredInstFields;
-    QDomNodeList desiredInstrumentFields;
     QDomDocument dom;
-
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (settings.value("tableConfig", "fail").toString() == "fail")
+    if (!settings.contains("tableConfig"))
     {
         QFile file(":/tableConfig.xml");
         file.open(QIODevice::ReadOnly);
@@ -241,6 +237,15 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
     }
     else
         dom.setContent(settings.value("tableConfig", "fail").toString());
+    return dom;
+}
+
+// Get the desired fields and their titles
+std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
+{
+    std::vector<std::pair<QString, QString>> desiredInstFields;
+    QDomNodeList desiredInstrumentFields;
+    auto dom = getConfig();
 
     std::pair<QString, QString> column;
 
@@ -299,18 +304,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
 
 void MainWindow::savePref()
 {
-    QDomDocument dom;
-
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (settings.value("tableConfig", "fail").toString() == "fail")
-    {
-        QFile file(":/tableConfig.xml");
-        file.open(QIODevice::ReadOnly);
-        dom.setContent(&file);
-        file.close();
-    }
-    else
-        dom.setContent(settings.value("tableConfig", "fail").toString());
+    auto dom = getConfig();
 
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
@@ -365,18 +359,7 @@ void MainWindow::savePref()
 
 void MainWindow::clearPref()
 {
-    QDomDocument dom;
-
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (settings.value("tableConfig", "fail").toString() == "fail")
-    {
-        QFile file(":/tableConfig.xml");
-        file.open(QIODevice::ReadOnly);
-        dom.setContent(&file);
-        file.close();
-    }
-    else
-        dom.setContent(settings.value("tableConfig", "fail").toString());
+    auto dom = getConfig();
 
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
