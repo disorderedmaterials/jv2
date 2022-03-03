@@ -133,3 +133,14 @@ def getSpectrumRange(instrument, cycle, runs):
     mainGroup = nxsFile['raw_data_1']
     spectraCount = len(mainGroup["detector_1"]["counts"][0])
     return spectraCount
+
+if __name__ == '__main__':
+    nxsFile = file("nimrod", "cycle_20_3", "71159")
+    mainGroup = nxsFile['raw_data_1']
+    for key in mainGroup.keys():
+        print(key + ": ")
+        try:
+            for keyj in mainGroup[key].keys():
+                print("\t" + keyj)
+        except(Exception):
+            print("")

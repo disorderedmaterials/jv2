@@ -2,12 +2,14 @@
 // Copyright (c) 2022 E. Devlin and T. Youngs
 
 #include "graphwidget.h"
+#include "mainwindow.h"
 #include "./ui_graphwidget.h"
 #include "chartview.h"
 #include <QChart>
 #include <QChartView>
 #include <QDateTime>
 #include <QXYSeries>
+#include <QDebug>
 
 GraphWidget::GraphWidget(QWidget *parent, QChart *chart) : QWidget(parent), ui_(new Ui::GraphWidget)
 {
@@ -45,6 +47,33 @@ void GraphWidget::on_binWidths_clicked(bool checked)
                 auto binWidth = points[i + 1].x() - points[i].x();
                 points[i].setY(points[i].y() * binWidth);
             }
+        }
+        xySeries->append(points);
+    }
+}
+
+void GraphWidget::on_muAmps_clicked(bool checked)
+{
+    emit test(checked);
+}
+
+void GraphWidget::modify(double val, bool checked)
+{
+    for (auto *series : ui_->chartView->chart()->series())
+    {
+        auto xySeries = qobject_cast<QXYSeries *>(series);
+        auto points = xySeries->points();
+        xySeries->clear();
+        if (checked)
+        {
+
+            for (auto i = 0; i < points.count() - 1; i++)
+                points[i].setY(points[i].y() / val);
+        }
+        else
+        {
+            for (auto i = 0; i < points.count() - 1; i++)
+                points[i].setY(points[i].y() * val);
         }
         xySeries->append(points);
     }

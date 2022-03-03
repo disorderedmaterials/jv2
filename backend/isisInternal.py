@@ -246,6 +246,23 @@ def getSpectrumRange(instrument, cycle, runs):
     data = nexusInteraction.getSpectrumRange(instrument, cycle, runs)
     return jsonify(data)
 
+# Get total MuAmps
+
+@app.route('/getTotalMuAmps/<instrument>/<cycle>/<run>')
+def getTotalMuAmps(instrument, cycle, run):
+    url = 'http://data.isis.rl.ac.uk/journals/ndx'+instrument+'/'+cycle
+    try:
+        response = urlopen(url)
+    except Exception:
+        return jsonify({"response": "ERR. url not found"})
+    tree = parse(response)
+    root = tree.getroot()
+    ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
+    for runNo in root:
+        if (runNo.find('tag:run_number', ns).text.strip() == run):
+            return runNo.find('tag:proton_charge', ns).text.strip()
+    return "1"
+
 # Close server
 
 
