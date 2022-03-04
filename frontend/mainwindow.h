@@ -84,6 +84,8 @@ class MainWindow : public QMainWindow
     void clearPref();
     void columnHider(int state);
     void test(bool checked);
+    void runDivide(QString run, bool checked);
+    void monDivide(QString mon, bool checked);
 
     protected:
     // Window close event

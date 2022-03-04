@@ -39,6 +39,26 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="runDivide">
+         <property name="text">
+          <string>runDivide</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="monDivide">
+         <property name="text">
+          <string>monDivide</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

@@ -238,6 +238,11 @@ def getSpectrum(instrument, cycle, runs, spectra):
     data = nexusInteraction.getSpectrum(instrument, cycle, runs, spectra)
     return jsonify(data)
 
+@app.route('/getMonSpectrum/<instrument>/<cycle>/<runs>/<monitor>')
+def getMonSpectrum(instrument, cycle, runs, monitor):
+    data = nexusInteraction.getMonSpectrum(instrument, cycle, runs, monitor)
+    return jsonify(data)
+
 # Get spectra range
 
 

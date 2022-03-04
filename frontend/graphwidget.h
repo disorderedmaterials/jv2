@@ -26,17 +26,23 @@ class GraphWidget : public QWidget
 
     public slots:
     void modify(double val, bool checked);
+    void modifyAgainstRun(HttpRequestWorker *worker, bool checked);
     
     private slots:
     void on_binWidths_clicked(bool checked);
     void on_muAmps_clicked(bool checked);
+    void on_runDivide_clicked(bool checked);
+    void on_monDivide_clicked(bool checked);
     
 
     private:
     Ui::GraphWidget *ui_;
+    QString run_;
 
     signals:
     void test(bool checked);
+    void runDivide(QString run, bool checked);
+    void monDivide(QString mon, bool checked);
 };
 
 #endif
