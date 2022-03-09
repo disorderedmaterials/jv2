@@ -17,10 +17,10 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
+#include <QTabWidget>
 #include <QValueAxis>
 #include <QWidgetAction>
 #include <algorithm>
-#include <QTabWidget>
 
 void MainWindow::customMenuRequested(QPoint pos)
 {
@@ -526,7 +526,7 @@ void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
             QString name = runArray.first().toString();
             runs += name + ", ";
             series->setName(name);
-            //runArray.removeFirst();
+            // runArray.removeFirst();
 
             for (auto i = 0; i < runArray.count() - 1; i++)
             {
@@ -626,9 +626,9 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     setLoadScreen(false);
     auto monCount = count->response.toUtf8();
     monCount.chop(1);
-    auto monNumber = QInputDialog::getInt(this, tr("Plot Monitor Spectrum"),
-                                               tr("Enter monitor spectrum to plot (0-" + monCount + "):"), 0, 0,
-                                               count->response.toInt() - 1, 1);
+    auto monNumber =
+        QInputDialog::getInt(this, tr("Plot Monitor Spectrum"), tr("Enter monitor spectrum to plot (0-" + monCount + "):"), 0,
+                             0, count->response.toInt() - 1, 1);
     auto runNos = getRunNos();
     // Error handling
     if (runNos.size() == 0)
@@ -641,7 +641,8 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     url_str += instName_ + "/" + cycle + "/" + runNos + "/" + QString::number(monNumber);
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleMonSpectraCharting(HttpRequestWorker *)));
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+            SLOT(handleMonSpectraCharting(HttpRequestWorker *)));
     worker->execute(input);
 }
 
@@ -655,7 +656,7 @@ void MainWindow::test(bool checked)
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modify(workerProxy->response.toDouble(), checked);});
+            [=](HttpRequestWorker *workerProxy) { window->modify(workerProxy->response.toDouble(), checked); });
     worker->execute(input);
 }
 
@@ -665,14 +666,13 @@ void MainWindow::runDivide(QString run, bool checked)
     QString currentDetector = ui_->tabWidget->tabText(ui_->tabWidget->currentIndex()).split(" ")[1];
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-    QString url_str =
-        "http://127.0.0.1:5000/getSpectrum/" + instName_ + "/" + cycle + "/" + run + "/" + currentDetector;
+    QString url_str = "http://127.0.0.1:5000/getSpectrum/" + instName_ + "/" + cycle + "/" + run + "/" + currentDetector;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked);});
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked); });
     worker->execute(input);
 }
 
@@ -681,13 +681,12 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
     auto *window = qobject_cast<GraphWidget *>(sender());
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-    QString url_str =
-        "http://127.0.0.1:5000/getMonSpectrum/" + instName_ + "/" + cycle + "/" + currentRun + "/" + mon;
+    QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + instName_ + "/" + cycle + "/" + currentRun + "/" + mon;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked);});
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked); });
     worker->execute(input);
 }

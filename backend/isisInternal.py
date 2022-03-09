@@ -238,6 +238,7 @@ def getSpectrum(instrument, cycle, runs, spectra):
     data = nexusInteraction.getSpectrum(instrument, cycle, runs, spectra)
     return jsonify(data)
 
+
 @app.route('/getMonSpectrum/<instrument>/<cycle>/<runs>/<monitor>')
 def getMonSpectrum(instrument, cycle, runs, monitor):
     data = nexusInteraction.getMonSpectrum(instrument, cycle, runs, monitor)
@@ -251,12 +252,14 @@ def getSpectrumRange(instrument, cycle, runs):
     data = nexusInteraction.getSpectrumRange(instrument, cycle, runs)
     return jsonify(data)
 
+
 @app.route('/getMonitorRange/<instrument>/<cycle>/<runs>')
 def getMonitorRange(instrument, cycle, runs):
     data = nexusInteraction.getMonitorRange(instrument, cycle, runs)
     return jsonify(data)
 
 # Get total MuAmps
+
 
 @app.route('/getTotalMuAmps/<instrument>/<cycle>/<run>')
 def getTotalMuAmps(instrument, cycle, run):

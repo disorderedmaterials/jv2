@@ -4,8 +4,8 @@
 #ifndef GRAPHWIDGET_H
 #define GRAPHWIDGET_H
 
-#include "httprequestworker.h"
 #include "chartview.h"
+#include "httprequestworker.h"
 #include <QChart>
 #include <QChartView>
 #include <QWidget>
@@ -27,13 +27,12 @@ class GraphWidget : public QWidget
     public slots:
     void modify(double val, bool checked);
     void modifyAgainstRun(HttpRequestWorker *worker, bool checked);
-    
+
     private slots:
     void on_binWidths_clicked(bool checked);
     void on_muAmps_clicked(bool checked);
     void on_runDivide_clicked(bool checked);
     void on_monDivide_clicked(bool checked);
-    
 
     private:
     Ui::GraphWidget *ui_;

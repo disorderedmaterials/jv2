@@ -126,6 +126,7 @@ def getSpectrum(instrument, cycle, runs, spectra):
         data.append(runData)
     return data
 
+
 def getMonSpectrum(instrument, cycle, runs, monitor):
     data = []
     for run in runs.split(";"):
@@ -143,12 +144,14 @@ def getMonSpectrum(instrument, cycle, runs, monitor):
         data.append(runData)
     return data
 
+
 def getSpectrumRange(instrument, cycle, runs):
     run = runs.split(";")[0]
     nxsFile = file(instrument, cycle, run)
     mainGroup = nxsFile['raw_data_1']
     spectraCount = len(mainGroup["detector_1"]["counts"][0])
     return spectraCount
+
 
 def getMonitorRange(instrument, cycle, runs):
     monRange = "0"
@@ -161,6 +164,7 @@ def getMonitorRange(instrument, cycle, runs):
             if key.split("_")[1] > monRange and key.split("_")[1].isdigit():
                 monRange = key.split("_")[1]
     return int(monRange)
+
 
 if __name__ == '__main__':
     nxsFile = file("nimrod", "cycle_20_3", "71159")
