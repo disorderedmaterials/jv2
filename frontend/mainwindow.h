@@ -75,8 +75,11 @@ class MainWindow : public QMainWindow
     void showStatus(qreal x, qreal y, QString title);
 
     void handleSpectraCharting(HttpRequestWorker *worker);
+    void handleMonSpectraCharting(HttpRequestWorker *worker);
     void plotSpectra(HttpRequestWorker *count);
+    void plotMonSpectra(HttpRequestWorker *count);
     void getSpectrumCount();
+    void getMonitorCount();
 
     // Misc Interface Functions
     void removeTab(int index);
@@ -85,7 +88,7 @@ class MainWindow : public QMainWindow
     void columnHider(int state);
     void test(bool checked);
     void runDivide(QString run, bool checked);
-    void monDivide(QString mon, bool checked);
+    void monDivide(QString currentRun, QString mon, bool checked);
 
     protected:
     // Window close event

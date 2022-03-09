@@ -42,7 +42,7 @@ class GraphWidget : public QWidget
     signals:
     void test(bool checked);
     void runDivide(QString run, bool checked);
-    void monDivide(QString mon, bool checked);
+    void monDivide(QString currentRun, QString mon, bool checked);
 };
 
 #endif

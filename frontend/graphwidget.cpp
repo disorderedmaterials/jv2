@@ -74,6 +74,8 @@ void GraphWidget::on_runDivide_clicked(bool checked)
 
 void GraphWidget::on_monDivide_clicked(bool checked)
 {
+    QString currentRun = ui_->chartView->chart()->series()[0]->name();
+    qDebug() << currentRun;
     if (checked)
     {
         ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts/ mon x value");
@@ -81,7 +83,7 @@ void GraphWidget::on_monDivide_clicked(bool checked)
     }
     else
         ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    emit monDivide(run_, checked);
+    emit monDivide(currentRun, run_, checked);
 }
 
 void GraphWidget::modify(double val, bool checked)
@@ -122,10 +124,9 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
             for (auto i = 0; i < points.count(); i++)
             {
                 auto val = runArray.at(i)[1].toDouble();
+                qDebug() << val;
                 if (val != 0)
                     points[i].setY(points[i].y() / val);
-                else
-                    points[i].setY(1);
             }
         }
         else
@@ -133,6 +134,7 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
             for (auto i = 0; i < points.count(); i++)
             {
                 auto val = runArray.at(i)[1].toDouble();
+                if (val != 0)
                     points[i].setY(points[i].y() * val);
             }
         }
