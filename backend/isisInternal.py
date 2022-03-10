@@ -258,6 +258,7 @@ def getMonitorRange(instrument, cycle, runs):
     data = nexusInteraction.getMonitorRange(instrument, cycle, runs)
     return jsonify(data)
 
+
 # Get total MuAmps
 
 

@@ -24,19 +24,32 @@ class GraphWidget : public QWidget
     ~GraphWidget();
     ChartView *getChartView();
 
+    QString getChartRuns();
+    QString getChartDetector();
+    QJsonArray getChartData();
+
+    void setChartRuns(QString chartRuns);
+    void setChartDetector(QString chartDetector);
+    void setChartData(QJsonArray chartData);
+    void toggleOptions(QString option);
+
+
     public slots:
     void modify(double val, bool checked);
     void modifyAgainstRun(HttpRequestWorker *worker, bool checked);
 
     private slots:
-    void on_binWidths_clicked(bool checked);
-    void on_muAmps_clicked(bool checked);
-    void on_runDivide_clicked(bool checked);
-    void on_monDivide_clicked(bool checked);
+    void on_binWidths_toggled(bool checked);
+    void on_muAmps_toggled(bool checked);
+    void on_runDivide_toggled(bool checked);
+    void on_monDivide_toggled(bool checked);
 
     private:
     Ui::GraphWidget *ui_;
     QString run_;
+    QString chartRuns_;
+    QString chartDetector_;
+    QJsonArray chartData_;
 
     signals:
     void test(bool checked);

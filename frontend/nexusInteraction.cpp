@@ -445,9 +445,13 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         bool init = true;
         foreach (const auto &run, worker->json_array)
         {
-            field += init ? run.toString() : nullptr;
             if (init)
             {
+                field += run.toString();
+                qDebug() << "Where's the fannery";
+                qDebug() << run.toString();
+                window->setChartDetector(run.toString());
+                qDebug() << window->getChartDetector();
                 init = false;
                 continue;
             }
@@ -465,6 +469,11 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
             runs += name + ", ";
             series->setName(name);
             runArray.removeFirst();
+            
+            window->setChartRuns(name);
+            qDebug() << window->getChartRuns();
+            window->setChartData(runArray);
+            qDebug() << "DAAAAAATA";
 
             for (auto i = 0; i < runArray.count() - 1; i++)
             {
