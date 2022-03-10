@@ -32,6 +32,7 @@ class GraphWidget : public QWidget
     void setChartDetector(QString chartDetector);
     void setChartData(QJsonArray chartData);
     void toggleOptions(QString option);
+    void setLabel(QString label);
 
 
     public slots:

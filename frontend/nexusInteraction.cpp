@@ -469,7 +469,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
             runs += name + ", ";
             series->setName(name);
             runArray.removeFirst();
-            
+
             window->setChartRuns(name);
             qDebug() << window->getChartRuns();
             window->setChartData(runArray);
@@ -497,6 +497,17 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         QString toolTip = field + "\n" + runs;
         ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
         chartView->setFocus();
+
+        QString cycle = cyclesMap_[ui_->cycleButton->text()];
+        cycle.replace(0, 7, "cycle").replace(".xml", "");
+
+        QString url_str = "http://127.0.0.1:5000/getDetectorAnalysis/";
+        url_str += instName_ + "/" + cycle + "/" + runs;
+        HttpRequestInput input(url_str);
+        auto *worker = new HttpRequestWorker(this);
+        connect(worker, &HttpRequestWorker::on_execution_finished,
+                [=](HttpRequestWorker *detectorCount) { window->setLabel(detectorCount->response); });
+        worker->execute(input);
     }
     else
     {

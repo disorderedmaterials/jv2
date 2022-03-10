@@ -29,6 +29,7 @@ QJsonArray GraphWidget::getChartData() { return chartData_; }
 void GraphWidget::setChartRuns(QString chartRuns) { chartRuns_ = chartRuns; }
 void GraphWidget::setChartDetector(QString chartDetector) { chartDetector_ = chartDetector; }
 void GraphWidget::setChartData(QJsonArray chartData) { chartData_ = chartData; }
+void GraphWidget::setLabel(QString label) { ui_->statusLabel->setText(label); }
 
 ChartView *GraphWidget::getChartView() { return ui_->chartView; }
 
@@ -73,10 +74,14 @@ void GraphWidget::on_binWidths_toggled(bool checked)
 
 void GraphWidget::toggleOptions(QString option)
 {
-    if (ui_->binWidths->isChecked() && option != "binWidths")  ui_->binWidths->toggle();
-    if (ui_->muAmps->isChecked() && option != "muAmps")  ui_->muAmps->toggle();
-    if (ui_->runDivide->isChecked() && option != "runDivide")  ui_->runDivide->toggle();
-    if (ui_->monDivide->isChecked() && option != "monDivide")  ui_->monDivide->toggle();
+    if (ui_->binWidths->isChecked() && option != "binWidths")
+        ui_->binWidths->toggle();
+    if (ui_->muAmps->isChecked() && option != "muAmps")
+        ui_->muAmps->toggle();
+    if (ui_->runDivide->isChecked() && option != "runDivide")
+        ui_->runDivide->toggle();
+    if (ui_->monDivide->isChecked() && option != "monDivide")
+        ui_->monDivide->toggle();
 }
 
 void GraphWidget::on_muAmps_toggled(bool checked)

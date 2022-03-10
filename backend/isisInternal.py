@@ -259,6 +259,11 @@ def getMonitorRange(instrument, cycle, runs):
     return jsonify(data)
 
 
+@app.route('/getDetectorAnalysis/<instrument>/<cycle>/<run>')
+def getDetectorAnalysis(instrument, cycle, run):
+    data = nexusInteraction.detectorAnalysis(instrument, cycle, run)
+    return jsonify(data)
+
 # Get total MuAmps
 
 
