@@ -432,7 +432,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 {
     auto *chart = new QChart();
     auto *window = new GraphWidget(this, chart);
-    connect(window, SIGNAL(test(bool)), this, SLOT(test(bool)));
+    connect(window, SIGNAL(muAmps(QString, bool)), this, SLOT(muAmps(QString, bool)));
     connect(window, SIGNAL(runDivide(QString, bool)), this, SLOT(runDivide(QString, bool)));
     connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
     ChartView *chartView = window->getChartView();
@@ -440,21 +440,18 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
+        auto workerArray = worker->json_array;
         QString field = "Detector ";
-        QString runs;
-        bool init = true;
-        foreach (const auto &run, worker->json_array)
+        auto metaData = workerArray[0].toArray();
+        QString runs = metaData[0].toString();
+        window->setChartRuns(metaData[1].toString());
+        window->setChartDetector(metaData[0].toString());
+        field += metaData[1].toString();
+        workerArray.removeFirst();
+        window->setChartData(workerArray);
+
+        foreach (const auto &run, workerArray)
         {
-            if (init)
-            {
-                field += run.toString();
-                qDebug() << "Where's the fannery";
-                qDebug() << run.toString();
-                window->setChartDetector(run.toString());
-                qDebug() << window->getChartDetector();
-                init = false;
-                continue;
-            }
             auto runArray = run.toArray();
             // For each plot point
             auto *series = new QLineSeries();
@@ -463,17 +460,6 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
                     [=](const QPointF point, bool hovered) { chartView->setHovered(point, hovered, series->name()); });
             connect(chartView, SIGNAL(showCoordinates(qreal, qreal, QString)), this, SLOT(showStatus(qreal, qreal, QString)));
             connect(chartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
-
-            // Set dateSeries ID
-            QString name = runArray.first().toString();
-            runs += name + ", ";
-            series->setName(name);
-            runArray.removeFirst();
-
-            window->setChartRuns(name);
-            qDebug() << window->getChartRuns();
-            window->setChartData(runArray);
-            qDebug() << "DAAAAAATA";
 
             for (auto i = 0; i < runArray.count() - 1; i++)
             {
@@ -487,13 +473,17 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
             }
             chart->addSeries(series);
         }
+        for (auto i = 0; i < chart->series().count(); i++)
+        {
+            auto *series = chart->series()[i];
+            series->setName(runs.split(";")[i]);
+        }
         chart->createDefaultAxes();
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
         chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
         QString tabName = field;
         ui_->tabWidget->addTab(window, tabName);
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
-        runs.chop(2);
         QString toolTip = field + "\n" + runs;
         ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
         chartView->setFocus();
@@ -521,7 +511,7 @@ void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
 {
     auto *chart = new QChart();
     auto *window = new GraphWidget(this, chart);
-    connect(window, SIGNAL(test(bool)), this, SLOT(test(bool)));
+    connect(window, SIGNAL(muAmps(QString, bool)), this, SLOT(muAmps(QString, bool)));
     connect(window, SIGNAL(runDivide(QString, bool)), this, SLOT(runDivide(QString, bool)));
     connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
     ChartView *chartView = window->getChartView();
@@ -666,17 +656,17 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     worker->execute(input);
 }
 
-void MainWindow::test(bool checked)
+void MainWindow::muAmps(QString runs, bool checked)
 {
     auto *window = qobject_cast<GraphWidget *>(sender());
     QString url_str =
-        "http://127.0.0.1:5000/getTotalMuAmps/" + instName_ + "/" + cyclesMap_[ui_->cycleButton->text()] + "/71159";
+        "http://127.0.0.1:5000/getTotalMuAmps/" + instName_ + "/" + cyclesMap_[ui_->cycleButton->text()] + "/" + runs;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modify(workerProxy->response.toDouble(), checked); });
+            [=](HttpRequestWorker *workerProxy) { window->modify(workerProxy->response, checked); });
     worker->execute(input);
 }
 

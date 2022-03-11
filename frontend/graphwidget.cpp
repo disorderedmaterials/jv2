@@ -28,9 +28,9 @@ QJsonArray GraphWidget::getChartData() { return chartData_; }
 
 void GraphWidget::setChartRuns(QString chartRuns) { chartRuns_ = chartRuns; }
 void GraphWidget::setChartDetector(QString chartDetector) { chartDetector_ = chartDetector; }
-void GraphWidget::setChartData(QJsonArray chartData) 
-{ 
-    chartData_ = chartData; 
+void GraphWidget::setChartData(QJsonArray chartData)
+{
+    chartData_ = chartData;
     getBinWidths();
 }
 void GraphWidget::setLabel(QString label) { ui_->statusLabel->setText(label); }
@@ -38,24 +38,16 @@ void GraphWidget::setLabel(QString label) { ui_->statusLabel->setText(label); }
 void GraphWidget::getBinWidths()
 {
     binWidths_.clear();
-    for (auto i = 0; i < chartData_.count() - 1; i++)
-    {
-        const auto &dataPairTOFStart = chartData_.at(i);
-        const auto &dataPairTOFEnd = chartData_.at(i + 1);
-        auto binWidth = dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble();
-        binWidths_.push_back(binWidth);
-    }
-}
-
-void GraphWidget::plotGraph()
-{
     for (auto run : chartData_)
     {
+        QVector<double> binWidths;
         auto runArray = run.toArray();
-        for (auto value : runArray)
+        for (auto i = 0; i < runArray.count() - 1; i++)
         {
-            continue;
-        } 
+            double binWidth = runArray.at(i + 1)[0].toDouble() - runArray.at(i)[0].toDouble();
+            binWidths.append(binWidth);
+        }
+        binWidths_.append(binWidths);
     }
 }
 
@@ -70,32 +62,17 @@ void GraphWidget::on_binWidths_toggled(bool checked)
     }
     else
         ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    for (auto *series : ui_->chartView->chart()->series())
+    for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
-        auto xySeries = qobject_cast<QXYSeries *>(series);
+        auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
         xySeries->clear();
         if (checked)
-        {
-
-            for (auto i = 0; i < points.count(); i++)
-            {
-                const auto &dataPairTOFStart = chartData_.at(i);
-                const auto &dataPairTOFEnd = chartData_.at(i + 1);
-                auto binWidth = dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble();
-                points[i].setY(points[i].y() / binWidth);
-            }
-        }
+            for (auto j = 0; j < points.count(); j++)
+                points[j].setY(points[j].y() / binWidths_[i][j]);
         else
-        {
-            for (auto i = 0; i < points.count(); i++)
-            {
-                const auto &dataPairTOFStart = chartData_.at(i);
-                const auto &dataPairTOFEnd = chartData_.at(i + 1);
-                auto binWidth = dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble();
-                points[i].setY(points[i].y() * binWidth);
-            }
-        }
+            for (auto j = 0; j < points.count(); j++)
+                points[j].setY(points[j].y() * binWidths_[i][j]);
         xySeries->append(points);
     }
 }
@@ -121,7 +98,7 @@ void GraphWidget::on_muAmps_toggled(bool checked)
     }
     else
         ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    emit test(checked);
+    emit muAmps(chartRuns_, checked);
 }
 
 void GraphWidget::on_runDivide_toggled(bool checked)
@@ -150,23 +127,25 @@ void GraphWidget::on_monDivide_toggled(bool checked)
     emit monDivide(chartRuns_, run_, checked);
 }
 
-void GraphWidget::modify(double val, bool checked)
+void GraphWidget::modify(QString values, bool checked)
 {
-    for (auto *series : ui_->chartView->chart()->series())
+    for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
-        auto xySeries = qobject_cast<QXYSeries *>(series);
+        auto val = values.split(";")[i].toDouble();
+        qDebug() << val;
+        auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
         xySeries->clear();
         if (checked)
         {
 
-            for (auto i = 0; i < points.count(); i++)
-                points[i].setY(points[i].y() / val);
+            for (auto j = 0; j < points.count(); j++)
+                points[j].setY(points[j].y() / val);
         }
         else
         {
-            for (auto i = 0; i < points.count(); i++)
-                points[i].setY(points[i].y() * val);
+            for (auto j = 0; j < points.count(); j++)
+                points[j].setY(points[j].y() * val);
         }
         xySeries->append(points);
     }

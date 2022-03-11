@@ -36,12 +36,11 @@ class GraphWidget : public QWidget
 
 
     public slots:
-    void modify(double val, bool checked);
+    void modify(QString values, bool checked);
     void modifyAgainstRun(HttpRequestWorker *worker, bool checked);
 
     private:
     void getBinWidths();
-    void plotGraph();
 
     private slots:
     void on_binWidths_toggled(bool checked);
@@ -55,10 +54,10 @@ class GraphWidget : public QWidget
     QString chartRuns_;
     QString chartDetector_;
     QJsonArray chartData_;
-    QVector<double> binWidths_;
+    QVector<QVector<double>> binWidths_;
 
     signals:
-    void test(bool checked);
+    void muAmps(QString runs, bool checked);
     void runDivide(QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 };

@@ -267,8 +267,8 @@ def getDetectorAnalysis(instrument, cycle, run):
 # Get total MuAmps
 
 
-@app.route('/getTotalMuAmps/<instrument>/<cycle>/<run>')
-def getTotalMuAmps(instrument, cycle, run):
+@app.route('/getTotalMuAmps/<instrument>/<cycle>/<runs>')
+def getTotalMuAmps(instrument, cycle, runs):
     url = 'http://data.isis.rl.ac.uk/journals/ndx'+instrument+'/'+cycle
     try:
         response = urlopen(url)
@@ -277,10 +277,16 @@ def getTotalMuAmps(instrument, cycle, run):
     tree = parse(response)
     root = tree.getroot()
     ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
-    for runNo in root:
-        if (runNo.find('tag:run_number', ns).text.strip() == run):
-            return runNo.find('tag:proton_charge', ns).text.strip()
-    return "1"
+    muAmps = ""
+    for run in runs.split(";"):
+        print(runs)
+        print(run)
+        for runNo in root:
+            if (runNo.find('tag:run_number', ns).text.strip() == run):
+                print("found and appending")
+                muAmps += runNo.find('tag:proton_charge', ns).text.strip()
+    print(muAmps)
+    return muAmps
 
 # Close server
 

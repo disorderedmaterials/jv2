@@ -86,7 +86,7 @@ class MainWindow : public QMainWindow
     void savePref();
     void clearPref();
     void columnHider(int state);
-    void test(bool checked);
+    void muAmps(QString runs, bool checked);
     void runDivide(QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 
