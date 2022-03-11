@@ -172,7 +172,7 @@ def detectorAnalysis(instrument, cycle, run):
     for detector in detectors:
         if any(detector):
             count+=1
-    return count
+    return str(count) + "/" + str(len(detectors))
 
 if __name__ == '__main__':
     nxsFile = file("nimrod", "cycle_20_3", "71158")

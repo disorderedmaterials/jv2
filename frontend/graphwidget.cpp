@@ -28,8 +28,36 @@ QJsonArray GraphWidget::getChartData() { return chartData_; }
 
 void GraphWidget::setChartRuns(QString chartRuns) { chartRuns_ = chartRuns; }
 void GraphWidget::setChartDetector(QString chartDetector) { chartDetector_ = chartDetector; }
-void GraphWidget::setChartData(QJsonArray chartData) { chartData_ = chartData; }
+void GraphWidget::setChartData(QJsonArray chartData) 
+{ 
+    chartData_ = chartData; 
+    getBinWidths();
+}
 void GraphWidget::setLabel(QString label) { ui_->statusLabel->setText(label); }
+
+void GraphWidget::getBinWidths()
+{
+    binWidths_.clear();
+    for (auto i = 0; i < chartData_.count() - 1; i++)
+    {
+        const auto &dataPairTOFStart = chartData_.at(i);
+        const auto &dataPairTOFEnd = chartData_.at(i + 1);
+        auto binWidth = dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble();
+        binWidths_.push_back(binWidth);
+    }
+}
+
+void GraphWidget::plotGraph()
+{
+    for (auto run : chartData_)
+    {
+        auto runArray = run.toArray();
+        for (auto value : runArray)
+        {
+            continue;
+        } 
+    }
+}
 
 ChartView *GraphWidget::getChartView() { return ui_->chartView; }
 
