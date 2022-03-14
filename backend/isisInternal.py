@@ -60,7 +60,8 @@ def getCycles(instrument):
     except Exception:
         return jsonify({"response": "ERR. url not found"})
     lastModified_ = response.info().get('Last-Modified')
-    lastModified_ = datetime.strptime(lastModified_, "%a, %d %b %Y %H:%M:%S %Z")
+    lastModified_ = datetime.strptime(
+        lastModified_, "%a, %d %b %Y %H:%M:%S %Z")
     print("lastModified_ set as: ")
     print(lastModified_)
     tree = parse(response)
@@ -68,7 +69,7 @@ def getCycles(instrument):
     cycles = []
     for data in root:
         cycles.append(data.get('name'))
-    
+
     return jsonify(cycles)
 
 # Get cycle run data
