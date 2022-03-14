@@ -14,9 +14,13 @@ from ast import literal_eval
 from datetime import datetime
 from datetime import timedelta
 
+import requests
+
 import nexusInteraction
 
 app = Flask(__name__)
+
+dataLocation = "http://data.isis.rl.ac.uk/journals/"
 
 # Shutdown flask server
 
@@ -48,17 +52,23 @@ def getNexusData(instrument, cycle, runs, fields):
 
 @app.route('/getCycles/<instrument>')
 def getCycles(instrument):
-    url = 'http://data.isis.rl.ac.uk/journals/'
-    url += 'ndx'+instrument+'/journal_main.xml'
+    global lastModified_
+    url = dataLocation + 'ndx'
+    url += instrument+'/journal_main.xml'
     try:
         response = urlopen(url)
     except Exception:
         return jsonify({"response": "ERR. url not found"})
+    lastModified_ = response.info().get('Last-Modified')
+    lastModified_ = datetime.strptime(lastModified_, "%a, %d %b %Y %H:%M:%S %Z")
+    print("lastModified_ set as: ")
+    print(lastModified_)
     tree = parse(response)
     root = tree.getroot()
     cycles = []
     for data in root:
         cycles.append(data.get('name'))
+    
     return jsonify(cycles)
 
 # Get cycle run data
@@ -66,7 +76,7 @@ def getCycles(instrument):
 
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
-    url = 'http://data.isis.rl.ac.uk/journals/ndx'+instrument+'/'+cycle
+    url = dataLocation + 'ndx' + instrument+'/'+cycle
     try:
         response = urlopen(url)
     except Exception:
@@ -122,7 +132,7 @@ def getAllJournals(instrument, search):
 
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+        url = dataLocation + 'ndx' + \
             instrument+'/'+str(cycle)
         try:
             response = urlopen(url)
@@ -169,7 +179,7 @@ def getAllFieldJournals(instrument, field, search):
 
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+        url = dataLocation + 'ndx' + \
             instrument+'/'+str(cycle)
         try:
             response = urlopen(url)
@@ -210,7 +220,7 @@ def getGoToCycle(instrument, search):
     startTime = datetime.now()
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+        url = dataLocation + 'ndx' + \
             instrument+'/'+str(cycle)
         try:
             response = urlopen(url)
@@ -249,27 +259,18 @@ def getSpectrumRange(instrument, cycle, runs):
 # Check for data modifications
 
 
-@app.route('/pingCycle/<instrument>/<cycle>')
-def pingCycle(instrument, cycle):
-    url = 'http://data.isis.rl.ac.uk/journals/ndx'
-    url += "nimrod"+'/journal_main.xml'
-    response = urlopen(url)
-    tree = parse(response)
-    root = tree.getroot()
-    recentJournal = root[-1].get('name')
-    if (recentJournal != cycle):
-        return("New Cycle")
-
-    url = 'http://data.isis.rl.ac.uk/journals/ndx'
-    url += instrument + "/" + cycle
-    response = urlopen(url)
-    lastModified = response.info().get('Last-Modified')
+@app.route('/pingCycle/<instrument>')
+def pingCycle(instrument):
+    global lastModified_
+    url = dataLocation + 'ndx'
+    url += instrument+'/journal_main.xml'
+    lastModified = requests.head(url).headers['Last-Modified']
     lastModified = datetime.strptime(lastModified, "%a, %d %b %Y %H:%M:%S %Z")
-    currentTime = datetime.now()
-    timeDelta = currentTime - lastModified
-    if (timeDelta.total_seconds() < 300):
-        return ("New Run")
-    return ("No Change")
+    print(lastModified)
+    print(lastModified_)
+    if (lastModified > lastModified_):
+        return("Update")
+    return ("")
 
 # Close server
 

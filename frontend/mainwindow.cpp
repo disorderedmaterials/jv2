@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });
-    timer->start(300000);
+    timer->start(30000);
 }
 
 MainWindow::~MainWindow() { delete ui_; }
@@ -173,7 +173,7 @@ void MainWindow::massSearch(QString name, QString value)
 
     QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_ + "/" + value + "/" + textInput;
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
 
@@ -413,10 +413,9 @@ void MainWindow::setLoadScreen(bool state)
 
 void MainWindow::checkForUpdates()
 {
-    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_ + "/" +
-                      cyclesMap_[cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->text()];
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_;
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
     connect(worker, &HttpRequestWorker::on_execution_finished,
             [=](HttpRequestWorker *workerProxy) { refresh(workerProxy->response); });
     worker->execute(input);
@@ -424,15 +423,15 @@ void MainWindow::checkForUpdates()
 
 void MainWindow::refresh(QString status)
 {
-    if (status == "New Cycle")
+    if (status == "Update")
     {
+        qDebug() << "Update";
         currentInstrumentChanged(instName_);
         cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
     }
-    else if (status == "New Run")
-        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
-    else if ("No Change")
-        return;
     else
+    {
+        qDebug() << "no change";
         return;
+    }
 }
