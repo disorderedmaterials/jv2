@@ -246,6 +246,8 @@ def getSpectrumRange(instrument, cycle, runs):
     data = nexusInteraction.getSpectrumRange(instrument, cycle, runs)
     return jsonify(data)
 
+# Check for data modifications
+
 
 @app.route('/pingCycle/<instrument>/<cycle>')
 def pingCycle(instrument, cycle):

@@ -19,9 +19,9 @@
 #include <QNetworkReply>
 #include <QSettings>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 #include <QWidgetAction>
 #include <QtGui>
-#include <QTimer>
 
 #include "./ui_graphwidget.h"
 #include "graphwidget.h"
@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     initialiseElements();
 
     QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, [=]() {checkForUpdates();});
+    connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });
     timer->start(300000);
 }
 
@@ -195,9 +195,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         on_groupButton_clicked(!checked);
     }
     if (event->key() == Qt::Key_R && event->modifiers() == Qt::ControlModifier)
-    {
         checkForUpdates();
-    }
+
     if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
     {
         searchString_ = "";
@@ -303,9 +302,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
 void MainWindow::savePref()
 {
 
-    QFile file(":/tableConfig.xml");QTimer *timer = new QTimer(this);
-connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-timer->start(1000);
+    QFile file(":/tableConfig.xml");
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -435,8 +432,7 @@ void MainWindow::refresh(QString status)
     else if (status == "New Run")
         cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
     else if ("No Change")
-        qDebug() << "pickel";
+        return;
     else
-        qDebug() << ":(";
-    qDebug() << status;
+        return;
 }
