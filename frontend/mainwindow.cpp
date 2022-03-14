@@ -21,6 +21,7 @@
 #include <QSortFilterProxyModel>
 #include <QWidgetAction>
 #include <QtGui>
+#include <QTimer>
 
 #include "./ui_graphwidget.h"
 #include "graphwidget.h"
@@ -29,6 +30,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
 {
     ui_->setupUi(this);
     initialiseElements();
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [=]() {checkForUpdates();});
+    timer->start(300000);
 }
 
 MainWindow::~MainWindow() { delete ui_; }
@@ -189,6 +194,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         ui_->groupButton->setChecked(!checked);
         on_groupButton_clicked(!checked);
     }
+    if (event->key() == Qt::Key_R && event->modifiers() == Qt::ControlModifier)
+    {
+        checkForUpdates();
+    }
     if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
     {
         searchString_ = "";
@@ -294,7 +303,9 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
 void MainWindow::savePref()
 {
 
-    QFile file(":/tableConfig.xml");
+    QFile file(":/tableConfig.xml");QTimer *timer = new QTimer(this);
+connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+timer->start(1000);
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -401,4 +412,31 @@ void MainWindow::setLoadScreen(bool state)
         QWidget::setEnabled(true);
         QGuiApplication::restoreOverrideCursor();
     }
+}
+
+void MainWindow::checkForUpdates()
+{
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_ + "/" +
+                      cyclesMap_[cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->text()];
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { refresh(workerProxy->response); });
+    worker->execute(input);
+}
+
+void MainWindow::refresh(QString status)
+{
+    if (status == "New Cycle")
+    {
+        currentInstrumentChanged(instName_);
+        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
+    }
+    else if (status == "New Run")
+        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
+    else if ("No Change")
+        qDebug() << "pickel";
+    else
+        qDebug() << ":(";
+    qDebug() << status;
 }

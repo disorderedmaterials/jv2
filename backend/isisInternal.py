@@ -246,6 +246,29 @@ def getSpectrumRange(instrument, cycle, runs):
     data = nexusInteraction.getSpectrumRange(instrument, cycle, runs)
     return jsonify(data)
 
+
+@app.route('/pingCycle/<instrument>/<cycle>')
+def pingCycle(instrument, cycle):
+    url = 'http://data.isis.rl.ac.uk/journals/ndx'
+    url += "nimrod"+'/journal_main.xml'
+    response = urlopen(url)
+    tree = parse(response)
+    root = tree.getroot()
+    recentJournal = root[-1].get('name')
+    if (recentJournal != cycle):
+        return("New Cycle")
+
+    url = 'http://data.isis.rl.ac.uk/journals/ndx'
+    url += instrument + "/" + cycle
+    response = urlopen(url)
+    lastModified = response.info().get('Last-Modified')
+    lastModified = datetime.strptime(lastModified, "%a, %d %b %Y %H:%M:%S %Z")
+    currentTime = datetime.now()
+    timeDelta = currentTime - lastModified
+    if (timeDelta.total_seconds() < 300):
+        return ("New Run")
+    return ("No Change")
+
 # Close server
 
 
