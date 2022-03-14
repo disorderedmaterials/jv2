@@ -131,7 +131,11 @@ void GraphWidget::modify(QString values, bool checked)
 {
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
-        auto val = values.split(";")[i].toDouble();
+        double val;
+        if (values.split(";").count() > 1)
+            val = values.split(";")[i].toDouble();
+        else
+            val = values.toDouble();
         qDebug() << val;
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
@@ -154,14 +158,45 @@ void GraphWidget::modify(QString values, bool checked)
 void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
 {
     QJsonArray runArray;
-    if (worker->json_array.count() == 1)
-        runArray = worker->json_array[0].toArray();
-    else
-        runArray = worker->json_array[1].toArray();
-    runArray.removeFirst();
+    runArray = worker->json_array[1].toArray();
     for (auto *series : ui_->chartView->chart()->series())
     {
         auto xySeries = qobject_cast<QXYSeries *>(series);
+        auto points = xySeries->points();
+        qDebug() << "Points: " << points.count() << " found: " << runArray.count();
+        xySeries->clear();
+        if (checked)
+        {
+
+            for (auto i = 0; i < points.count(); i++)
+            {
+                auto val = runArray.at(i)[1].toDouble();
+                if (val != 0)
+                    points[i].setY(points[i].y() / val);
+            }
+        }
+        else
+        {
+            for (auto i = 0; i < points.count(); i++)
+            {
+                auto val = runArray.at(i)[1].toDouble();
+                if (val != 0)
+                    points[i].setY(points[i].y() * val);
+            }
+        }
+        xySeries->append(points);
+    }
+}
+
+void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
+{
+    QJsonArray monArray;
+    monArray = worker->json_array;
+    monArray.removeFirst();
+    for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
+    {
+        auto runArray = monArray[i].toArray();
+        auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
         qDebug() << "Points: " << points.count() << " found: " << runArray.count();
         xySeries->clear();

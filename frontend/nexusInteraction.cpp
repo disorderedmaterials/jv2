@@ -697,6 +697,6 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked); });
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstMon(workerProxy, checked); });
     worker->execute(input);
 }

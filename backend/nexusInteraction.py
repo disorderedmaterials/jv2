@@ -128,12 +128,12 @@ def getSpectrum(instrument, cycle, runs, spectra):
 
 
 def getMonSpectrum(instrument, cycle, runs, monitor):
-    data = []
+    data = [monitor]
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
         mainGroup = nxsFile['raw_data_1']
         print(mainGroup)
-        runData = [run]
+        runData = []
         time_of_flight = mainGroup["monitor_"+monitor]["time_of_flight"]
         print(time_of_flight)
         print(mainGroup["monitor_"+monitor]["data"])

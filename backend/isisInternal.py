@@ -284,9 +284,9 @@ def getTotalMuAmps(instrument, cycle, runs):
         for runNo in root:
             if (runNo.find('tag:run_number', ns).text.strip() == run):
                 print("found and appending")
-                muAmps += runNo.find('tag:proton_charge', ns).text.strip()
-    print(muAmps)
-    return muAmps
+                muAmps += runNo.find('tag:proton_charge', ns).text.strip() + ";"
+    print(muAmps[:-1])
+    return muAmps[:-1]
 
 # Close server
 
