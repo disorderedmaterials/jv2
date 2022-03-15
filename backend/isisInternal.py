@@ -270,8 +270,59 @@ def pingCycle(instrument):
     print(lastModified)
     print(lastModified_)
     if (lastModified > lastModified_):
-        return("Update")
+        response = urlopen(url)
+        tree = parse(response)
+        root = tree.getroot()
+        return root[-1].get('name')
     return ("")
+
+
+@app.route('/updateJournal/<instrument>/<cycle>/<run>')
+def updateJournal(instrument, cycle):
+    url = dataLocation + 'ndx'
+    url += instrument+'/' + cycle
+    try:
+        response = urlopen(url)
+    except Exception:
+        return jsonify({"response": "ERR. url not found"})
+    tree = parse(response)
+    root = tree.getroot()
+    fields = []
+    for run in root:
+        if (run.find('run_number').text <= run):
+            continue
+        runData = {}
+        for data in run:
+            dataId = data.tag.replace(
+                '{http://definition.nexusformat.org/schema/3.0}', '')
+            try:
+                dataValue = data.text.strip()
+            except Exception:
+                dataValue = data.text
+            # If value is valid date
+            try:
+                time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
+                today = datetime.now()
+                if (today.date() == time.date()):
+                    runData[dataId] = "Today at: " + time.strftime("%H:%M:%S")
+                elif ((today + timedelta(-1)).date() == time.date()):
+                    runData[dataId] = "Yesterday at: " + \
+                        time.strftime("%H:%M:%S")
+                else:
+                    runData[dataId] = time.strftime("%d/%m/%Y %H:%M:%S")
+            except(Exception):
+                # If header is duration then format
+                if (dataId == "duration"):
+                    dataValue = int(dataValue)
+                    minutes = dataValue // 60
+                    seconds = str(dataValue % 60).rjust(2, '0')
+                    hours = str(minutes // 60).rjust(2, '0')
+                    minutes = str(minutes % 60).rjust(2, '0')
+                    runData[dataId] = hours + ":" + minutes + ":" + seconds
+                else:
+                    runData[dataId] = dataValue
+        fields.append(runData)
+    return jsonify(fields)
 
 # Close server
 

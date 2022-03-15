@@ -87,6 +87,7 @@ class MainWindow : public QMainWindow
     void columnHider(int state);
 
     void refresh(QString Status);
+    void update(HttpRequestWorker *worker);
 
     protected:
     // Window close event
