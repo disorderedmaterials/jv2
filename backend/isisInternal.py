@@ -278,14 +278,13 @@ def getTotalMuAmps(instrument, cycle, runs):
     root = tree.getroot()
     ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
     muAmps = ""
+    print("runs: " + runs)
     for run in runs.split(";"):
-        print(runs)
-        print(run)
         for runNo in root:
             if (runNo.find('tag:run_number', ns).text.strip() == run):
                 print("found and appending")
                 muAmps += runNo.find('tag:proton_charge', ns).text.strip() + ";"
-    print(muAmps[:-1])
+    print("muamps: " + muAmps[:-1])
     return muAmps[:-1]
 
 # Close server

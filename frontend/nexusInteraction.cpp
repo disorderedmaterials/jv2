@@ -443,9 +443,10 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         auto workerArray = worker->json_array;
         QString field = "Detector ";
         auto metaData = workerArray[0].toArray();
+        qDebug() << "metaData: " << metaData;
         QString runs = metaData[0].toString();
-        window->setChartRuns(metaData[1].toString());
-        window->setChartDetector(metaData[0].toString());
+        window->setChartRuns(metaData[0].toString());
+        window->setChartDetector(metaData[1].toString());
         field += metaData[1].toString();
         workerArray.removeFirst();
         window->setChartData(workerArray);

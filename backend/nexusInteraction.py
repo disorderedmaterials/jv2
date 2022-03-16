@@ -114,7 +114,9 @@ def fieldData(instrument, cycle, runs, fields):
 
 
 def getSpectrum(instrument, cycle, runs, spectra):
-    data = [[spectra, runs]]
+    data = [[runs, spectra]]
+    print("meta data: ")
+    print(runs + spectra)
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
         mainGroup = nxsFile['raw_data_1']
