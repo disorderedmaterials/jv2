@@ -111,7 +111,7 @@ void GraphWidget::on_runDivide_toggled(bool checked)
     }
     else
         ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    emit runDivide(run_, checked);
+    emit runDivide(chartDetector_, run_, checked);
 }
 
 void GraphWidget::on_monDivide_toggled(bool checked)
@@ -202,12 +202,16 @@ void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
         xySeries->clear();
         if (checked)
         {
-
+            qDebug() << "Divide time?";
             for (auto i = 0; i < points.count(); i++)
             {
                 auto val = runArray.at(i)[1].toDouble();
                 if (val != 0)
+                {
+                    qDebug() << "Doing a divide";
+                    qDebug() << points[i].y() << " " << val;
                     points[i].setY(points[i].y() / val);
+                }
             }
         }
         else

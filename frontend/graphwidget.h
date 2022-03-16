@@ -59,7 +59,7 @@ class GraphWidget : public QWidget
 
     signals:
     void muAmps(QString runs, bool checked);
-    void runDivide(QString run, bool checked);
+    void runDivide(QString currentDetector, QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 };
 

@@ -130,7 +130,9 @@ def getSpectrum(instrument, cycle, runs, spectra):
 
 
 def getMonSpectrum(instrument, cycle, runs, monitor):
-    data = [monitor]
+    data = [[runs, monitor]]
+    print("meta data: ")
+    print(runs + monitor)
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
         mainGroup = nxsFile['raw_data_1']
@@ -144,6 +146,7 @@ def getMonSpectrum(instrument, cycle, runs, monitor):
         runData += list(zip(time_of_flight.astype('float64'),
                         counts.astype('float64')))
         data.append(runData)
+        print(data)
     return data
 
 
