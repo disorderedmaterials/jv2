@@ -288,6 +288,7 @@ def updateJournal(instrument, cycle):
         return jsonify({"response": "ERR. url not found"})
     tree = parse(response)
     root = tree.getroot()
+    ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
     fields = []
     for run in root:
         if (run.find('tag:run_number', ns).text.strip() <= run):
