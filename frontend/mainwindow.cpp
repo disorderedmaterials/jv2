@@ -437,8 +437,7 @@ void MainWindow::refresh(QString status)
         currentInstrumentChanged(instName_);
         if (cyclesMap_[cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->text()] != status)
         {
-            auto displayName =
-                "Cycle " + status.split("_")[1] + "/" + status.split("_")[2].remove(".xml");
+            auto displayName = "Cycle " + status.split("_")[1] + "/" + status.split("_")[2].remove(".xml");
             cyclesMap_[displayName] = status;
 
             auto *action = new QAction(displayName, this);
