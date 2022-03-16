@@ -115,7 +115,7 @@ def fieldData(instrument, cycle, runs, fields):
 
 def getSpectrum(instrument, cycle, runs, spectra):
     data = [[runs, spectra]]
-    print("meta data: ")
+    print("Det meta data: ")
     print(runs + spectra)
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
@@ -131,7 +131,7 @@ def getSpectrum(instrument, cycle, runs, spectra):
 
 def getMonSpectrum(instrument, cycle, runs, monitor):
     data = [[runs, monitor]]
-    print("meta data: ")
+    print("Mon meta data: ")
     print(runs + monitor)
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
@@ -146,7 +146,6 @@ def getMonSpectrum(instrument, cycle, runs, monitor):
         runData += list(zip(time_of_flight.astype('float64'),
                         counts.astype('float64')))
         data.append(runData)
-        print(data)
     return data
 
 
@@ -182,15 +181,9 @@ def detectorAnalysis(instrument, cycle, run):
 
 
 if __name__ == '__main__':
+    print("activated")
     nxsFile = file("nimrod", "cycle_20_3", "71158")
-    print(len(nxsFile['raw_data_1']["detector_1"]["counts"][0]))
-    print(detectorAnalysis("nimrod", "cycle_20_3", "71158"))
-    """mainGroup = nxsFile['raw_data_1']
-    for key in mainGroup.keys():
-        print(key + ": ")
-        try:
-            for keyj in mainGroup[key].keys():
-                print("\t" + keyj)
-        except(Exception):
-            print("")
-    print(len(mainGroup['monitor_1']['data'][0][0]))"""
+    mainGroup = nxsFile['raw_data_1']
+    for value in mainGroup['monitor_8']['data'][0][0]:
+        if (value > 0):
+            print(value)

@@ -431,9 +431,9 @@ void MainWindow::showStatus(qreal x, qreal y, QString title)
 void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 {
     auto *chart = new QChart();
-    auto *window = new GraphWidget(this, chart);
+    auto *window = new GraphWidget(this, chart, "Detector");
     connect(window, SIGNAL(muAmps(QString, bool)), this, SLOT(muAmps(QString, bool)));
-    connect(window, SIGNAL(runDivide(QString, bool)), this, SLOT(runDivide(QString, bool)));
+    connect(window, SIGNAL(runDivide(QString, QString, bool)), this, SLOT(runDivide(QString, QString, bool)));
     connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
     ChartView *chartView = window->getChartView();
 
@@ -507,7 +507,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
 {
     auto *chart = new QChart();
-    auto *window = new GraphWidget(this, chart);
+    auto *window = new GraphWidget(this, chart, "Monitor");
     connect(window, SIGNAL(muAmps(QString, bool)), this, SLOT(muAmps(QString, bool)));
     connect(window, SIGNAL(runDivide(QString, QString, bool)), this, SLOT(runDivide(QString, QString, bool)));
     connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
@@ -696,6 +696,6 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstMon(workerProxy, checked); });
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked); });
     worker->execute(input);
 }

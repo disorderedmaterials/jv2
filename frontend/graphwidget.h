@@ -20,7 +20,7 @@ class GraphWidget : public QWidget
     Q_OBJECT
 
     public:
-    GraphWidget(QWidget *parent = nullptr, QChart *chart = nullptr);
+    GraphWidget(QWidget *parent = nullptr, QChart *chart = nullptr, QString type = nullptr);
     ~GraphWidget();
     ChartView *getChartView();
 
@@ -55,6 +55,7 @@ class GraphWidget : public QWidget
     QString chartDetector_;
     QJsonArray chartData_;
     QVector<QVector<double>> binWidths_;
+    QString type_;
 
     signals:
     void muAmps(QString runs, bool checked);

@@ -13,8 +13,9 @@
 #include <QJsonArray>
 #include <QXYSeries>
 
-GraphWidget::GraphWidget(QWidget *parent, QChart *chart) : QWidget(parent), ui_(new Ui::GraphWidget)
+GraphWidget::GraphWidget(QWidget *parent, QChart *chart, QString type) : QWidget(parent), ui_(new Ui::GraphWidget)
 {
+    type_ = type;
     ui_->setupUi(this);
     ui_->chartView->assignChart(chart);
     ui_->binWidths->setText("Counts/ µs");
@@ -111,7 +112,10 @@ void GraphWidget::on_runDivide_toggled(bool checked)
     }
     else
         ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    emit runDivide(chartDetector_, run_, checked);
+    if (type_ == "Detector")
+        emit runDivide(chartDetector_, run_, checked);
+    else
+        emit monDivide(run_, chartDetector_, checked);
 }
 
 void GraphWidget::on_monDivide_toggled(bool checked)
@@ -157,22 +161,30 @@ void GraphWidget::modify(QString values, bool checked)
 
 void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
 {
+    QJsonArray monArray;
     QJsonArray runArray;
-    runArray = worker->json_array[1].toArray();
-    for (auto *series : ui_->chartView->chart()->series())
+    qDebug () << "metaData in modify: " << worker->json_array[0].toArray();
+    qDebug () << "RAAAAAA " << worker->json_array[1].toArray();
+    monArray = worker->json_array[1].toArray();
+    runArray = monArray;
+    for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
-        auto xySeries = qobject_cast<QXYSeries *>(series);
+        if (ui_->monDivide->isChecked())
+            runArray = monArray[i].toArray();
+        auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
         qDebug() << "Points: " << points.count() << " found: " << runArray.count();
         xySeries->clear();
         if (checked)
         {
-
+            qDebug() << "Divide time?";
             for (auto i = 0; i < points.count(); i++)
             {
                 auto val = runArray.at(i)[1].toDouble();
                 if (val != 0)
+                {
                     points[i].setY(points[i].y() / val);
+                }
             }
         }
         else
