@@ -31,9 +31,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     ui_->setupUi(this);
     initialiseElements();
 
-    // QTimer *timer = new QTimer(this);
-    // connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });
-    // timer->start(30000);
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });
+    timer->start(30000);
 }
 
 MainWindow::~MainWindow() { delete ui_; }
