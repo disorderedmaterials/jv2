@@ -270,6 +270,7 @@ def pingCycle(instrument):
     print(lastModified)
     print(lastModified_)
     if (lastModified > lastModified_):
+        lastModified_ = lastModified
         response = urlopen(url)
         tree = parse(response)
         root = tree.getroot()
