@@ -290,7 +290,7 @@ def updateJournal(instrument, cycle):
     root = tree.getroot()
     fields = []
     for run in root:
-        if (run.find('run_number').text <= run):
+        if (run.find('tag:run_number', ns).text.strip() <= run):
             continue
         runData = {}
         for data in run:
