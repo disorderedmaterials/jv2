@@ -170,14 +170,16 @@ def getMonitorRange(instrument, cycle, runs):
                 monRange = key.split("_")[1]
     return int(monRange)
 
+
 def detectorAnalysis(instrument, cycle, run):
     nxsFile = file(instrument, cycle, run)
     detectors = nxsFile['raw_data_1']["detector_1"]["counts"][0]
     count = 0
     for detector in detectors:
         if any(detector):
-            count+=1
+            count += 1
     return str(count) + "/" + str(len(detectors))
+
 
 if __name__ == '__main__':
     nxsFile = file("nimrod", "cycle_20_3", "71158")
