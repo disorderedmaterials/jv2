@@ -34,7 +34,6 @@ class GraphWidget : public QWidget
     void toggleOptions(QString option);
     void setLabel(QString label);
 
-
     public slots:
     void modify(QString values, bool checked);
     void modifyAgainstRun(HttpRequestWorker *worker, bool checked);
