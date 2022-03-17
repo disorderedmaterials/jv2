@@ -161,26 +161,26 @@ void GraphWidget::modify(QString values, bool checked)
 
 void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
 {
-    QJsonArray monArray;
-    QJsonArray runArray;
+    QJsonArray inputArray;
+    QJsonArray valueArray;
     qDebug () << "metaData in modify: " << worker->json_array[0].toArray();
     qDebug () << "RAAAAAA " << worker->json_array[1].toArray();
-    monArray = worker->json_array[1].toArray();
-    runArray = monArray;
+    valueArray = worker->json_array[1].toArray();
+    valueArray = valueArray;
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         if (ui_->monDivide->isChecked())
-            runArray = monArray[i].toArray();
+            valueArray = valueArray[i].toArray();
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
-        qDebug() << "Points: " << points.count() << " found: " << runArray.count();
+        qDebug() << "Points: " << points.count() << " found: " << valueArray.count();
         xySeries->clear();
         if (checked)
         {
             qDebug() << "Divide time?";
             for (auto i = 0; i < points.count(); i++)
             {
-                auto val = runArray.at(i)[1].toDouble();
+                auto val = valueArray.at(i)[1].toDouble();
                 if (val != 0)
                 {
                     points[i].setY(points[i].y() / val);
