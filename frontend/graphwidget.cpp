@@ -191,7 +191,7 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
         {
             for (auto i = 0; i < points.count(); i++)
             {
-                auto val = runArray.at(i)[1].toDouble();
+                auto val = valueArray.at(i)[1].toDouble();
                 if (val != 0)
                     points[i].setY(points[i].y() * val);
             }
