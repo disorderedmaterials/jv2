@@ -114,7 +114,7 @@ def fieldData(instrument, cycle, runs, fields):
 
 
 def getSpectrum(instrument, cycle, runs, spectra):
-    data = [[runs, spectra]]
+    data = [[runs, spectra, "detector"]]
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
         mainGroup = nxsFile['raw_data_1']
@@ -128,7 +128,7 @@ def getSpectrum(instrument, cycle, runs, spectra):
 
 
 def getMonSpectrum(instrument, cycle, runs, monitor):
-    data = [[runs, monitor]]
+    data = [[runs, monitor, "monitor"]]
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
         mainGroup = nxsFile['raw_data_1']
