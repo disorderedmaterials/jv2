@@ -115,8 +115,6 @@ def fieldData(instrument, cycle, runs, fields):
 
 def getSpectrum(instrument, cycle, runs, spectra):
     data = [[runs, spectra]]
-    print("Det meta data: ")
-    print(runs + spectra)
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
         mainGroup = nxsFile['raw_data_1']
@@ -131,18 +129,12 @@ def getSpectrum(instrument, cycle, runs, spectra):
 
 def getMonSpectrum(instrument, cycle, runs, monitor):
     data = [[runs, monitor]]
-    print("Mon meta data: ")
-    print(runs + monitor)
     for run in runs.split(";"):
         nxsFile = file(instrument, cycle, run)
         mainGroup = nxsFile['raw_data_1']
-        print(mainGroup)
         runData = []
         time_of_flight = mainGroup["monitor_"+monitor]["time_of_flight"]
-        print(time_of_flight)
-        print(mainGroup["monitor_"+monitor]["data"])
         counts = mainGroup["monitor_"+monitor]["data"][0][0]
-        print(counts)
         runData += list(zip(time_of_flight.astype('float64'),
                         counts.astype('float64')))
         data.append(runData)
@@ -164,7 +156,6 @@ def getMonitorRange(instrument, cycle, runs):
     mainGroup = nxsFile['raw_data_1']
     for key in mainGroup.keys():
         if "monitor" in key:
-            print(key)
             if key.split("_")[1] > monRange and key.split("_")[1].isdigit():
                 monRange = key.split("_")[1]
     return int(monRange)
