@@ -26,16 +26,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="countsRadio">
-         <property name="text">
-          <string>Counts</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QWidget" name="CountsOptions" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
@@ -109,11 +99,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="maximum">
-             <number>1000000</number>
-            </property>
             <property name="minimum">
              <number>-1</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
             </property>
            </widget>
           </item>
@@ -159,11 +149,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="maximum">
-             <number>1000000</number>
-            </property>
             <property name="minimum">
              <number>-1</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
             </property>
            </widget>
           </item>
@@ -206,22 +196,6 @@
  </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>countsRadio</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>CountsOptions</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>48</x>
-     <y>22</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>126</x>
-     <y>40</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>divideByRunRadio</sender>
    <signal>toggled(bool)</signal>

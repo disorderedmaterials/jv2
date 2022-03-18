@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QJsonArray>
+#include <QValueAxis>
 #include <QXYSeries>
 
 GraphWidget::GraphWidget(QWidget *parent, QChart *chart, QString type) : QWidget(parent), ui_(new Ui::GraphWidget)
@@ -119,16 +120,25 @@ void GraphWidget::monDivideSpinHandling()
 
 void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
 {
+    auto max = qobject_cast<QValueAxis *>(ui_->chartView->chart()->axes()[1])->max();
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
         if (state == Qt::Checked)
             for (auto j = 0; j < points.count(); j++)
+            {
+                if (points[j].y() == max)
+                    ui_->chartView->chart()->axes()[1]->setMax(points[j].y() / binWidths_[i][j]);
                 points[j].setY(points[j].y() / binWidths_[i][j]);
+            }
         else
             for (auto j = 0; j < points.count(); j++)
+            {
+                if (points[j].y() == max)
+                    ui_->chartView->chart()->axes()[1]->setMax(points[j].y() * binWidths_[i][j]);
                 points[j].setY(points[j].y() * binWidths_[i][j]);
+            }
         xySeries->replace(points);
     }
 }
@@ -143,6 +153,7 @@ void GraphWidget::on_countsPerMicroAmpCheck_stateChanged(int state)
 
 void GraphWidget::modify(QString values, bool checked)
 {
+    auto max = qobject_cast<QValueAxis *>(ui_->chartView->chart()->axes()[1])->max();
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         double val;
@@ -156,12 +167,20 @@ void GraphWidget::modify(QString values, bool checked)
         {
 
             for (auto j = 0; j < points.count(); j++)
+            {
+                if (points[j].y() == max)
+                    ui_->chartView->chart()->axes()[1]->setMax(points[j].y() / val);
                 points[j].setY(points[j].y() / val);
+            }
         }
         else
         {
             for (auto j = 0; j < points.count(); j++)
+            {
+                if (points[j].y() == max)
+                    ui_->chartView->chart()->axes()[1]->setMax(points[j].y() * val);
                 points[j].setY(points[j].y() * val);
+            }
         }
         xySeries->replace(points);
     }
@@ -173,6 +192,7 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
     QJsonArray valueArray;
     valueArray = worker->json_array[1].toArray();
     valueArray = valueArray;
+    auto max = qobject_cast<QValueAxis *>(ui_->chartView->chart()->axes()[1])->max();
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         if (ui_->divideByMonitorRadio->isChecked())
@@ -186,6 +206,8 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
                 auto val = valueArray.at(i)[1].toDouble();
                 if (val != 0)
                 {
+                    if (points[i].y() == max)
+                        ui_->chartView->chart()->axes()[1]->setMax(points[i].y() / val);
                     points[i].setY(points[i].y() / val);
                 }
             }
@@ -196,7 +218,11 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
             {
                 auto val = valueArray.at(i)[1].toDouble();
                 if (val != 0)
+                {
+                    if (points[i].y() == max)
+                        ui_->chartView->chart()->axes()[1]->setMax(points[i].y() * val);
                     points[i].setY(points[i].y() * val);
+                }
             }
         }
         xySeries->replace(points);
@@ -208,6 +234,7 @@ void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
     QJsonArray monArray;
     monArray = worker->json_array;
     monArray.removeFirst();
+    auto max = qobject_cast<QValueAxis *>(ui_->chartView->chart()->axes()[1])->max();
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         auto runArray = monArray[i].toArray();
@@ -219,7 +246,11 @@ void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
             {
                 auto val = runArray.at(i)[1].toDouble();
                 if (val != 0)
+                {
+                    if (points[i].y() == max)
+                        ui_->chartView->chart()->axes()[1]->setMax(points[i].y() / val);
                     points[i].setY(points[i].y() / val);
+                }
             }
         }
         else
@@ -228,7 +259,11 @@ void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
             {
                 auto val = runArray.at(i)[1].toDouble();
                 if (val != 0)
+                {
+                    if (points[i].y() == max)
+                        ui_->chartView->chart()->axes()[1]->setMax(points[i].y() * val);
                     points[i].setY(points[i].y() * val);
+                }
             }
         }
         xySeries->replace(points);
