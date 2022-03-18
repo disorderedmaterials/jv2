@@ -112,6 +112,9 @@
             <property name="maximum">
              <number>1000000</number>
             </property>
+            <property name="minimum">
+             <number>-1</number>
+            </property>
            </widget>
           </item>
          </layout>
@@ -158,6 +161,9 @@
             </property>
             <property name="maximum">
              <number>1000000</number>
+            </property>
+            <property name="minimum">
+             <number>-1</number>
             </property>
            </widget>
           </item>

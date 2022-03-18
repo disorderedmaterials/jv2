@@ -23,7 +23,11 @@ GraphWidget::GraphWidget(QWidget *parent, QChart *chart, QString type) : QWidget
     connect(ui_->divideByMonitorSpin, &QSpinBox::editingFinished, [=]() { monDivideSpinHandling(); });
     connect(ui_->divideByMonitorRadio, &QRadioButton::toggled, [=]() { monDivideSpinHandling(); });
 
-    modified_ = "0";
+    modified_ = "-1";
+    ui_->divideByRunSpin->setSpecialValueText(tr(" "));
+    ui_->divideByMonitorSpin->setSpecialValueText(tr(" "));
+    ui_->divideByRunSpin->setValue(-1);
+    ui_->divideByMonitorSpin->setValue(-1);
 }
 
 GraphWidget::~GraphWidget() {}
@@ -65,7 +69,7 @@ void GraphWidget::runDivideSpinHandling()
     if (modified_ == value && ui_->divideByRunSpin->isEnabled())
         return;
 
-    if (modified_ != "0")
+    if (modified_ != "-1")
     {
         if (type_ == "Detector")
             emit runDivide(chartDetector_, modified_, false);
@@ -75,12 +79,12 @@ void GraphWidget::runDivideSpinHandling()
 
     if (!ui_->divideByRunSpin->isEnabled())
     {
-        modified_ = "0";
-        ui_->divideByRunSpin->setValue(0);
+        modified_ = "-1";
+        ui_->divideByRunSpin->setValue(-1);
         return;
     }
 
-    if (value != "0")
+    if (value != "-1")
     {
         if (type_ == "Detector")
             emit runDivide(chartDetector_, value, true);
@@ -96,17 +100,17 @@ void GraphWidget::monDivideSpinHandling()
     if (modified_ == value && ui_->divideByMonitorSpin->isEnabled())
         return;
 
-    if (modified_ != "0")
+    if (modified_ != "-1")
         emit monDivide(modified_, chartDetector_, false);
 
     if (!ui_->divideByMonitorSpin->isEnabled())
     {
-        modified_ = "0";
-        ui_->divideByMonitorSpin->setValue(0);
+        modified_ = "-1";
+        ui_->divideByMonitorSpin->setValue(-1);
         return;
     }
 
-    if (value != "0")
+    if (value != "-1")
     {
         emit monDivide(value, chartDetector_, true);
         modified_ = value;
