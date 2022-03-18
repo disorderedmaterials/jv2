@@ -44,7 +44,7 @@ void GraphWidget::setChartData(QJsonArray chartData)
     chartData_ = chartData;
     getBinWidths();
 }
-void GraphWidget::setLabel(QString label) { ui_->statusLabel->setText(label); }
+void GraphWidget::setLabel(QString label) { return;//ui_->statusLabel->setText(label); }
 
 void GraphWidget::getBinWidths()
 {
