@@ -31,7 +31,6 @@ class GraphWidget : public QWidget
     void setChartRuns(QString chartRuns);
     void setChartDetector(QString chartDetector);
     void setChartData(QJsonArray chartData);
-    void toggleOptions(QString option);
     void setLabel(QString label);
 
     public slots:
@@ -43,10 +42,10 @@ class GraphWidget : public QWidget
     void getBinWidths();
 
     private slots:
-    void on_binWidths_toggled(bool checked);
-    void on_muAmps_toggled(bool checked);
-    void on_runDivide_toggled(bool checked);
-    void on_monDivide_toggled(bool checked);
+    void runDivideSpinHandling();
+    void monDivideSpinHandling();
+    void on_countsPerMicrosecondCheck_stateChanged(int state);
+    void on_countsPerMicroAmpCheck_stateChanged(int state);
 
     private:
     Ui::GraphWidget *ui_;
@@ -56,6 +55,7 @@ class GraphWidget : public QWidget
     QJsonArray chartData_;
     QVector<QVector<double>> binWidths_;
     QString type_;
+    QString modified_;
 
     signals:
     void muAmps(QString runs, bool checked);

@@ -18,7 +18,12 @@ GraphWidget::GraphWidget(QWidget *parent, QChart *chart, QString type) : QWidget
     type_ = type;
     ui_->setupUi(this);
     ui_->chartView->assignChart(chart);
-    ui_->binWidths->setText("Counts/ µs");
+    connect(ui_->divideByRunRadio, &QRadioButton::toggled, [=]() { runDivideSpinHandling(); });
+    connect(ui_->divideByRunSpin, &QSpinBox::editingFinished, [=]() { runDivideSpinHandling(); });
+    connect(ui_->divideByMonitorSpin, &QSpinBox::editingFinished, [=]() { monDivideSpinHandling(); });
+    connect(ui_->divideByMonitorRadio, &QRadioButton::toggled, [=]() { monDivideSpinHandling(); });
+
+    modified_ = "0";
 }
 
 GraphWidget::~GraphWidget() {}
@@ -54,81 +59,82 @@ void GraphWidget::getBinWidths()
 
 ChartView *GraphWidget::getChartView() { return ui_->chartView; }
 
-void GraphWidget::on_binWidths_toggled(bool checked)
+void GraphWidget::runDivideSpinHandling()
 {
-    if (checked)
+    QString value = QString::number(ui_->divideByRunSpin->value());
+    if (modified_ == value && ui_->divideByRunSpin->isEnabled())
+        return;
+
+    if (modified_ != "0")
     {
-        toggleOptions("binWidths");
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts/ &#181;s");
+        if (type_ == "Detector")
+            emit runDivide(chartDetector_, modified_, false);
+        else
+            emit monDivide(modified_, chartDetector_, false);
     }
-    else
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
+
+    if (!ui_->divideByRunSpin->isEnabled())
+    {
+        modified_ = "0";
+        ui_->divideByRunSpin->setValue(0);
+        return;
+    }
+
+    if (value != "0")
+    {
+        if (type_ == "Detector")
+            emit runDivide(chartDetector_, value, true);
+        else
+            emit monDivide(value, chartDetector_, true);
+        modified_ = value;
+    }
+}
+
+void GraphWidget::monDivideSpinHandling()
+{
+    QString value = QString::number(ui_->divideByMonitorSpin->value());
+    if (modified_ == value && ui_->divideByMonitorSpin->isEnabled())
+        return;
+
+    if (modified_ != "0")
+        emit monDivide(modified_, chartDetector_, false);
+
+    if (!ui_->divideByMonitorSpin->isEnabled())
+    {
+        modified_ = "0";
+        ui_->divideByMonitorSpin->setValue(0);
+        return;
+    }
+
+    if (value != "0")
+    {
+        emit monDivide(value, chartDetector_, true);
+        modified_ = value;
+    }
+}
+
+void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
+{
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
-        xySeries->clear();
-        if (checked)
+        if (state == Qt::Checked)
             for (auto j = 0; j < points.count(); j++)
                 points[j].setY(points[j].y() / binWidths_[i][j]);
         else
             for (auto j = 0; j < points.count(); j++)
                 points[j].setY(points[j].y() * binWidths_[i][j]);
-        xySeries->append(points);
+        xySeries->replace(points);
     }
 }
 
-void GraphWidget::toggleOptions(QString option)
+void GraphWidget::on_countsPerMicroAmpCheck_stateChanged(int state)
 {
-    if (ui_->binWidths->isChecked() && option != "binWidths")
-        ui_->binWidths->toggle();
-    if (ui_->muAmps->isChecked() && option != "muAmps")
-        ui_->muAmps->toggle();
-    if (ui_->runDivide->isChecked() && option != "runDivide")
-        ui_->runDivide->toggle();
-    if (ui_->monDivide->isChecked() && option != "monDivide")
-        ui_->monDivide->toggle();
-}
-
-void GraphWidget::on_muAmps_toggled(bool checked)
-{
-    if (checked)
-    {
-        toggleOptions("muAmps");
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts/ Total &#181;Amps");
-    }
+    if (state == Qt::Checked)
+        emit muAmps(chartRuns_, true);
     else
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    emit muAmps(chartRuns_, checked);
-}
-
-void GraphWidget::on_runDivide_toggled(bool checked)
-{
-    if (checked)
-    {
-        toggleOptions("runDivide");
-        run_ = QInputDialog::getText(this, tr("Run"), tr("Run No: "), QLineEdit::Normal);
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts/ run " + run_ + " value");
-    }
-    else
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    if (type_ == "Detector")
-        emit runDivide(chartDetector_, run_, checked);
-    else
-        emit monDivide(run_, chartDetector_, checked);
-}
-
-void GraphWidget::on_monDivide_toggled(bool checked)
-{
-    if (checked)
-    {
-        toggleOptions("monDivide");
-        run_ = QInputDialog::getText(this, tr("Mon"), tr("Mon No: "), QLineEdit::Normal);
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts/ monitor " + run_ + " value");
-    }
-    else
-        ui_->chartView->chart()->axes(Qt::Vertical)[0]->setTitleText("Counts");
-    emit monDivide(chartRuns_, run_, checked);
+        emit muAmps(chartRuns_, false);
 }
 
 void GraphWidget::modify(QString values, bool checked)
@@ -140,10 +146,8 @@ void GraphWidget::modify(QString values, bool checked)
             val = values.split(";")[i].toDouble();
         else
             val = values.toDouble();
-        qDebug() << val;
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
-        xySeries->clear();
         if (checked)
         {
 
@@ -155,7 +159,7 @@ void GraphWidget::modify(QString values, bool checked)
             for (auto j = 0; j < points.count(); j++)
                 points[j].setY(points[j].y() * val);
         }
-        xySeries->append(points);
+        xySeries->replace(points);
     }
 }
 
@@ -163,21 +167,16 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
 {
     QJsonArray inputArray;
     QJsonArray valueArray;
-    qDebug () << "metaData in modify: " << worker->json_array[0].toArray();
-    qDebug () << "RAAAAAA " << worker->json_array[1].toArray();
     valueArray = worker->json_array[1].toArray();
     valueArray = valueArray;
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
-        if (ui_->monDivide->isChecked())
+        if (ui_->divideByMonitorRadio->isChecked())
             valueArray = valueArray[i].toArray();
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
-        qDebug() << "Points: " << points.count() << " found: " << valueArray.count();
-        xySeries->clear();
         if (checked)
         {
-            qDebug() << "Divide time?";
             for (auto i = 0; i < points.count(); i++)
             {
                 auto val = valueArray.at(i)[1].toDouble();
@@ -196,7 +195,7 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
                     points[i].setY(points[i].y() * val);
             }
         }
-        xySeries->append(points);
+        xySeries->replace(points);
     }
 }
 
@@ -210,20 +209,13 @@ void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
         auto runArray = monArray[i].toArray();
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
-        qDebug() << "Points: " << points.count() << " found: " << runArray.count();
-        xySeries->clear();
         if (checked)
         {
-            qDebug() << "Divide time?";
             for (auto i = 0; i < points.count(); i++)
             {
                 auto val = runArray.at(i)[1].toDouble();
                 if (val != 0)
-                {
-                    qDebug() << "Doing a divide";
-                    qDebug() << points[i].y() << " " << val;
                     points[i].setY(points[i].y() / val);
-                }
             }
         }
         else
@@ -235,6 +227,6 @@ void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
                     points[i].setY(points[i].y() * val);
             }
         }
-        xySeries->append(points);
+        xySeries->replace(points);
     }
 }
