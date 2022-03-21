@@ -69,6 +69,14 @@ ChartView *GraphWidget::getChartView() { return ui_->chartView; }
 
 void GraphWidget::runDivideSpinHandling()
 {
+    // IF AMP CHECKED? toggle off -> on?
+    if (ui_->divideByRunSpin->isEnabled())
+    {
+        ui_->countsPerMicrosecondCheck->setChecked(false);
+        ui_->countsPerMicrosecondCheck->setEnabled(false);
+    }
+    else
+        ui_->countsPerMicrosecondCheck->setEnabled(true);
     QString value = QString::number(ui_->divideByRunSpin->value());
     if (!ui_->divideByRunSpin->isEnabled())
         value = "-1";
@@ -77,11 +85,14 @@ void GraphWidget::runDivideSpinHandling()
 
     if (modified_ != "-1")
     {
+        ui_->countsPerMicroAmpCheck->setChecked(false);
         if (type_ == "Detector")
             emit runDivide(chartDetector_, modified_, false);
         else
             emit monDivide(modified_, chartDetector_, false);
         modified_ = "-1";
+        if (ui_->divideByRunSpin->isEnabled())
+            ui_->countsPerMicroAmpCheck->setChecked(true);
     }
 
     if (value != "-1" && value != modified_)
@@ -92,10 +103,22 @@ void GraphWidget::runDivideSpinHandling()
             emit monDivide(value, chartDetector_, true);
         modified_ = value;
     }
+    if (ui_->countsPerMicroAmpCheck->isChecked())
+    {
+        ui_->countsPerMicroAmpCheck->setChecked(false);
+        ui_->countsPerMicroAmpCheck->setChecked(true);
+    }
 }
 
 void GraphWidget::monDivideSpinHandling()
 {
+    if (ui_->divideByRunSpin->isEnabled())
+    {
+        ui_->countsPerMicrosecondCheck->setChecked(false);
+        ui_->countsPerMicrosecondCheck->setEnabled(false);
+        ui_->countsPerMicroAmpCheck->setChecked(false);
+        ui_->countsPerMicroAmpCheck->setEnabled(false);
+    }
     QString value = QString::number(ui_->divideByMonitorSpin->value());
     if (!ui_->divideByMonitorSpin->isEnabled())
         value = "-1";
@@ -146,9 +169,9 @@ void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
 void GraphWidget::on_countsPerMicroAmpCheck_stateChanged(int state)
 {
     if (state == Qt::Checked)
-        emit muAmps(chartRuns_, true);
+        emit muAmps(chartRuns_, true, modified_);
     else
-        emit muAmps(chartRuns_, false);
+        emit muAmps(chartRuns_, false, modified_);
 }
 
 void GraphWidget::modify(QString values, bool checked)
@@ -161,6 +184,8 @@ void GraphWidget::modify(QString values, bool checked)
             val = values.split(";")[i].toDouble();
         else
             val = values.toDouble();
+        if (values.split(";").count() > ui_->chartView->chart()->series().count())
+            val = values.split(";").last().toDouble() / val;
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
         auto points = xySeries->points();
         if (checked)

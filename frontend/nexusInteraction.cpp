@@ -432,7 +432,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 {
     auto *chart = new QChart();
     auto *window = new GraphWidget(this, chart, "Detector");
-    connect(window, SIGNAL(muAmps(QString, bool)), this, SLOT(muAmps(QString, bool)));
+    connect(window, SIGNAL(muAmps(QString, bool, QString)), this, SLOT(muAmps(QString, bool, QString)));
     connect(window, SIGNAL(runDivide(QString, QString, bool)), this, SLOT(runDivide(QString, QString, bool)));
     connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
     ChartView *chartView = window->getChartView();
@@ -507,7 +507,7 @@ void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
 {
     auto *chart = new QChart();
     auto *window = new GraphWidget(this, chart, "Monitor");
-    connect(window, SIGNAL(muAmps(QString, bool)), this, SLOT(muAmps(QString, bool)));
+    connect(window, SIGNAL(muAmps(QString, bool, QString)), this, SLOT(muAmps(QString, bool, QString)));
     connect(window, SIGNAL(runDivide(QString, QString, bool)), this, SLOT(runDivide(QString, QString, bool)));
     connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
     ChartView *chartView = window->getChartView();
@@ -654,11 +654,13 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     worker->execute(input);
 }
 
-void MainWindow::muAmps(QString runs, bool checked)
+void MainWindow::muAmps(QString runs, bool checked, QString modified)
 {
     auto *window = qobject_cast<GraphWidget *>(sender());
     QString url_str =
         "http://127.0.0.1:5000/getTotalMuAmps/" + instName_ + "/" + cyclesMap_[ui_->cycleButton->text()] + "/" + runs;
+    if (modified != "-1")
+        url_str += ";" + modified;
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
