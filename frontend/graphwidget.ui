@@ -61,6 +61,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QRadioButton" name="defaultRadio">
+         <property name="text">
+          <string>Default view</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QRadioButton" name="divideByRunRadio">
          <property name="text">
           <string>Divide by run</string>
