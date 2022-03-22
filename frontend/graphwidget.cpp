@@ -97,16 +97,15 @@ void GraphWidget::runDivideSpinHandling()
 
     if (value != "-1" && value != modified_)
     {
+        ui_->countsPerMicroAmpCheck->isChecked() ? toggle = true : toggle = false;
+        ui_->countsPerMicroAmpCheck->setChecked(false);
         if (type_ == "Detector")
             emit runDivide(chartDetector_, value, true);
         else
             emit monDivide(value, chartDetector_, true);
         modified_ = value;
-    }
-    if (ui_->countsPerMicroAmpCheck->isChecked())
-    {
-        ui_->countsPerMicroAmpCheck->setChecked(false);
-        ui_->countsPerMicroAmpCheck->setChecked(true);
+        if (toggle)
+            ui_->countsPerMicroAmpCheck->setChecked(true);
     }
 }
 
@@ -176,6 +175,7 @@ void GraphWidget::on_countsPerMicroAmpCheck_stateChanged(int state)
 
 void GraphWidget::modify(QString values, bool checked)
 {
+    qDebug() << "\nValue modification";
     qreal max = 0;
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
@@ -184,9 +184,15 @@ void GraphWidget::modify(QString values, bool checked)
             val = values.split(";")[i].toDouble();
         else
             val = values.toDouble();
+        qDebug() << "val: " << val;
         if (values.split(";").count() > ui_->chartView->chart()->series().count())
-            val = values.split(";").last().toDouble() / val;
+        {
+            qDebug() << "given run val: " << values.split(";").last().toDouble();
+            val = val / values.split(";").last().toDouble();
+        }
+        qDebug() << "normalised val: " << val;
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
+        qDebug() << "run: " << xySeries->name() << " Normalised by: " << val << " " << checked << "\n";
         auto points = xySeries->points();
         if (checked)
         {
@@ -216,10 +222,11 @@ void GraphWidget::modify(QString values, bool checked)
 
 void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
 {
+    // if muAmps checked. hold = y / val / muamps?
+    qDebug() << "\nRun Modification";
     QJsonArray inputArray;
     QJsonArray valueArray;
     valueArray = worker->json_array[1].toArray();
-    valueArray = valueArray;
     qreal max = 0;
     auto dataType = worker->json_array[0].toArray()[2].toString(0);
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
@@ -227,6 +234,7 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
         if (dataType == "monitor")
             valueArray = valueArray[i].toArray();
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
+        qDebug() << "run: " << xySeries->name() << " Normalised against: " << worker->json_array[0].toArray() << "\n";
         auto points = xySeries->points();
         if (checked)
         {
