@@ -97,7 +97,7 @@ void GraphWidget::runDivideSpinHandling()
 
     if (value != "-1" && value != modified_)
     {
-        ui_->countsPerMicroAmpCheck->isChecked() ? toggle = true : toggle = false;
+        bool toggle = ui_->countsPerMicroAmpCheck->isChecked();
         ui_->countsPerMicroAmpCheck->setChecked(false);
         if (type_ == "Detector")
             emit runDivide(chartDetector_, value, true);
