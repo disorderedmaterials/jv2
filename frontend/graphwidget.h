@@ -34,8 +34,8 @@ class GraphWidget : public QWidget
     void setLabel(QString label);
 
     public slots:
-    void modify(QString values, bool checked);
-    void modifyAgainstRun(HttpRequestWorker *worker, bool checked);
+    void modifyAgainstString(QString values, bool checked);
+    void modifyAgainstWorker(HttpRequestWorker *worker, bool checked);
 
     private:
     void getBinWidths();

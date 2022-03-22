@@ -184,7 +184,7 @@ void GraphWidget::on_countsPerMicroAmpCheck_stateChanged(int state)
         emit muAmps(chartRuns_, false, modified_);
 }
 
-void GraphWidget::modify(QString values, bool checked)
+void GraphWidget::modifyAgainstString(QString values, bool checked)
 {
     qreal max = 0;
     qreal min = 0;
@@ -230,7 +230,7 @@ void GraphWidget::modify(QString values, bool checked)
     }
 }
 
-void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
+void GraphWidget::modifyAgainstWorker(HttpRequestWorker *worker, bool checked)
 {
     QJsonArray valueArray;
     qreal max = 0;
@@ -256,7 +256,7 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
                     if (hold > max)
                         max = hold;
                     else if (hold < min)
-                    min = hold;
+                        min = hold;
                     points[i].setY(hold);
                 }
             }
@@ -272,7 +272,7 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
                     if (hold > max)
                         max = hold;
                     else if (hold < min)
-                    min = hold;
+                        min = hold;
                     points[i].setY(hold);
                 }
             }

@@ -666,7 +666,7 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modify(workerProxy->response, checked); });
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstString(workerProxy->response, checked); });
     worker->execute(input);
 }
 
@@ -681,7 +681,7 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked); });
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
     worker->execute(input);
 }
 
@@ -696,6 +696,6 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstRun(workerProxy, checked); });
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
     worker->execute(input);
 }
