@@ -111,12 +111,17 @@ void GraphWidget::runDivideSpinHandling()
 
 void GraphWidget::monDivideSpinHandling()
 {
-    if (ui_->divideByRunSpin->isEnabled())
+    if (ui_->divideByMonitorSpin->isEnabled())
     {
         ui_->countsPerMicrosecondCheck->setChecked(false);
         ui_->countsPerMicrosecondCheck->setEnabled(false);
         ui_->countsPerMicroAmpCheck->setChecked(false);
         ui_->countsPerMicroAmpCheck->setEnabled(false);
+    }
+    else
+    {
+        ui_->countsPerMicrosecondCheck->setEnabled(true);
+        ui_->countsPerMicroAmpCheck->setEnabled(true);
     }
     QString value = QString::number(ui_->divideByMonitorSpin->value());
     if (!ui_->divideByMonitorSpin->isEnabled())
@@ -126,13 +131,13 @@ void GraphWidget::monDivideSpinHandling()
 
     if (modified_ != "-1")
     {
-        emit monDivide(modified_, chartDetector_, false);
+        emit monDivide(chartRuns_, modified_, false);
         modified_ = "-1";
     }
 
     if (value != "-1" && value != modified_)
     {
-        emit monDivide(value, chartDetector_, true);
+        emit monDivide(chartRuns_, value, true);
         modified_ = value;
     }
 }
@@ -140,6 +145,7 @@ void GraphWidget::monDivideSpinHandling()
 void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
 {
     qreal max = 0;
+    qreal min = 0;
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
@@ -150,6 +156,8 @@ void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
                 auto hold = points[j].y() / binWidths_[i][j];
                 if (hold > max)
                     max = hold;
+                else if (hold < min)
+                    min = hold;
                 points[j].setY(hold);
             }
         else
@@ -158,10 +166,13 @@ void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
                 auto hold = points[j].y() * binWidths_[i][j];
                 if (hold > max)
                     max = hold;
+                else if (hold < min)
+                    min = hold;
                 points[j].setY(hold);
             }
         xySeries->replace(points);
         ui_->chartView->chart()->axes()[1]->setMax(max);
+        ui_->chartView->chart()->axes()[1]->setMin(min);
     }
 }
 
@@ -175,8 +186,8 @@ void GraphWidget::on_countsPerMicroAmpCheck_stateChanged(int state)
 
 void GraphWidget::modify(QString values, bool checked)
 {
-    qDebug() << "\nValue modification";
     qreal max = 0;
+    qreal min = 0;
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
         double val;
@@ -184,15 +195,9 @@ void GraphWidget::modify(QString values, bool checked)
             val = values.split(";")[i].toDouble();
         else
             val = values.toDouble();
-        qDebug() << "val: " << val;
         if (values.split(";").count() > ui_->chartView->chart()->series().count())
-        {
-            qDebug() << "given run val: " << values.split(";").last().toDouble();
             val = val / values.split(";").last().toDouble();
-        }
-        qDebug() << "normalised val: " << val;
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
-        qDebug() << "run: " << xySeries->name() << " Normalised by: " << val << " " << checked << "\n";
         auto points = xySeries->points();
         if (checked)
         {
@@ -202,6 +207,8 @@ void GraphWidget::modify(QString values, bool checked)
                 auto hold = points[j].y() / val;
                 if (hold > max)
                     max = hold;
+                else if (hold < min)
+                    min = hold;
                 points[j].setY(hold);
             }
         }
@@ -212,29 +219,31 @@ void GraphWidget::modify(QString values, bool checked)
                 auto hold = points[j].y() * val;
                 if (hold > max)
                     max = hold;
+                else if (hold < min)
+                    min = hold;
                 points[j].setY(hold);
             }
         }
         xySeries->replace(points);
         ui_->chartView->chart()->axes()[1]->setMax(max);
+        ui_->chartView->chart()->axes()[1]->setMin(min);
     }
 }
 
 void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
 {
-    // if muAmps checked. hold = y / val / muamps?
-    qDebug() << "\nRun Modification";
-    QJsonArray inputArray;
     QJsonArray valueArray;
-    valueArray = worker->json_array[1].toArray();
     qreal max = 0;
+    qreal min = 0;
     auto dataType = worker->json_array[0].toArray()[2].toString(0);
+    worker->json_array.removeFirst();
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
     {
-        if (dataType == "monitor")
-            valueArray = valueArray[i].toArray();
+        if (worker->json_array.count() > 1)
+            valueArray = worker->json_array[i].toArray();
+        else
+            valueArray = worker->json_array[0].toArray();
         auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
-        qDebug() << "run: " << xySeries->name() << " Normalised against: " << worker->json_array[0].toArray() << "\n";
         auto points = xySeries->points();
         if (checked)
         {
@@ -246,6 +255,8 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
                     auto hold = points[i].y() / val;
                     if (hold > max)
                         max = hold;
+                    else if (hold < min)
+                    min = hold;
                     points[i].setY(hold);
                 }
             }
@@ -260,55 +271,14 @@ void GraphWidget::modifyAgainstRun(HttpRequestWorker *worker, bool checked)
                     auto hold = points[i].y() * val;
                     if (hold > max)
                         max = hold;
+                    else if (hold < min)
+                    min = hold;
                     points[i].setY(hold);
                 }
             }
         }
         xySeries->replace(points);
         ui_->chartView->chart()->axes()[1]->setMax(max);
-    }
-}
-
-void GraphWidget::modifyAgainstMon(HttpRequestWorker *worker, bool checked)
-{
-    QJsonArray monArray;
-    monArray = worker->json_array;
-    monArray.removeFirst();
-    qreal max = 0;
-    for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
-    {
-        auto runArray = monArray[i].toArray();
-        auto xySeries = qobject_cast<QXYSeries *>(ui_->chartView->chart()->series()[i]);
-        auto points = xySeries->points();
-        if (checked)
-        {
-            for (auto i = 0; i < points.count(); i++)
-            {
-                auto val = runArray.at(i)[1].toDouble();
-                if (val != 0)
-                {
-                    auto hold = points[i].y() / val;
-                    if (hold > max)
-                        max = hold;
-                    points[i].setY(hold);
-                }
-            }
-        }
-        else
-        {
-            for (auto i = 0; i < points.count(); i++)
-            {
-                auto val = runArray.at(i)[1].toDouble();
-                if (val != 0)
-                {
-                    auto hold = points[i].y() * val;
-                    if (hold > max)
-                        max = hold;
-                    points[i].setY(hold);
-                }
-            }
-        }
-        xySeries->replace(points);
-        ui_->chartView->chart()->axes()[1]->setMax(max);
+        ui_->chartView->chart()->axes()[1]->setMin(min);
     }
 }

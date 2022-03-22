@@ -36,7 +36,6 @@ class GraphWidget : public QWidget
     public slots:
     void modify(QString values, bool checked);
     void modifyAgainstRun(HttpRequestWorker *worker, bool checked);
-    void modifyAgainstMon(HttpRequestWorker *worker, bool checked);
 
     private:
     void getBinWidths();
