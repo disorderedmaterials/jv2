@@ -36,6 +36,8 @@ class MainWindow : public QMainWindow
     void setLoadScreen(bool state);
     QString getRunNos();
     QDomDocument getConfig();
+    void checkForUpdates();
+
     private slots:
     // Search Controls
     void updateSearch(const QString &arg1);
@@ -84,6 +86,9 @@ class MainWindow : public QMainWindow
     void savePref();
     void clearPref();
     void columnHider(int state);
+
+    void refresh(QString Status);
+    void update(HttpRequestWorker *worker);
 
     protected:
     // Window close event
