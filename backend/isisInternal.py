@@ -336,6 +336,12 @@ def updateJournal(instrument, cycle):
         runData = {}
         for data in run:
             dataId = data.tag.replace(
+                '{http://definition.nexusformat.org/schema/3.0}', '')
+            try:
+                dataValue = data.text.strip()
+            except Exception:
+                dataValue = data.text
+            # If value is valid date
             try:
                 time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
                 today = datetime.now()
