@@ -263,7 +263,7 @@ def getSpectrumRange(instrument, cycle, runs):
     data = nexusInteraction.getSpectrumRange(instrument, cycle, runs)
     return jsonify(data)
 
-  
+
 @app.route('/getMonitorRange/<instrument>/<cycle>/<runs>')
 def getMonitorRange(instrument, cycle, runs):
     data = nexusInteraction.getMonitorRange(instrument, cycle, runs)
