@@ -5,15 +5,27 @@ from h5py import File
 import os
 import platform
 
-# Access nexus file
+# Set root
 
 
-def file(instrument, cycle, run):
+def setRoot(inRoot):
+    if inRoot is not None :
+        print("wee")
+    else:
+        print ("rrwrw")
+    global root
     if platform.system() == "Windows":
         root = "/ISISdata/inst$"
 
     else:
         root = "isisdata"
+
+# Access nexus file
+
+
+def file(instrument, cycle, run):
+    setRoot()
+    global root
     nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(root,
                                                      instrument.upper(), cycle)
     for root, dir, files in os.walk(nxsRoot):
@@ -133,3 +145,7 @@ def getSpectrumRange(instrument, cycle, runs):
     mainGroup = nxsFile['raw_data_1']
     spectraCount = len(mainGroup["detector_1"]["counts"][0])
     return spectraCount
+
+if __name__ == '__main__':
+    setRoot(None)
+    setRoot("cheese")
