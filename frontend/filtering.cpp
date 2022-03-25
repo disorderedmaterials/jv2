@@ -87,11 +87,13 @@ void MainWindow::on_groupButton_clicked(bool checked)
 // Clears filter parameters
 void MainWindow::on_clearSearchButton_clicked() { ui_->filterBox->clear(); }
 
-void MainWindow::on_actionMassSearchRB_No_triggered() { massSearch("RB No.", "run_number"); }
+void MainWindow::on_actionMassSearchRB_No_triggered() { massSearch("RB No.", "experiment_identifier"); }
 
 void MainWindow::on_actionMassSearchTitle_triggered() { massSearch("Title", "title"); }
 
 void MainWindow::on_actionMassSearchUser_triggered() { massSearch("User name", "user_name"); }
+
+void MainWindow::on_actionMassSearchRunRange_triggered() { massSearch("Run Range", "run_number"); }
 
 void MainWindow::on_actionClear_cached_searches_triggered()
 {
