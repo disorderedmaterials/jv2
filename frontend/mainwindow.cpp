@@ -152,7 +152,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::massSearch(QString name, QString value)
 {
-    const char* prompt;
+    const char *prompt;
     if (name == "Run Range")
         prompt = "StartRun-EndRun:";
     else if (name == "Date Range")
@@ -161,10 +161,9 @@ void MainWindow::massSearch(QString name, QString value)
         prompt = name.append(": ").toUtf8();
     QString textInput = QInputDialog::getText(this, tr("Find"), tr(prompt), QLineEdit::Normal);
     QString text = name.append(textInput);
-    textInput.replace("/",";");
+    textInput.replace("/", ";");
     if (textInput.isEmpty())
         return;
-    setLoadScreen(true);
     for (auto tuple : cachedMassSearch_)
     {
         if (std::get<1>(tuple) == text)
@@ -178,7 +177,6 @@ void MainWindow::massSearch(QString name, QString value)
             return;
         }
     }
-
     QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_ + "/" + value + "/" + textInput;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);

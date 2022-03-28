@@ -34,9 +34,9 @@ def shutdown_server():
 # Get nexus file fields
 
 
-@app.route('/getNexusFields/<instrument>/<cycle>/<runs>')
-def getNexusFields(instrument, cycle, runs):
-    runFields = nexusInteraction.runFields(instrument, cycle, runs)
+@app.route('/getNexusFields/<instrument>/<cycles>/<runs>')
+def getNexusFields(instrument, cycles, runs):
+    runFields = nexusInteraction.runFields(instrument, cycles, runs)
     return jsonify(runFields)
 
 # Get all log data from nexus field
