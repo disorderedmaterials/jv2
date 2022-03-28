@@ -192,7 +192,12 @@ def getAllFieldJournals(instrument, field, search):
         fields = []
         if field == "run_number":
             values = search.split("-")
-            path = "//*[data:run_number>"+values[0]+" and data:run_number<"+values[1]+"]"
+            path = "//*[data:run_number>"+values[0] + \
+                " and data:run_number<"+values[1]+"]"
+        if field == "start_date":
+            values = search.replace(";","").split("-")
+            path = "//*[number(translate(substring-before(data:start_time,'T'),'-','')) > "+values[0] + \
+                " and number(translate(substring-before(data:start_time,'T'),'-','')) < "+values[1]+"]"
         else:
             path = "//*[contains(data:"+field+",'"+search+"')]"
         foundElems = root.xpath(path, namespaces=nameSpace)

@@ -95,6 +95,8 @@ void MainWindow::on_actionMassSearchUser_triggered() { massSearch("User name", "
 
 void MainWindow::on_actionMassSearchRunRange_triggered() { massSearch("Run Range", "run_number"); }
 
+void MainWindow::on_actionMassSearchDateRange_triggered() { massSearch("Date Range", "start_date"); }
+
 void MainWindow::on_actionClear_cached_searches_triggered()
 {
     cachedMassSearch_.clear();

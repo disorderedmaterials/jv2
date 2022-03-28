@@ -58,6 +58,7 @@ class MainWindow : public QMainWindow
     void on_actionMassSearchTitle_triggered();
     void on_actionMassSearchUser_triggered();
     void on_actionMassSearchRunRange_triggered();
+    void on_actionMassSearchDateRange_triggered();
     void on_actionClear_cached_searches_triggered();
     void goTo(HttpRequestWorker *worker, QString runNumber);
     void on_actionRun_Number_triggered();

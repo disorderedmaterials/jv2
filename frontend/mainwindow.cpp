@@ -152,11 +152,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::massSearch(QString name, QString value)
 {
-    QString textInput = QInputDialog::getText(this, tr("Find"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
+    const char* prompt;
+    if (name == "Run Range")
+        prompt = "StartRun-EndRun:";
+    else if (name == "Date Range")
+        prompt = "yyyy/mm/dd-yyyy/mm/dd:";
+    else
+        prompt = name.append(": ").toUtf8();
+    QString textInput = QInputDialog::getText(this, tr("Find"), tr(prompt), QLineEdit::Normal);
     QString text = name.append(textInput);
+    textInput.replace("/",";");
     if (textInput.isEmpty())
         return;
-
+    setLoadScreen(true);
     for (auto tuple : cachedMassSearch_)
     {
         if (std::get<1>(tuple) == text)
