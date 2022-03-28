@@ -103,7 +103,7 @@ void MainWindow::recentCycle()
             return;
         }
     }
-    cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
+    cyclesMenu_->actions()[0]->trigger();
 }
 
 // Fill instrument list
@@ -430,14 +430,14 @@ void MainWindow::refresh(QString status)
     {
         qDebug() << "Update";
         currentInstrumentChanged(instName_);
-        if (cyclesMap_[cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->text()] != status)
+        if (cyclesMap_[cyclesMenu_->actions()[0]->text()] != status)
         {
             auto displayName = "Cycle " + status.split("_")[1] + "/" + status.split("_")[2].remove(".xml");
             cyclesMap_[displayName] = status;
 
             auto *action = new QAction(displayName, this);
             connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
-            cyclesMenu_->addAction(action);
+            cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
         }
         else if (cyclesMap_[ui_->cycleButton->text()] == status)
         {

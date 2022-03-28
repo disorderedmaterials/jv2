@@ -22,8 +22,10 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 
         cyclesMenu_->clear();
         cyclesMap_.clear();
-        foreach (const QJsonValue &value, worker->json_array)
+        QJsonValue value;
+        for (auto i = worker->json_array.count() - 1; i >= 0; i--)
         {
+            value = worker->json_array[i];
             // removes header_ file
             if (value.toString() != "journal.xml")
             {
@@ -53,7 +55,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
                 return;
             }
         }
-        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
+        cyclesMenu_->actions()[0]->trigger();
     }
     else
     {
