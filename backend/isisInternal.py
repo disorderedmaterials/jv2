@@ -194,7 +194,7 @@ def getAllFieldJournals(instrument, field, search):
             values = search.split("-")
             path = "//*[data:run_number>"+values[0] + \
                 " and data:run_number<"+values[1]+"]"
-        if field == "start_date":
+        elif field == "start_date":
             values = search.replace(";", "").split("-")
             dateAsNumber = \
                 "number(translate(" + \
