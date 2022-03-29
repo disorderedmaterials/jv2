@@ -221,6 +221,16 @@ QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
     file.close();
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
+    auto headersList = rootelem.elementsByTagName("header");
+    headersMap_.clear();
+    QString header;
+    QString data;
+    for (auto i = 0; i < headersList.count(); i++)
+    {
+        header = headersList.item(i).toElement().attribute("name");
+        data = headersList.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+        headersMap_[data] = header;
+    }
 
     QList<std::tuple<QString, QString, QString>> instruments;
     std::tuple<QString, QString, QString> instrument;
@@ -265,6 +275,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
 
     auto rootelem = dom.documentElement();
     auto instList = rootelem.elementsByTagName("inst");
+
     for (auto i = 0; i < instList.count(); i++)
     {
         if (instList.item(i).toElement().attribute("name").toLower() == instrument)

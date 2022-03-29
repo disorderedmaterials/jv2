@@ -14,7 +14,7 @@ void MainWindow::columnHider(int state)
 
     for (auto i = 0; i < model_->columnCount(); ++i)
     {
-        if (action->text() == model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString())
+        if (action->text() == headersMap_[model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
         {
             switch (state)
             {

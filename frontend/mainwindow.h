@@ -128,6 +128,7 @@ class MainWindow : public QMainWindow
     QString instName_;
     QString instDisplayName_;
     QMap<QString, QString> cyclesMap_;
+    QMap<QString, QString> headersMap_;
     // Misc
     bool init_;
     QPoint pos_;
