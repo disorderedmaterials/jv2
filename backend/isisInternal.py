@@ -197,7 +197,8 @@ def getAllFieldJournals(instrument, field, search):
         if field == "start_date":
             values = search.replace(";", "").split("-")
             dateAsNumber = \
-                "number(translate(substring-before(data:start_time,'T'),'-',''))"
+                "number(translate(" + \
+                "substring-before(data:start_time,'T'),'-',''))"
             path = \
                 "//*["+dateAsNumber+" > "+values[0] + \
                 " and "+dateAsNumber+" < " + values[1]+"]"
