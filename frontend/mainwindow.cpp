@@ -84,7 +84,7 @@ void MainWindow::initialiseElements()
     if (mountPoint.isEmpty())
         QString url_str = "http://127.0.0.1:5000/setRoot/Default";
     else
-        QString url_str = "http://127.0.0.1:5000/setRoot/"+mountPoint;
+        QString url_str = "http://127.0.0.1:5000/setRoot/" + mountPoint;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     worker->execute(input);
