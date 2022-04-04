@@ -342,12 +342,12 @@
   </action>
   <action name="actionMountPoint">
    <property name="text">
-    <string>mountPoint</string>
+    <string>Set archive location</string>
    </property>
   </action>
   <action name="actionClearMountPoint">
    <property name="text">
-    <string>ClearMountPoint</string>
+    <string>Clear archive location</string>
    </property>
   </action>
  </widget>
