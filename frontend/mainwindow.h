@@ -83,6 +83,7 @@ class MainWindow : public QMainWindow
     void savePref();
     void clearPref();
     void columnHider(int state);
+    void on_actionMountPoint_triggered();
 
     protected:
     // Window close event
