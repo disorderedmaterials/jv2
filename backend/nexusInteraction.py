@@ -9,14 +9,11 @@ import platform
 
 
 def setRoot(inRoot):
-    if inRoot is not None :
-        print("wee")
-    else:
-        print ("rrwrw")
     global root
-    if platform.system() == "Windows":
+    if inRoot is not None:
+        root = inRoot
+    elif platform.system() == "Windows":
         root = "/ISISdata/inst$"
-
     else:
         root = "isisdata"
 
@@ -24,7 +21,6 @@ def setRoot(inRoot):
 
 
 def file(instrument, cycle, run):
-    setRoot()
     global root
     nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(root,
                                                      instrument.upper(), cycle)
@@ -145,6 +141,7 @@ def getSpectrumRange(instrument, cycle, runs):
     mainGroup = nxsFile['raw_data_1']
     spectraCount = len(mainGroup["detector_1"]["counts"][0])
     return spectraCount
+
 
 if __name__ == '__main__':
     setRoot(None)
