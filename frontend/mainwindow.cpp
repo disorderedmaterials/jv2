@@ -81,10 +81,11 @@ void MainWindow::initialiseElements()
     ui_->runDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
 
     QString mountPoint = settings.value("mountPoint").toString();
+    QString url_str;
     if (mountPoint.isEmpty())
-        QString url_str = "http://127.0.0.1:5000/setRoot/Default";
+        url_str = "http://127.0.0.1:5000/setRoot/Default";
     else
-        QString url_str = "http://127.0.0.1:5000/setRoot/" + mountPoint;
+        url_str = "http://127.0.0.1:5000/setRoot/" + mountPoint;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     worker->execute(input);

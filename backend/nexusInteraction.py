@@ -10,18 +10,21 @@ import platform
 
 def setRoot(inRoot):
     global root
-    if inRoot is not None:
+    if inRoot != "Default":
         root = inRoot
     elif platform.system() == "Windows":
         root = "/ISISdata/inst$"
     else:
         root = "isisdata"
+    print("inRoot: " + inRoot)
+    print("root: " + root)
 
 # Access nexus file
 
 
 def file(instrument, cycle, run):
     global root
+    print("root (inFile): " + root)
     nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(root,
                                                      instrument.upper(), cycle)
     for root, dir, files in os.walk(nxsRoot):

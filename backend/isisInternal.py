@@ -254,7 +254,8 @@ def setRoot(rootLocation):
     if rootLocation != "Default":
         nexusInteraction.setRoot(rootLocation)
     else:
-        nexusInteraction.setRoot("")
+        nexusInteraction.setRoot("Default")
+    return jsonify("test")
 
 # Close server
 
