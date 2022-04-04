@@ -35,6 +35,9 @@ class MainWindow : public QMainWindow
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType); // Get Fields from config file
     void setLoadScreen(bool state);
     QString getRunNos();
+    QDomDocument getConfig();
+    void checkForUpdates();
+
     private slots:
     // Search Controls
     void updateSearch(const QString &arg1);
@@ -54,6 +57,8 @@ class MainWindow : public QMainWindow
     void on_actionMassSearchRB_No_triggered();
     void on_actionMassSearchTitle_triggered();
     void on_actionMassSearchUser_triggered();
+    void on_actionMassSearchRunRange_triggered();
+    void on_actionMassSearchDateRange_triggered();
     void on_actionClear_cached_searches_triggered();
     void goTo(HttpRequestWorker *worker, QString runNumber);
     void on_actionRun_Number_triggered();
@@ -75,16 +80,27 @@ class MainWindow : public QMainWindow
     void showStatus(qreal x, qreal y, QString title);
 
     void handleSpectraCharting(HttpRequestWorker *worker);
+    void handleMonSpectraCharting(HttpRequestWorker *worker);
     void plotSpectra(HttpRequestWorker *count);
+    void plotMonSpectra(HttpRequestWorker *count);
     void getSpectrumCount();
+    void getMonitorCount();
 
     // Misc Interface Functions
     void removeTab(int index);
     void savePref();
     void clearPref();
     void columnHider(int state);
+
     void on_actionMountPoint_triggered();
     void on_actionClearMountPoint_triggered();
+
+    void muAmps(QString runs, bool checked, QString);
+    void runDivide(QString currentDetector, QString run, bool checked);
+    void monDivide(QString currentRun, QString mon, bool checked);
+
+    void refresh(QString Status);
+    void update(HttpRequestWorker *worker);
 
     protected:
     // Window close event
@@ -116,6 +132,7 @@ class MainWindow : public QMainWindow
     QString instName_;
     QString instDisplayName_;
     QMap<QString, QString> cyclesMap_;
+    QMap<QString, QString> headersMap_;
     // Misc
     bool init_;
     QPoint pos_;

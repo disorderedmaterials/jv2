@@ -14,9 +14,13 @@ from ast import literal_eval
 from datetime import datetime
 from datetime import timedelta
 
+import requests
+
 import nexusInteraction
 
 app = Flask(__name__)
+
+dataLocation = "http://data.isis.rl.ac.uk/journals/"
 
 # Shutdown flask server
 
@@ -30,9 +34,9 @@ def shutdown_server():
 # Get nexus file fields
 
 
-@app.route('/getNexusFields/<instrument>/<cycle>/<runs>')
-def getNexusFields(instrument, cycle, runs):
-    runFields = nexusInteraction.runFields(instrument, cycle, runs)
+@app.route('/getNexusFields/<instrument>/<cycles>/<runs>')
+def getNexusFields(instrument, cycles, runs):
+    runFields = nexusInteraction.runFields(instrument, cycles, runs)
     return jsonify(runFields)
 
 # Get all log data from nexus field
@@ -48,17 +52,24 @@ def getNexusData(instrument, cycle, runs, fields):
 
 @app.route('/getCycles/<instrument>')
 def getCycles(instrument):
-    url = 'http://data.isis.rl.ac.uk/journals/'
-    url += 'ndx'+instrument+'/journal_main.xml'
+    global lastModified_
+    url = dataLocation + 'ndx'
+    url += instrument+'/journal_main.xml'
     try:
         response = urlopen(url)
     except Exception:
         return jsonify({"response": "ERR. url not found"})
+    lastModified_ = response.info().get('Last-Modified')
+    lastModified_ = datetime.strptime(
+        lastModified_, "%a, %d %b %Y %H:%M:%S %Z")
+    print("lastModified_ set as: ")
+    print(lastModified_)
     tree = parse(response)
     root = tree.getroot()
     cycles = []
     for data in root:
         cycles.append(data.get('name'))
+
     return jsonify(cycles)
 
 # Get cycle run data
@@ -66,7 +77,7 @@ def getCycles(instrument):
 
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
-    url = 'http://data.isis.rl.ac.uk/journals/ndx'+instrument+'/'+cycle
+    url = dataLocation + 'ndx' + instrument+'/'+cycle
     try:
         response = urlopen(url)
     except Exception:
@@ -122,7 +133,7 @@ def getAllJournals(instrument, search):
 
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+        url = dataLocation + 'ndx' + \
             instrument+'/'+str(cycle)
         try:
             response = urlopen(url)
@@ -160,6 +171,8 @@ def getAllJournals(instrument, search):
 
 @app.route('/getAllJournals/<instrument>/<field>/<search>')
 def getAllFieldJournals(instrument, field, search):
+    print("\nMass search initiated w/: " +
+          instrument + " " + field + " " + search)
     allFields = []
     nameSpace = {'data': 'http://definition.nexusformat.org/schema/3.0'}
     cycles = literal_eval(getCycles(instrument).get_data().decode())
@@ -168,8 +181,7 @@ def getAllFieldJournals(instrument, field, search):
     startTime = datetime.now()
 
     for cycle in (cycles):
-        print(instrument, " ", cycle)
-        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+        url = dataLocation + 'ndx' + \
             instrument+'/'+str(cycle)
         try:
             response = urlopen(url)
@@ -178,8 +190,22 @@ def getAllFieldJournals(instrument, field, search):
         tree = ET.parse(response)
         root = tree.getroot()
         fields = []
-        path = "//*[contains(data:"+field+",'"+search+"')]"
+        if field == "run_number":
+            values = search.split("-")
+            path = "//*[data:run_number>"+values[0] + \
+                " and data:run_number<"+values[1]+"]"
+        elif field == "start_date":
+            values = search.replace(";", "").split("-")
+            dateAsNumber = \
+                "number(translate(" + \
+                "substring-before(data:start_time,'T'),'-',''))"
+            path = \
+                "//*["+dateAsNumber+" > "+values[0] + \
+                " and "+dateAsNumber+" < " + values[1]+"]"
+        else:
+            path = "//*[contains(data:"+field+",'"+search+"')]"
         foundElems = root.xpath(path, namespaces=nameSpace)
+        print(cycle + " FoundElems: " + str(len(foundElems)))
         for element in foundElems:
             runData = {}
             for data in element:
@@ -192,7 +218,6 @@ def getAllFieldJournals(instrument, field, search):
                 runData[dataId] = dataValue
             fields.append(runData)
         allFields += (fields)
-        print(len(foundElems))
 
     endTime = datetime.now()
     print(endTime - startTime)
@@ -210,7 +235,7 @@ def getGoToCycle(instrument, search):
     startTime = datetime.now()
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        url = 'http://data.isis.rl.ac.uk/journals/ndx' + \
+        url = dataLocation + 'ndx' + \
             instrument+'/'+str(cycle)
         try:
             response = urlopen(url)
@@ -238,6 +263,12 @@ def getSpectrum(instrument, cycle, runs, spectra):
     data = nexusInteraction.getSpectrum(instrument, cycle, runs, spectra)
     return jsonify(data)
 
+
+@app.route('/getMonSpectrum/<instrument>/<cycle>/<runs>/<monitor>')
+def getMonSpectrum(instrument, cycle, runs, monitor):
+    data = nexusInteraction.getMonSpectrum(instrument, cycle, runs, monitor)
+    return jsonify(data)
+
 # Get spectra range
 
 
@@ -256,6 +287,109 @@ def setRoot(rootLocation):
     else:
         nexusInteraction.setRoot("Default")
     return jsonify("test")
+
+
+@app.route('/getMonitorRange/<instrument>/<cycle>/<runs>')
+def getMonitorRange(instrument, cycle, runs):
+    data = nexusInteraction.getMonitorRange(instrument, cycle, runs)
+    return jsonify(data)
+
+
+@app.route('/getDetectorAnalysis/<instrument>/<cycle>/<run>')
+def getDetectorAnalysis(instrument, cycle, run):
+    data = nexusInteraction.detectorAnalysis(instrument, cycle, run)
+    return jsonify(data)
+
+# Get total MuAmps
+
+
+@app.route('/getTotalMuAmps/<instrument>/<cycle>/<runs>')
+def getTotalMuAmps(instrument, cycle, runs):
+    url = dataLocation + 'ndx'
+    url += instrument+'/'+cycle
+    try:
+        response = urlopen(url)
+    except Exception:
+        return jsonify({"response": "ERR. url not found"})
+    tree = parse(response)
+    root = tree.getroot()
+    ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
+    muAmps = ""
+    for run in runs.split(";"):
+        for runNo in root:
+            if (runNo.find('tag:run_number', ns).text.strip() == run):
+                muAmps += runNo.find('tag:proton_charge',
+                                     ns).text.strip() + ";"
+    return muAmps[:-1]
+
+# Check for data modifications
+
+
+@app.route('/pingCycle/<instrument>')
+def pingCycle(instrument):
+    global lastModified_
+    url = dataLocation + 'ndx'
+    url += instrument+'/journal_main.xml'
+    lastModified = requests.head(url).headers['Last-Modified']
+    lastModified = datetime.strptime(lastModified, "%a, %d %b %Y %H:%M:%S %Z")
+    print(lastModified)
+    print(lastModified_)
+    if (lastModified > lastModified_):
+        lastModified_ = lastModified
+        response = urlopen(url)
+        tree = parse(response)
+        root = tree.getroot()
+        return root[-1].get('name')
+    return ("")
+
+
+@app.route('/updateJournal/<instrument>/<cycle>/<run>')
+def updateJournal(instrument, cycle):
+    url = dataLocation + 'ndx'
+    url += instrument+'/' + cycle
+    try:
+        response = urlopen(url)
+    except Exception:
+        return jsonify({"response": "ERR. url not found"})
+    tree = parse(response)
+    root = tree.getroot()
+    ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
+    fields = []
+    for run in root:
+        if (run.find('tag:run_number', ns).text.strip() <= run):
+            continue
+        runData = {}
+        for data in run:
+            dataId = data.tag.replace(
+                '{http://definition.nexusformat.org/schema/3.0}', '')
+            try:
+                dataValue = data.text.strip()
+            except Exception:
+                dataValue = data.text
+            # If value is valid date
+            try:
+                time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
+                today = datetime.now()
+                if (today.date() == time.date()):
+                    runData[dataId] = "Today at: " + time.strftime("%H:%M:%S")
+                elif ((today + timedelta(-1)).date() == time.date()):
+                    runData[dataId] = "Yesterday at: " + \
+                        time.strftime("%H:%M:%S")
+                else:
+                    runData[dataId] = time.strftime("%d/%m/%Y %H:%M:%S")
+            except(Exception):
+                # If header is duration then format
+                if (dataId == "duration"):
+                    dataValue = int(dataValue)
+                    minutes = dataValue // 60
+                    seconds = str(dataValue % 60).rjust(2, '0')
+                    hours = str(minutes // 60).rjust(2, '0')
+                    minutes = str(minutes % 60).rjust(2, '0')
+                    runData[dataId] = hours + ":" + minutes + ":" + seconds
+                else:
+                    runData[dataId] = dataValue
+        fields.append(runData)
+    return jsonify(fields)
 
 # Close server
 

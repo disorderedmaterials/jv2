@@ -17,6 +17,7 @@
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
+#include <QTabWidget>
 #include <QValueAxis>
 #include <QWidgetAction>
 #include <algorithm>
@@ -25,12 +26,11 @@ void MainWindow::customMenuRequested(QPoint pos)
 {
     pos_ = pos;
     auto index = ui_->runDataTable->indexAt(pos);
-    auto runNos = getRunNos();
+    auto runNos = getRunNos().split("-")[0];
+    auto cycles = getRunNos().split("-")[1];
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
-    url_str += instName_ + "/" + cycle + "/" + runNos;
+    url_str += instName_ + "/" + cycles + "/" + runNos;
 
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -82,6 +82,10 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         auto *action2 = new QAction("Plot detector spectrum", this);
         connect(action2, SIGNAL(triggered()), this, SLOT(getSpectrumCount()));
         contextMenu_->addAction(action2);
+
+        auto *action3 = new QAction("Plot monitor spectrum", this);
+        connect(action3, SIGNAL(triggered()), this, SLOT(getMonitorCount()));
+        contextMenu_->addAction(action3);
     }
     else
     {
@@ -97,21 +101,24 @@ QString MainWindow::getRunNos()
     auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
     // Finds run number location in table
     int runNoColumn;
+    int cycleColumn;
     for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
     {
         if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
-        {
             runNoColumn = i;
-            break;
-        }
+        else if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "isis_cycle")
+            cycleColumn = i;
     }
     // Gets all selected run numbers and fills graphing toggles
     QString runNos = "";
     QString runNo;
+    QString cycles = "";
+    QString cycle;
     // Concats runs
     for (auto run : selectedRuns)
     {
-        runNo = model_->index(run.row(), runNoColumn).data().toString();
+        runNo = proxyModel_->index(run.row(), runNoColumn).data().toString();
+        cycle = proxyModel_->index(run.row(), cycleColumn).data().toString();
         if (runNo.contains("-") || runNo.contains(","))
         {
             QString groupedRuns;
@@ -130,11 +137,15 @@ QString MainWindow::getRunNos()
             runNos.append(groupedRuns + ";");
         }
         else
+        {
             runNos.append(runNo + ";");
+            cycles.append("cycle_" + cycle + ";");
+        }
     }
     // Removes final ";"
     runNos.chop(1);
-    return runNos;
+    cycles.chop(1);
+    return runNos + "-" + cycles;
 }
 
 void MainWindow::contextGraph()
@@ -142,14 +153,14 @@ void MainWindow::contextGraph()
     // Gets signal object
     auto *contextAction = qobject_cast<QAction *>(sender());
 
-    auto runNos = getRunNos();
+    auto runNos = getRunNos().split("-")[0];
+    auto cycles = getRunNos().split("-")[1];
 
     // Error handling
     if (runNos.size() == 0)
         return;
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
+    QString cycle = cycles.split(";")[0];
 
     QString field = contextAction->data().toString().replace("/", ":");
     url_str += instName_ + "/" + cycle + "/" + runNos + "/" + field;
@@ -291,6 +302,8 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                         dateSeries->append(startTime.addSecs(dataPairArray[0].toDouble()).toMSecsSinceEpoch(),
                                            dataPairArray[1].toDouble());
                         relSeries->append(dataPairArray[0].toDouble(), dataPairArray[1].toDouble());
+                        if (dateTimeYAxis->min() == 0 && dateTimeYAxis->max() == 0)
+                            dateTimeYAxis->setRange(dataPairArray[1].toDouble(), dataPairArray[1].toDouble());
                         if (dataPairArray[1].toDouble() < dateTimeYAxis->min())
                             dateTimeYAxis->setMin(dataPairArray[1].toDouble());
                         if (dataPairArray[1].toDouble() > dateTimeYAxis->max())
@@ -426,23 +439,27 @@ void MainWindow::showStatus(qreal x, qreal y, QString title)
 void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 {
     auto *chart = new QChart();
-    auto *window = new GraphWidget(this, chart);
+    auto *window = new GraphWidget(this, chart, "Detector");
+    connect(window, SIGNAL(muAmps(QString, bool, QString)), this, SLOT(muAmps(QString, bool, QString)));
+    connect(window, SIGNAL(runDivide(QString, QString, bool)), this, SLOT(runDivide(QString, QString, bool)));
+    connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
     ChartView *chartView = window->getChartView();
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
+        auto workerArray = worker->json_array;
         QString field = "Detector ";
-        QString runs;
-        bool init = true;
-        foreach (const auto &run, worker->json_array)
+        auto metaData = workerArray[0].toArray();
+        QString runs = metaData[0].toString();
+        window->setChartRuns(metaData[0].toString());
+        window->setChartDetector(metaData[1].toString());
+        field += metaData[1].toString();
+        workerArray.removeFirst();
+        window->setChartData(workerArray);
+
+        foreach (const auto &run, workerArray)
         {
-            field += init ? run.toString() : nullptr;
-            if (init)
-            {
-                init = false;
-                continue;
-            }
             auto runArray = run.toArray();
             // For each plot point
             auto *series = new QLineSeries();
@@ -452,23 +469,18 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
             connect(chartView, SIGNAL(showCoordinates(qreal, qreal, QString)), this, SLOT(showStatus(qreal, qreal, QString)));
             connect(chartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
 
-            // Set dateSeries ID
-            QString name = runArray.first().toString();
-            runs += name + ", ";
-            series->setName(name);
-            runArray.removeFirst();
-
             for (auto i = 0; i < runArray.count() - 1; i++)
             {
-                const auto &dataPairTOFStart = runArray.at(i);
-                auto dataPairTOFStartArray = dataPairTOFStart.toArray();
-                const auto &dataPairTOFEnd = runArray.at(i + 1);
-                auto dataPairTOFEndArray = dataPairTOFEnd.toArray();
                 auto centreBin =
-                    dataPairTOFStart[0].toDouble() + (dataPairTOFEnd[0].toDouble() - dataPairTOFStart[0].toDouble()) / 2;
-                series->append(centreBin, dataPairTOFStart[1].toDouble());
+                    runArray.at(i)[0].toDouble() + (runArray.at(i + 1)[0].toDouble() - runArray.at(i)[0].toDouble()) / 2;
+                series->append(centreBin, runArray.at(i)[1].toDouble());
             }
             chart->addSeries(series);
+        }
+        for (auto i = 0; i < chart->series().count(); i++)
+        {
+            auto *series = chart->series()[i];
+            series->setName(runs.split(";")[i]);
         }
         chart->createDefaultAxes();
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
@@ -476,7 +488,81 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         QString tabName = field;
         ui_->tabWidget->addTab(window, tabName);
         ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
-        runs.chop(2);
+        QString toolTip = field + "\n" + runs;
+        ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
+        chartView->setFocus();
+
+        QString cycle = cyclesMap_[ui_->cycleButton->text()];
+        cycle.replace(0, 7, "cycle").replace(".xml", "");
+
+        QString url_str = "http://127.0.0.1:5000/getDetectorAnalysis/";
+        url_str += instName_ + "/" + cycle + "/" + runs;
+        HttpRequestInput input(url_str);
+        auto *worker = new HttpRequestWorker(this);
+        connect(worker, &HttpRequestWorker::on_execution_finished,
+                [=](HttpRequestWorker *detectorCount) { window->setLabel(detectorCount->response); });
+        worker->execute(input);
+    }
+    else
+    {
+        // an error occurred
+        msg = "Error2: " + worker->error_str;
+        QMessageBox::information(this, "", msg);
+    }
+}
+
+void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
+{
+    auto *chart = new QChart();
+    auto *window = new GraphWidget(this, chart, "Monitor");
+    connect(window, SIGNAL(muAmps(QString, bool, QString)), this, SLOT(muAmps(QString, bool, QString)));
+    connect(window, SIGNAL(runDivide(QString, QString, bool)), this, SLOT(runDivide(QString, QString, bool)));
+    connect(window, SIGNAL(monDivide(QString, QString, bool)), this, SLOT(monDivide(QString, QString, bool)));
+    ChartView *chartView = window->getChartView();
+
+    QString msg;
+    if (worker->error_type == QNetworkReply::NoError)
+    {
+        auto workerArray = worker->json_array;
+        QString field = "Monitor ";
+        auto metaData = workerArray[0].toArray();
+        QString runs = metaData[0].toString();
+        window->setChartRuns(metaData[0].toString());
+        window->setChartDetector(metaData[1].toString());
+        field += metaData[1].toString();
+        workerArray.removeFirst();
+        window->setChartData(workerArray);
+
+        foreach (const auto &run, workerArray)
+        {
+            auto runArray = run.toArray();
+            // For each plot point
+            auto *series = new QLineSeries();
+
+            connect(series, &QLineSeries::hovered,
+                    [=](const QPointF point, bool hovered) { chartView->setHovered(point, hovered, series->name()); });
+            connect(chartView, SIGNAL(showCoordinates(qreal, qreal, QString)), this, SLOT(showStatus(qreal, qreal, QString)));
+            connect(chartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
+
+            for (auto i = 0; i < runArray.count() - 1; i++)
+            {
+                auto centreBin =
+                    runArray.at(i)[0].toDouble() + (runArray.at(i + 1)[0].toDouble() - runArray.at(i)[0].toDouble()) / 2;
+                series->append(centreBin, runArray.at(i)[1].toDouble());
+            }
+            chart->addSeries(series);
+        }
+        for (auto i = 0; i < chart->series().count(); i++)
+        {
+            auto *series = chart->series()[i];
+            series->setName(runs.split(";")[i]);
+        }
+        chart->createDefaultAxes();
+        chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
+        chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
+        QString tabName = field;
+        ui_->tabWidget->addTab(window, tabName);
+        ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
         QString toolTip = field + "\n" + runs;
         ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
         chartView->setFocus();
@@ -491,7 +577,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 
 void MainWindow::getSpectrumCount()
 {
-    auto runNos = getRunNos();
+    auto runNos = getRunNos().split("-")[0];
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -507,15 +593,38 @@ void MainWindow::getSpectrumCount()
     setLoadScreen(true);
     worker->execute(input);
 }
+
+void MainWindow::getMonitorCount()
+{
+    auto runNos = getRunNos().split("-")[0];
+    // Error handling
+    if (runNos.size() == 0)
+        return;
+
+    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    cycle.replace(0, 7, "cycle").replace(".xml", "");
+
+    QString url_str = "http://127.0.0.1:5000/getMonitorRange/";
+    url_str += instName_ + "/" + cycle + "/" + runNos;
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(plotMonSpectra(HttpRequestWorker *)));
+    setLoadScreen(true);
+    worker->execute(input);
+}
+
 void MainWindow::plotSpectra(HttpRequestWorker *count)
 {
     setLoadScreen(false);
     auto spectraCount = count->response.toUtf8();
     spectraCount.chop(1);
+    bool valid;
     auto spectrumNumber = QInputDialog::getInt(this, tr("Plot Detector Spectrum"),
                                                tr("Enter detector spectrum to plot (0-" + spectraCount + "):"), 0, 0,
-                                               count->response.toInt() - 1, 1);
-    auto runNos = getRunNos();
+                                               count->response.toInt() - 1, 1, &valid);
+    if (!valid)
+        return;
+    auto runNos = getRunNos().split("-")[0];
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -528,5 +637,79 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleSpectraCharting(HttpRequestWorker *)));
+    worker->execute(input);
+}
+
+void MainWindow::plotMonSpectra(HttpRequestWorker *count)
+{
+    setLoadScreen(false);
+    auto monCount = count->response.toUtf8();
+    monCount.chop(1);
+    bool valid;
+    auto monNumber =
+        QInputDialog::getInt(this, tr("Plot Monitor Spectrum"), tr("Enter monitor spectrum to plot (0-" + monCount + "):"), 0,
+                             0, count->response.toInt() - 1, 1, &valid);
+    if (!valid)
+        return;
+    auto runNos = getRunNos().split("-")[0];
+    // Error handling
+    if (runNos.size() == 0)
+        return;
+
+    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    cycle.replace(0, 7, "cycle").replace(".xml", "");
+
+    QString url_str = "http://127.0.0.1:5000/getMonSpectrum/";
+    url_str += instName_ + "/" + cycle + "/" + runNos + "/" + QString::number(monNumber);
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+            SLOT(handleMonSpectraCharting(HttpRequestWorker *)));
+    worker->execute(input);
+}
+
+void MainWindow::muAmps(QString runs, bool checked, QString modified)
+{
+    auto *window = qobject_cast<GraphWidget *>(sender());
+    QString url_str =
+        "http://127.0.0.1:5000/getTotalMuAmps/" + instName_ + "/" + cyclesMap_[ui_->cycleButton->text()] + "/" + runs;
+    if (modified != "-1")
+        url_str += ";" + modified;
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+
+    // Call result handler when request completed
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstString(workerProxy->response, checked); });
+    worker->execute(input);
+}
+
+void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
+{
+    auto *window = qobject_cast<GraphWidget *>(sender());
+    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    cycle.replace(0, 7, "cycle").replace(".xml", "");
+    QString url_str = "http://127.0.0.1:5000/getSpectrum/" + instName_ + "/" + cycle + "/" + run + "/" + currentDetector;
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+
+    // Call result handler when request completed
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
+    worker->execute(input);
+}
+
+void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
+{
+    auto *window = qobject_cast<GraphWidget *>(sender());
+    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    cycle.replace(0, 7, "cycle").replace(".xml", "");
+    QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + instName_ + "/" + cycle + "/" + currentRun + "/" + mon;
+    HttpRequestInput input(url_str);
+    HttpRequestWorker *worker = new HttpRequestWorker(this);
+
+    // Call result handler when request completed
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
     worker->execute(input);
 }

@@ -19,6 +19,7 @@
 #include <QNetworkReply>
 #include <QSettings>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 #include <QWidgetAction>
 #include <QtGui>
 
@@ -29,6 +30,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
 {
     ui_->setupUi(this);
     initialiseElements();
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });
+    timer->start(30000);
 }
 
 MainWindow::~MainWindow() { delete ui_; }
@@ -108,7 +113,7 @@ void MainWindow::recentCycle()
             return;
         }
     }
-    cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
+    cyclesMenu_->actions()[0]->trigger();
 }
 
 // Fill instrument list
@@ -157,11 +162,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::massSearch(QString name, QString value)
 {
-    QString textInput = QInputDialog::getText(this, tr("Find"), tr(name.append(": ").toUtf8()), QLineEdit::Normal);
+    const char *prompt;
+    name.append(": ");
+    if (name == "Run Range: ")
+        prompt = "StartRun-EndRun:";
+    else if (name == "Date Range: ")
+        prompt = "yyyy/mm/dd-yyyy/mm/dd:";
+    else
+        prompt = name.toUtf8();
+    QString textInput = QInputDialog::getText(this, tr("Find"), tr(prompt), QLineEdit::Normal);
     QString text = name.append(textInput);
+    textInput.replace("/", ";");
     if (textInput.isEmpty())
         return;
-
     for (auto tuple : cachedMassSearch_)
     {
         if (std::get<1>(tuple) == text)
@@ -175,10 +188,9 @@ void MainWindow::massSearch(QString name, QString value)
             return;
         }
     }
-
     QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_ + "/" + value + "/" + textInput;
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     worker->execute(input);
 
@@ -199,6 +211,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         ui_->groupButton->setChecked(!checked);
         on_groupButton_clicked(!checked);
     }
+    if (event->key() == Qt::Key_R && event->modifiers() == Qt::ControlModifier)
+        checkForUpdates();
+
     if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
     {
         searchString_ = "";
@@ -217,6 +232,16 @@ QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
     file.close();
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
+    auto headersList = rootelem.elementsByTagName("header");
+    headersMap_.clear();
+    QString header;
+    QString data;
+    for (auto i = 0; i < headersList.count(); i++)
+    {
+        header = headersList.item(i).toElement().attribute("name");
+        data = headersList.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
+        headersMap_[data] = header;
+    }
 
     QList<std::tuple<QString, QString, QString>> instruments;
     std::tuple<QString, QString, QString> instrument;
@@ -234,22 +259,34 @@ QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
     return instruments;
 }
 
+QDomDocument MainWindow::getConfig()
+{
+    QDomDocument dom;
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    if (!settings.contains("tableConfig"))
+    {
+        QFile file(":/tableConfig.xml");
+        file.open(QIODevice::ReadOnly);
+        dom.setContent(&file);
+        file.close();
+    }
+    else
+        dom.setContent(settings.value("tableConfig", "fail").toString());
+    return dom;
+}
+
 // Get the desired fields and their titles
 std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
 {
     std::vector<std::pair<QString, QString>> desiredInstFields;
     QDomNodeList desiredInstrumentFields;
-
-    QFile file(":/tableConfig.xml");
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
+    auto dom = getConfig();
 
     std::pair<QString, QString> column;
 
     auto rootelem = dom.documentElement();
     auto instList = rootelem.elementsByTagName("inst");
+
     for (auto i = 0; i < instList.count(); i++)
     {
         if (instList.item(i).toElement().attribute("name").toLower() == instrument)
@@ -303,12 +340,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
 
 void MainWindow::savePref()
 {
-
-    QFile file(":/tableConfig.xml");
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
+    auto dom = getConfig();
 
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
@@ -356,20 +388,14 @@ void MainWindow::savePref()
     }
     if (!dom.toByteArray().isEmpty())
     {
-        QFile file(":/tableConfig.xml");
-        file.open(QIODevice::WriteOnly);
-        file.write(dom.toByteArray());
-        file.close();
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+        settings.setValue("tableConfig", dom.toByteArray());
     }
 }
 
 void MainWindow::clearPref()
 {
-    QFile file(":/tableConfig.xml");
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
+    auto dom = getConfig();
 
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
@@ -391,10 +417,8 @@ void MainWindow::clearPref()
     }
     if (!dom.toByteArray().isEmpty())
     {
-        QFile file(":/tableConfig.xml");
-        file.open(QIODevice::WriteOnly);
-        file.write(dom.toByteArray());
-        file.close();
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+        settings.setValue("tableConfig", dom.toByteArray());
     }
 }
 
@@ -436,5 +460,59 @@ void MainWindow::setLoadScreen(bool state)
     {
         QWidget::setEnabled(true);
         QGuiApplication::restoreOverrideCursor();
+    }
+}
+
+void MainWindow::checkForUpdates()
+{
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_;
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { refresh(workerProxy->response); });
+    worker->execute(input);
+}
+
+void MainWindow::refresh(QString status)
+{
+    if (status != "")
+    {
+        qDebug() << "Update";
+        currentInstrumentChanged(instName_);
+        if (cyclesMap_[cyclesMenu_->actions()[0]->text()] != status)
+        {
+            auto displayName = "Cycle " + status.split("_")[1] + "/" + status.split("_")[2].remove(".xml");
+            cyclesMap_[displayName] = status;
+
+            auto *action = new QAction(displayName, this);
+            connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
+            cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
+        }
+        else if (cyclesMap_[ui_->cycleButton->text()] == status)
+        {
+            QString url_str = "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
+                              model_->getJsonObject(model_->index(model_->rowCount() - 1, 0))["run_number"].toString();
+            HttpRequestInput input(url_str);
+            auto *worker = new HttpRequestWorker(this);
+            connect(worker, &HttpRequestWorker::on_execution_finished,
+                    [=](HttpRequestWorker *workerProxy) { update(workerProxy); });
+            worker->execute(input);
+        }
+    }
+    else
+    {
+        qDebug() << "no change";
+        return;
+    }
+}
+
+void MainWindow::update(HttpRequestWorker *worker)
+{
+    for (auto row : worker->json_array)
+    {
+        auto rowObject = row.toObject();
+        model_->insertRows(model_->rowCount(), 1);
+        auto index = model_->index(model_->rowCount() - 1, 0);
+        model_->setData(index, rowObject);
     }
 }

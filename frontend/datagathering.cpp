@@ -22,8 +22,10 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 
         cyclesMenu_->clear();
         cyclesMap_.clear();
-        foreach (const QJsonValue &value, worker->json_array)
+        QJsonValue value;
+        for (auto i = worker->json_array.count() - 1; i >= 0; i--)
         {
+            value = worker->json_array[i];
             // removes header_ file
             if (value.toString() != "journal.xml")
             {
@@ -53,7 +55,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
                 return;
             }
         }
-        cyclesMenu_->actions()[cyclesMenu_->actions().count() - 1]->trigger();
+        cyclesMenu_->actions()[0]->trigger();
     }
     else
     {
@@ -83,13 +85,15 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         header_.clear();
         foreach (const QString &key, jsonObject.keys())
         {
+            if (headersMap_[key].isEmpty())
+                headersMap_[key] = key;
             // Find matching indices
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
                                    [key](const auto &data) { return data.first == key; });
             if (it != desiredHeader_.end())
                 header_.push_back(JsonTableModel::Heading({{"title", it->second}, {"index", key}}));
             else
-                header_.push_back(JsonTableModel::Heading({{"title", key}, {"index", key}}));
+                header_.push_back(JsonTableModel::Heading({{"title", headersMap_[key]}, {"index", key}}));
         }
 
         // Sets and fills table data
@@ -102,8 +106,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
         // Fills viewMenu_ with all columns
         viewMenu_->clear();
-        viewMenu_->addAction("savePref", this, SLOT(savePref()));
-        viewMenu_->addAction("clearPref", this, SLOT(clearPref()));
+        viewMenu_->addAction("Save column state", this, SLOT(savePref()));
+        viewMenu_->addAction("Reset column state to default", this, SLOT(clearPref()));
         viewMenu_->addSeparator();
         foreach (const QString &key, jsonObject.keys())
         {
@@ -111,7 +115,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             QCheckBox *checkBox = new QCheckBox(viewMenu_);
             QWidgetAction *checkableAction = new QWidgetAction(viewMenu_);
             checkableAction->setDefaultWidget(checkBox);
-            checkBox->setText(key);
+            checkBox->setText(headersMap_[key]);
             checkBox->setCheckState(Qt::PartiallyChecked);
             viewMenu_->addAction(checkableAction);
             connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
@@ -159,7 +163,7 @@ void MainWindow::currentInstrumentChanged(const QString &arg1)
     // Configure api call
     QString url_str = "http://127.0.0.1:5000/getCycles/" + arg1;
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
@@ -187,7 +191,7 @@ void MainWindow::changeCycle(QString value)
 
     QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + cyclesMap_[value];
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
