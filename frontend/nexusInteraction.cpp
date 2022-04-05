@@ -182,10 +182,38 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     auto *dateTimeChartView = new ChartView(dateTimeChart, window);
     auto *relTimeChart = new QChart();
     auto *relTimeChartView = new ChartView(relTimeChart, window);
+    auto *fieldsMenu = new QMenu("fieldsMenu", window);
 
     QString msg;
     if (worker->error_type == QNetworkReply::NoError)
     {
+        foreach (const QJsonValue &log, worker->json_array[0].toArray())
+        {
+            auto logArray = log.toArray();
+            auto name = logArray.first().toString().toUpper();
+            name.chop(2);
+            auto formattedName = name.append("og");
+            auto *subMenu = new QMenu("Add data from " + formattedName);
+            logArray.removeFirst();
+            if (logArray.size() > 0)
+                fieldsMenu->addMenu(subMenu);
+
+            auto logArrayVar = logArray.toVariantList();
+            std::sort(logArrayVar.begin(), logArrayVar.end(),
+                      [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
+
+            foreach (const auto &block, logArrayVar)
+            {
+                // Fills contextMenu with all columns
+                QString path = block.toString();
+                auto *action = new QAction(path.right(path.size() - path.lastIndexOf("/") - 1), this);
+                action->setData(path);
+                connect(action, SIGNAL(triggered()), this, SLOT(getField()));
+                subMenu->addAction(action);
+            }
+        }
+
+        worker->json_array.removeFirst();
         auto *timeAxis = new QDateTimeAxis();
         timeAxis->setFormat("yyyy-MM-dd<br>H:mm:ss");
         dateTimeChart->addAxis(timeAxis, Qt::AlignBottom);
@@ -356,13 +384,17 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 
         auto *gridLayout = new QGridLayout(window);
         auto *axisToggleCheck = new QCheckBox("Plot relative to run start times", window);
+        auto *addFieldButton = new QPushButton("Add field", window);
 
         connect(axisToggleCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
+        connect(addFieldButton, &QPushButton::clicked,
+            [=]() { fieldsMenu->exec(addFieldButton->mapToGlobal(QPoint(0, addFieldButton->height()))); });
 
         gridLayout->addWidget(dateTimeChartView, 1, 0, -1, -1);
         gridLayout->addWidget(relTimeChartView, 1, 0, -1, -1);
         relTimeChartView->hide();
         gridLayout->addWidget(axisToggleCheck, 0, 0);
+        gridLayout->addWidget(addFieldButton, 0, 1);
         QString tabName;
         for (auto i = 0; i < chartFields.size(); i++)
         {
@@ -417,6 +449,16 @@ void MainWindow::toggleAxis(int state)
         tabCharts[0]->setFocus();
         tabCharts[1]->hide();
     }
+}
+
+void MainWindow::getField()
+{
+
+}
+
+void MainWindow::addSeries(HttpRequestWorker *worker)
+{
+
 }
 
 void MainWindow::showStatus(qreal x, qreal y, QString title)
