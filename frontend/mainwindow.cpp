@@ -479,3 +479,22 @@ void MainWindow::update(HttpRequestWorker *worker)
         model_->setData(index, rowObject);
     }
 }
+
+void MainWindow::on_actionSetLocalSource_triggered()
+{
+    QString textInput = QInputDialog::getText(this, tr("Set local source"), tr("source:"), QLineEdit::Normal);
+    if (textInput.isEmpty())
+        return;
+    QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput;
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    worker->execute(input);
+}
+
+void MainWindow::on_actionClearLocalSource_triggered()
+{
+    QString url_str = "http://127.0.0.1:5000/clearLocalSource";
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    worker->execute(input);
+}

@@ -8,6 +8,7 @@ from flask import request
 from urllib.request import urlopen
 import lxml.etree as ET
 from xml.etree.ElementTree import parse
+from xml.etree.ElementTree import fromstring
 
 from ast import literal_eval
 
@@ -22,6 +23,8 @@ app = Flask(__name__)
 
 dataLocation = "http://data.isis.rl.ac.uk/journals/"
 
+localSource = ""
+
 # Shutdown flask server
 
 
@@ -30,6 +33,24 @@ def shutdown_server():
     if serverShutdownFunction is None:
         raise RuntimeError('Not running with the Local Server')
     serverShutdownFunction()
+
+# Set local source
+
+
+@app.route('/setLocalSource/<inLocalSource>')
+def setLocalSource(inLocalSource):
+    global localSource
+    localSource = inLocalSource
+    return
+
+# clear local source
+
+
+@app.route('/clearLocalSource')
+def clearLocalSource():
+    global localSource
+    localSource = ""
+    return
 
 # Get nexus file fields
 
@@ -77,13 +98,19 @@ def getCycles(instrument):
 
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
-    url = dataLocation + 'ndx' + instrument+'/'+cycle
-    try:
-        response = urlopen(url)
-    except Exception:
-        return jsonify({"response": "ERR. url not found"})
-    tree = parse(response)
-    root = tree.getroot()
+    global localSource
+    if localSource == "":
+        url = dataLocation + 'ndx' + instrument+'/'+cycle
+        try:
+            response = urlopen(url)
+        except Exception:
+            return jsonify({"response": "ERR. url not found"})
+        tree = parse(response)
+        root = tree.getroot()
+    else:
+        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
+            root = fromstring(file.read())
+
     fields = []
     for run in root:
         runData = {}
@@ -124,6 +151,8 @@ def getJournal(instrument, cycle):
 
 @app.route('/getAllJournals/<instrument>/<search>')
 def getAllJournals(instrument, search):
+    global localSource
+
     allFields = []
     nameSpace = {'data': 'http://definition.nexusformat.org/schema/3.0'}
     cycles = literal_eval(getCycles(instrument).get_data().decode())
@@ -133,14 +162,18 @@ def getAllJournals(instrument, search):
 
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        url = dataLocation + 'ndx' + \
-            instrument+'/'+str(cycle)
-        try:
-            response = urlopen(url)
-        except Exception:
-            return jsonify({"response": "ERR. url not found"})
-        tree = ET.parse(response)
-        root = tree.getroot()
+        if localSource == "":
+            url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
+            try:
+                response = urlopen(url)
+            except Exception:
+                return jsonify({"response": "ERR. url not found"})
+            tree = parse(response)
+            root = tree.getroot()
+        else:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+                root = fromstring(file.read())
+
         fields = []
         """
         foundElems = root.findall
@@ -171,6 +204,7 @@ def getAllJournals(instrument, search):
 
 @app.route('/getAllJournals/<instrument>/<field>/<search>')
 def getAllFieldJournals(instrument, field, search):
+    global localSource
     print("\nMass search initiated w/: " +
           instrument + " " + field + " " + search)
     allFields = []
@@ -181,14 +215,19 @@ def getAllFieldJournals(instrument, field, search):
     startTime = datetime.now()
 
     for cycle in (cycles):
-        url = dataLocation + 'ndx' + \
-            instrument+'/'+str(cycle)
-        try:
-            response = urlopen(url)
-        except Exception:
-            return jsonify({"response": "ERR. url not found"})
-        tree = ET.parse(response)
-        root = tree.getroot()
+
+        if localSource == "":
+            url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
+            try:
+                response = urlopen(url)
+            except Exception:
+                return jsonify({"response": "ERR. url not found"})
+            tree = parse(response)
+            root = tree.getroot()
+        else:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+                root = fromstring(file.read())
+
         fields = []
         if field == "run_number":
             values = search.split("-")
@@ -228,6 +267,7 @@ def getAllFieldJournals(instrument, field, search):
 
 @app.route('/getGoToCycle/<instrument>/<search>')
 def getGoToCycle(instrument, search):
+    global localSource
     nameSpace = {'data': 'http://definition.nexusformat.org/schema/3.0'}
     cycles = literal_eval(getCycles(instrument).get_data().decode())
     cycles.pop(0)
@@ -235,14 +275,19 @@ def getGoToCycle(instrument, search):
     startTime = datetime.now()
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        url = dataLocation + 'ndx' + \
-            instrument+'/'+str(cycle)
-        try:
-            response = urlopen(url)
-        except Exception:
-            return jsonify({"response": "ERR. url not found"})
-        tree = ET.parse(response)
-        root = tree.getroot()
+
+        if localSource == "":
+            url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
+            try:
+                response = urlopen(url)
+            except Exception:
+                return jsonify({"response": "ERR. url not found"})
+            tree = parse(response)
+            root = tree.getroot()
+        else:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+                root = fromstring(file.read())
+
         path = "//*[data:run_number="+search+"]"
         foundElems = root.xpath(path, namespaces=nameSpace)
         if(len(foundElems) > 0):
@@ -294,14 +339,19 @@ def getDetectorAnalysis(instrument, cycle, run):
 
 @app.route('/getTotalMuAmps/<instrument>/<cycle>/<runs>')
 def getTotalMuAmps(instrument, cycle, runs):
-    url = dataLocation + 'ndx'
-    url += instrument+'/'+cycle
-    try:
-        response = urlopen(url)
-    except Exception:
-        return jsonify({"response": "ERR. url not found"})
-    tree = parse(response)
-    root = tree.getroot()
+    global localSource
+    if localSource == "":
+        url = dataLocation + 'ndx' + instrument+'/'+cycle
+        try:
+            response = urlopen(url)
+        except Exception:
+            return jsonify({"response": "ERR. url not found"})
+        tree = parse(response)
+        root = tree.getroot()
+    else:
+        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
+            root = fromstring(file.read())
+
     ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
     muAmps = ""
     for run in runs.split(";"):
