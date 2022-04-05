@@ -479,7 +479,34 @@ void MainWindow::update(HttpRequestWorker *worker)
         model_->setData(index, rowObject);
     }
 }
+/* ---------------------------------------------------------------
+Keep local source in qsettings
+ping/ update compatibility testing
+download + add cached data
 
+dataLocation = "http://data.isis.rl.ac.uk/journals/"
+
+url = dataLocation + 'ndx'
+url += "nimrod"+'/journal_main.xml'
+response = urlopen(url)
+tree = parse(response)
+root = tree.getroot()
+
+for data in root:
+    url = dataLocation + 'ndx'
+    url += "nimrod" + '/' + data.get('name')
+    response = urlopen(url)
+    content = response.read().decode('utf-8')
+    with open("ndxnimrod/"+data.get('name'), "w") as file:
+        file.write(content)
+
+
+file = open("ndxnimrod/journal_20_2.xml", "r")
+print(file)
+content = file.read()
+root = fromstring(content)
+print(root[0][0].text)
+------------------------------------------------------------------------ */
 void MainWindow::on_actionSetLocalSource_triggered()
 {
     QString textInput = QInputDialog::getText(this, tr("Set local source"), tr("source:"), QLineEdit::Normal);
