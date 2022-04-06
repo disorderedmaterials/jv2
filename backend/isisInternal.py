@@ -19,8 +19,6 @@ import requests
 
 import nexusInteraction
 
-import os
-
 app = Flask(__name__)
 
 dataLocation = "http://data.isis.rl.ac.uk/journals/"
@@ -42,7 +40,7 @@ def shutdown_server():
 @app.route('/setLocalSource/<inLocalSource>')
 def setLocalSource(inLocalSource):
     global localSource
-    localSource = inLocalSource.replace(";","/")
+    localSource = inLocalSource.replace(";", "/")
     return jsonify("success")
 
 # clear local source
@@ -101,13 +99,9 @@ def getCycles(instrument):
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
     global localSource
-    files = filter(os.path.isfile, os.listdir( os.curdir ) )
-    print(list(files))
-    print("local source: " + localSource)
-    print(localSource + 'ndx' + instrument+'/'+cycle)
+    files = filter(os.path.isfile, os.listdir(os.curdir))
     try:
         with open(localSource + 'ndx' + instrument+'/'+cycle, "r") as file:
-            print("file opened")
             root = fromstring(file.read())
             print("data from file")
     except(Exception):
