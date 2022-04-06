@@ -99,7 +99,6 @@ def getCycles(instrument):
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
     global localSource
-    files = filter(os.path.isfile, os.listdir(os.curdir))
     try:
         with open(localSource + 'ndx' + instrument+'/'+cycle, "r") as file:
             root = fromstring(file.read())
@@ -166,15 +165,16 @@ def getAllJournals(instrument, search):
     for cycle in (cycles):
         print(instrument, " ", cycle)
         try:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "r") as file:
-                root = fromstring(file.read())
+            fileString = localSource + 'ndx' + instrument+'/'+str(cycle)
+            with open(fileString, "r") as file:
+                root = ET.fromstring(file.read())
         except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
             except(Exception):
                 return jsonify({"response": "ERR. url not found"})
-            tree = parse(response)
+            tree = ET.parse(response)
             root = tree.getroot()
 
         fields = []
@@ -219,15 +219,16 @@ def getAllFieldJournals(instrument, field, search):
 
     for cycle in (cycles):
         try:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "r") as file:
-                root = fromstring(file.read())
+            fileString = localSource + 'ndx' + instrument+'/'+str(cycle)
+            with open(fileString, "r") as file:
+                root = ET.fromstring(file.read())
         except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
             except(Exception):
                 return jsonify({"response": "ERR. url not found"})
-            tree = parse(response)
+            tree = ET.parse(response)
             root = tree.getroot()
 
         fields = []
@@ -279,15 +280,16 @@ def getGoToCycle(instrument, search):
         print(instrument, " ", cycle)
 
         try:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "r") as file:
-                root = fromstring(file.read())
+            fileString = localSource + 'ndx' + instrument+'/'+str(cycle)
+            with open(fileString, "r") as file:
+                root = ET.fromstring(file.read())
         except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
             except(Exception):
                 return jsonify({"response": "ERR. url not found"})
-            tree = parse(response)
+            tree = ET.parse(response)
             root = tree.getroot()
 
         path = "//*[data:run_number="+search+"]"
