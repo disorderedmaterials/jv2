@@ -78,7 +78,7 @@ def getCycles(instrument):
     url += instrument+'/journal_main.xml'
     try:
         response = urlopen(url)
-    except Exception:
+    except(Exception):
         return jsonify({"response": "ERR. url not found"})
     lastModified_ = response.info().get('Last-Modified')
     lastModified_ = datetime.strptime(
@@ -99,17 +99,17 @@ def getCycles(instrument):
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
     global localSource
-    if localSource == "":
+    try:
+        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
+            root = fromstring(file.read())
+    except(Exception):
         url = dataLocation + 'ndx' + instrument+'/'+cycle
         try:
             response = urlopen(url)
-        except Exception:
+        except(Exception):
             return jsonify({"response": "ERR. url not found"})
         tree = parse(response)
         root = tree.getroot()
-    else:
-        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
-            root = fromstring(file.read())
 
     fields = []
     for run in root:
@@ -119,7 +119,7 @@ def getJournal(instrument, cycle):
                 '{http://definition.nexusformat.org/schema/3.0}', '')
             try:
                 dataValue = data.text.strip()
-            except Exception:
+            except(Exception):
                 dataValue = data.text
             # If value is valid date
             try:
@@ -162,17 +162,17 @@ def getAllJournals(instrument, search):
 
     for cycle in (cycles):
         print(instrument, " ", cycle)
-        if localSource == "":
+        try:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+                root = fromstring(file.read())
+        except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
-            except Exception:
+            except(Exception):
                 return jsonify({"response": "ERR. url not found"})
             tree = parse(response)
             root = tree.getroot()
-        else:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
-                root = fromstring(file.read())
 
         fields = []
         """
@@ -188,7 +188,7 @@ def getAllJournals(instrument, search):
                     '{http://definition.nexusformat.org/schema/3.0}', '')
                 try:
                     dataValue = data.text.strip()
-                except Exception:
+                except(Exception):
                     dataValue = data.text
                 runData[dataId] = dataValue
             fields.append(runData)
@@ -215,18 +215,17 @@ def getAllFieldJournals(instrument, field, search):
     startTime = datetime.now()
 
     for cycle in (cycles):
-
-        if localSource == "":
+        try:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+                root = fromstring(file.read())
+        except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
-            except Exception:
+            except(Exception):
                 return jsonify({"response": "ERR. url not found"})
             tree = parse(response)
             root = tree.getroot()
-        else:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
-                root = fromstring(file.read())
 
         fields = []
         if field == "run_number":
@@ -252,7 +251,7 @@ def getAllFieldJournals(instrument, field, search):
                     '{http://definition.nexusformat.org/schema/3.0}', '')
                 try:
                     dataValue = data.text.strip()
-                except Exception:
+                except(Exception):
                     dataValue = data.text
                 runData[dataId] = dataValue
             fields.append(runData)
@@ -276,17 +275,17 @@ def getGoToCycle(instrument, search):
     for cycle in (cycles):
         print(instrument, " ", cycle)
 
-        if localSource == "":
+        try:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+                root = fromstring(file.read())
+        except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
-            except Exception:
+            except(Exception):
                 return jsonify({"response": "ERR. url not found"})
             tree = parse(response)
             root = tree.getroot()
-        else:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
-                root = fromstring(file.read())
 
         path = "//*[data:run_number="+search+"]"
         foundElems = root.xpath(path, namespaces=nameSpace)
@@ -340,17 +339,17 @@ def getDetectorAnalysis(instrument, cycle, run):
 @app.route('/getTotalMuAmps/<instrument>/<cycle>/<runs>')
 def getTotalMuAmps(instrument, cycle, runs):
     global localSource
-    if localSource == "":
+    try:
+        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
+            root = fromstring(file.read())
+    except(Exception):
         url = dataLocation + 'ndx' + instrument+'/'+cycle
         try:
             response = urlopen(url)
-        except Exception:
+        except(Exception):
             return jsonify({"response": "ERR. url not found"})
         tree = parse(response)
         root = tree.getroot()
-    else:
-        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
-            root = fromstring(file.read())
 
     ns = {'tag': 'http://definition.nexusformat.org/schema/3.0'}
     muAmps = ""
@@ -388,7 +387,7 @@ def updateJournal(instrument, cycle):
     url += instrument+'/' + cycle
     try:
         response = urlopen(url)
-    except Exception:
+    except(Exception):
         return jsonify({"response": "ERR. url not found"})
     tree = parse(response)
     root = tree.getroot()
@@ -403,7 +402,7 @@ def updateJournal(instrument, cycle):
                 '{http://definition.nexusformat.org/schema/3.0}', '')
             try:
                 dataValue = data.text.strip()
-            except Exception:
+            except(Exception):
                 dataValue = data.text
             # If value is valid date
             try:

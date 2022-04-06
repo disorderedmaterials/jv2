@@ -84,6 +84,16 @@ void MainWindow::initialiseElements()
     searchString_ = "";
 
     ui_->runDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+
+    QString localSource = settings.value("localSource").toString();
+    QString url_str;
+    if (localSource.isEmpty())
+        url_str = "http://127.0.0.1:5000/clearLocalSource";
+    else
+        url_str = "http://127.0.0.1:5000/setLocalSource/" + localSource;
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    worker->execute(input);
 }
 
 // Sets cycle to most recently viewed
@@ -479,39 +489,16 @@ void MainWindow::update(HttpRequestWorker *worker)
         model_->setData(index, rowObject);
     }
 }
-/* ---------------------------------------------------------------
-Keep local source in qsettings
-ping/ update compatibility testing
-download + add cached data
 
-dataLocation = "http://data.isis.rl.ac.uk/journals/"
-
-url = dataLocation + 'ndx'
-url += "nimrod"+'/journal_main.xml'
-response = urlopen(url)
-tree = parse(response)
-root = tree.getroot()
-
-for data in root:
-    url = dataLocation + 'ndx'
-    url += "nimrod" + '/' + data.get('name')
-    response = urlopen(url)
-    content = response.read().decode('utf-8')
-    with open("ndxnimrod/"+data.get('name'), "w") as file:
-        file.write(content)
-
-
-file = open("ndxnimrod/journal_20_2.xml", "r")
-print(file)
-content = file.read()
-root = fromstring(content)
-print(root[0][0].text)
------------------------------------------------------------------------- */
 void MainWindow::on_actionSetLocalSource_triggered()
 {
     QString textInput = QInputDialog::getText(this, tr("Set local source"), tr("source:"), QLineEdit::Normal);
     if (textInput.isEmpty())
         return;
+
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    settings.setValue("localSource", textInput);
+
     QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -520,6 +507,9 @@ void MainWindow::on_actionSetLocalSource_triggered()
 
 void MainWindow::on_actionClearLocalSource_triggered()
 {
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    settings.setValue("localSource", "");
+
     QString url_str = "http://127.0.0.1:5000/clearLocalSource";
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
