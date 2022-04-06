@@ -19,6 +19,8 @@ import requests
 
 import nexusInteraction
 
+import os
+
 app = Flask(__name__)
 
 dataLocation = "http://data.isis.rl.ac.uk/journals/"
@@ -41,7 +43,7 @@ def shutdown_server():
 def setLocalSource(inLocalSource):
     global localSource
     localSource = inLocalSource.replace(";","/")
-    return
+    return jsonify("success")
 
 # clear local source
 
@@ -50,7 +52,7 @@ def setLocalSource(inLocalSource):
 def clearLocalSource():
     global localSource
     localSource = ""
-    return
+    return jsonify("success")
 
 # Get nexus file fields
 
@@ -99,8 +101,13 @@ def getCycles(instrument):
 @app.route('/getJournal/<instrument>/<cycle>')
 def getJournal(instrument, cycle):
     global localSource
+    files = filter(os.path.isfile, os.listdir( os.curdir ) )
+    print(list(files))
+    print("local source: " + localSource)
+    print(localSource + 'ndx' + instrument+'/'+cycle)
     try:
-        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
+        with open(localSource + 'ndx' + instrument+'/'+cycle, "r") as file:
+            print("file opened")
             root = fromstring(file.read())
             print("data from file")
     except(Exception):
@@ -165,7 +172,7 @@ def getAllJournals(instrument, search):
     for cycle in (cycles):
         print(instrument, " ", cycle)
         try:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "r") as file:
                 root = fromstring(file.read())
         except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
@@ -218,7 +225,7 @@ def getAllFieldJournals(instrument, field, search):
 
     for cycle in (cycles):
         try:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "r") as file:
                 root = fromstring(file.read())
         except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
@@ -278,7 +285,7 @@ def getGoToCycle(instrument, search):
         print(instrument, " ", cycle)
 
         try:
-            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "w") as file:
+            with open(localSource + 'ndx' + instrument+'/'+str(cycle), "r") as file:
                 root = fromstring(file.read())
         except(Exception):
             url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
@@ -342,7 +349,7 @@ def getDetectorAnalysis(instrument, cycle, run):
 def getTotalMuAmps(instrument, cycle, runs):
     global localSource
     try:
-        with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
+        with open(localSource + 'ndx' + instrument+'/'+cycle, "r") as file:
             root = fromstring(file.read())
     except(Exception):
         url = dataLocation + 'ndx' + instrument+'/'+cycle
