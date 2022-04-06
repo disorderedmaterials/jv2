@@ -40,7 +40,7 @@ def shutdown_server():
 @app.route('/setLocalSource/<inLocalSource>')
 def setLocalSource(inLocalSource):
     global localSource
-    localSource = inLocalSource
+    localSource = inLocalSource.replace(";","/")
     return
 
 # clear local source
@@ -102,6 +102,7 @@ def getJournal(instrument, cycle):
     try:
         with open(localSource + 'ndx' + instrument+'/'+cycle, "w") as file:
             root = fromstring(file.read())
+            print("data from file")
     except(Exception):
         url = dataLocation + 'ndx' + instrument+'/'+cycle
         try:
@@ -110,6 +111,7 @@ def getJournal(instrument, cycle):
             return jsonify({"response": "ERR. url not found"})
         tree = parse(response)
         root = tree.getroot()
+        print("data from server")
 
     fields = []
     for run in root:

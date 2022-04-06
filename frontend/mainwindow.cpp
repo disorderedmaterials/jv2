@@ -90,7 +90,7 @@ void MainWindow::initialiseElements()
     if (localSource.isEmpty())
         url_str = "http://127.0.0.1:5000/clearLocalSource";
     else
-        url_str = "http://127.0.0.1:5000/setLocalSource/" + localSource;
+        url_str = "http://127.0.0.1:5000/setLocalSource/" + localSource.replace("/", ";");
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     worker->execute(input);
@@ -499,7 +499,7 @@ void MainWindow::on_actionSetLocalSource_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("localSource", textInput);
 
-    QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput;
+    QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput.replace("/", ";");
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     worker->execute(input);
