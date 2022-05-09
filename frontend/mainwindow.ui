@@ -244,11 +244,8 @@
     </property>
     <addaction name="actionSetLocalSource"/>
     <addaction name="actionClearLocalSource"/>
-<<<<<<< HEAD
     <addaction name="actionMountPoint"/>
     <addaction name="actionClearMountPoint"/>
-=======
->>>>>>> 9e76d44... Implement broad functionality for local source
     <addaction name="action_Quit"/>
    </widget>
    <widget class="QMenu" name="menuFind">
@@ -367,7 +364,6 @@
     <string>Set local source</string>
    </property>
   </action>
-<<<<<<< HEAD
   <action name="actionMountPoint">
    <property name="text">
     <string>Set archive location</string>
@@ -378,8 +374,6 @@
     <string>Clear archive location</string>
    </property>
   </action>
-=======
->>>>>>> 9e76d44... Implement broad functionality for local source
  </widget>
  <resources/>
  <connections/>
