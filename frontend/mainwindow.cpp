@@ -96,14 +96,13 @@ void MainWindow::initialiseElements()
     worker->execute(input);
 
     QString mountPoint = settings.value("mountPoint").toString();
-    QString url_str;
     if (mountPoint.isEmpty())
         url_str = "http://127.0.0.1:5000/setRoot/Default";
     else
         url_str = "http://127.0.0.1:5000/setRoot/" + mountPoint;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    worker->execute(input);
+    HttpRequestInput input2(url_str);
+    auto *worker2 = new HttpRequestWorker(this);
+    worker2->execute(input2);
 }
 
 // Sets cycle to most recently viewed
