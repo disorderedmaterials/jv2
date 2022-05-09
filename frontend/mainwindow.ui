@@ -244,6 +244,8 @@
     </property>
     <addaction name="actionSetLocalSource"/>
     <addaction name="actionClearLocalSource"/>
+    <addaction name="actionMountPoint"/>
+    <addaction name="actionClearMountPoint"/>
     <addaction name="action_Quit"/>
    </widget>
    <widget class="QMenu" name="menuFind">
@@ -360,6 +362,14 @@
   <action name="actionSetLocalSource">
    <property name="text">
     <string>Set local source</string>
+  <action name="actionMountPoint">
+   <property name="text">
+    <string>Set archive location</string>
+   </property>
+  </action>
+  <action name="actionClearMountPoint">
+   <property name="text">
+    <string>Clear archive location</string>
    </property>
   </action>
  </widget>
