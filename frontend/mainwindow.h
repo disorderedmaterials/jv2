@@ -77,6 +77,7 @@ class MainWindow : public QMainWindow
     void contextGraph();
     void handle_result_contextMenu(HttpRequestWorker *worker);
     void toggleAxis(int state);
+    void getField();
     void showStatus(qreal x, qreal y, QString title);
 
     void handleSpectraCharting(HttpRequestWorker *worker);
@@ -101,6 +102,8 @@ class MainWindow : public QMainWindow
 
     void refresh(QString Status);
     void update(HttpRequestWorker *worker);
+    void on_actionSetLocalSource_triggered();
+    void on_actionClearLocalSource_triggered();
 
     protected:
     // Window close event
