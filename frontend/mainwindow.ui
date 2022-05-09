@@ -362,6 +362,7 @@
   <action name="actionSetLocalSource">
    <property name="text">
     <string>Set local source</string>
+   </property>
   <action name="actionMountPoint">
    <property name="text">
     <string>Set archive location</string>
