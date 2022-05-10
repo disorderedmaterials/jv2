@@ -385,7 +385,8 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
         auto *gridLayout = new QGridLayout(window);
         auto *axisToggleCheck = new QCheckBox("Plot relative to run start times", window);
         auto *addFieldButton = new QPushButton("Add field", window);
-
+        
+        addFieldButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
         connect(axisToggleCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
         connect(addFieldButton, &QPushButton::clicked,
             [=]() { fieldsMenu->exec(addFieldButton->mapToGlobal(QPoint(0, addFieldButton->height()))); });
@@ -449,6 +450,28 @@ void MainWindow::toggleAxis(int state)
         tabCharts[0]->setFocus();
         tabCharts[1]->hide();
     }
+}
+
+void MainWindow::getField()
+{
+    auto *action = qobject_cast<QAction *>(sender()); // ACTION DOES NOT BELONG TO TAB
+    auto *graphParent = ui_->tabWidget->currentWidget();
+    auto tabCharts = graphParent->findChildren<QChartView *>();
+
+    auto runNos = getRunNos().split("-")[0];
+    auto cycles = getRunNos().split("-")[1];
+
+    QString url_str = "http://127.0.0.1:5000/getNexusData/";
+    QString cycle = cycles.split(";")[0];
+
+    QString field = action->data().toString().replace("/", ":");
+    url_str += instName_ + "/" + cycle + "/" + runNos + "/" + action->data().toString().replace("/", ":");
+
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), tabCharts[0], SLOT(addSeries(HttpRequestWorker *)));
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), tabCharts[1], SLOT(addSeries(HttpRequestWorker *)));
+    worker->execute(input);
 }
 
 void MainWindow::showStatus(qreal x, qreal y, QString title)
