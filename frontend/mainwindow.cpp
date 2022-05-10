@@ -189,7 +189,7 @@ void MainWindow::massSearch(QString name, QString value)
     {
         QDialog dialog(this);
         QFormLayout form(&dialog);
-        
+
         form.addRow(new QLabel(name));
         QLineEdit *start = new QLineEdit(&dialog);
         form.addRow("Start:", start);
