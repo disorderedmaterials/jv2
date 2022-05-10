@@ -77,8 +77,6 @@ class MainWindow : public QMainWindow
     void contextGraph();
     void handle_result_contextMenu(HttpRequestWorker *worker);
     void toggleAxis(int state);
-    void getField();
-    void addSeries(HttpRequestWorker *worker);
     void showStatus(qreal x, qreal y, QString title);
 
     void handleSpectraCharting(HttpRequestWorker *worker);

@@ -451,16 +451,6 @@ void MainWindow::toggleAxis(int state)
     }
 }
 
-void MainWindow::getField()
-{
-
-}
-
-void MainWindow::addSeries(HttpRequestWorker *worker)
-{
-
-}
-
 void MainWindow::showStatus(qreal x, qreal y, QString title)
 {
     QString message;
