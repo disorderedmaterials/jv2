@@ -104,6 +104,7 @@ class MainWindow : public QMainWindow
     void update(HttpRequestWorker *worker);
     void on_actionSetLocalSource_triggered();
     void on_actionClearLocalSource_triggered();
+    void refreshTable();
 
     protected:
     // Window close event

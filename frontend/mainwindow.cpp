@@ -565,6 +565,7 @@ void MainWindow::on_actionSetLocalSource_triggered()
     QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput.replace("/", ";");
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
     worker->execute(input);
 }
 
@@ -576,5 +577,15 @@ void MainWindow::on_actionClearLocalSource_triggered()
     QString url_str = "http://127.0.0.1:5000/clearLocalSource";
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
     worker->execute(input);
+}
+
+void MainWindow::refreshTable()
+{
+    for (auto i = 0; i < model_->columnCount(); ++i)
+    {
+        ui_->runDataTable->setColumnHidden(i, true);
+    }
+    currentInstrumentChanged(instName_);
 }
