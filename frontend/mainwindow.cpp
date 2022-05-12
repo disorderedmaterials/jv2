@@ -90,7 +90,8 @@ void MainWindow::initialiseElements()
 
     QString localSource = settings.value("localSource").toString();
     QString url_str;
-    if (localSource.isEmpty())
+    validSource_ = true;
+    if (!localSource.isEmpty())
         url_str = "http://127.0.0.1:5000/clearLocalSource";
     else
         url_str = "http://127.0.0.1:5000/setLocalSource/" + localSource.replace("/", ";");
@@ -168,7 +169,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     worker->execute(input);
-
+    if (!validSource_)
+    {
+        url_str = "http://127.0.0.1:5000/clearLocalSource";
+        HttpRequestInput input2(url_str);
+        auto *worker2 = new HttpRequestWorker(this);
+        worker2->execute(input2);
+    }
     event->accept();
 }
 

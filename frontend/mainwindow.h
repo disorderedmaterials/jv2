@@ -139,6 +139,7 @@ class MainWindow : public QMainWindow
     QMap<QString, QString> headersMap_;
     // Misc
     bool init_;
+    bool validSource_;
     QPoint pos_;
     QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
 };
