@@ -562,6 +562,9 @@ void MainWindow::on_actionSetLocalSource_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("localSource", textInput);
 
+    QString msg = "If table fails to load, the local source cannot be found";
+    QMessageBox::information(this, "", msg);
+
     QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput.replace("/", ";");
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
