@@ -58,7 +58,9 @@ set(PROJECT_SOURCES
     frontend/chartview.h
     frontend/graphwidget.cpp
     frontend/graphwidget.h
-    frontend/graphwidget.ui)
+    frontend/graphwidget.ui
+    frontend/mysortfilterproxymodel.cpp
+    frontend/mysortfilterproxymodel.h)
 
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
