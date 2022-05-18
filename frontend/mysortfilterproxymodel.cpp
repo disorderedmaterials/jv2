@@ -15,6 +15,11 @@ void MySortFilterProxyModel::setFilterString(QString filterString)
     filterString_ = filterString;
 }
 
+QString MySortFilterProxyModel::filterString() const
+{
+    return filterString_;
+}
+
 bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
                                               const QModelIndex &sourceParent) const
 {
@@ -24,7 +29,7 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow,
     for (auto i = 0; i< sourceModel()->columnCount(); i++)
     {
         QModelIndex index = sourceModel()->index(sourceRow, i, sourceParent);
-        if (sourceModel()->data(index).toString().contains(filterString_))
+        if (sourceModel()->data(index).toString().contains(filterString()))
             accept = true;
     }
 

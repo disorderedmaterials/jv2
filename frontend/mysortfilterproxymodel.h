@@ -15,6 +15,7 @@ class MySortFilterProxyModel : public QSortFilterProxyModel
 
     public slots:
     void setFilterString(QString filterString);
+    QString filterString() const; 
 
     protected:
         bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
