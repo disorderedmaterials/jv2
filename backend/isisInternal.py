@@ -202,7 +202,9 @@ def getAllJournals(instrument, search):
         ("./data:NXentry/[data:user_name='"+search+"']", nameSpace)
         """
         print("TEST " + search.lower())
-        path = "//*[contains(translate(data:user_name/text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'"+search.lower()+"')]"
+        path = "//*[contains(translate(data:user_name/text(), " + \
+            "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'" + \
+            search.lower()+"')]"
         foundElems = root.xpath(path, namespaces=nameSpace)
         for element in foundElems:
             runData = {}
@@ -265,7 +267,9 @@ def getAllFieldJournals(instrument, field, search):
                 "//*["+dateAsNumber+" > "+values[0] + \
                 " and "+dateAsNumber+" < " + values[1]+"]"
         else:
-            path = "//*[contains(translate(data:"+field+"/text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'"+search.lower()+"')]"
+            path = "//*[contains(translate(data:"+field+"/text(), " + \
+                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'" + \
+                search.lower()+"')]"
         foundElems = root.xpath(path, namespaces=nameSpace)
         print(search)
         print(cycle + " FoundElems: " + str(len(foundElems)))
