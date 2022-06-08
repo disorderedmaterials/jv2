@@ -268,7 +268,8 @@ def getAllFieldJournals(instrument, field, search):
                 " and "+dateAsNumber+" < " + values[1]+"]"
         else:
             path = "//*[contains(translate(data:"+field+"/text(), " + \
-                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'" + \
+                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', " + \
+                "'abcdefghijklmnopqrstuvwxyz'),'" + \
                 search.lower()+"')]"
         foundElems = root.xpath(path, namespaces=nameSpace)
         print(search)

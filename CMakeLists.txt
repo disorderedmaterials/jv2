@@ -72,7 +72,6 @@ if(MSVC)
       "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
 endif()
 
-# Set bundle info
 if(APPLE)
   set(MACOSX_BUNDLE_ICON_FILE "jv2.icns")
   set(MACOSX_BUNDLE_LONG_VERSION_STRING
@@ -92,6 +91,8 @@ if(APPLE)
 
   set(CMAKE_OSX_ARCHITECTURES "x86_64")
   add_definitions(-D_MAC)
+
+  find_package(GLUT REQUIRED)
 endif(APPLE)
 
 # Resources
