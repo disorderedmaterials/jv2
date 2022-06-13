@@ -27,13 +27,16 @@ def file(instrument, cycle, run):
     print("root (inFile): " + root)
     nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(root,
                                                      instrument.upper(), cycle)
-    for root, dir, files in os.walk(nxsRoot):
+    print("nxsRoot= " + nxsRoot)
+    for fileRoot, dir, files in os.walk(nxsRoot):
         for file in files:
             if file.endswith('{}.nxs'.format(run)):
                 nxsDir = nxsRoot + (str(file))
                 break
     try:
+        print("nxsDir = " + nxsDir)
         nxsFile = File(nxsDir)
+        print("Successful file opening")
         return nxsFile
     except(Exception):
         return ["ERR. File failed to open"]
