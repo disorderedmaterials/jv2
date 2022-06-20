@@ -18,7 +18,7 @@ bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &
     for (auto i = 0; i < sourceModel()->columnCount(); i++)
     {
         QModelIndex index = sourceModel()->index(sourceRow, i, sourceParent);
-        if (sourceModel()->data(index).toString().contains(filterString()))
+        if (sourceModel()->data(index).toString().toLower().contains(filterString().toLower()))
             accept = true;
     }
 
