@@ -245,6 +245,7 @@ void GraphWidget::modifyAgainstString(QString values, bool checked)
             }
         }
         xySeries->replace(points);
+        if (max == min){max++;min--;}
         ui_->chartView->chart()->axes()[1]->setMax(max);
         ui_->chartView->chart()->axes()[1]->setMin(min);
     }
@@ -308,6 +309,7 @@ void GraphWidget::modifyAgainstWorker(HttpRequestWorker *worker, bool checked)
             }
         }
         xySeries->replace(points);
+        if (max == min){max++;min--;}
         ui_->chartView->chart()->axes()[1]->setMax(max);
         ui_->chartView->chart()->axes()[1]->setMin(min);
     }
