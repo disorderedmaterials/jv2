@@ -27,6 +27,7 @@ def file(instrument, cycle, run):
     print("root (inFile): " + root)
     nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(root,
                                                      instrument.upper(), cycle)
+    nxsDir = ""
     print("nxsRoot= " + nxsRoot)
     for fileRoot, dir, files in os.walk(nxsRoot):
         for file in files:
@@ -39,6 +40,7 @@ def file(instrument, cycle, run):
         print("Successful file opening")
         return nxsFile
     except(Exception):
+        print("File error")
         return ["ERR. File failed to open"]
 
 # Get run times
@@ -188,6 +190,7 @@ def detectorAnalysis(instrument, cycle, run):
 
 if __name__ == '__main__':
     print("activated")
+    setRoot("Default")
     nxsFile = file("nimrod", "cycle_20_3", "71158")
     mainGroup = nxsFile['raw_data_1']
     for value in mainGroup['monitor_8']['data'][0][0]:
