@@ -28,6 +28,12 @@ void MainWindow::customMenuRequested(QPoint pos)
     auto index = ui_->runDataTable->indexAt(pos);
     auto runNos = getRunNos().split("-")[0];
     auto cycles = getRunNos().split("-")[1];
+    if (cycles == "")
+    {
+        for (auto run : runNos.split(";"))
+            cycles.append(" ;");
+        cycles.chop(1);
+    }
 
     QString url_str = "http://127.0.0.1:5000/getNexusFields/";
     url_str += instName_ + "/" + cycles + "/" + runNos;
@@ -155,15 +161,20 @@ void MainWindow::contextGraph()
 
     auto runNos = getRunNos().split("-")[0];
     auto cycles = getRunNos().split("-")[1];
+    if (cycles == "")
+    {
+        for (auto run : runNos.split(";"))
+            cycles.append(" ;");
+        cycles.chop(1);
+    }
 
     // Error handling
     if (runNos.size() == 0)
         return;
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
-    QString cycle = cycles.split(";")[0];
 
     QString field = contextAction->data().toString().replace("/", ":");
-    url_str += instName_ + "/" + cycle + "/" + runNos + "/" + field;
+    url_str += instName_ + "/" + cycles + "/" + runNos + "/" + field;
 
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -460,6 +471,12 @@ void MainWindow::getField()
 
     auto runNos = getRunNos().split("-")[0];
     auto cycles = getRunNos().split("-")[1];
+    if (cycles == "")
+    {
+        for (auto run : runNos.split(";"))
+            cycles.append(" ;");
+        cycles.chop(1);
+    }
 
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
     QString cycle = cycles.split(";")[0];

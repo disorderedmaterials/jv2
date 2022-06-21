@@ -74,15 +74,16 @@ def validateLocalSource():
 
 @app.route('/getNexusFields/<instrument>/<cycles>/<runs>')
 def getNexusFields(instrument, cycles, runs):
+    print("CYCLES: " + cycles)
     runFields = nexusInteraction.runFields(instrument, cycles, runs)
     return jsonify(runFields)
 
 # Get all log data from nexus field
 
 
-@app.route('/getNexusData/<instrument>/<cycle>/<runs>/<fields>')
-def getNexusData(instrument, cycle, runs, fields):
-    fieldData = nexusInteraction.fieldData(instrument, cycle, runs, fields)
+@app.route('/getNexusData/<instrument>/<cycles>/<runs>/<fields>')
+def getNexusData(instrument, cycles, runs, fields):
+    fieldData = nexusInteraction.fieldData(instrument, cycles, runs, fields)
     return jsonify(fieldData)
 
 # Get instrument cycles
@@ -215,7 +216,28 @@ def getAllJournals(instrument, search):
                     dataValue = data.text.strip()
                 except(Exception):
                     dataValue = data.text
-                runData[dataId] = dataValue
+                # If value is valid date
+                try:
+                    time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
+                    today = datetime.now()
+                    if (today.date() == time.date()):
+                        runData[dataId] = "Today at: " + time.strftime("%H:%M:%S")
+                    elif ((today + timedelta(-1)).date() == time.date()):
+                        runData[dataId] = "Yesterday at: " + \
+                            time.strftime("%H:%M:%S")
+                    else:
+                        runData[dataId] = time.strftime("%d/%m/%Y %H:%M:%S")
+                except(Exception):
+                    # If header is duration then format
+                    if (dataId == "duration"):
+                        dataValue = int(dataValue)
+                        minutes = dataValue // 60
+                        seconds = str(dataValue % 60).rjust(2, '0')
+                        hours = str(minutes // 60).rjust(2, '0')
+                        minutes = str(minutes % 60).rjust(2, '0')
+                        runData[dataId] = hours + ":" + minutes + ":" + seconds
+                    else:
+                        runData[dataId] = dataValue
             fields.append(runData)
         allFields += (fields)
         print(len(foundElems))
@@ -283,7 +305,28 @@ def getAllFieldJournals(instrument, field, search):
                     dataValue = data.text.strip()
                 except(Exception):
                     dataValue = data.text
-                runData[dataId] = dataValue
+                # If value is valid date
+                try:
+                    time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
+                    today = datetime.now()
+                    if (today.date() == time.date()):
+                        runData[dataId] = "Today at: " + time.strftime("%H:%M:%S")
+                    elif ((today + timedelta(-1)).date() == time.date()):
+                        runData[dataId] = "Yesterday at: " + \
+                            time.strftime("%H:%M:%S")
+                    else:
+                        runData[dataId] = time.strftime("%d/%m/%Y %H:%M:%S")
+                except(Exception):
+                    # If header is duration then format
+                    if (dataId == "duration"):
+                        dataValue = int(dataValue)
+                        minutes = dataValue // 60
+                        seconds = str(dataValue % 60).rjust(2, '0')
+                        hours = str(minutes // 60).rjust(2, '0')
+                        minutes = str(minutes % 60).rjust(2, '0')
+                        runData[dataId] = hours + ":" + minutes + ":" + seconds
+                    else:
+                        runData[dataId] = dataValue
             fields.append(runData)
         allFields += (fields)
 
