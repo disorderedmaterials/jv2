@@ -743,10 +743,19 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
 void MainWindow::muAmps(QString runs, bool checked, QString modified)
 {
     auto *window = qobject_cast<GraphWidget *>(sender());
+    QString modifier = "/muAmps";
     QString url_str =
         "http://127.0.0.1:5000/getTotalMuAmps/" + instName_ + "/" + cyclesMap_[ui_->cycleButton->text()] + "/" + runs;
+    auto yAxisTitle = window->getChartView()->chart()->axes(Qt::Vertical)[0]->titleText();
+
     if (modified != "-1")
         url_str += ";" + modified;
+    
+    if (checked)
+        yAxisTitle.append(modifier);
+    else
+        yAxisTitle.remove(modifier);
+    window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
     HttpRequestInput input(url_str);
     HttpRequestWorker *worker = new HttpRequestWorker(this);
 
@@ -759,6 +768,15 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
 void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
 {
     auto *window = qobject_cast<GraphWidget *>(sender());
+    QString modifier = "/run " + run;
+
+    auto yAxisTitle = window->getChartView()->chart()->axes(Qt::Vertical)[0]->titleText();
+    if (checked)
+        yAxisTitle.append(modifier);
+    else
+        yAxisTitle.remove(modifier);
+    window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
+
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
     QString url_str = "http://127.0.0.1:5000/getSpectrum/" + instName_ + "/" + cycle + "/" + run + "/" + currentDetector;
@@ -774,6 +792,15 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
 void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
 {
     auto *window = qobject_cast<GraphWidget *>(sender());
+    QString modifier = "/mon " + mon;
+
+    auto yAxisTitle = window->getChartView()->chart()->axes(Qt::Vertical)[0]->titleText();
+    if (checked)
+        yAxisTitle.append(modifier);
+    else
+        yAxisTitle.remove(modifier);
+    window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
+
     QString cycle = cyclesMap_[ui_->cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
     QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + instName_ + "/" + cycle + "/" + currentRun + "/" + mon;
