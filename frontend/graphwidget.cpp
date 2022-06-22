@@ -329,7 +329,7 @@ void GraphWidget::modifyAgainstWorker(HttpRequestWorker *worker, bool checked)
             }
         }
         xySeries->replace(points);
-        if (QString::number(max) == QString::number(min) )
+        if (QString::number(max) == QString::number(min))
         {
             max++;
             min--;

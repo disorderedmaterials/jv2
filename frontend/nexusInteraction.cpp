@@ -750,7 +750,7 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
 
     if (modified != "-1")
         url_str += ";" + modified;
-    
+
     if (checked)
         yAxisTitle.append(modifier);
     else
