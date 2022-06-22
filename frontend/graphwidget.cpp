@@ -146,7 +146,7 @@ void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
 {
     qreal max = 0;
     qreal min = 0;
-    QString modifier = "/microSecond";
+    QString modifier = "/microSeconds";
     auto yAxisTitle = ui_->chartView->chart()->axes(Qt::Vertical)[0]->titleText();
 
     for (auto i = 0; i < ui_->chartView->chart()->series().count(); i++)
