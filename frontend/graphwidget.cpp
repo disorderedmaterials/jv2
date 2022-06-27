@@ -143,7 +143,7 @@ void GraphWidget::monDivideSpinHandling()
     }
 }
 
-//normalise against time
+// normalise against time
 void GraphWidget::on_countsPerMicrosecondCheck_stateChanged(int state)
 {
     qreal max = 0;
