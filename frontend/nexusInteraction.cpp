@@ -164,6 +164,7 @@ void MainWindow::contextGraph()
 
     auto runNos = getRunNos().split("-")[0];
     auto cycles = getRunNos().split("-")[1];
+
     if (cycles == "") // Handle unavailable cycle data
     {
         for (auto run : runNos.split(";"))
@@ -753,6 +754,7 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
 
     if (modified != "-1")
         url_str += ";" + modified;
+
     if (checked)
         yAxisTitle.append(modifier);
     else
