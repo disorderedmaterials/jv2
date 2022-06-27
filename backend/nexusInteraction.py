@@ -12,7 +12,7 @@ def setRoot(inRoot):
     global root
     if inRoot != "Default":
         root = inRoot
-    elif platform.system() == "Windows": #IF CYCLES IS BLANK REPLACE WITH NULL CHAR AND GO OFF OF THAT FOR URL WORKINGNESS
+    elif platform.system() == "Windows":
         root = "/ISISdata/inst$"
     else:
         root = "isisdata"
@@ -37,11 +37,6 @@ def file(instrument, cycle, run):
             for directory in dir:
                 if directory[:5] == "cycle":
                     cycles.append(directory)
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 36ae170... fix all major multi/unknown cycle graphing issues
     nxsDir = ""
     for cycleValue in cycles:
         nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(
@@ -212,15 +207,7 @@ def detectorAnalysis(instrument, cycle, run):
 if __name__ == '__main__':
     print("activated")
     setRoot("Default")
-<<<<<<< HEAD
-<<<<<<< HEAD
-    nxsFile = file("nimrod", "", "71158")
-=======
     nxsFile = file("nimrod", "cycle_20_3", "71158")
->>>>>>> c7da686... fix grouping
-=======
-    nxsFile = file("nimrod", "", "71158")
->>>>>>> 36ae170... fix all major multi/unknown cycle graphing issues
     mainGroup = nxsFile['raw_data_1']
     for value in mainGroup['monitor_8']['data'][0][0]:
         if (value > 0):
