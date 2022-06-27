@@ -12,7 +12,7 @@ def setRoot(inRoot):
     global root
     if inRoot != "Default":
         root = inRoot
-    elif platform.system() == "Windows": #IF CYCLES IS BLANK REPLACE WITH NULL CHAR AND GO OFF OF THAT FOR URL WORKINGNESS
+    elif platform.system() == "Windows":
         root = "/ISISdata/inst$"
     else:
         root = "isisdata"
@@ -37,7 +37,7 @@ def file(instrument, cycle, run):
             for directory in dir:
                 if directory[:5] == "cycle":
                     cycles.append(directory)
-    
+
     nxsDir = ""
     for cycleValue in cycles:
         nxsRoot = "/{}/NDX{}/Instrument/data/{}/".format(

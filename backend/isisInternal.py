@@ -221,7 +221,8 @@ def getAllJournals(instrument, search):
                     time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
                     today = datetime.now()
                     if (today.date() == time.date()):
-                        runData[dataId] = "Today at: " + time.strftime("%H:%M:%S")
+                        runData[dataId] = "Today at: " + \
+                            time.strftime("%H:%M:%S")
                     elif ((today + timedelta(-1)).date() == time.date()):
                         runData[dataId] = "Yesterday at: " + \
                             time.strftime("%H:%M:%S")
@@ -310,7 +311,8 @@ def getAllFieldJournals(instrument, field, search):
                     time = datetime.strptime(dataValue, "%Y-%m-%dT%H:%M:%S")
                     today = datetime.now()
                     if (today.date() == time.date()):
-                        runData[dataId] = "Today at: " + time.strftime("%H:%M:%S")
+                        runData[dataId] = "Today at: " + \
+                            time.strftime("%H:%M:%S")
                     elif ((today + timedelta(-1)).date() == time.date()):
                         runData[dataId] = "Yesterday at: " + \
                             time.strftime("%H:%M:%S")
