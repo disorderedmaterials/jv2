@@ -7,21 +7,46 @@
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent) { filterString_ = ""; }
+MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent)
+{
+    filterString_ = "";
+    caseSensitive_ = false;
+}
 
 void MySortFilterProxyModel::setFilterString(QString filterString) { filterString_ = filterString; }
 
 QString MySortFilterProxyModel::filterString() const { return filterString_; }
 
+void MySortFilterProxyModel::toggleCaseSensitivity(int state)
+{
+    switch (state)
+    {
+        case Qt::Unchecked:
+            caseSensitive_ = false;
+            break;
+        case Qt::Checked:
+            caseSensitive_ = true;
+            break;
+        default:
+            caseSensitive_ = true;
+    }
+    emit updateFilter();
+}
+
 bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    // for loop over columns.
-    // If fails all - return false, else - return true
+    auto filterString = filterString_;
+    if (!caseSensitive_)
+        filterString = filterString.toLower();
     auto accept = false;
     for (auto i = 0; i < sourceModel()->columnCount(); i++)
     {
-        QModelIndex index = sourceModel()->index(sourceRow, i, sourceParent);
-        if (sourceModel()->data(index).toString().toLower().contains(filterString().toLower()))
+        auto index = sourceModel()->index(sourceRow, i, sourceParent);
+        auto tableData = sourceModel()->data(index).toString();
+        if (!caseSensitive_)
+            tableData = tableData.toLower();
+
+        if (tableData.contains(filterString))
             accept = true;
     }
 
