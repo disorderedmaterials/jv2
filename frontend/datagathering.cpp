@@ -110,7 +110,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         proxyModel_->setSourceModel(model_);
         connect(ui_->caseSensitiveCheckBox, SIGNAL(stateChanged(int)), proxyModel_, SLOT(toggleCaseSensitivity(int)));
         connect(proxyModel_, &MySortFilterProxyModel::updateFilter,
-                [=]() { on_filterBox_textChanged(ui_->filterBox->text()); });
+                [=]() { on_filterBox_textChanged(ui_->filterBox->text()); }); // refresh filter on toggle
         ui_->runDataTable->setModel(proxyModel_);
         model_->setJson(jsonArray);
         ui_->runDataTable->show();
