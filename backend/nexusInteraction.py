@@ -210,17 +210,6 @@ ACCESS FILE THROUGH NEW DATA STORAGE MODEL
 **************
 """
 
-
-def fieldData(instrument, cycles, runs, fields):
-    data = [runFields(instrument, cycles, runs)]
-    cycleArr = cycles.split(";")
-    runArr = runs.split(";")
-    for i in range(len(runArr)):
-        nxsFile = file(instrument, cycleArr[i], runArr[i])
-        data.append(runData(nxsFile, fields, runArr[i]))
-    return data
-
-
 def getSpectrum(instrument, cycle, runs, spectra):
     data = [[runs, spectra, "detector"]]
     for run in runs.split(";"):
