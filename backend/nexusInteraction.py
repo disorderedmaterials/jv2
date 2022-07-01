@@ -183,6 +183,7 @@ def fieldData(instrument, cycles, runs, fields):
         data.append(runData(nxsFile, fields, runArr[i]))
     return data
 
+
 """
 **************
 ACCESS FILE THROUGH NEW DATA STORAGE MODEL
@@ -208,6 +209,7 @@ def fieldData(instrument, metaData, runs, fields):
 ACCESS FILE THROUGH NEW DATA STORAGE MODEL
 **************
 """
+
 
 def fieldData(instrument, cycles, runs, fields):
     data = [runFields(instrument, cycles, runs)]
