@@ -193,7 +193,7 @@ ACCESS FILE THROUGH NEW DATA STORAGE MODEL
 # ALT FIELD DATA FOR DIFFERENT NXS DATA STRUCTURE
 
 """
-def fieldData(instrument, metaData, runs, fields):
+def fieldDataAlt(instrument, metaData, runs, fields):
     data = [runFields(instrument, metaData, runs)]
     metaDataArr = metaData.split(";")
     runArr = runs.split(";")
