@@ -251,11 +251,11 @@ def getAllJournals(instrument, search):
 # Search all cycles with specified field
 
 
-@app.route('/getAllJournals/<instrument>/<field>/<search>/<caseSensitive>')
-def getAllFieldJournals(instrument, field, search, caseSensitive):
+@app.route('/getAllJournals/<instrument>/<field>/<search>/<options>')
+def getAllFieldJournals(instrument, field, search, options):
     global localSource
     print("\nMass search initiated w/: " +
-          instrument + " " + field + " " + search)
+          instrument + " " + field + " " + search + " " + options)
     allFields = []
     nameSpace = {'data': 'http://definition.nexusformat.org/schema/3.0'}
     cycles = literal_eval(getCycles(instrument).get_data().decode())
@@ -291,7 +291,7 @@ def getAllFieldJournals(instrument, field, search, caseSensitive):
                 "//*["+dateAsNumber+" > "+values[0] + \
                 " and "+dateAsNumber+" < " + values[1]+"]"
         else:
-            if caseSensitive == "true":
+            if "caseSensitivity=true" in options:
                 path = "//*[contains(data:"+field+",'"+search+"')]"
             else:
                 path = "//*[contains(translate(data:"+field+"/text(), " + \

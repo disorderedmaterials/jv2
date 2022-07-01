@@ -17,19 +17,9 @@ void MySortFilterProxyModel::setFilterString(QString filterString) { filterStrin
 
 QString MySortFilterProxyModel::filterString() const { return filterString_; }
 
-void MySortFilterProxyModel::toggleCaseSensitivity(int state)
+void MySortFilterProxyModel::toggleCaseSensitivity(bool caseSensitive)
 {
-    switch (state)
-    {
-        case Qt::Unchecked:
-            caseSensitive_ = false;
-            break;
-        case Qt::Checked:
-            caseSensitive_ = true;
-            break;
-        default:
-            caseSensitive_ = true;
-    }
+    caseSensitive_ = caseSensitive;
     emit updateFilter();
 }
 

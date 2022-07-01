@@ -18,7 +18,7 @@ class MySortFilterProxyModel : public QSortFilterProxyModel
 
     public slots:
     void setFilterString(QString filterString);
-    void toggleCaseSensitivity(int state);
+    void toggleCaseSensitivity(bool caseSensitive);
     QString filterString() const;
 
     protected:
