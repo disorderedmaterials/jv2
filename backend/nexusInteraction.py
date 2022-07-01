@@ -210,6 +210,7 @@ ACCESS FILE THROUGH NEW DATA STORAGE MODEL
 **************
 """
 
+
 def getSpectrum(instrument, cycle, runs, spectra):
     data = [[runs, spectra, "detector"]]
     for run in runs.split(";"):
