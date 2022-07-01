@@ -251,8 +251,8 @@ def getAllJournals(instrument, search):
 # Search all cycles with specified field
 
 
-@app.route('/getAllJournals/<instrument>/<field>/<search>')
-def getAllFieldJournals(instrument, field, search):
+@app.route('/getAllJournals/<instrument>/<field>/<search>/<caseSensitive>')
+def getAllFieldJournals(instrument, field, search, caseSensitive):
     global localSource
     print("\nMass search initiated w/: " +
           instrument + " " + field + " " + search)
@@ -291,10 +291,13 @@ def getAllFieldJournals(instrument, field, search):
                 "//*["+dateAsNumber+" > "+values[0] + \
                 " and "+dateAsNumber+" < " + values[1]+"]"
         else:
-            path = "//*[contains(translate(data:"+field+"/text(), " + \
-                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', " + \
-                "'abcdefghijklmnopqrstuvwxyz'),'" + \
-                search.lower()+"')]"
+            if caseSensitive == "true":
+                path = "//*[contains(data:"+field+",'"+search+"')]"
+            else:
+                path = "//*[contains(translate(data:"+field+"/text(), " + \
+                    "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', " + \
+                    "'abcdefghijklmnopqrstuvwxyz'),'" + \
+                    search.lower()+"')]"
         foundElems = root.xpath(path, namespaces=nameSpace)
         print(search)
         print(cycle + " FoundElems: " + str(len(foundElems)))
