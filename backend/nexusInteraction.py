@@ -19,6 +19,44 @@ def setRoot(inRoot):
     print("inRoot: " + inRoot)
     print("root: " + root)
 
+
+"""
+**************
+ACCESS FILE THROUGH NEW DATA STORAGE MODEL
+**************
+"""
+
+# access nexus file alternative
+
+"""
+def fileAlt(instrument, year, rbNo, run):
+    global root
+    print("root (inFile): " + root)
+
+    nxsRoot = "/{}/{}/Data/{}/{}/".format(
+        root, instrument, year, rbNo)
+    for fileRoot, dir, files in os.walk(nxsRoot):
+        for file in files:
+            if file.endswith('{}.nxs'.format(run)):
+                nxsDir = nxsRoot + (str(file))
+                break
+
+    try:
+        print("nxsDir = " + nxsDir)
+        nxsFile = File(nxsDir)
+        print("Successful file opening")
+        return nxsFile
+    except(Exception):
+        print("File error")
+        return ["ERR. File failed to open"]
+"""
+
+"""
+**************
+ACCESS FILE THROUGH NEW DATA STORAGE MODEL
+**************
+"""
+
 # Access nexus file
 
 
@@ -135,6 +173,41 @@ def runFields(instrument, cycles, runs):
 
 # Get block data over all runs
 
+
+def fieldData(instrument, cycles, runs, fields):
+    data = [runFields(instrument, cycles, runs)]
+    cycleArr = cycles.split(";")
+    runArr = runs.split(";")
+    for i in range(len(runArr)):
+        nxsFile = file(instrument, cycleArr[i], runArr[i])
+        data.append(runData(nxsFile, fields, runArr[i]))
+    return data
+
+"""
+**************
+ACCESS FILE THROUGH NEW DATA STORAGE MODEL
+**************
+"""
+
+# ALT FIELD DATA FOR DIFFERENT NXS DATA STRUCTURE
+
+"""
+def fieldData(instrument, metaData, runs, fields):
+    data = [runFields(instrument, metaData, runs)]
+    metaDataArr = metaData.split(";")
+    runArr = runs.split(";")
+    for i in range(len(runArr)):
+        yearRBNo = metaDataArr[i].split(",")
+        nxsFile = file(instrument, yearRBNo[0], yearRBNo[1], runArr[i])
+        data.append(runData(nxsFile, fields, runArr[i]))
+    return data
+"""
+
+"""
+**************
+ACCESS FILE THROUGH NEW DATA STORAGE MODEL
+**************
+"""
 
 def fieldData(instrument, cycles, runs, fields):
     data = [runFields(instrument, cycles, runs)]

@@ -157,6 +157,77 @@ QString MainWindow::getRunNos()
     return runNos + "-" + cycles;
 }
 
+/*
+GET ALTERNATE DATA FOR NEW NEXUS DATA MODEL
+*/
+
+// Returns run and year/rbNo values for selected runs
+
+/*
+QString MainWindow::getRunNosAlt()
+{
+    // Gathers all selected runs
+    auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
+    // Finds run number location in table
+    int runNoColumn;
+    int rbNoColumn;
+    int yearColumn;
+    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+    {
+        if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
+            runNoColumn = i;
+        else if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "experiment_identifier")
+            cycleColumn = i;
+        else if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "start_date")
+            yearColumn = i;
+    }
+    // Gets all selected run numbers and fills graphing toggles
+    QString runNos = "";
+    QString runNo;
+    QString metaData = "";
+    QString runData;
+    // Concats runs
+    for (auto run : selectedRuns)
+    {
+        runNo = proxyModel_->index(run.row(), runNoColumn).data().toString();
+        auto dateText = proxyModel_->index(run.row(), yearColumn).data().toString();
+        auto date = QDateTime::fromString(dateText, "yyyy-MM-dd HH:mm:ss");
+        runData = date.toString("yyyy,");
+        runData.append(proxyModel_->index(run.row(), rbNoColumn).data().toString());
+        if (runNo.contains("-") || runNo.contains(","))
+        {
+            QString groupedRuns;
+            auto runArr = runNo.split(",");
+            foreach (const auto &string, runArr)
+            {
+                if (string.contains("-"))
+                {
+                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
+                        groupedRuns += QString::number(i) + ";";
+                }
+                else
+                    groupedRuns += string + ";";
+            }
+            groupedRuns.chop(1);
+            runNos.append(groupedRuns + ";");
+        }
+        else
+        {
+            runNos.append(runNo + ";");
+            metaData.append(runData + ";");
+        }
+    }
+    // Removes final ";"
+    runNos.chop(1);
+    metaData.chop(1);
+    return runNos + "-" + metaData;
+}
+*/
+
+/*
+GET ALTERNATE DATA FOR NEW NEXUS DATA MODEL
+*/
+
 void MainWindow::contextGraph()
 {
     // Gets signal object
