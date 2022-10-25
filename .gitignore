@@ -26,6 +26,7 @@ MANIFEST
 
 # Environments
 venv/
+condaenv/
 
 # Typical C++ build artefacts
 build/
@@ -37,3 +38,6 @@ CMakeLists.txt.user
 
 # Container files
 *.sif
+
+# macOS index files
+.DS_Store
