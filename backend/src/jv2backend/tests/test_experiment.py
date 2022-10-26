@@ -3,11 +3,13 @@
 from jv2backend.experiment import Experiment
 import pytest
 
+
 def test_experiment_requires_identifier_on_construction():
     identifier = 0
     experiment = Experiment(identifier)
 
-    assert(experiment.identifier == 0)
+    assert experiment.identifier == 0
+
 
 def test_experiment_identifier_is_readonly():
     experiment = Experiment(0)
