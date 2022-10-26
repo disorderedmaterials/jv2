@@ -28,7 +28,7 @@ class Journal:
 
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
-        return 0
+        return len(self._runs)
 
     def add_run(self, run: Run) -> None:
         """Adds a run to the collection of managed runs for this Journal.
@@ -44,3 +44,5 @@ class Journal:
                 f"This journal is defined for the '{self.instrument.name}' "
                 f"instrument but the run provided is associated with '{run.instrument.name}'"
             )
+
+        self._runs.append(run)
