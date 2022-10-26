@@ -1,15 +1,36 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 from jv2backend.cycle import Cycle
+from jv2backend.experiment import Experiment
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal
+from jv2backend.run import Run
+
+import pytest
 
 
 def test_default_journal_creation_stores_cycle_and_instrument_and_contains_zero_runs():
-    instrument = Instrument("fake")
-    cycle = Cycle(2021, 1)
-    journal = Journal(instrument, cycle)
+    instrument_name, year, cycle_number = "fake", 2021, 1
+    journal = _create_test_journal(year, instrument_name, cycle_number)
 
-    assert journal.instrument == instrument
-    assert journal.cycle == cycle
+    assert journal.instrument.name == instrument_name
+    assert journal.cycle.year == year
+    assert journal.cycle.number == cycle_number
     assert journal.run_count() == 0
+
+
+def test_adding_run_from_a_different_instrument_raises_a_ValueError():
+    journal = _create_test_journal(instrument_name="fake", year=2021, cycle_number=2)
+
+    with pytest.raises(ValueError):
+        journal.add_run(Run(1, Instrument("otherfake"), Experiment(2)))
+
+
+# def test_adding_run_from_matching_instrument_is_stored_and_increases_run_count():
+
+
+# Private helpers
+def _create_test_journal(year: int, instrument_name: str, cycle_number: int) -> Journal:
+    instrument = Instrument(instrument_name)
+    cycle = Cycle(year, cycle_number)
+    return Journal(instrument, cycle)

@@ -3,6 +3,7 @@
 """Defines a Journal class to encapsulate a Journal for user cycle"""
 from jv2backend.cycle import Cycle
 from jv2backend.instrument import Instrument
+from jv2backend.run import Run
 
 
 class Journal:
@@ -28,3 +29,18 @@ class Journal:
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return 0
+
+    def add_run(self, run: Run) -> None:
+        """Adds a run to the collection of managed runs for this Journal.
+        The run must belong to the same instrument that associated with this
+        Journal or a ValueError is raised.
+
+        :param run: A Run to be added to this Journal. The instruments must match
+        :raises ValueError: If the instrument does not match that defined
+                            when the Journal was created
+        """
+        if run.instrument != self.instrument:
+            raise ValueError(
+                f"This journal is defined for the '{self.instrument.name}' "
+                f"instrument but the run provided is associated with '{run.instrument.name}'"
+            )
