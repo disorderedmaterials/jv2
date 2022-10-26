@@ -26,7 +26,14 @@ def test_adding_run_from_a_different_instrument_raises_a_ValueError():
         journal.add_run(Run(1, Instrument("otherfake"), Experiment(2)))
 
 
-# def test_adding_run_from_matching_instrument_is_stored_and_increases_run_count():
+def test_adding_run_from_matching_instrument_is_stored_and_increases_run_count():
+    instrument_name, year, cycle_number = "fake", 2021, 1
+    journal = _create_test_journal(year, instrument_name, cycle_number)
+    run = Run(1, journal.instrument, Experiment(1))
+
+    journal.add_run(run)
+
+    assert journal.run_count() == 1
 
 
 # Private helpers
