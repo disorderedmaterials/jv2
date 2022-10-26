@@ -6,4 +6,4 @@ from jv2backend.journal import Journal
 def test_journal_creation():
     journal = Journal()
 
-    assert(True)
+    assert True

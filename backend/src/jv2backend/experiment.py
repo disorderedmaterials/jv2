@@ -2,6 +2,7 @@
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Encapsulate an Experiment description"""
 
+
 class Experiment:
     """Encapsulate details of an experiment as a set of runs"""
 

@@ -2,6 +2,16 @@
 requires = ["setuptools >= 40.6.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.black]
+extend-exclude = '''
+(
+  ^/jv2Setup.py
+  | ^/src/jv2backend/isisInternal.py
+  | ^/src/jv2backend/nexusInteraction.py
+  | ^/condaenv
+)
+'''
+
 [tool.pytest.ini_options]
 testpaths = [
     "src",
