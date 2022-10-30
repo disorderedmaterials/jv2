@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Defines a reader class to read an ISIS Journal file"""
+from cProfile import run
 from pathlib import PurePosixPath, PureWindowsPath
 from lxml import etree
 import re
 
 from jv2backend.io.journalreader import JournalReader
 from jv2backend.cycle import Cycle
+from jv2backend.experiment import Experiment
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal
 from jv2backend.run import Run
@@ -31,6 +33,7 @@ class ISISXMLJournalReader(JournalReader):
         """
         super().__init__()
         self._instrument = instrument
+        self._experiments = {}
 
     def read(self, content: bytes) -> Journal:
         """Read an XML-formatted iterable describing a Journal
@@ -53,17 +56,57 @@ class ISISXMLJournalReader(JournalReader):
         :return: A new Journal instance
         """
         journal = Journal(self._instrument, cycle)
-        # run_builder = RunBuilder(self._instrument, cycle)
         for nxentry in root.getchildren():
-            # run_builder.set().set().set().build() ???
-            journal.add_run(_to_dict(nxentry))
+            journal.add_run(Run(**self._to_run_attrs(nxentry)))
 
         return journal
 
+    def _to_run_attrs(self, nxentry: etree.Element) -> dict:
+        """Convert an NXEntry tag to a dictionary structure.
+        In the process the namespace qualifiers on the tag names are removed.
+
+        :param nxentry: An XML description of a run
+        :return: A dictionary of key-value pairs from the entry
+        """
+        run_as_dict = dict(name=nxentry.attrib["name"])
+        for elem in nxentry.getchildren():
+            if not elem.text:
+                text = "None"
+            else:
+                text = elem.text
+            run_as_dict[_strip_namespace(elem.tag)] = text
+
+        return self._convert_or_add_types(run_as_dict)
+
+    def _convert_or_add_types(self, run_attrs: dict) -> dict:
+        """Takes raw dict of attributes from a Journal
+        and converts types to those valid for a Run type,
+        e.g. experiment_identifier is replaced with an Experiment
+        object
+
+        :param run_attrs: _description_
+        :return: A modified version of the original dictionary with types replaced
+        """
+        run_attrs["instrument"] = Instrument(run_attrs["instrument_name"])
+        run_attrs["experiment"] = self._get_or_create_experiment(
+            run_attrs["experiment_identifier"]
+        )
+        return run_attrs
+
+    def _get_or_create_experiment(self, experiment_identifier: int) -> Experiment:
+        """Check local cache for an existing experiment with the same identifier
+        and return this if one exists. If one does not exist create, insert in
+        cache and return"
+
+        :param experiment_identifier: Integer assigned to experiment
+        :return: An Experiment object
+        """
+        return self._experiments.setdefault(
+            experiment_identifier, Experiment(experiment_identifier)
+        )
+
 
 # Private functions
-
-
 def _parse_cycle(filepath: str) -> Cycle:
     """Parse the cycle information from the file_name
     Uses only the filename portion of a path and assumes
@@ -88,24 +131,6 @@ def _parse_cycle(filepath: str) -> Cycle:
         year=int(f"{_JOURNAL_YEAR_PREFIX}{match.group(1)}"),
         number=int(match.group(2)),
     )
-
-
-def _to_dict(nxentry: etree.Element) -> dict:
-    """Convert an NXEntry tag to a dictionary structure.
-    In the process the namespace qualifiers on the tag names are removed.
-
-    :param nxentry: An XML description of a run
-    :return: A dictionary of key-value pairs from the entry
-    """
-    run_as_dict = dict()
-    for elem in nxentry.getchildren():
-        if not elem.text:
-            text = "None"
-        else:
-            text = elem.text
-        run_as_dict[_strip_namespace(elem.tag)] = text
-
-    return run_as_dict
 
 
 def _strip_namespace(qualified_name: str) -> str:
