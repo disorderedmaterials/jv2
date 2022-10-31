@@ -12,5 +12,5 @@ class JournalReader(metaclass=ABCMeta):
     """Abstract interface"""
 
     @abstractmethod
-    def read(journalfile: Iterable[str], instrument: Instrument) -> Journal:
+    def read(self, journalfile: Iterable[str], instrument: Instrument) -> Journal:
         raise NotImplementedError
