@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
-from http.client import PARTIAL_CONTENT
 from pathlib import Path
 
 from jv2backend.cycle import Cycle
 from jv2backend.instrument import Instrument
-from jv2backend.io.isisjournalreader import ISISXMLJournalReader
+from jv2backend.io.isis.xmljournalreader import ISISXMLJournalReader
 
 import pytest
 
