@@ -13,6 +13,4 @@ extend-exclude = '''
 '''
 
 [tool.pytest.ini_options]
-testpaths = [
-    "src",
-]
+norecursedirs = "condaenv"
