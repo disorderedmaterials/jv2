@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
-from pathlib import Path
 
 from jv2backend.cycle import Cycle
 from jv2backend.instrument import Instrument
@@ -8,7 +7,6 @@ from jv2backend.io.isis.xmljournalreader import ISISXMLJournalReader
 
 import pytest
 
-SAMPLE_JOURNAL_FILE = Path(__file__).parent / "data" / "journal_21_1.xml"
 SAMPLE_JOURNAL_INST = "ALF"
 
 BAD_CYCLE_FORMAT = b"""<?xml version="1.0" encoding="UTF-8"?>
@@ -51,11 +49,10 @@ def test_reader_raises_ValueError_with_incorrect_file_name_attribute():
         reader.read(BAD_CYCLE_FORMAT)
 
 
-def test_reader_returns_journal_with_expected_attributes():
+def test_reader_returns_journal_with_expected_attributes(sample_journal_xml):
     reader = ISISXMLJournalReader(instrument=Instrument(SAMPLE_JOURNAL_INST))
 
-    with open(SAMPLE_JOURNAL_FILE) as jf:
-        journal = reader.read(jf.read().encode("utf-8"))
+    journal = reader.read(sample_journal_xml)
 
     assert journal.cycle == Cycle(2021, 1)
     assert journal.run_count() == 3

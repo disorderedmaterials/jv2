@@ -3,6 +3,6 @@
 
 
 class JournalFileList(list):
-    """Stores an collection of journal names"""
+    """Stores a collection of journal names"""
 
     pass
