@@ -31,6 +31,17 @@ file_time="2021-05-01T09:28:00+00:00">
 """
 
 
+def test_read_indexfile_returns_JournalIndex_with_expected_number_of_entries(
+    sample_journallist_xml
+):
+    reader = ISISXMLJournalReader(Instrument("fake"))
+
+    journals = reader.read_indexfile(sample_journallist_xml)
+
+    assert len(journals) == 1
+    assert journals[0] == "journal_21_1.xml"
+
+
 @pytest.mark.parametrize(
     "content",
     ["", "{}", PARTIAL_RUN],
@@ -39,24 +50,20 @@ def test_reader_raises_ValueError_for_bad_data(content):
     reader = ISISXMLJournalReader(Instrument("fake"))
 
     with pytest.raises(SyntaxError):
-        reader.read(content)
+        reader.read_journalfile(content)
 
 
 def test_reader_raises_ValueError_with_incorrect_file_name_attribute():
     reader = ISISXMLJournalReader(instrument=Instrument(SAMPLE_JOURNAL_INST))
 
     with pytest.raises(ValueError, match="Cannot parse cycle"):
-        reader.read(BAD_CYCLE_FORMAT)
+        reader.read_journalfile(BAD_CYCLE_FORMAT)
 
 
 def test_reader_returns_journal_with_expected_attributes(sample_journal_xml):
     reader = ISISXMLJournalReader(instrument=Instrument(SAMPLE_JOURNAL_INST))
 
-    journal = reader.read(sample_journal_xml)
+    journal = reader.read_journalfile(sample_journal_xml)
 
     assert journal.cycle == Cycle(2021, 1)
     assert journal.run_count() == 3
-
-
-# Test list
-#   test read from file for different instrument
