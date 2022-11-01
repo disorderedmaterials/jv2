@@ -10,6 +10,7 @@ from jv2backend.cycle import Cycle
 from jv2backend.experiment import Experiment
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal
+from jv2backend.journalfilelist import JournalFileList
 from jv2backend.run import Run
 
 # Regex to match a date-based journal filename
@@ -34,7 +35,24 @@ class ISISXMLJournalReader(JournalReader):
         self._instrument = instrument
         self._experiments = {}
 
-    def read(self, content: bytes) -> Journal:
+    def read_indexfile(self, content: bytes) -> JournalFileList:
+        """Read an XML-formatted index of journal names
+
+        :param content: An bytes object containing the XML-formatted data
+        :return: A new JournalFileIndex object
+        """
+        try:
+            root = etree.fromstring(content)
+        except SyntaxError as exc:
+            raise SyntaxError(f"Unable to parse content as XML:\n\t{str(exc)}") from exc
+
+        journals = JournalFileList()
+        for entry in root.getchildren():
+            journals.append(entry.attrib["name"])
+
+        return journals
+
+    def read_journalfile(self, content: bytes) -> Journal:
         """Read an XML-formatted iterable describing a Journal
 
         :param content: A bytes object containing XML describing the run content.
