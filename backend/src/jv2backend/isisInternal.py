@@ -25,8 +25,7 @@ from os import path
 dataLocation = "http://data.isis.rl.ac.uk/journals/"
 localSource = ""
 
-# Global Flask application instance
-app = None
+
 
 
 def create_app():
@@ -50,6 +49,9 @@ def shutdown_server():
     else:
         serverShutdownFunction()
 
+
+# Global Flask application instance
+app = create_app()
 
 # Set local source
 @app.route('/setLocalSource/<inLocalSource>')
@@ -137,6 +139,7 @@ def getJournal(instrument, cycle):
         if localSource != "":
             return jsonify("invalid source")
         url = dataLocation + 'ndx' + instrument+'/'+cycle
+        print(f"url={url}")
         try:
             response = urlopen(url)
         except Exception:
@@ -542,7 +545,7 @@ def shutdown():
 
 def main():
     """Start the flask development server with default settings"""
-    app = create_app()
+    #app = create_app()
     app.run()
 
 
