@@ -11,7 +11,10 @@ from jv2backend.io.isis.xmljournalreader import ISISXMLJournalReader
 
 
 class ISISJournalServer(JournalServer):
-    """Interface to the ISIS journal server"""
+    """Interface to the ISIS journal server to retrieve
+    information
+
+    """
 
     ROOT_URL_DEFAULT = "http://data.isis.rl.ac.uk/journals"
     JOURNAL_FILELIST_FILENAME = "journal_main.xml"
@@ -22,13 +25,14 @@ class ISISJournalServer(JournalServer):
         """
         self._root_url = root_url if root_url is not None else self.ROOT_URL_DEFAULT
 
-    def journal_filenames(self, instrument_name: str) -> JournalFileList:
+    def journal_filenames(self, instrument_name: str) -> Optional[JournalFileList]:
         """
         :param instrument_name: The instrument name
         :return: The list of journal filenames as strings
         """
         response = requests.get(self._mainfile_url(instrument_name))
-        response.raise_for_status()
+        if response.status_code != 200:
+            return None
 
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_indexfile(response.content)
