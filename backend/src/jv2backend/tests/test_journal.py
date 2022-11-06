@@ -38,6 +38,23 @@ def test_adding_run_from_matching_instrument_is_accepted():
     assert journal.run_count() == 1
 
 
+def test_run_iteration_covers_all_runs():
+    instrument_name, year, cycle_number = "fake", 2021, 1
+    journal = _create_test_journal(year, instrument_name, cycle_number)
+    nruns = 3
+    for index in range(nruns):
+        journal.add_run(
+            MagicMock(spec=Run, instrument=journal.instrument, run_number=index)
+        )
+
+    iteration_count = 0
+    for index, run in enumerate(journal.runs()):
+        assert run.run_number == index
+        iteration_count += 1
+
+    assert iteration_count == 3
+
+
 # Private helpers
 def _create_test_journal(year: int, instrument_name: str, cycle_number: int) -> Journal:
     instrument = Instrument(instrument_name)

@@ -4,17 +4,20 @@
 from typing import Any
 from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
+
+from jv2backend.config import CONFIG
+
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
 from jv2backend.io.isis.isisjournalserver import ISISJournalServer
 
 
-def create_app() -> Flask:
+def create_app(journal_server_url: str) -> Flask:
     """Create the Flask application and define
     the routes served by the backend
     """
     app = Flask(__name__)
-    journal_server = ISISJournalServer()
+    journal_server = ISISJournalServer(journal_server_url)
 
     # ========== routes ==========
     @app.route("/getCycles/<instrument>")
@@ -24,8 +27,10 @@ def create_app() -> Flask:
         :param instrument: The name of an instrument
         :return: A JSON reponse
         """
-        return _json_response(result=journal_server.journal_filenames(instrument_name=instrument),
-          error_msg=f"Unable to fetch cycles for {instrument}")
+        return _json_response(
+            result=journal_server.journal_filenames(instrument_name=instrument),
+            error_msg=f"Unable to fetch cycles for {instrument}",
+        )
 
     @app.route("/getJournal/<instrument>/<cycle>")
     def getJournal(instrument: str, cycle: str) -> FlaskResponse:
@@ -35,11 +40,14 @@ def create_app() -> Flask:
         :param cycle: The filename of a cycle journal file in the format journal_YY_N.xml
         :return: A JSON reponse
         """
-        return jsonify(None)
+        return jsonify(
+            journal_server.journal(instrument_name=instrument, filename=cycle)
+        )
 
     # ========== end routes ==========
 
     return app
+
 
 # Private functions
 def _json_response(*, result: Any, error_msg: str):
@@ -57,10 +65,12 @@ def _json_response(*, result: Any, error_msg: str):
         result = {"response": error_msg}
     return jsonify(result)
 
+
 # In future add any command-line arguments here
 def main():
-    """Start the backend instances"""
-    app = create_app()
+    """Start the backend"""
+    app = create_app(CONFIG["journal_server_url"])
+
     # It is assumed that running this directly will only
     # be used during development so we activate debugging.
     # In production use a WSGI server such as gunicorn
