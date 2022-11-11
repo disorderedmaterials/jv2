@@ -22,7 +22,7 @@ def test_default_journal_creation_stores_cycle_and_instrument_and_contains_zero_
 
 def test_adding_run_from_a_different_instrument_raises_a_ValueError():
     journal = _create_test_journal(instrument_name="fake", year=2021, cycle_number=2)
-    run = MagicMock(spec=Run, instrument=Instrument("other"))
+    run = MagicMock(spec=Run, instrument_name="other")
 
     with pytest.raises(ValueError):
         journal.add_run(run)
@@ -31,7 +31,7 @@ def test_adding_run_from_a_different_instrument_raises_a_ValueError():
 def test_adding_run_from_matching_instrument_is_accepted():
     instrument_name, year, cycle_number = "fake", 2021, 1
     journal = _create_test_journal(year, instrument_name, cycle_number)
-    run = MagicMock(spec=Run, instrument=journal.instrument)
+    run = MagicMock(spec=Run, instrument_name=journal.instrument.name)
 
     journal.add_run(run)
 
@@ -44,7 +44,9 @@ def test_run_iteration_covers_all_runs():
     nruns = 3
     for index in range(nruns):
         journal.add_run(
-            MagicMock(spec=Run, instrument=journal.instrument, run_number=index)
+            MagicMock(
+                spec=Run, instrument_name=journal.instrument.name, run_number=index
+            )
         )
 
     iteration_count = 0
