@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
+import json
 import pytest
 from jv2backend.app import create_app
 
@@ -31,6 +32,9 @@ def test_request_journal_returns_expected_json(
     response = client.get("/getJournal/ALF/journal_21_1.xml")
 
     assert instrument_name.encode("utf-8") in response.data
+    response_payload = json.loads(response.data)
+    assert len(response_payload) == 3
+    assert instrument_name == response_payload[0]["instrument_name"]
 
 
 # private functions

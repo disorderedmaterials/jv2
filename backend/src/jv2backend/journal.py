@@ -41,15 +41,24 @@ class Journal:
         :raises ValueError: If the instrument does not match that defined
                             when the Journal was created
         """
-        if run.instrument != self.instrument:
+        if run.instrument_name != self.instrument.name:
             raise ValueError(
                 f"This journal is defined for the '{self.instrument.name}' "
-                f"instrument but the run provided is associated with '{run.instrument.name}'"
+                f"instrument but the run provided is associated with '{run.instrument_name}'"
             )
 
         self._runs.append(run)
 
     def runs(self) -> Iterable[Run]:
-        """Return a generator iterating over thr list of runs"""
+        """Return a generator iterating over the list of runs"""
         for run in self._runs:
             yield run
+
+    def run(self, index: int) -> Run:
+        """Return a run at the given index or raise IndexError if the
+        index is out of bounds.
+
+        :param index: Index of run in list
+        :return: Run object
+        """
+        return self._runs[index]

@@ -40,8 +40,17 @@ def create_app(journal_server_url: str) -> Flask:
         :param cycle: The filename of a cycle journal file in the format journal_YY_N.xml
         :return: A JSON reponse
         """
-        return jsonify(
-            journal_server.journal(instrument_name=instrument, filename=cycle)
+
+        def action():
+            journal = journal_server.journal(instrument_name=instrument, filename=cycle)
+            if journal is not None:
+                return [run for run in journal.runs()]
+            else:
+                return None
+
+        return _json_response(
+            result=action(),
+            error_msg=f"Unable to fetch journal for {instrument}, cycle {cycle}",
         )
 
     # ========== end routes ==========

@@ -74,41 +74,9 @@ class ISISXMLJournalReader(JournalReader):
         """
         journal = Journal(self._instrument, cycle)
         for nxentry in root.getchildren():
-            journal.add_run(Run(**self._to_run_attrs(nxentry)))
+            journal.add_run(_to_run(nxentry))
 
         return journal
-
-    def _to_run_attrs(self, nxentry: etree.Element) -> dict:
-        """Convert an NXEntry tag to a dictionary structure.
-        In the process the namespace qualifiers on the tag names are removed.
-
-        :param nxentry: An XML description of a run
-        :return: A dictionary of key-value pairs from the entry
-        """
-        run_as_dict = dict(name=nxentry.attrib["name"])
-        for elem in nxentry.getchildren():
-            if not elem.text:
-                text = "None"
-            else:
-                text = elem.text
-            run_as_dict[_strip_namespace(elem.tag)] = text
-
-        return self._convert_or_add_types(run_as_dict)
-
-    def _convert_or_add_types(self, run_attrs: dict) -> dict:
-        """Takes raw dict of attributes from a Journal
-        and converts types to those valid for a Run type,
-        e.g. experiment_identifier is replaced with an Experiment
-        object
-
-        :param run_attrs: _description_
-        :return: A modified version of the original dictionary with types replaced
-        """
-        run_attrs["instrument"] = Instrument(run_attrs["instrument_name"])
-        run_attrs["experiment"] = self._get_or_create_experiment(
-            run_attrs["experiment_identifier"]
-        )
-        return run_attrs
 
     def _get_or_create_experiment(self, experiment_identifier: int) -> Experiment:
         """Check local cache for an existing experiment with the same identifier
@@ -148,6 +116,24 @@ def _parse_cycle(filepath: str) -> Cycle:
         year=int(f"{_JOURNAL_YEAR_PREFIX}{match.group(1)}"),
         number=int(match.group(2)),
     )
+
+
+def _to_run(nxentry: etree.Element) -> Run:
+    """Convert an NXEntry tag to a Run structure.
+    In the process the namespace qualifiers on the tag names are removed.
+
+    :param nxentry: An XML description of a run
+    :return: A dictionary of key-value pairs from the entry
+    """
+    run_attrs = dict(name=nxentry.attrib["name"])
+    for elem in nxentry.getchildren():
+        if not elem.text:
+            text = "None"
+        else:
+            text = elem.text
+        run_attrs[_strip_namespace(elem.tag)] = text.strip()
+
+    return Run(run_attrs)
 
 
 def _strip_namespace(qualified_name: str) -> str:

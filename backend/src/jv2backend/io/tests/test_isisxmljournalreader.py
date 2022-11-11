@@ -32,7 +32,7 @@ file_time="2021-05-01T09:28:00+00:00">
 
 
 def test_read_indexfile_returns_JournalIndex_with_expected_number_of_entries(
-    sample_journallist_xml
+    sample_journallist_xml,
 ):
     reader = ISISXMLJournalReader(Instrument("fake"))
 
@@ -60,10 +60,13 @@ def test_reader_raises_ValueError_with_incorrect_file_name_attribute():
         reader.read_journalfile(BAD_CYCLE_FORMAT)
 
 
-def test_reader_returns_journal_with_expected_attributes(sample_journal_xml):
+def test_reader_returns_journal_with_expected_attributes_and_strips_whitespace(
+    sample_journal_xml,
+):
     reader = ISISXMLJournalReader(instrument=Instrument(SAMPLE_JOURNAL_INST))
 
     journal = reader.read_journalfile(sample_journal_xml)
 
     assert journal.cycle == Cycle(2021, 1)
     assert journal.run_count() == 3
+    assert journal.run(0).run_number == "85422"
