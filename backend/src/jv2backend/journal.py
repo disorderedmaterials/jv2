@@ -3,62 +3,52 @@
 """Defines a Journal class to encapsulate a Journal for user cycle"""
 from typing import Iterable
 
+import pandas as pd
+
 from jv2backend.cycle import Cycle
 from jv2backend.instrument import Instrument
+
 from jv2backend.run import Run
 
 
 class Journal:
-    """A Journal captures data from a user cycle on a given instrument, stored
-    as a collection of Run objects. The order is not defined."""
+    """A Journal captures data from a user cycle on a given instrument"""
 
-    def __init__(self, instrument: Instrument, cycle: Cycle) -> None:
+    def __init__(self, instrument: Instrument, data: pd.DataFrame) -> None:
         """
         :param cycle: Defines the associated cycle for this run
         """
         self._instrument = instrument
-        self._cycle = cycle
-        self._runs = []
+        self._data = data
+        # todo: check instrument matches data
 
     @property
     def instrument(self) -> Instrument:
         return self._instrument
 
-    @property
-    def cycle(self) -> Cycle:
-        return self._cycle
-
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
-        return len(self._runs)
+        return len(self._data)
 
-    def add_run(self, run: Run) -> None:
-        """Adds a run to the collection of managed runs for this Journal.
-        The run must belong to the same instrument that associated with this
-        Journal or a ValueError is raised.
-
-        :param run: A Run to be added to this Journal. The instruments must match
-        :raises ValueError: If the instrument does not match that defined
-                            when the Journal was created
-        """
-        if run.instrument_name != self.instrument.name:
+    def runs(self, format="json") -> str:
+        """Return the collection of runs as a list[dict()] formatted as requested"""
+        if format != "json":
             raise ValueError(
-                f"This journal is defined for the '{self.instrument.name}' "
-                f"instrument but the run provided is associated with '{run.instrument_name}'"
+                f"Unsupported format type '{format}'. Available formats=json"
             )
 
-        self._runs.append(run)
+        return self._data.to_json(orient="records")
 
-    def runs(self) -> Iterable[Run]:
-        """Return a generator iterating over the list of runs"""
-        for run in self._runs:
-            yield run
+    # def run(self, index: int) -> Run:
+    #     """Return a run at the given index or raise IndexError if the
+    #     index is out of bounds.
 
-    def run(self, index: int) -> Run:
-        """Return a run at the given index or raise IndexError if the
-        index is out of bounds.
+    #     :param index: Index of run in list
+    #     :return: Run object
+    #     """
+    #     return self._runs[index]
 
-        :param index: Index of run in list
-        :return: Run object
-        """
-        return self._runs[index]
+
+# Queries
+
+# def total_uamps(journal: Journal, run_numbers: Sequence[str]) -> Sequence[str]:

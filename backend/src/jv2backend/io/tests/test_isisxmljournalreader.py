@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
+import json
 
 from jv2backend.cycle import Cycle
 from jv2backend.instrument import Instrument
@@ -44,20 +45,13 @@ def test_read_indexfile_returns_JournalIndex_with_expected_number_of_entries(
 
 @pytest.mark.parametrize(
     "content",
-    ["", "{}", PARTIAL_RUN],
+    [b"", b"{}", PARTIAL_RUN],
 )
 def test_reader_raises_ValueError_for_bad_data(content):
     reader = ISISXMLJournalReader(Instrument("fake"))
 
     with pytest.raises(SyntaxError):
         reader.read_journalfile(content)
-
-
-def test_reader_raises_ValueError_with_incorrect_file_name_attribute():
-    reader = ISISXMLJournalReader(instrument=Instrument(SAMPLE_JOURNAL_INST))
-
-    with pytest.raises(ValueError, match="Cannot parse cycle"):
-        reader.read_journalfile(BAD_CYCLE_FORMAT)
 
 
 def test_reader_returns_journal_with_expected_attributes_and_strips_whitespace(
@@ -67,6 +61,5 @@ def test_reader_returns_journal_with_expected_attributes_and_strips_whitespace(
 
     journal = reader.read_journalfile(sample_journal_xml)
 
-    assert journal.cycle == Cycle(2021, 1)
     assert journal.run_count() == 3
-    assert journal.run(0).run_number == "85422"
+    assert json.loads(journal.runs())[0]["run_number"] == "85422"

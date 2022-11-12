@@ -1,64 +1,42 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
-from jv2backend.cycle import Cycle
-from jv2backend.experiment import Experiment
-from jv2backend.instrument import Instrument
-from jv2backend.run import Run
-from jv2backend.journal import Journal
-
-from unittest.mock import MagicMock
+import json
+import pandas as pd
 import pytest
 
+from jv2backend.instrument import Instrument
+from jv2backend.journal import Journal
 
-def test_default_journal_creation_stores_cycle_and_instrument_and_contains_zero_runs():
-    instrument_name, year, cycle_number = "fake", 2021, 1
-    journal = _create_test_journal(year, instrument_name, cycle_number)
-
-    assert journal.instrument.name == instrument_name
-    assert journal.cycle.year == year
-    assert journal.cycle.number == cycle_number
-    assert journal.run_count() == 0
+INSTRUMENT_NAME = "FAKE"
 
 
-def test_adding_run_from_a_different_instrument_raises_a_ValueError():
-    journal = _create_test_journal(instrument_name="fake", year=2021, cycle_number=2)
-    run = MagicMock(spec=Run, instrument_name="other")
+def test_default_journal_creation_stores_instrument_and_data(sample_journal_dataframe):
+    journal = _create_test_journal(sample_journal_dataframe)
+
+    assert journal.instrument.name == INSTRUMENT_NAME
+    assert journal.run_count() == len(sample_journal_dataframe)
+
+
+def test_runs_gives_dataframe_with_same_information(sample_journal_dataframe):
+    journal = _create_test_journal(sample_journal_dataframe)
+
+    runs = journal.runs()
+
+    records = json.loads(runs)
+    assert len(records) == len(sample_journal_dataframe)
+    for response_record, sample_record in zip(
+        records, sample_journal_dataframe.to_dict(orient="records")
+    ):
+        assert response_record == sample_record
+
+
+def test_runs_raies_error_on_unsupported_format(sample_journal_dataframe):
+    journal = _create_test_journal(sample_journal_dataframe)
 
     with pytest.raises(ValueError):
-        journal.add_run(run)
-
-
-def test_adding_run_from_matching_instrument_is_accepted():
-    instrument_name, year, cycle_number = "fake", 2021, 1
-    journal = _create_test_journal(year, instrument_name, cycle_number)
-    run = MagicMock(spec=Run, instrument_name=journal.instrument.name)
-
-    journal.add_run(run)
-
-    assert journal.run_count() == 1
-
-
-def test_run_iteration_covers_all_runs():
-    instrument_name, year, cycle_number = "fake", 2021, 1
-    journal = _create_test_journal(year, instrument_name, cycle_number)
-    nruns = 3
-    for index in range(nruns):
-        journal.add_run(
-            MagicMock(
-                spec=Run, instrument_name=journal.instrument.name, run_number=index
-            )
-        )
-
-    iteration_count = 0
-    for index, run in enumerate(journal.runs()):
-        assert run.run_number == index
-        iteration_count += 1
-
-    assert iteration_count == 3
+        journal.runs(format="text")
 
 
 # Private helpers
-def _create_test_journal(year: int, instrument_name: str, cycle_number: int) -> Journal:
-    instrument = Instrument(instrument_name)
-    cycle = Cycle(year, cycle_number)
-    return Journal(instrument, cycle)
+def _create_test_journal(sample_data: pd.DataFrame) -> Journal:
+    return Journal(Instrument("FAKE"), sample_data)
