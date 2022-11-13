@@ -42,7 +42,7 @@ def create_app(journal_server_url: str) -> Flask:
         """
         try:
             journal = journal_server.journal(instrument_name=instrument, filename=cycle)
-            return FlaskResponse(journal.runs(), mimetype="application/json")
+            return FlaskResponse(journal.to_json(), mimetype="application/json")
         except Exception as exc:
             return jsonify(
                 f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"

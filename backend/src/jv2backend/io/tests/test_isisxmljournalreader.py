@@ -39,8 +39,9 @@ def test_read_indexfile_returns_JournalIndex_with_expected_number_of_entries(
 
     journals = reader.read_indexfile(sample_journallist_xml)
 
-    assert len(journals) == 1
-    assert journals[0] == "journal_21_1.xml"
+    assert len(journals) == 2
+    assert "journal_21_1.xml" in journals
+    assert "journal_20_2.xml" in journals
 
 
 @pytest.mark.parametrize(
@@ -59,7 +60,7 @@ def test_reader_returns_journal_with_expected_attributes_and_strips_whitespace(
 ):
     reader = ISISXMLJournalReader(instrument=Instrument(SAMPLE_JOURNAL_INST))
 
-    journal = reader.read_journalfile(sample_journal_xml)
+    journal = reader.read_journalfile(sample_journal_xml())
 
-    assert journal.run_count() == 3
-    assert json.loads(journal.runs())[0]["run_number"] == "85422"
+    assert journal.run_count == 3
+    assert json.loads(journal.to_json())[0]["run_number"] == "85422"

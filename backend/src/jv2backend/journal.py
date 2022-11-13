@@ -1,12 +1,33 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Defines a Journal class to encapsulate a collection of Runs on an instrument"""
-
+from __future__ import annotations
 import pandas as pd
 
 from jv2backend.instrument import Instrument
 
 
+# Query handlers
+# A handler should have the form Callable[[pd.DataFrame, str, bool], pd.DataFrame]
+def contains(
+    data: pd.DataFrame, column: str, text: str, case_sensitive: bool
+) -> pd.DataFrame:
+    """Return the rows of the input DataFrame where the text string is
+    in the column values
+
+    :param data: The input data
+    :param column: The name of the column that should be matched
+    :param text: Text to search
+    :param case_sensitive: If True the case of the data must match the query
+    :return: A new DataFrame with the selected rows
+    """
+    return data[data[column].str.contains(text, case=case_sensitive)]
+
+
+# Map a field name to a handler for that query.
+_QUERY_HANDLERS = {"user_name": contains}
+
+# Journal class
 class Journal:
     """A Journal captures records of runs on a given instrument"""
 
@@ -22,29 +43,25 @@ class Journal:
     def instrument(self) -> Instrument:
         return self._instrument
 
+    @property
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return len(self._data)
 
-    def runs(self, format="json") -> str:
+    def search(
+        self, run_field: str, user_input: str, case_sensitive: bool = False
+    ) -> Journal:
+        """Search across the runs for those matching the user_input over the run_field"""
+        # Different fields need handling differently but we will fallback to a basic
+        # "is in string check"
+        query_handle = _QUERY_HANDLERS.get(run_field, contains)
+
+        return Journal(
+            self.instrument,
+            query_handle(self._data, run_field, user_input, case_sensitive),
+        )
+
+    # Output formats
+    def to_json(self) -> str:
         """Return the collection of runs as a list[dict()] formatted as requested"""
-        if format != "json":
-            raise ValueError(
-                f"Unsupported format type '{format}'. Available formats=json"
-            )
-
         return self._data.to_json(orient="records")
-
-    # def run(self, index: int) -> Run:
-    #     """Return a run at the given index or raise IndexError if the
-    #     index is out of bounds.
-
-    #     :param index: Index of run in list
-    #     :return: Run object
-    #     """
-    #     return self._runs[index]
-
-
-# Queries
-
-# def total_uamps(journal: Journal, run_numbers: Sequence[str]) -> Sequence[str]:
