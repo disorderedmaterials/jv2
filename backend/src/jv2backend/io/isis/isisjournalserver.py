@@ -3,7 +3,7 @@
 import requests
 
 from jv2backend.instrument import Instrument
-from jv2backend.journal import Journal
+from jv2backend.journal import Journal, concatenate
 from jv2backend.journalfilelist import JournalFileList
 from jv2backend.io.journalserver import JournalServer
 from jv2backend.io.isis.xmljournalreader import ISISXMLJournalReader
@@ -41,6 +41,31 @@ class ISISJournalServer(JournalServer):
         response.raise_for_status()
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_journalfile(response.content)
+
+    def search(
+        self,
+        instrument_name: str,
+        run_field: str,
+        user_input: str,
+        case_sensitive: bool = False,
+    ) -> Journal:
+        """
+        Search across all journals for the given user input against the given field
+        in the journals
+
+        :param instrument_name: The instrument name
+        :param run_field: Field to search over from all runs
+        :param user_input: Search query
+        :param case_sensitive: If True, use case sensitive searching
+        :return: A Journal of the runs matching the search query. An empty journal
+                 indicates nothing could be found
+        """
+        results = []
+        for filename in self.journal_filenames(instrument_name):
+            journal = self.journal(instrument_name, filename)
+            results.append(journal.search(run_field, user_input, case_sensitive))
+
+        return concatenate(results)
 
     # private
     def _mainfile_url(self, instrument_name: str) -> str:
