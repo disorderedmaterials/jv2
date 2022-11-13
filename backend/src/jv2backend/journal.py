@@ -1,22 +1,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
-"""Defines a Journal class to encapsulate a Journal for user cycle"""
-from typing import Iterable
+"""Defines a Journal class to encapsulate a collection of Runs on an instrument"""
 
 import pandas as pd
 
-from jv2backend.cycle import Cycle
 from jv2backend.instrument import Instrument
-
-from jv2backend.run import Run
 
 
 class Journal:
-    """A Journal captures data from a user cycle on a given instrument"""
+    """A Journal captures records of runs on a given instrument"""
 
     def __init__(self, instrument: Instrument, data: pd.DataFrame) -> None:
         """
-        :param cycle: Defines the associated cycle for this run
+        :param instrument: Defines the instrument associated with this
         """
         self._instrument = instrument
         self._data = data

@@ -4,6 +4,8 @@ from jv2backend.journal import Journal
 from jv2backend.journalfilelist import JournalFileList
 from jv2backend.io.isis.isisjournalserver import ISISJournalServer
 
+import pytest
+
 FAKE_SERVER_ADDRESS = "http://fake.url/testing"
 FAKE_INSTRUMENT_NAME = "FAKE"
 
@@ -23,7 +25,7 @@ def test_journal_filenames_parsed_as_expected_on_successful_response(
     assert len(journal_filenames) == 1
 
 
-def test_journal_filenames_returns_None_on_http_error(requests_mock):
+def test_journal_filenames_raises_Exception_on_http_error(requests_mock):
     requests_mock.get(
         _fake_instrument_journallist_url(FAKE_INSTRUMENT_NAME),
         content=b"Not Found",
@@ -31,7 +33,8 @@ def test_journal_filenames_returns_None_on_http_error(requests_mock):
     )
     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
 
-    assert server.journal_filenames(FAKE_INSTRUMENT_NAME) is None
+    with pytest.raises(Exception, match=".*404.*"):
+        server.journal_filenames(FAKE_INSTRUMENT_NAME)
 
 
 def test_journal_returned_on_successful_response(requests_mock, sample_journal_xml):
@@ -46,6 +49,19 @@ def test_journal_returned_on_successful_response(requests_mock, sample_journal_x
 
     assert isinstance(journal, Journal)
     assert journal.run_count() == 3
+
+
+def test_journal_call_raises_Exception_on_http_error(requests_mock):
+    instrument_name, journal_filename = "ALF", "bad.xml"
+    requests_mock.get(
+        _fake_instrument_journal_url(instrument_name, journal_filename),
+        content=b"Not Found",
+        status_code=404,
+    )
+    server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+
+    with pytest.raises(Exception, match=".*404.*"):
+        server.journal(instrument_name, journal_filename)
 
 
 # private
