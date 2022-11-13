@@ -2,6 +2,7 @@
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Defines a Journal class to encapsulate a collection of Runs on an instrument"""
 from __future__ import annotations
+from typing import Sequence
 import pandas as pd
 
 from jv2backend.instrument import Instrument
@@ -65,3 +66,15 @@ class Journal:
     def to_json(self) -> str:
         """Return the collection of runs as a list[dict()] formatted as requested"""
         return self._data.to_json(orient="records")
+
+
+# Operations on multiple journals
+def concatenate(journals: Sequence[Journal]) -> Journal:
+    """Concatenate the Journals to a single Journal
+
+    :param journals: Sequence of Journal objects
+    :return: A new Journal, the result of concatenating the input journals into one
+    """
+    return Journal(
+        journals[0].instrument, pd.concat([journal._data for journal in journals])
+    )

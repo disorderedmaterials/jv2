@@ -22,7 +22,7 @@ def test_journal_filenames_parsed_as_expected_on_successful_response(
     journal_filenames = server.journal_filenames(FAKE_INSTRUMENT_NAME)
 
     assert isinstance(journal_filenames, JournalFileList)
-    assert len(journal_filenames) == 1
+    assert len(journal_filenames) == 2
 
 
 def test_journal_filenames_raises_Exception_on_http_error(requests_mock):
@@ -41,14 +41,14 @@ def test_journal_returned_on_successful_response(requests_mock, sample_journal_x
     instrument_name, journal_filename = "ALF", "journal_21_1.xml"
     requests_mock.get(
         _fake_instrument_journal_url(instrument_name, journal_filename),
-        content=sample_journal_xml,
+        content=sample_journal_xml(),
     )
     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
 
     journal = server.journal(instrument_name, journal_filename)
 
     assert isinstance(journal, Journal)
-    assert journal.run_count() == 3
+    assert journal.run_count == 3
 
 
 def test_journal_call_raises_Exception_on_http_error(requests_mock):
@@ -62,6 +62,27 @@ def test_journal_call_raises_Exception_on_http_error(requests_mock):
 
     with pytest.raises(Exception, match=".*404.*"):
         server.journal(instrument_name, journal_filename)
+
+
+def test_search_by_user_name_search_across_all_journals(
+    requests_mock, sample_journallist_xml, sample_journal_xml
+):
+    server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+    instrument_name = "ALF"
+    requests_mock.get(
+        _fake_instrument_journallist_url(instrument_name),
+        content=sample_journallist_xml,
+    )
+    for journal_filename in server.journal_filenames(instrument_name):
+        requests_mock.get(
+            _fake_instrument_journal_url(instrument_name, journal_filename),
+            content=sample_journal_xml(journal_filename),
+        )
+
+    run_field, user_input = "user_name", "Username2"
+    search_results = server.search(instrument_name, run_field, user_input)
+
+    assert search_results.run_count == 3
 
 
 # private

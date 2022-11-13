@@ -56,14 +56,15 @@ def create_app(journal_server_url: str) -> Flask:
         :param search: A search string of the form "<run_field>/<user_input>/caseSensitivity=<true|false>
         :return: A list of all runs matching the criteria
         """
-        journals = journal_server.journal_filenames(instrument)
-        if journals is None:
-            return jsonify(f"Unable to search journals for {instrument}")
-
-        run_field, user_input, case_sensitive = search.split("/")
-        journals.search(run_field, user_input, case_sensitive)
-        # for journal in journals:
-        #     runs = journal.search(run_field, user_input, case_sensitive)
+        try:
+            run_field, user_input, case_sensitivity = search.split("/")
+            case_sensitive = True if case_sensitivity.split("=")[1] == "true" else False
+            results = journal_server.search(
+                instrument, run_field, user_input, case_sensitive
+            ).to_json()
+            return FlaskResponse(results, mimetype="application/json")
+        except Exception as exc:
+            return jsonify(f"Unable to complete search '{search}': {str(exc)}")
 
     # ========== end routes ==========
 
