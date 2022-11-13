@@ -27,10 +27,10 @@ def create_app(journal_server_url: str) -> Flask:
         :param instrument: The name of an instrument
         :return: A JSON reponse
         """
-        return _json_response(
-            result=journal_server.journal_filenames(instrument_name=instrument),
-            error_msg=f"Unable to fetch cycles for {instrument}",
-        )
+        try:
+            return jsonify(journal_server.journal_filenames(instrument_name=instrument))
+        except Exception as exc:
+            return jsonify(f"Unable to fetch cycles for {instrument}: {str(exc)}")
 
     @app.route("/getJournal/<instrument>/<cycle>")
     def getJournal(instrument: str, cycle: str) -> FlaskResponse:
@@ -40,11 +40,30 @@ def create_app(journal_server_url: str) -> Flask:
         :param cycle: The filename of a cycle journal file in the format journal_YY_N.xml
         :return: A JSON reponse
         """
-        journal = journal_server.journal(instrument_name=instrument, filename=cycle)
-        if journal is not None:
+        try:
+            journal = journal_server.journal(instrument_name=instrument, filename=cycle)
             return FlaskResponse(journal.runs(), mimetype="application/json")
-        else:
-            return jsonify(f"Unable to fetch journal for {instrument}, cycle {cycle}")
+        except Exception as exc:
+            return jsonify(
+                f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
+            )
+
+    @app.route("/getAllJournals/<instrument>/<search>")
+    def getAllJournals(instrument: str, search: str) -> FlaskResponse:
+        """Return a list of runs for each instrument
+
+        :param instrument: The string name of the instrment
+        :param search: A search string of the form "<run_field>/<user_input>/caseSensitivity=<true|false>
+        :return: A list of all runs matching the criteria
+        """
+        journals = journal_server.journal_filenames(instrument)
+        if journals is None:
+            return jsonify(f"Unable to search journals for {instrument}")
+
+        run_field, user_input, case_sensitive = search.split("/")
+        journals.search(run_field, user_input, case_sensitive)
+        # for journal in journals:
+        #     runs = journal.search(run_field, user_input, case_sensitive)
 
     # ========== end routes ==========
 

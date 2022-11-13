@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
-from typing import Optional
 import requests
 
 from jv2backend.instrument import Instrument
@@ -22,28 +21,24 @@ class ISISJournalServer(JournalServer):
         """
         self._root_url = root_url
 
-    def journal_filenames(self, instrument_name: str) -> Optional[JournalFileList]:
+    def journal_filenames(self, instrument_name: str) -> JournalFileList:
         """
         :param instrument_name: The instrument name
-        :return: The list of journal filenames as strings
+        :return: The list of journal filenames as strings or an Exception object
         """
         response = requests.get(self._mainfile_url(instrument_name))
-        if response.status_code != 200:
-            return None
-
+        response.raise_for_status()
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_indexfile(response.content)
 
-    def journal(self, instrument_name: str, filename: str) -> Optional[Journal]:
+    def journal(self, instrument_name: str, filename: str) -> Journal:
         """
         :param instrument_name: The instrument name
         :param filename: Filename of the cycle
         :return: The list of journal filenames as strings
         """
         response = requests.get(self._journalfile_url(instrument_name, filename))
-        if response.status_code != 200:
-            return None
-
+        response.raise_for_status()
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_journalfile(response.content)
 
