@@ -25,8 +25,26 @@ def contains(
     return data[data[column].str.contains(text, case=case_sensitive)]
 
 
-# Map a field name to a handler for that query.
-_QUERY_HANDLERS = {"user_name": contains}
+def equals(
+    data: pd.DataFrame, column: str, text: str, case_sensitive: bool
+) -> pd.DataFrame:
+    """Return the rows of the input DataFrame where the text string matches
+    the column value.
+
+    :param data: The input data
+    :param column: The name of the column that should be matched
+    :param text: Text to search
+    :param case_sensitive: If True the case of the data must match the query
+    :return: A new DataFrame with the selected rows
+    """
+    if case_sensitive:
+        return data[data[column] == text]
+    else:
+        return data[data[column].str.lower() == text.lower()]
+
+
+# Map a field name to a handler for that query if it should have special handling
+_SPECIAL_QUERY_HANDLERS = {"experiment_identifier": equals}
 
 # Journal class
 class Journal:
@@ -55,7 +73,7 @@ class Journal:
         """Search across the runs for those matching the user_input over the run_field"""
         # Different fields need handling differently but we will fallback to a basic
         # "is in string check"
-        query_handle = _QUERY_HANDLERS.get(run_field, contains)
+        query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
 
         return Journal(
             self.instrument,

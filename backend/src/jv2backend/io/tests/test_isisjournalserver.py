@@ -10,6 +10,25 @@ FAKE_SERVER_ADDRESS = "http://fake.url/testing"
 FAKE_INSTRUMENT_NAME = "FAKE"
 
 
+@pytest.fixture()
+def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
+    def _fixture(instrument_name):
+        server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+        requests_mock.get(
+            _fake_instrument_journallist_url(instrument_name),
+            content=sample_journallist_xml,
+        )
+        for journal_filename in server.journal_filenames(instrument_name):
+            requests_mock.get(
+                _fake_instrument_journal_url(instrument_name, journal_filename),
+                content=sample_journal_xml(journal_filename),
+            )
+
+        return server
+
+    return _fixture
+
+
 def test_journal_filenames_parsed_as_expected_on_successful_response(
     requests_mock, sample_journallist_xml
 ):
@@ -64,22 +83,28 @@ def test_journal_call_raises_Exception_on_http_error(requests_mock):
         server.journal(instrument_name, journal_filename)
 
 
-def test_search_by_user_name_search_across_all_journals(
-    requests_mock, sample_journallist_xml, sample_journal_xml
-):
-    server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+def test_search_by_user_name_search_across_all_journals(server_faker):
     instrument_name = "ALF"
-    requests_mock.get(
-        _fake_instrument_journallist_url(instrument_name),
-        content=sample_journallist_xml,
-    )
-    for journal_filename in server.journal_filenames(instrument_name):
-        requests_mock.get(
-            _fake_instrument_journal_url(instrument_name, journal_filename),
-            content=sample_journal_xml(journal_filename),
-        )
-
+    server = server_faker(instrument_name)
     run_field, user_input = "user_name", "Username2"
+    search_results = server.search(instrument_name, run_field, user_input)
+
+    assert search_results.run_count == 3
+
+
+def test_search_by_experiment_identifier_search_across_all_journals(server_faker):
+    instrument_name = "ALF"
+    server = server_faker(instrument_name)
+    run_field, user_input = "experiment_identifier", "1234567"
+    search_results = server.search(instrument_name, run_field, user_input)
+
+    assert search_results.run_count == 2
+
+
+def test_search_by_title_search_across_all_journals(server_faker):
+    instrument_name = "ALF"
+    server = server_faker(instrument_name)
+    run_field, user_input = "title", "MnSi"
     search_results = server.search(instrument_name, run_field, user_input)
 
     assert search_results.run_count == 3
