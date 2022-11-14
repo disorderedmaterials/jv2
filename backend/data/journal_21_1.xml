@@ -144,7 +144,7 @@ file_time="2021-05-01T09:28:00+00:00">
       <IXselog name="selog" />
     </NXentry>
   <NXentry name="ALF00085424">
-      <title NAPItype="NX_CHAR[15]">cycle 211 setup</title>
+      <title NAPItype="NX_CHAR[15]">my cycle 211 setup</title>
       <simulation_mode NAPItype="NX_CHAR[2]">NO</simulation_mode>
       <user_name NAPItype="NX_CHAR[11]">Username2</user_name>
       <local_contact NAPItype="NX_CHAR[11]">UNSPECIFIED</local_contact>
