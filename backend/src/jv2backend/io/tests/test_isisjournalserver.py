@@ -110,6 +110,15 @@ def test_search_by_title_search_across_all_journals(server_faker):
     assert search_results.run_count == 3
 
 
+def test_search_by_run_number_search_across_all_journals(server_faker):
+    instrument_name = "ALF"
+    server = server_faker(instrument_name)
+    run_field, user_input = "run_number", "83898-85424"
+    search_results = server.search(instrument_name, run_field, user_input)
+
+    assert search_results.run_count == 4
+
+
 # private
 def _fake_instrument_journallist_url(instrument_name: str) -> str:
     return FAKE_SERVER_ADDRESS + f"/ndx{instrument_name.lower()}/journal_main.xml"

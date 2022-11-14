@@ -48,19 +48,22 @@ def create_app(journal_server_url: str) -> Flask:
                 f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
             )
 
-    @app.route("/getAllJournals/<instrument>/<search>")
-    def getAllJournals(instrument: str, search: str) -> FlaskResponse:
-        """Return a list of runs for each instrument
+    @app.route("/getAllJournals/<instrument>/<field>/<search>/<options>")
+    def getAllJournals(
+        instrument: str, field: str, search: str, options: str
+    ) -> FlaskResponse:
+        """_summary_
 
-        :param instrument: The string name of the instrment
-        :param search: A search string of the form "<run_field>/<user_input>/caseSensitivity=<true|false>
-        :return: A list of all runs matching the criteria
+        :param instrument: The instrument name
+        :param field: The field to search
+        :param search: The search text
+        :param options: Options to control the search. Current recognizes caseSensitivity=true|false
+        :return: The runs matching the search
         """
+        case_sensitive = "caseSensitivity=true" in options
         try:
-            run_field, user_input, case_sensitivity = search.split("/")
-            case_sensitive = True if case_sensitivity.split("=")[1] == "true" else False
             results = journal_server.search(
-                instrument, run_field, user_input, case_sensitive
+                instrument, field, search, case_sensitive
             ).to_json()
             return FlaskResponse(results, mimetype="application/json")
         except Exception as exc:
