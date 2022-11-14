@@ -87,3 +87,17 @@ def test_search_by_title_uses_a_contains_check_and_not_exact_match(
         assert search_results.run_count == 0
     else:
         assert search_results.run_count == 1
+
+
+@pytest.mark.parametrize(
+    "case_sensitive",
+    [True, False],
+)
+def test_search_by_run_number_uses_a_range_check_assuming_user_gives_start_end(
+    case_sensitive, journal_fake
+):
+    run_field, user_input = "run_number", "85423-85424"
+
+    search_results = journal_fake.search(run_field, user_input, case_sensitive)
+
+    assert search_results.run_count == 2

@@ -43,8 +43,29 @@ def equals(
         return data[data[column].str.lower() == text.lower()]
 
 
+def inrange(data: pd.DataFrame, column: str, text: str, _: bool) -> pd.DataFrame:
+    """Return the rows of the input DataFrame where range provided in the
+    text (using a "-" separator) is included. It is assumed the column
+    can be converted to an integer and the search is insclusive
+
+    :param data: The input data
+    :param column: The name of the column that should be matched. It should be convertible to an integer
+    :param text: Text to search in the format "start-end". An empty result is returned if the format is incorrect
+    :param _: Ignored in this case. Required by API
+    :return: A new DataFrame with the selected rows
+    """
+    try:
+        start, end = text.split("-")
+        start, end = int(start.strip()), int(end.strip())
+    except ValueError:  # bad format
+        return pd.DataFrame()
+
+    column_values = data[column].astype(int)
+    return data[column_values.between(start, end, inclusive="both")]
+
+
 # Map a field name to a handler for that query if it should have special handling
-_SPECIAL_QUERY_HANDLERS = {"experiment_identifier": equals}
+_SPECIAL_QUERY_HANDLERS = {"experiment_identifier": equals, "run_number": inrange}
 
 # Journal class
 class Journal:
