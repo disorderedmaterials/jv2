@@ -61,6 +61,11 @@ def create_app(journal_server_url: str) -> Flask:
         :return: The runs matching the search
         """
         case_sensitive = "caseSensitivity=true" in options
+        if field in ("start_time", "start_date"):
+            # keep compatible with frontend sending semi-colon separated date fields
+            search = search.replace(";", "/")
+            # start_date maps to start_time in the run_fields
+            field = "start_time" if field.endswith("date") else field
         try:
             results = journal_server.search(
                 instrument, field, search, case_sensitive
