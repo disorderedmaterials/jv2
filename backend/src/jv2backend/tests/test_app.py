@@ -102,6 +102,16 @@ def test_search_run_number_returns_expected_json(client):
     assert len(response_payload) == 4
 
 
+@pytest.mark.parametrize("field", ["start_date", "start_time"])
+def test_search_start_time_returns_expected_json(field, client):
+    response = client.get(
+        f"/getAllJournals/{TESTDATA_INSTRUMENT_NAME}/{field}/2021;05;01-2021;05;02/caseSensitivity=true"
+    )
+
+    response_payload = json.loads(response.data)
+    assert len(response_payload) == 2
+
+
 def xtest_request_search_over_journals():
     # Example requests
     "/getAllJournals/ALF/user_name/12345/caseSensitivity=true"

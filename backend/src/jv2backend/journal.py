@@ -2,10 +2,19 @@
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Defines a Journal class to encapsulate a collection of Runs on an instrument"""
 from __future__ import annotations
+import datetime as dt
 from typing import Sequence
 import pandas as pd
 
 from jv2backend.instrument import Instrument
+
+# Format of start time search string
+USERINPUT_DT_FORMAT_STR = "%Y/%m/%d"
+
+
+def _to_datetime(user_input: str) -> dt.datetime:
+    """Convert from a user input string of format YYY/MM/DD to a datetime object"""
+    return dt.datetime.strptime(user_input, USERINPUT_DT_FORMAT_STR)
 
 
 # Query handlers
@@ -43,7 +52,7 @@ def equals(
         return data[data[column].str.lower() == text.lower()]
 
 
-def inrange(data: pd.DataFrame, column: str, text: str, _: bool) -> pd.DataFrame:
+def inrange_int(data: pd.DataFrame, column: str, text: str, _: bool) -> pd.DataFrame:
     """Return the rows of the input DataFrame where range provided in the
     text (using a "-" separator) is included. It is assumed the column
     can be converted to an integer and the search is insclusive
@@ -64,8 +73,35 @@ def inrange(data: pd.DataFrame, column: str, text: str, _: bool) -> pd.DataFrame
     return data[column_values.between(start, end, inclusive="both")]
 
 
+def inrange_datetime(
+    data: pd.DataFrame, column: str, text: str, _: bool
+) -> pd.DataFrame:
+    """Return the rows of the input DataFrame where datetime provided in the
+    text (using a "-" separator) is included. It is assumed the column
+    can be converted to an datetime and the search is insclusive
+
+    :param data: The input data
+    :param column: The name of the column that should be matched. It should be convertible to an datetime object
+    :param text: Text to search in the format "YYYY/MM/DD-YYYY/MM/DD". An empty result is returned if the format is incorrect
+    :param _: Ignored in this case. Required by API
+    :return: A new DataFrame with the selected rows
+    """
+    try:
+        start, end = text.split("-")
+        start, end = _to_datetime(start.strip()), _to_datetime(end.strip())
+    except ValueError:  # bad format
+        return pd.DataFrame()
+
+    column_values = pd.to_datetime(data[column])
+    return data[column_values.between(start, end, inclusive="both")]
+
+
 # Map a field name to a handler for that query if it should have special handling
-_SPECIAL_QUERY_HANDLERS = {"experiment_identifier": equals, "run_number": inrange}
+_SPECIAL_QUERY_HANDLERS = {
+    "experiment_identifier": equals,
+    "run_number": inrange_int,
+    "start_time": inrange_datetime,
+}
 
 # Journal class
 class Journal:

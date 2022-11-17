@@ -160,8 +160,8 @@ file_time="2021-05-01T09:28:00+00:00">
       <measurement_label NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_label>
       <measurement_type NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_type>
       <measurement_subid NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_subid>
-      <start_time NAPItype="NX_CHAR[19]">2021-05-01T11:12:21</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2021-05-01T11:12:42</end_time>
+      <start_time NAPItype="NX_CHAR[19]">2021-05-03T11:12:21</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2021-05-03T11:12:42</end_time>
       <duration NAPItype="NX_INT64">                      21
       </duration>
       <proton_charge NAPItype="NX_FLOAT32">      1.0602
