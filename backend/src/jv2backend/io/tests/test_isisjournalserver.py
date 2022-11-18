@@ -78,6 +78,50 @@ def test_journal_call_raises_Exception_on_http_error(requests_mock):
         server.journal(instrument_name, journal_filename)
 
 
+def test_check_for_journal_filenames_update_returns_latest_filename_when_changed_since_last_request(
+    requests_mock, sample_journallist_xml
+):
+    instrument_name = "ALF"
+    server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+
+    requests_mock.get(
+        _fake_instrument_journallist_url(instrument_name),
+        content=sample_journallist_xml,
+        headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
+    )
+    server.journal_filenames(instrument_name)
+    requests_mock.head(
+        _fake_instrument_journallist_url(instrument_name),
+        headers={"Last-Modified": "Fri, 11 Nov 2022 10:34:44 GMT"},
+    )
+
+    result = server.check_for_journal_filenames_update(instrument_name)
+
+    assert result == "journal_20_2.xml"
+
+
+def test_check_for_journal_filenames_update_returns_Nonewhen_no_change_since_last_request(
+    requests_mock, sample_journallist_xml
+):
+    instrument_name = "ALF"
+    server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+
+    requests_mock.get(
+        _fake_instrument_journallist_url(instrument_name),
+        content=sample_journallist_xml,
+        headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
+    )
+    server.journal_filenames(instrument_name)
+    requests_mock.head(
+        _fake_instrument_journallist_url(instrument_name),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
+    )
+
+    result = server.check_for_journal_filenames_update(instrument_name)
+
+    assert result is None
+
+
 def test_search_by_user_name_search_across_all_journals(server_faker):
     instrument_name = "ALF"
     server = server_faker(instrument_name)

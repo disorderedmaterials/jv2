@@ -75,6 +75,16 @@ def create_app(journal_server_url: str) -> Flask:
         except Exception as exc:
             return jsonify(f"Unable to complete search '{search}': {str(exc)}")
 
+    @app.route("/pingCycle/<instrument>")
+    def pingCycle(instrument):
+        """Check if a new journal has been added for the instrument
+
+        :param instrument: Instrument name
+        :return: Json string containing the name of the new journal
+        """
+        result = journal_server.check_for_journal_filenames_update(instrument)
+        return result if result is not None else ""
+
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<inLocalSource>")
     def setLocalSource(_):

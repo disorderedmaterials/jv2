@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
+from datetime import datetime
+from typing import MutableMapping, Optional
 import requests
 
 from jv2backend.instrument import Instrument
@@ -14,12 +16,15 @@ class ISISJournalServer(JournalServer):
     information."""
 
     JOURNAL_FILELIST_FILENAME = "journal_main.xml"
+    LAST_MODIFIED_DT_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 
     def __init__(self, root_url: str):
         """
         :param root_url: An optional root URL for the server to replace the default
         """
         self._root_url = root_url
+        # Store the last modified times of the _main journal files against the instrument names
+        self._last_modified: MutableMapping[str, datetime] = dict()
 
     def journal_filenames(self, instrument_name: str) -> JournalFileList:
         """
@@ -28,6 +33,10 @@ class ISISJournalServer(JournalServer):
         """
         response = requests.get(self._mainfile_url(instrument_name))
         response.raise_for_status()
+        self._store_last_modified_time(
+            instrument_name, response.headers["Last-Modified"]
+        )
+
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_indexfile(response.content)
 
@@ -41,6 +50,23 @@ class ISISJournalServer(JournalServer):
         response.raise_for_status()
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_journalfile(response.content)
+
+    def check_for_journal_filenames_update(self, instrument_name: str) -> Optional[str]:
+        """Check if the journal index files has been modified since last checked
+        and return the latest entry if it has, otherwise return None
+
+        :param instrument_name: The name of the instrument
+        :return: The latest journal filename if there have been updates to the main list
+        """
+        response = requests.head(self._mainfile_url(instrument_name))
+        last_modified_on_server = self._to_datetime(response.headers["Last-Modified"])
+        last_modified_here = self._last_modified.get(instrument_name, None)
+        if last_modified_here is not None and (
+            last_modified_on_server > last_modified_here
+        ):
+            return self.journal_filenames(instrument_name)[-1]
+        else:
+            return None
 
     def search(
         self,
@@ -92,3 +118,23 @@ class ISISJournalServer(JournalServer):
         :return: The URL to the directory of the journals
         """
         return self._root_url + f"/ndx{instrument_name.lower()}"
+
+    def _store_last_modified_time(
+        self, instrument_name: str, last_modified_ts: str
+    ) -> datetime:
+        """
+        :param instrument_name: Name of the instrument
+        :param last_modified_ts: Timestamp of the last modification time as a str
+        """
+        dt = self._to_datetime(last_modified_ts)
+        self._last_modified[instrument_name] = dt
+        return dt
+
+    @classmethod
+    def _to_datetime(cls, timestamp: str) -> datetime:
+        """_summary_
+
+        :param timestamp: A timestamp as a string
+        :return: A datetime.datetime object
+        """
+        return datetime.strptime(timestamp, cls.LAST_MODIFIED_DT_FORMAT)
