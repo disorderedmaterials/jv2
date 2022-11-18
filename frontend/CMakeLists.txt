@@ -20,8 +20,13 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-# Custom CMake modules
+# Custom CMake modules & prefix
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
+list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
+
+# Build output locations
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 # Configure options
 option(JV2_USE_CONAN "If True, use the Conan package manager" OFF)
