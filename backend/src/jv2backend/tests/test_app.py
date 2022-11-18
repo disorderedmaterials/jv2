@@ -139,6 +139,17 @@ def test_pingcycle_returns_final_journal_name_when_changed_since_last_request(
     assert response.data == b"journal_20_2.xml"
 
 
+def test_updatejournal_returns_runs_later_than_last_given(client):
+    response = client.get(
+        f"/updateJournal/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml/85422"
+    )
+
+    runs = json.loads(response.data)
+    assert len(runs) == 2
+    assert runs[0]["run_number"] == "85423"
+    assert runs[1]["run_number"] == "85424"
+
+
 # private functions
 
 

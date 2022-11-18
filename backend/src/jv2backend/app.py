@@ -85,6 +85,23 @@ def create_app(journal_server_url: str) -> Flask:
         result = journal_server.check_for_journal_filenames_update(instrument)
         return result if result is not None else ""
 
+    @app.route("/updateJournal/<instrument>/<cycle>/<last_run>")
+    def updateJournal(instrument, cycle, last_run):
+        """Return runs after the last given run for the instrument and cycle
+
+        :param instrument: The instrument name
+        :param cycle: The cycle filename
+        :param last_run: The last run that is currently known
+        :return: A JSON-formatted list of Run data for runs newer than last_run
+        """
+        try:
+            all_cycle_runs = journal_server.journal(instrument, cycle)
+            return _json_response(all_cycle_runs.search("run_number", f">{last_run}"))
+        except Exception as exc:
+            return jsonify(
+                f"Unable to fetch new runs for {instrument}, cycle {cycle}: {str(exc)}"
+            )
+
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<inLocalSource>")
     def setLocalSource(_):
