@@ -15,6 +15,7 @@ def app(requests_mock, sample_journallist_xml, sample_journal_xml):
     requests_mock.get(
         _fake_instrument_journallist_url(TESTDATA_INSTRUMENT_NAME),
         content=sample_journallist_xml,
+        headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
     )
     for journal_filename in ["journal_21_1.xml", "journal_20_2.xml"]:
         requests_mock.get(
@@ -112,14 +113,23 @@ def test_search_start_time_returns_expected_json(field, client):
     assert len(response_payload) == 2
 
 
-def xtest_request_search_over_journals():
-    # Example requests
-    "/getAllJournals/ALF/user_name/12345/caseSensitivity=true"
-    "/getAllJournals/ALF/title/12345/caseSensitivity=true"
-    "/getAllJournals/ALF/experiment_identifier/12345/caseSensitivity=true"
-    "/getAllJournals/ALF/run_number/12344-12345/caseSensitivity=true"
+def test_pingcycle_returns_empty_str_when_no_change_since_last_request(client):
+    response = client.get(f"/pingCycle/{TESTDATA_INSTRUMENT_NAME}")
 
-    "/getAllJournals/ALF/start_date/12345/caseSensitivity=true"
+    assert response.data == b""
+
+
+def test_pingcycle_returns_final_journal_name_when_changed_since_last_request(
+    client, requests_mock
+):
+    client.get(f"/getCycles/{TESTDATA_INSTRUMENT_NAME}")
+    requests_mock.head(
+        _fake_instrument_journallist_url(TESTDATA_INSTRUMENT_NAME),
+        headers={"Last-Modified": "Fri, 11 Nov 2022 10:34:44 GMT"},
+    )
+    response = client.get(f"/pingCycle/{TESTDATA_INSTRUMENT_NAME}")
+
+    assert response.data == b"journal_20_2.xml"
 
 
 # private functions
