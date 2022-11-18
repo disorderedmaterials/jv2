@@ -17,6 +17,7 @@ def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
         requests_mock.get(
             _fake_instrument_journallist_url(instrument_name),
             content=sample_journallist_xml,
+            headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
         )
         for journal_filename in server.journal_filenames(instrument_name):
             requests_mock.get(
@@ -29,14 +30,8 @@ def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
     return _fixture
 
 
-def test_journal_filenames_parsed_as_expected_on_successful_response(
-    requests_mock, sample_journallist_xml
-):
-    requests_mock.get(
-        _fake_instrument_journallist_url(FAKE_INSTRUMENT_NAME),
-        content=sample_journallist_xml,
-    )
-    server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+def test_journal_filenames_parsed_as_expected_on_successful_response(server_faker):
+    server = server_faker(FAKE_INSTRUMENT_NAME)
 
     journal_filenames = server.journal_filenames(FAKE_INSTRUMENT_NAME)
 
