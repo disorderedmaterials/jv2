@@ -18,8 +18,9 @@ def create_app(journal_server_url: str) -> Flask:
     """
     app = Flask(__name__)
     journal_server = ISISJournalServer(journal_server_url)
+    # -------------------------- Routes -------------------------
 
-    # ========== routes ==========
+    # ---------------- Queries ------------------
     @app.route("/getCycles/<instrument>")
     def getCycles(instrument: str) -> FlaskResponse:
         """Return the list of cycle files for the given instrument
@@ -74,7 +75,20 @@ def create_app(journal_server_url: str) -> Flask:
         except Exception as exc:
             return jsonify(f"Unable to complete search '{search}': {str(exc)}")
 
-    # ========== end routes ==========
+    # -------------- No op routes for backwards compatability -----------
+    @app.route("/setLocalSource/<inLocalSource>")
+    def setLocalSource(_):
+        return jsonify("")
+
+    @app.route("/clearLocalSource")
+    def clearLocalSource():
+        return jsonify("")
+
+    @app.route("/shutdown")
+    def shutdown():
+        return jsonify("")
+
+    # ------------------------ End Routes -------------------------
 
     return app
 
