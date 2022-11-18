@@ -105,6 +105,19 @@ def test_search_by_run_number_uses_a_range_check_assuming_user_gives_start_end(
     assert runs[1]["run_number"] == "85424"
 
 
+def test_search_by_run_number_uses_a_range_check_given_range_operator(
+    journal_fake: Journal,
+):
+    run_field, user_input = "run_number", ">85422"
+
+    search_results = journal_fake.search(run_field, user_input)
+
+    assert search_results.run_count == 2
+    runs = json.loads(search_results.to_json())
+    assert runs[0]["run_number"] == "85423"
+    assert runs[1]["run_number"] == "85424"
+
+
 def test_search_by_start_time_treating_input_as_datetime_and_equivalent_to_start_date(
     journal_fake: Journal,
 ):
