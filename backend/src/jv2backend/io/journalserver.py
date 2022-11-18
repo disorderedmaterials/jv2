@@ -18,7 +18,7 @@ class JournalServer(metaclass=ABCMeta):
         :param instrument_name: The instrument name
         :return: The list of journal filenames as strings
         """
-        raise NotImplementedError
+        raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
     def journal(self, instrument_name: str, filename: str) -> Journal:
@@ -27,7 +27,7 @@ class JournalServer(metaclass=ABCMeta):
         :param cycle_name: Name of cycle whose journal should be returned
         :return: The list of journal filenames as strings
         """
-        raise NotImplementedError
+        raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
     def check_for_journal_filenames_update(self, instrument_name: str) -> Optional[str]:
@@ -37,7 +37,7 @@ class JournalServer(metaclass=ABCMeta):
         :param instrument_name: The name of the instrument
         :return: The latest journal filename if there have been updates to the main list
         """
-        raise NotImplementedError()
+        raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
     def search(
@@ -54,4 +54,4 @@ class JournalServer(metaclass=ABCMeta):
         :param case_sensitive: If True, use case sensitive searching
         :return: A Journal of the runs matching the search query
         """
-        raise NotImplementedError
+        raise NotImplementedError()  # pragma: no cover

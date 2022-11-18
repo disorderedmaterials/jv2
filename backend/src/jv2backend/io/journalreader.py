@@ -12,8 +12,8 @@ class JournalReader(metaclass=ABCMeta):
 
     @abstractmethod
     def read_indexfile(self, content: bytes) -> JournalFileList:
-        raise NotImplementedError
+        raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
     def read_journalfile(self, content: bytes) -> Journal:
-        raise NotImplementedError
+        raise NotImplementedError()  # pragma: no cover

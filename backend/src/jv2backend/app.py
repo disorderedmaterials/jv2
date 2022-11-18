@@ -23,7 +23,7 @@ def create_app(journal_server_url: str) -> Flask:
 
 
 # In future add any command-line arguments here
-def main():
+def main():  # pragma: no cover
     """Start the backend"""
     app = create_app(CONFIG["journal_server_url"])
 
@@ -36,4 +36,4 @@ def main():
 
 # On running this module as main, start the server
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover
