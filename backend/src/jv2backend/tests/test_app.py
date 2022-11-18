@@ -113,7 +113,14 @@ def test_search_start_time_returns_expected_json(field, client):
     assert len(response_payload) == 2
 
 
-def test_pingcycle_returns_empty_str_when_no_change_since_last_request(client):
+def test_pingcycle_returns_empty_str_when_no_change_since_last_request(
+    client, requests_mock
+):
+    requests_mock.head(
+        _fake_instrument_journallist_url(TESTDATA_INSTRUMENT_NAME),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
+    )
+
     response = client.get(f"/pingCycle/{TESTDATA_INSTRUMENT_NAME}")
 
     assert response.data == b""

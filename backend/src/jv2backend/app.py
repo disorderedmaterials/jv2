@@ -42,8 +42,9 @@ def create_app(journal_server_url: str) -> Flask:
         :return: A JSON reponse
         """
         try:
-            journal = journal_server.journal(instrument_name=instrument, filename=cycle)
-            return FlaskResponse(journal.to_json(), mimetype="application/json")
+            return _json_response(
+                journal_server.journal(instrument_name=instrument, filename=cycle)
+            )
         except Exception as exc:
             return jsonify(
                 f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
@@ -68,10 +69,9 @@ def create_app(journal_server_url: str) -> Flask:
             # start_date maps to start_time in the run_fields
             field = "start_time" if field.endswith("date") else field
         try:
-            results = journal_server.search(
-                instrument, field, search, case_sensitive
-            ).to_json()
-            return FlaskResponse(results, mimetype="application/json")
+            return _json_response(
+                journal_server.search(instrument, field, search, case_sensitive)
+            )
         except Exception as exc:
             return jsonify(f"Unable to complete search '{search}': {str(exc)}")
 
@@ -104,20 +104,13 @@ def create_app(journal_server_url: str) -> Flask:
 
 
 # Private functions
-def _json_response(*, result: Any, error_msg: str):
-    """Create a response for the Flask server. If the result is None
-    the error_msg is created as a single string entry in a json dict
-    of the form
+def _json_response(result: Any) -> FlaskResponse:
+    """Create a JSON-formatted response for the Flask server
 
-    {'response': error_msg}
-
-    :param result: The result from a call or None if an error occurred
-    :param error_msg: A string indicating an error
-    :return: A Response object
+    :result: An object with a .to_json method to be packed into a Response
+    :return: A Flask-Response object
     """
-    if result is None:
-        result = {"response": error_msg}
-    return jsonify(result)
+    return FlaskResponse(result.to_json(), mimetype="application/json")
 
 
 # In future add any command-line arguments here
