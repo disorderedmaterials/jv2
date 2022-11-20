@@ -30,6 +30,12 @@ def sample_journallist_xml() -> bytes:
 
 
 @pytest.fixture()
-def sample_journal_dataframe() -> pd.DataFrame:
+def sample_journal_dataframe(sample_journal_xml) -> pd.DataFrame:
     """Provide a sample dataframe"""
-    return pd.read_xml(TEST_DATA_DIR / "journal_21_1.xml", dtype=str)
+    return pd.read_xml(sample_journal_xml(), dtype=str)
+
+
+@pytest.fixture()
+def sample_run(sample_journal_dataframe) -> dict:
+    """Provide a sample Run dict"""
+    return sample_journal_dataframe.iloc[0].to_dict()
