@@ -10,9 +10,16 @@ from jv2backend.routes import add_routes
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
 from jv2backend.io.isis.isisjournalserver import ISISJournalServer
+from jv2backend.io.isis.daaasdatafilelocator import (
+    RunDataFileLocator,
+    DAaaSDataCacheFileLocator,
+)
 
 
-def create_app(journal_server_url: Optional[str] = None) -> Flask:
+def create_app(
+    journal_server_url: Optional[str] = None,
+    run_locator: Optional[RunDataFileLocator] = None,
+) -> Flask:
     """Create the Flask application and define
     the routes served by the backend.
 
@@ -22,8 +29,11 @@ def create_app(journal_server_url: Optional[str] = None) -> Flask:
     app = Flask(__name__)
     if journal_server_url is None:
         journal_server_url = CONFIG["journal_server_url"]
+    if run_locator is None:
+        run_locator = DAaaSDataCacheFileLocator(CONFIG["run_locator_prefix"])
     journal_server = ISISJournalServer(journal_server_url)
-    return add_routes(app, journal_server)
+
+    return add_routes(app, journal_server, run_locator)
 
 
 # In future add any command-line arguments here

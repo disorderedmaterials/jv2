@@ -2,6 +2,8 @@
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 import json
 import pytest
+from unittest.mock import MagicMock
+
 from jv2backend.app import create_app
 
 FAKE_SERVER_ADDRESS = "http://fake.url/testing"
@@ -9,8 +11,13 @@ TESTDATA_INSTRUMENT_NAME = "ALF"
 
 
 @pytest.fixture()
-def app(requests_mock, sample_journallist_xml, sample_journal_xml):
-    app = create_app(FAKE_SERVER_ADDRESS)
+def app(
+    requests_mock, sample_journallist_xml, sample_journal_xml, sample_nexus_filepath
+):
+    run_locator_mock = MagicMock()
+    run_locator_mock.locate.return_value = sample_nexus_filepath
+
+    app = create_app(FAKE_SERVER_ADDRESS, run_locator=run_locator_mock)
     app.config.update({"TESTING": True})
     requests_mock.get(
         _fake_instrument_journallist_url(TESTDATA_INSTRUMENT_NAME),
@@ -31,6 +38,9 @@ def app(requests_mock, sample_journallist_xml, sample_journal_xml):
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+
+# ------------------------ Journal access routes ------------------------
 
 
 def test_request_cycles_returns_expected_json_for_existing_instrument(client):
@@ -150,7 +160,19 @@ def test_updatejournal_returns_runs_later_than_last_given(client):
     assert runs[1]["run_number"] == "85424"
 
 
-# private functions
+# ---------------------- NeXus access routes ----------------------
+
+
+def test_getNexusFields_returns_all_expected_log_data_fields_paths(client):
+    response = client.get(f"/getNexusFields/{TESTDATA_INSTRUMENT_NAME}/21_1;/85423;")
+
+    fields = json.loads(response.data)
+    assert len(fields) == 2
+    for group in fields:
+        assert group[0] in ("selog", "runlog")
+
+
+# ---------------------- Private functions ----------------------
 
 
 def _fake_instrument_journal_url(instrument_name: str, journal_filename: str) -> str:

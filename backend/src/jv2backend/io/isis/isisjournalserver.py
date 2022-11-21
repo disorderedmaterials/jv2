@@ -16,7 +16,15 @@ class ISISJournalServer(JournalServer):
     information."""
 
     JOURNAL_FILELIST_FILENAME = "journal_main.xml"
+    JOURNAL_FILENAME_TEMPLATE = "journal_{}.xml"
     LAST_MODIFIED_DT_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
+
+    @classmethod
+    def filename(cls, cyclename: str):
+        """Return the Journal filename from a cycle name
+        :param cyclename: Construct the journal filename as journal_YY_N.xml
+        """
+        return cls.JOURNAL_FILENAME_TEMPLATE.format(cyclename)
 
     def __init__(self, root_url: str):
         """
@@ -40,13 +48,28 @@ class ISISJournalServer(JournalServer):
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_indexfile(response.content)
 
-    def journal(self, instrument_name: str, filename: str) -> Journal:
+    def journal(
+        self,
+        instrument_name: str,
+        *,  # kw-only past here
+        filename: Optional[str] = None,
+        cyclename: Optional[str] = None,
+    ) -> Journal:
         """
         :param instrument_name: The instrument name
-        :param filename: Filename of the cycle
+        :param filename: Filename of the cycle journal
+        :param cyclename: Cycle name in the form YY_N. If filename is provided it takes precendence.
         :return: The list of journal filenames as strings
         """
-        response = requests.get(self._journalfile_url(instrument_name, filename))
+        if filename is None and cyclename is None:
+            raise ValueError(
+                "Cannot retrieve Journal. Please provide either filename or cyclename parameter."
+            )
+
+        filename_str = (
+            self.filename(cyclename) if cyclename is not None else str(filename)
+        )
+        response = requests.get(self._journalfile_url(instrument_name, filename_str))
         response.raise_for_status()
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_journalfile(response.content)
@@ -88,7 +111,7 @@ class ISISJournalServer(JournalServer):
         """
         results = []
         for filename in self.journal_filenames(instrument_name):
-            journal = self.journal(instrument_name, filename)
+            journal = self.journal(instrument_name, filename=filename)
             results.append(journal.search(run_field, user_input, case_sensitive))
 
         return concatenate(results)

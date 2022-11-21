@@ -21,10 +21,18 @@ class JournalServer(metaclass=ABCMeta):
         raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
-    def journal(self, instrument_name: str, filename: str) -> Journal:
+    def journal(
+        self,
+        instrument_name: str,
+        *,
+        filename: Optional[str] = None,
+        cyclename: Optional[str] = None
+    ) -> Journal:
         """
         :param instrument_name: The instrument name
-        :param cycle_name: Name of cycle whose journal should be returned
+        :param filename: The filename of the journal that should be returned
+        :param cyclename: Name of cycle whose journal should be returned.
+        If both this and filename are provided then filename takes precendence.
         :return: The list of journal filenames as strings
         """
         raise NotImplementedError()  # pragma: no cover
