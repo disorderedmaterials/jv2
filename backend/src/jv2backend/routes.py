@@ -1,15 +1,20 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Defines the Flask endpoints supported by the server"""
-from typing import Any
+from pathlib import Path
+from typing import Any, Optional, Sequence
 
 from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.io.journalserver import JournalServer
+import jv2backend.io.nexus as nxs
+from jv2backend.io.rundatafilelocator import RunDataFileLocator
 
 
-def add_routes(app: Flask, journal_server: JournalServer) -> Flask:
+def add_routes(
+    app: Flask, journal_server: JournalServer, run_locator: RunDataFileLocator
+) -> Flask:
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
@@ -25,21 +30,21 @@ def add_routes(app: Flask, journal_server: JournalServer) -> Flask:
         except Exception as exc:
             return jsonify(f"Unable to fetch cycles for {instrument}: {str(exc)}")
 
-    @app.route("/getJournal/<instrument>/<cycle>")
-    def getJournal(instrument: str, cycle: str) -> FlaskResponse:
+    @app.route("/getJournal/<instrument>/<filename>")
+    def getJournal(instrument: str, filename: str) -> FlaskResponse:
         """Return a single journal of Runs for the instrument and cycle
 
         :param instrument: The name of an instrument
-        :param cycle: The filename of a cycle journal file in the format journal_YY_N.xml
+        :param filename: The filename of a cycle journal file in the format journal_YY_N.xml
         :return: A JSON reponse
         """
         try:
             return _json_response(
-                journal_server.journal(instrument_name=instrument, filename=cycle)
+                journal_server.journal(instrument_name=instrument, filename=filename)
             )
         except Exception as exc:
             return jsonify(
-                f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
+                f"Unable to fetch journal for {instrument}, cycle {filename}: {str(exc)}"
             )
 
     @app.route("/getAllJournals/<instrument>/<field>/<search>/<options>")
@@ -77,37 +82,83 @@ def add_routes(app: Flask, journal_server: JournalServer) -> Flask:
         result = journal_server.check_for_journal_filenames_update(instrument)
         return result if result is not None else ""
 
-    @app.route("/updateJournal/<instrument>/<cycle>/<last_run>")
-    def updateJournal(instrument, cycle, last_run):
+    @app.route("/updateJournal/<instrument>/<filename>/<last_run>")
+    def updateJournal(instrument, filename, last_run):
         """Return runs after the last given run for the instrument and cycle
 
         :param instrument: The instrument name
-        :param cycle: The cycle filename
+        :param filename: The cycle filename
         :param last_run: The last run that is currently known
         :return: A JSON-formatted list of Run data for runs newer than last_run
         """
         try:
-            all_cycle_runs = journal_server.journal(instrument, cycle)
+            all_cycle_runs = journal_server.journal(instrument, filename=filename)
             return _json_response(all_cycle_runs.search("run_number", f">{last_run}"))
         except Exception as exc:
             return jsonify(
-                f"Unable to fetch new runs for {instrument}, cycle {cycle}: {str(exc)}"
+                f"Unable to fetch new runs for {instrument}, cycle {filename}: {str(exc)}"
             )
+
+    # -------------- NeXus access routes --------------------------------
+
+    @app.route("/getNexusFields/<instrument>/<cycles>/<runs>")
+    def getNexusFields(instrument, cycles, runs):
+        """Return a list of the log fields within the run
+
+        :param instrument: Instrument name
+        :param cycles: A semi-colon separated list of cycle names
+        :param runs: A semi-colon separated list of run numbers. Length should match cycles
+        :return: A list of full paths to log fields. Each entry is a list
+        where the first entry is the group name followed by the full path to each available log entry
+        """
+        filepaths = _locate_run_files(instrument, cycles, runs)
+        logpaths = []
+        for filepath, run in zip(filepaths, runs):
+            if filepath is None:
+                return jsonify(f"Unable to find run file for run '{run}'")
+            logpaths.extend(nxs.logpaths(filepath))
+
+        return _json_response(logpaths)
 
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<inLocalSource>")
     def setLocalSource(_):
-        return jsonify("")
+        return _json_response("")
 
     @app.route("/clearLocalSource")
     def clearLocalSource():
-        return jsonify("")
+        return _json_response("")
 
     @app.route("/shutdown")
     def shutdown():
-        return jsonify("")
+        return _json_response("")
 
     # ------------------------ End Routes -------------------------
+
+    def _locate_run_files(
+        instrument: str, cycles_str: str, runs_str: str
+    ) -> Sequence[Optional[Path]]:
+        """Return a list of Path objects to files for the given query
+
+        :param file_locator: An object that understands how to locate a Run
+        :param instrument: Instrument name
+        :param cycles: A semi-colon separated list of cycle names in the format YY_N
+        :param runs: A semi-colon separated list of run numbers. Length should match cycles.
+        :return: A list of Path|None to the found data files. None indicates the files could not be found
+        """
+        filepaths = []
+        cycles, runs = _split(cycles_str, ";"), _split(runs_str, ";")
+        for cycle, run in zip(cycles, runs):
+            journal = journal_server.journal(instrument, cyclename=cycle)
+            run = journal.run(run_number=run)
+            if run is None:
+                filepaths.append(None)
+                continue
+            filepaths.append(run_locator.locate(run))
+
+        return filepaths
+
+    # ------------------------ End Helpers -------------------------
 
     return app
 
@@ -119,4 +170,21 @@ def _json_response(result: Any) -> FlaskResponse:
     :result: An object with a .to_json method to be packed into a Response
     :return: A Flask-Response object
     """
-    return FlaskResponse(result.to_json(), mimetype="application/json")
+    if hasattr(result, "to_json"):
+        return FlaskResponse(result.to_json(), mimetype="application/json")
+    else:
+        return jsonify(result)
+
+
+def _split(input: str, delimiter: str, discard_empty=True) -> Sequence[str]:
+    """Split a string using a delimeter and optionally discard empty parts
+
+    :param input: The input string
+    :param delimiter: Delimeter used for splitting
+    :param discard_empty: If True then empty elements are removed, defaults to True
+    """
+    items = input.split(delimiter)
+    if discard_empty:
+        items = list(filter(None, items))
+
+    return items

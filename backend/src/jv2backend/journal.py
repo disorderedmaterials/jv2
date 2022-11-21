@@ -3,7 +3,7 @@
 """Defines a Journal class to encapsulate a collection of Runs on an instrument"""
 from __future__ import annotations
 import datetime as dt
-from typing import Sequence
+from typing import Optional, Sequence
 import pandas as pd
 
 from jv2backend.instrument import Instrument
@@ -130,6 +130,18 @@ class Journal:
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return len(self._data)
+
+    def run(self, run_number: str) -> Optional[dict]:
+        """Return a dictionary describing the given run number
+
+        :param run_number: Run number to select
+        :return: A dict describing the Run or None if the run does not exist
+        """
+        matches = self._data[self._data["run_number"] == run_number]
+        if len(matches) == 0:
+            return None
+        else:
+            return matches.to_dict(orient="records")[0]
 
     def search(
         self, run_field: str, user_input: str, case_sensitive: bool = False

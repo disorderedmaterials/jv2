@@ -3,4 +3,7 @@
 """Hold configuration values for the program."""
 
 
-CONFIG = {"journal_server_url": "http://data.isis.rl.ac.uk/journals"}
+CONFIG = {
+    "journal_server_url": "http://data.isis.rl.ac.uk/journals",
+    "run_locator_prefix": "/data",
+}

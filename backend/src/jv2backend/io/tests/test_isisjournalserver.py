@@ -30,6 +30,10 @@ def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
     return _fixture
 
 
+def test_cyclename_returns_expected_filename():
+    assert ISISJournalServer.filename("21_1") == "journal_21_1.xml"
+
+
 def test_journal_filenames_parsed_as_expected_on_successful_response(server_faker):
     server = server_faker(FAKE_INSTRUMENT_NAME)
 
@@ -51,15 +55,26 @@ def test_journal_filenames_raises_Exception_on_http_error(requests_mock):
         server.journal_filenames(FAKE_INSTRUMENT_NAME)
 
 
-def test_journal_returned_on_successful_response(requests_mock, sample_journal_xml):
-    instrument_name, journal_filename = "ALF", "journal_21_1.xml"
+def test_journal_raises_ValueError_if_filename_cyclename_not_provided():
+    server = ISISJournalServer(FAKE_SERVER_ADDRESS)
+    with pytest.raises(ValueError):
+        server.journal("ALF")
+
+
+@pytest.mark.parametrize(
+    "call_args", [{"filename": "journal_21_1.xml"}, {"cyclename": "21_1"}]
+)
+def test_journal_returned_on_successful_response(
+    call_args, requests_mock, sample_journal_xml
+):
+    instrument_name = "ALF"
     requests_mock.get(
-        _fake_instrument_journal_url(instrument_name, journal_filename),
+        _fake_instrument_journal_url(instrument_name, "journal_21_1.xml"),
         content=sample_journal_xml(),
     )
     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
 
-    journal = server.journal(instrument_name, journal_filename)
+    journal = server.journal(instrument_name, **call_args)
 
     assert isinstance(journal, Journal)
     assert journal.run_count == 3
@@ -75,7 +90,7 @@ def test_journal_call_raises_Exception_on_http_error(requests_mock):
     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
 
     with pytest.raises(Exception, match=".*404.*"):
-        server.journal(instrument_name, journal_filename)
+        server.journal(instrument_name, filename=journal_filename)
 
 
 def test_check_for_journal_filenames_update_returns_latest_filename_when_changed_since_last_request(
