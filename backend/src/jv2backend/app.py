@@ -4,16 +4,17 @@
 from typing import Optional
 from flask import Flask
 
-from jv2backend.config import CONFIG
+from jv2backend.config import DEFAULTS
 from jv2backend.routes import add_routes
 
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
 from jv2backend.io.isis.isisjournalserver import ISISJournalServer
 from jv2backend.io.isis.filelocator import (
+    LegacyArchiveFileLocator,
     RunDataFileLocator,
-    DAaaSDataCacheFileLocator,
 )
+from jv2backend.io.isis import filelocator
 
 
 def create_app(
@@ -28,10 +29,11 @@ def create_app(
     """
     app = Flask(__name__)
     if journal_server_url is None:
-        journal_server_url = CONFIG["journal_server_url"]
-    if run_locator is None:
-        run_locator = DAaaSDataCacheFileLocator(CONFIG["run_locator_prefix"])
+        journal_server_url = DEFAULTS["journal_server_url"]
     journal_server = ISISJournalServer(journal_server_url)
+
+    if run_locator is None:
+        run_locator = LegacyArchiveFileLocator(DEFAULTS["run_locator_prefix"])
 
     return add_routes(app, journal_server, run_locator)
 
