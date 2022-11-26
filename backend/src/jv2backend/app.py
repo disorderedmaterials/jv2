@@ -10,7 +10,7 @@ from jv2backend.routes import add_routes
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
 from jv2backend.io.isis.isisjournalserver import ISISJournalServer
-from jv2backend.io.isis.daaasdatafilelocator import (
+from jv2backend.io.isis.filelocator import (
     RunDataFileLocator,
     DAaaSDataCacheFileLocator,
 )
