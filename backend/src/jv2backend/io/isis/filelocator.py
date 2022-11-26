@@ -49,6 +49,47 @@ class DAaaSDataCacheFileLocator(RunDataFileLocator):
             return None
 
 
+class LegacyArchiveFileLocator(RunDataFileLocator):
+    """Implments file searching based on the ISIS
+    archive layout. Files can be found by constructing
+    the following path
+
+    <prefix>/ndx<instrument_name.lower()>/Instrument/data/cycle_YY_N/<name>.nxs
+    """
+
+    EXTENSION = ".nxs"
+
+    def __init__(self, prefix: str) -> None:
+        """
+        :param prefix: Filesystem prefix for all run data.
+        """
+        super().__init__()
+        self._prefix = Path(prefix)
+
+    def locate(self, run: dict) -> Optional[Path]:
+        """For a given run find the data file and return the full Path if the file
+        was found or None if it could not be found
+
+        :param run: A mapping describing the run.
+        """
+        instrument, cycle_id = (
+            run["instrument_name"],
+            run["isis_cycle"],
+        )
+        filepath = (
+            self._prefix
+            / f"ndx{instrument.lower()}"
+            / "Instrument"
+            / "data"
+            / f"cycle_{cycle_id}"
+            / f"{run['name']}{self.EXTENSION}"
+        )
+        if filepath.exists():
+            return filepath
+        else:
+            return None
+
+
 # private helpers
 
 _CYCLE_CENTURY = "20"

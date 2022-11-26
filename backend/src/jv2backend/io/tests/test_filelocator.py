@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
-from jv2backend.io.isis.daaasdatafilelocator import DAaaSDataCacheFileLocator
+from jv2backend.io.isis.filelocator import (
+    DAaaSDataCacheFileLocator,
+    LegacyArchiveFileLocator,
+)
 
-import os
 import pytest
 
 # Note: in these tests 'fs' refers to the fake filesystem fixture in
@@ -18,10 +20,27 @@ def datacache_faker(fs, sample_run):
             sample_run["experiment_identifier"],
         )
         fs.create_file(
-            f"/{prefix}/{instrument}/{cycle_year}/RB{experiment_id}-{part_number}/{sample_run['name']}.nxs"
+            f"{prefix}/{instrument}/{cycle_year}/RB{experiment_id}-{part_number}/{sample_run['name']}.nxs"
         )
 
     return _impl
+
+
+@pytest.fixture()
+def archive_faker(fs, sample_run):
+    def _impl(prefix: str):
+        instrument, cycle_name = (
+            sample_run["instrument_name"],
+            "cycle_21_1",
+        )
+        fs.create_file(
+            f"{prefix}/ndx{instrument.lower()}/Instrument/data/{cycle_name}/{sample_run['name']}.nxs"
+        )
+
+    return _impl
+
+
+# ======================== DAaaSDataCache =========================
 
 
 @pytest.mark.parametrize("part_number", [1, 3, 5])
@@ -59,3 +78,30 @@ def test_locator_created_with_non_existing_prefix_does_not_raise_error():
     filefinder = DAaaSDataCacheFileLocator("/nothere")
 
     assert filefinder is not None
+
+
+# ======================== LegacyArchive =========================
+
+
+def test_legacyarchive_finds_existing_file(sample_run, archive_faker):
+    prefix = "/data"
+    archive_faker(prefix)
+    filefinder = LegacyArchiveFileLocator(prefix)
+
+    path = filefinder.locate(sample_run)
+
+    assert path is not None
+    assert path.exists()
+    assert path.name == sample_run["name"] + ".nxs"
+    assert "Instrument/data" in str(path)
+
+
+def test_legacyarchive_returns_None_for_none_existing_file(sample_run, archive_faker):
+    prefix = "/data"
+    archive_faker(prefix)
+    sample_run["name"] = "ALF00000000.nxs"
+    filefinder = LegacyArchiveFileLocator(prefix)
+
+    path = filefinder.locate(sample_run)
+
+    assert path is None
