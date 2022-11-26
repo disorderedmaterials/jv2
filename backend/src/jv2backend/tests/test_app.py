@@ -167,9 +167,37 @@ def test_getNexusFields_returns_all_expected_log_data_fields_paths(client):
     response = client.get(f"/getNexusFields/{TESTDATA_INSTRUMENT_NAME}/21_1;/85423;")
 
     fields = json.loads(response.data)
-    assert len(fields) == 2
+    assert len(fields) == 3
     for group in fields:
-        assert group[0] in ("selog", "runlog")
+        assert group[0] in ("selog", "runlog", "framelog")
+
+
+def test_getNexusData_returns_all_expected_log_data_fields(client):
+    fields = f":raw_data_1:selog:Z;:raw_data_1:runlog:dae_beam_current"
+    response = client.get(
+        f"/getNexusData/{TESTDATA_INSTRUMENT_NAME}/21_1;/85423;/{fields}"
+    )
+
+    data = json.loads(response.data)
+    assert len(data) == 2
+    # first entry is all of the fields
+    all_fields = data[0]
+    for group in all_fields:
+        assert group[0] in ("selog", "runlog", "framelog")
+
+    # second entry describes the run
+    run_data = data[1]
+    start, end = run_data[0]
+    assert "2021" in start
+    assert "2021" in end
+    selog_values = run_data[1]
+    assert selog_values[0][0] == "85423"
+    assert selog_values[0][1].endswith("Z")
+    assert selog_values[1][0] == pytest.approx(-5779.0)
+    runlog_values = run_data[2]
+    assert runlog_values[0][0] == "85423"
+    assert runlog_values[0][1].endswith("current")
+    assert runlog_values[1][0] == pytest.approx(-5775.)
 
 
 # ---------------------- Private functions ----------------------

@@ -111,14 +111,56 @@ def add_routes(
         :return: A list of full paths to log fields. Each entry is a list
         where the first entry is the group name followed by the full path to each available log entry
         """
-        filepaths = _locate_run_files(instrument, cycles, runs)
+        filepaths = _locate_run_files(
+            journal_server, run_locator, instrument, cycles, runs
+        )
         logpaths = []
         for filepath, run in zip(filepaths, runs):
             if filepath is None:
                 return jsonify(f"Unable to find run file for run '{run}'")
-            logpaths.extend(nxs.logpaths(filepath))
+            logpaths.extend(nxs.logpaths_from_path(filepath))
 
         return _json_response(logpaths)
+
+    @app.route("/getNexusData/<instrument>/<cycles>/<runs>/<fields>")
+    def getNexusData(instrument, cycles, runs, fields):
+        """Return a list of the log fields within the run.
+
+        :param instrument: Instrument name
+        :param cycles: A semi-colon separated list of cycle names
+        :param runs: A semi-colon separated list of run numbers. Length should match cycles
+        :param fields: A semi-colon separated list of field names. A colon indicates a path separator in field
+        :return: A list of the log data
+        """
+        filepaths = _locate_run_files(
+            journal_server, run_locator, instrument, cycles, runs
+        )
+
+        # The front end expects a list where the first entry is a list of all available fields.
+        # The assumption is all instruments offer the same fields so only the first is examined.
+        # The subsequent entries are one additional entry per run:
+        #   [(start_time, end_time), [(run, field1),(time1, val1),...], [(run, field2),(time1, val1),...]]
+        runs, fields = _split(runs, ";"), _split(fields, ";")
+        all_field_data = []
+        for filepath, run in zip(filepaths, runs):
+            if filepath is None:
+                return jsonify(f"Unable to find run file for run '{run}'")
+
+            nxsfile, first_group = nxs.open_at(filepath, 0)
+            run_data = [nxs.timerange(first_group)]
+            for name in fields:
+                # request substitutes '/' in place of ';' so reverse this
+                field_path = name.replace(":", "/")
+                log_data = nxs.logvalues(first_group[field_path])  # type: ignore
+                log_data.insert(0, (run, name))  # type: ignore
+                run_data.append(log_data)  # type: ignore
+            nxsfile.close()
+            all_field_data.append(run_data)
+
+        # Add the list of all available log paths required by the frontend
+        all_field_data.insert(0, nxs.logpaths_from_path(filepaths[0]))  # type: ignore
+
+        return _json_response(all_field_data)
 
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<inLocalSource>")
@@ -134,31 +176,6 @@ def add_routes(
         return _json_response("")
 
     # ------------------------ End Routes -------------------------
-
-    def _locate_run_files(
-        instrument: str, cycles_str: str, runs_str: str
-    ) -> Sequence[Optional[Path]]:
-        """Return a list of Path objects to files for the given query
-
-        :param file_locator: An object that understands how to locate a Run
-        :param instrument: Instrument name
-        :param cycles: A semi-colon separated list of cycle names in the format YY_N
-        :param runs: A semi-colon separated list of run numbers. Length should match cycles.
-        :return: A list of Path|None to the found data files. None indicates the files could not be found
-        """
-        filepaths = []
-        cycles, runs = _split(cycles_str, ";"), _split(runs_str, ";")
-        for cycle, run in zip(cycles, runs):
-            journal = journal_server.journal(instrument, cyclename=cycle)
-            run = journal.run(run_number=run)
-            if run is None:
-                filepaths.append(None)
-                continue
-            filepaths.append(run_locator.locate(run))
-
-        return filepaths
-
-    # ------------------------ End Helpers -------------------------
 
     return app
 
@@ -188,3 +205,31 @@ def _split(input: str, delimiter: str, discard_empty=True) -> Sequence[str]:
         items = list(filter(None, items))
 
     return items
+
+
+def _locate_run_files(
+    journal_server: JournalServer,
+    run_locator: RunDataFileLocator,
+    instrument: str,
+    cycles_str: str,
+    runs_str: str,
+) -> Sequence[Optional[Path]]:
+    """Return a list of Path objects to files for the given query
+
+    :param file_locator: An object that understands how to locate a Run
+    :param instrument: Instrument name
+    :param cycles: A semi-colon separated list of cycle names in the format YY_N
+    :param runs: A semi-colon separated list of run numbers. Length should match cycles.
+    :return: A list of Path|None to the found data files. None indicates the files could not be found
+    """
+    filepaths = []
+    cycles, runs = _split(cycles_str, ";"), _split(runs_str, ";")
+    for cycle, run in zip(cycles, runs):
+        journal = journal_server.journal(instrument, cyclename=cycle)
+        run = journal.run(run_number=run)
+        if run is None:
+            filepaths.append(None)
+            continue
+        filepaths.append(run_locator.locate(run))
+
+    return filepaths
