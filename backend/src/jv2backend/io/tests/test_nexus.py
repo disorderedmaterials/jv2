@@ -57,3 +57,9 @@ def test_spectra_count_returns_the_number_spectra_in_detector_1_entry(
     sample_nexus_filepath,
 ):
     assert nxs.spectra_count(sample_nexus_filepath) == 2368
+
+
+def test_monitor_count_returns_the_number_monitors_in_the_first_entry(
+    sample_nexus_filepath,
+):
+    assert nxs.monitor_count(sample_nexus_filepath) == 3

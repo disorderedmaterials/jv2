@@ -2,6 +2,7 @@
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """A collection of function to return data for a NeXus file"""
 from pathlib import Path, PurePath
+import re
 from typing import Any, MutableSequence, Sequence, Tuple
 import h5py as h5
 
@@ -18,6 +19,7 @@ class NXStrings:
     ValueLog = "value_log"
     Detector1 = "detector_1"
     Counts = "counts"
+    MonitorRE = re.compile(r"^monitor_\d+$")
 
 
 def logpaths_from_path(filepath: Path) -> Sequence[Sequence[str]]:
@@ -112,6 +114,23 @@ def spectra_count(filepath: Path) -> int:
     """
     with h5.File(filepath) as h5file:
         return len(group_at(h5file, 0)[NXStrings.Detector1][NXStrings.Counts][0])  # type: ignore
+
+
+def monitor_count(filepath: Path) -> int:
+    """Return the number of monitors in the first group
+
+    :param filepath: A path to a NeXus file
+    :return: The number of spectra
+    """
+    with h5.File(filepath) as h5file:
+        first_group = group_at(h5file, 0)
+        return len(
+            [
+                key
+                for key in first_group.keys()
+                if NXStrings.MonitorRE.match(key) is not None
+            ]
+        )
 
 
 def open_at(filepath: Path, index: int) -> Tuple[h5.File, h5.Group]:

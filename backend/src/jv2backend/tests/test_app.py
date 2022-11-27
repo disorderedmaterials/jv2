@@ -206,8 +206,18 @@ def test_getSpectrumRange_returns_spectrum_count(client):
     )
 
     data = json.loads(response.data)
+    assert len(data) == 1
     assert data[0] == 2368
-    assert data[1] == 2368
+
+
+def test_getMonitorRange_returns_monitor_count(client):
+    response = client.get(
+        f"/getMonitorRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423;85423"
+    )
+
+    data = json.loads(response.data)
+    assert len(data) == 1
+    assert data[0] == 3
 
 
 # ---------------------- Private functions ----------------------
