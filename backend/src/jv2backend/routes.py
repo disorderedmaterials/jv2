@@ -166,7 +166,8 @@ def add_routes(
 
     @app.route("/getSpectrumRange/<instrument>/<cycle>/<runs>")
     def getSpectrumRange(instrument, cycle, runs):
-        """Return the number of spectra for each of the given runs
+        """Return the number of spectra for the first run. The old
+        api simply ignored anything past the first run
 
         :param instrument: The instrument name
         :param cycle: The cycle containing the runs
@@ -174,12 +175,30 @@ def add_routes(
         :return: A JSON-encoded list of spectrum counts
         """
         filepaths = _locate_run_files(
-            journal_server, run_locator, instrument, cycle, runs
+            journal_server, run_locator, instrument, cycle, runs[: runs.index(";")]
         )
         if not any(filepaths):
-            return jsonify("Unable to find all run files.")
+            return jsonify(f"Unable to find run {runs}")
 
         return _json_response([nxs.spectra_count(filepath) for filepath in filepaths])
+
+    @app.route("/getMonitorRange/<instrument>/<cycle>/<runs>")
+    def getMonitorRange(instrument, cycle, runs):
+        """Return the number of monitors for the first run. The old
+        api simply ignored anything past the first run
+
+        :param instrument: The instrument name
+        :param cycle: The cycle containing the runs
+        :param runs: The run numbers
+        :return: A JSON-encoded list of spectrum counts
+        """
+        filepaths = _locate_run_files(
+            journal_server, run_locator, instrument, cycle, runs[: runs.index(";")]
+        )
+        if not any(filepaths):
+            return jsonify(f"Unable to find run {runs}")
+
+        return _json_response([nxs.monitor_count(filepath) for filepath in filepaths])
 
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<source>")
