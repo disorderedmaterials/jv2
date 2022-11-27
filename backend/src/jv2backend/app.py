@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Define the Flask instance and backend API routes"""
+from logging.config import dictConfig as loggerConfig
 from typing import Optional
 from flask import Flask
 
@@ -27,6 +28,13 @@ def create_app(
     :param journal_server_url: The address of the server providing the journal information.
                                Defaults to the value store in CONFIG
     """
+    loggerConfig({
+        'version': 1,
+        'root': {
+            'level': 'INFO',
+        }
+    })
+
     app = Flask(__name__)
     if journal_server_url is None:
         journal_server_url = DEFAULTS["journal_server_url"]

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Defines the Flask endpoints supported by the server"""
+import logging
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
@@ -114,6 +115,7 @@ def add_routes(
         filepaths = _locate_run_files(
             journal_server, run_locator, instrument, cycles, runs
         )
+        app.logger.debug(f"/getNexusFields: Located files: {filepaths}")
         logpaths = []
         for filepath, run in zip(filepaths, runs):
             if filepath is None:
@@ -163,8 +165,12 @@ def add_routes(
         return _json_response(all_field_data)
 
     # -------------- No op routes for backwards compatability -----------
-    @app.route("/setLocalSource/<inLocalSource>")
-    def setLocalSource(_):
+    @app.route("/setLocalSource/<source>")
+    def setLocalSource(source=""):
+        return _json_response("")
+
+    @app.route("/setRoot/<prefix>")
+    def setRoot(prefix):
         return _json_response("")
 
     @app.route("/clearLocalSource")
@@ -223,13 +229,16 @@ def _locate_run_files(
     :return: A list of Path|None to the found data files. None indicates the files could not be found
     """
     filepaths = []
+    logging.debug(f"Locating runs: '{cycles_str}'/'{runs_str}'")
     cycles, runs = _split(cycles_str, ";"), _split(runs_str, ";")
     for cycle, run in zip(cycles, runs):
+        logging.debug(f"Fetching journal for {instrument}, cycle={cycle}")
         journal = journal_server.journal(instrument, cyclename=cycle)
         run = journal.run(run_number=run)
         if run is None:
             filepaths.append(None)
             continue
+        logging.debug(f"Found metadata for run {run}")
         filepaths.append(run_locator.locate(run))
 
     return filepaths

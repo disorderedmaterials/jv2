@@ -30,8 +30,11 @@ def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
     return _fixture
 
 
-def test_cyclename_returns_expected_filename():
+def test_cyclename_returns_expected_filename_when_cycle_word_missing():
     assert ISISJournalServer.filename("21_1") == "journal_21_1.xml"
+
+def test_cyclename_returns_expected_filename_when_cycle_word_included():
+    assert ISISJournalServer.filename("cycle_21_1") == "journal_21_1.xml"
 
 
 def test_journal_filenames_parsed_as_expected_on_successful_response(server_faker):
