@@ -22,9 +22,11 @@ class ISISJournalServer(JournalServer):
     @classmethod
     def filename(cls, cyclename: str):
         """Return the Journal filename from a cycle name
-        :param cyclename: Construct the journal filename as journal_YY_N.xml
+        :param cyclename: Name of the cycle in the form [cycle_]YY_N
+        :return: Construct the journal filename as journal_YY_N.xml
         """
-        return cls.JOURNAL_FILENAME_TEMPLATE.format(cyclename)
+        cycleid = cyclename.lstrip("cycle_") if cyclename.startswith("cycle") else cyclename
+        return cls.JOURNAL_FILENAME_TEMPLATE.format(cycleid)
 
     def __init__(self, root_url: str):
         """
@@ -58,7 +60,7 @@ class ISISJournalServer(JournalServer):
         """
         :param instrument_name: The instrument name
         :param filename: Filename of the cycle journal
-        :param cyclename: Cycle name in the form YY_N. If filename is provided it takes precendence.
+        :param cyclename: Cycle name in the form [cycle_]YY_N. If filename is provided it takes precendence.
         :return: The list of journal filenames as strings
         """
         if filename is None and cyclename is None:

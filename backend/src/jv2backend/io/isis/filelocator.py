@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
+import logging
 from pathlib import Path
 from typing import Optional
 
@@ -72,6 +73,7 @@ class LegacyArchiveFileLocator(RunDataFileLocator):
 
         :param run: A mapping describing the run.
         """
+        logging.debug(f"Looking for file for run {run['run_number']}")
         instrument, cycle_id = (
             run["instrument_name"],
             run["isis_cycle"],
@@ -84,6 +86,7 @@ class LegacyArchiveFileLocator(RunDataFileLocator):
             / f"cycle_{cycle_id}"
             / f"{run['name']}{self.EXTENSION}"
         )
+        logging.debug(f"Constructed expected path: {filepath}")
         if filepath.exists():
             return filepath
         else:
