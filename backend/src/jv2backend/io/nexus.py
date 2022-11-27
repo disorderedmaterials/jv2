@@ -16,6 +16,8 @@ class NXStrings:
     StartTime = "start_time"
     EndTime = "end_time"
     ValueLog = "value_log"
+    Detector1 = "detector_1"
+    Counts = "counts"
 
 
 def logpaths_from_path(filepath: Path) -> Sequence[Sequence[str]]:
@@ -100,6 +102,16 @@ def logvalues(h5group: h5.Group) -> MutableSequence[Tuple[float, float]]:
         (float(time), float(value))
         for time, value in zip(value_log["time"], value_log["value"])  # type: ignore
     ]
+
+
+def spectra_count(filepath: Path) -> int:
+    """Return the number of spectra in the detector_1
+
+    :param filepath: A path to a NeXus file
+    :return: The number of spectra
+    """
+    with h5.File(filepath) as h5file:
+        return len(group_at(h5file, 0)[NXStrings.Detector1][NXStrings.Counts][0])  # type: ignore
 
 
 def open_at(filepath: Path, index: int) -> Tuple[h5.File, h5.Group]:

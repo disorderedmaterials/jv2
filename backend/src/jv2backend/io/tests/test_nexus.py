@@ -53,11 +53,7 @@ def test_logvalues_gives_list_of_time_value_pairs_for_open_block(
         assert logdata[0][1] == pytest.approx(0.0)
 
 
-# def xtest_log_data_returns_requested_fields_data_values(sample_nexus_filepath):
-#     fields = [
-#         "/raw_data_1/runlog/dae_beam_current",
-#         "/raw_data_1/selog/Z",
-#     ]
-#     log_data = nxs.logdata(sample_nexus_filepath, fields)
-
-#     assert len(log_data) == 4
+def test_spectra_count_returns_the_number_spectra_in_detector_1_entry(
+    sample_nexus_filepath,
+):
+    assert nxs.spectra_count(sample_nexus_filepath) == 2368
