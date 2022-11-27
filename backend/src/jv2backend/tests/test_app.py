@@ -197,7 +197,17 @@ def test_getNexusData_returns_all_expected_log_data_fields(client):
     runlog_values = run_data[2]
     assert runlog_values[0][0] == "85423"
     assert runlog_values[0][1].endswith("current")
-    assert runlog_values[1][0] == pytest.approx(-5775.)
+    assert runlog_values[1][0] == pytest.approx(-5775.0)
+
+
+def test_getSpectrumRange_returns_spectrum_count(client):
+    response = client.get(
+        f"/getSpectrumRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423;85423"
+    )
+
+    data = json.loads(response.data)
+    assert data[0] == 2368
+    assert data[1] == 2368
 
 
 # ---------------------- Private functions ----------------------

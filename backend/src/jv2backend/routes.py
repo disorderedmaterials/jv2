@@ -164,6 +164,23 @@ def add_routes(
 
         return _json_response(all_field_data)
 
+    @app.route("/getSpectrumRange/<instrument>/<cycle>/<runs>")
+    def getSpectrumRange(instrument, cycle, runs):
+        """Return the number of spectra for each of the given runs
+
+        :param instrument: The instrument name
+        :param cycle: The cycle containing the runs
+        :param runs: The run numbers
+        :return: A JSON-encoded list of spectrum counts
+        """
+        filepaths = _locate_run_files(
+            journal_server, run_locator, instrument, cycle, runs
+        )
+        if not any(filepaths):
+            return jsonify("Unable to find all run files.")
+
+        return _json_response([nxs.spectra_count(filepath) for filepath in filepaths])
+
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<source>")
     def setLocalSource(source=""):
@@ -228,9 +245,13 @@ def _locate_run_files(
     :param runs: A semi-colon separated list of run numbers. Length should match cycles.
     :return: A list of Path|None to the found data files. None indicates the files could not be found
     """
-    filepaths = []
     logging.debug(f"Locating runs: '{cycles_str}'/'{runs_str}'")
     cycles, runs = _split(cycles_str, ";"), _split(runs_str, ";")
+    if len(cycles) == 1:
+        # Use the same cycle for each run
+        cycles = [cycles[0]] * len(runs)
+
+    filepaths = []
     for cycle, run in zip(cycles, runs):
         logging.debug(f"Fetching journal for {instrument}, cycle={cycle}")
         journal = journal_server.journal(instrument, cyclename=cycle)
