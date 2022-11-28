@@ -76,6 +76,24 @@ class ISISJournalServer(JournalServer):
         reader = ISISXMLJournalReader(Instrument(instrument_name))
         return reader.read_journalfile(response.content)
 
+    def filename_for_run(self, instrument: str, run: str) -> Optional[str]:
+        """Find the journal file that contains the given run
+
+        :param instrument: The instrument name
+        :param run: Run number
+        :return: Filename str or None if the run cannot be found
+        """
+        # We do not use the search method as it is more likely a
+        # user will request a recent run and we want to break when this is found
+        filename = None
+        for filename in reversed(self.journal_filenames(instrument)):
+            journal = self.journal(instrument, filename=filename).run(run)
+            if journal is not None:
+                filename = filename
+                break
+
+        return filename
+
     def check_for_journal_filenames_update(self, instrument_name: str) -> Optional[str]:
         """Check if the journal index files has been modified since last checked
         and return the latest entry if it has, otherwise return None

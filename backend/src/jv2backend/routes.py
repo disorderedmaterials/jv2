@@ -100,6 +100,45 @@ def add_routes(
                 f"Unable to fetch new runs for {instrument}, cycle {filename}: {str(exc)}"
             )
 
+    @app.route("/getTotalMuAmps/<instrument>/<cycle>/<runs>")
+    def getTotalMuAmps(instrument, cycle, runs):
+        """Return the total current values for each run
+
+        :param instrument: The name of the instrument
+        :param cycle: The cycle containing the runs
+        :param runs: The list of runs whose data is returned
+        :return: The total current in microamps, for each run as a ';' separate string
+        """
+        try:
+            journal = journal_server.journal(instrument_name=instrument, filename=cycle)
+        except Exception as exc:
+            return jsonify(
+                f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
+            )
+        run_info = [journal.run(run) for run in _split(runs, ";")]
+        if not all(run_info):
+            return jsonify(f"Unable to find all run information: {runs}")
+
+        return ";".join([info["proton_charge"] for info in run_info])  # type: ignore
+
+    @app.route("/getGoToCycle/<instrument>/<run>")
+    def getGoToCycle(instrument, run):
+        """Find the cycle containing the run.
+
+        :param instrument: The instrument name
+        :param run: The run number
+        :return: The journal filename containing the run or "Not Found" if no run is found
+        """
+        try:
+            result = journal_server.filename_for_run(instrument, run)
+        except Exception as exc:
+            return jsonify(f"Error finding {run} for {instrument}: {exc}")
+
+        if result is not None:
+            return result
+        else:
+            return "Not Found"
+
     # -------------- NeXus access routes --------------------------------
 
     @app.route("/getNexusFields/<instrument>/<cycles>/<runs>")
@@ -266,27 +305,6 @@ def add_routes(
             return jsonify(f"Unable to find run {run}")
 
         return nxs.nonzero_spectra_ratio(filepaths[0])  # type: ignore
-
-    @app.route("/getTotalMuAmps/<instrument>/<cycle>/<runs>")
-    def getTotalMuAmps(instrument, cycle, runs):
-        """Return the total current values for each run
-
-        :param instrument: The name of the instrument
-        :param cycle: The cycle containing the runs
-        :param runs: The list of runs whose data is returned
-        :return: The total current in microamps, for each run as a ';' separate string
-        """
-        try:
-            journal = journal_server.journal(instrument_name=instrument, filename=cycle)
-        except Exception as exc:
-            return jsonify(
-                f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
-            )
-        run_info = [journal.run(run) for run in _split(runs, ";")]
-        if not all(run_info):
-            return jsonify(f"Unable to find all run information: {runs}")
-
-        return ";".join([info["proton_charge"] for info in run_info])  # type: ignore
 
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<source>")

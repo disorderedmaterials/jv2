@@ -38,6 +38,11 @@ class JournalServer(metaclass=ABCMeta):
         raise NotImplementedError()  # pragma: no cover
 
     @abstractmethod
+    def filename_for_run(self, instrument: str, run: str) -> Optional[str]:
+        """Return the filename for the given run"""
+        raise NotImplementedError()  # pragma: no cover
+
+    @abstractmethod
     def check_for_journal_filenames_update(self, instrument_name: str) -> Optional[str]:
         """Check if the journal index files has been modified since last checked
         and return the latest entry if it has, otherwise return None

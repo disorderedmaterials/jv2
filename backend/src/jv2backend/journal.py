@@ -61,7 +61,7 @@ def inrange_int(data: pd.DataFrame, column: str, text: str, _: bool) -> pd.DataF
     :param column: The name of the column that should be matched. It should be convertible to an integer
     :param text: Input query:
                    - Use a "start-end" to indicate an inclusive range
-                   - or "(OP)value" where (OP) is one of "<,<=,>>="
+                   - or "(OP)value" where (OP) is one of "<,>"
                  An empty result is returned if the format is incorrect
     :param _: Ignored in this case. Required by API
     :return: A new DataFrame with the selected rows
