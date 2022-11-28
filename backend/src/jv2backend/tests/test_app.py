@@ -201,9 +201,7 @@ def test_getNexusData_returns_all_expected_log_data_fields(client):
 
 
 def test_getSpectrumRange_returns_spectrum_count(client):
-    response = client.get(
-        f"/getSpectrumRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423;85423"
-    )
+    response = client.get(f"/getSpectrumRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423")
 
     data = json.loads(response.data)
     assert len(data) == 1
