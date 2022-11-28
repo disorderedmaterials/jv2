@@ -63,3 +63,19 @@ def test_monitor_count_returns_the_number_monitors_in_the_first_entry(
     sample_nexus_filepath,
 ):
     assert nxs.monitor_count(sample_nexus_filepath) == 3
+
+
+def test_spectrum_returns_expected_spectrum_data(sample_nexus_filepath):
+    data = nxs.spectrum(sample_nexus_filepath, spectrum=15)
+
+    assert len(data) == 1361
+    assert data[714][0] == pytest.approx(793.703125)
+    assert data[714][1] == pytest.approx(1)
+
+
+def test_monitor_spectrum_returns_expected_monitor_data(sample_nexus_filepath):
+    data = nxs.monitor_spectrum(sample_nexus_filepath, monitor=2)
+
+    assert len(data) == 1361
+    assert data[714][0] == pytest.approx(793.703125)
+    assert data[714][1] == pytest.approx(0)
