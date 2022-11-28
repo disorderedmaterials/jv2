@@ -220,6 +220,24 @@ def test_getMonitorRange_returns_monitor_count(client):
     assert data[0] == 3
 
 
+def test_getSpectrum_returns_spectrum_data(client):
+    response = client.get(f"/getSpectrum/{TESTDATA_INSTRUMENT_NAME}/21_1/85423/15")
+
+    data = json.loads(response.data)
+    assert len(data) == 2
+    assert data[0] == ["85423", "15", "detector"]
+    assert len(data[1]) == 1361
+
+
+def test_getMonitor_returns_monitor_data(client):
+    response = client.get(f"/getMonSpectrum/{TESTDATA_INSTRUMENT_NAME}/21_1/85423/2")
+
+    data = json.loads(response.data)
+    assert len(data) == 2
+    assert data[0] == ["85423", "2", "monitor"]
+    assert len(data[1]) == 1361
+
+
 # ---------------------- Private functions ----------------------
 
 

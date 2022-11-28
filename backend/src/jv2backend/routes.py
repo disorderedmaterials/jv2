@@ -200,6 +200,48 @@ def add_routes(
 
         return _json_response([nxs.monitor_count(filepath) for filepath in filepaths])
 
+    @app.route("/getSpectrum/<instrument>/<cycle>/<runs>/<spectrum>")
+    def getSpectrum(instrument, cycle, runs, spectrum):
+        """Return a spectrum from a given set of runs
+
+        :param instrument: The name of the instrument
+        :param cycle: The cycle containing the runs
+        :param runs: The list of runs whose data is returned
+        :param spectrum: The number of the spectrum to access
+        :return:
+        """
+        filepaths = _locate_run_files(
+            journal_server, run_locator, instrument, cycle, runs
+        )
+        if not any(filepaths):
+            return jsonify(f"Unable to find run {runs}")
+
+        # first entry matches expectation of the frontend with sending back the parameters
+        data = [[runs, spectrum, "detector"]]
+        data.extend([nxs.spectrum(filepath, int(spectrum)) for filepath in filepaths])
+        return _json_response(data)
+
+    @app.route("/getMonSpectrum/<instrument>/<cycle>/<runs>/<monitor>")
+    def getMonSpectrum(instrument, cycle, runs, monitor):
+        """Return a spectrum from a monitor for a given set of runs
+
+        :param instrument: The name of the instrument
+        :param cycle: The cycle containing the runs
+        :param runs: The list of runs whose data is returned
+        :param spectrum: The number of the spectrum to access
+        :return:
+        """
+        filepaths = _locate_run_files(
+            journal_server, run_locator, instrument, cycle, runs
+        )
+        if not any(filepaths):
+            return jsonify(f"Unable to find run {runs}")
+
+        # first entry matches expectation of the frontend with sending back the parameters
+        data = [[runs, monitor, "monitor"]]
+        data.extend([nxs.spectrum(filepath, int(monitor)) for filepath in filepaths])
+        return _json_response(data)
+
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<source>")
     def setLocalSource(source=""):

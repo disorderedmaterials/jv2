@@ -119,7 +119,7 @@ def spectra_count(filepath: Path) -> int:
     :return: The number of spectra
     """
     with h5.File(filepath) as h5file:
-        return len(group_at(h5file, 0)[NXStrings.Detector1][NXStrings.Counts][0])  # type: ignore
+        return len(group_at(h5file, 0)[NXStrings.DetectorPrefix + "1"][NXStrings.Counts][0])  # type: ignore
 
 
 def spectrum(filepath: Path, spectrum: int) -> Sequence[Tuple[float, float]]:
