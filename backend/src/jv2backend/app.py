@@ -6,7 +6,8 @@ from typing import Optional
 from flask import Flask
 
 from jv2backend.config import DEFAULTS
-from jv2backend.routes import add_routes
+from jv2backend import journalroutes
+from jv2backend import nexusroutes
 
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
@@ -15,7 +16,6 @@ from jv2backend.io.isis.filelocator import (
     LegacyArchiveFileLocator,
     RunDataFileLocator,
 )
-from jv2backend.io.isis import filelocator
 
 
 def create_app(
@@ -28,12 +28,14 @@ def create_app(
     :param journal_server_url: The address of the server providing the journal information.
                                Defaults to the value store in CONFIG
     """
-    loggerConfig({
-        'version': 1,
-        'root': {
-            'level': 'INFO',
+    loggerConfig(
+        {
+            "version": 1,
+            "root": {
+                "level": "INFO",
+            },
         }
-    })
+    )
 
     app = Flask(__name__)
     if journal_server_url is None:
@@ -43,7 +45,9 @@ def create_app(
     if run_locator is None:
         run_locator = LegacyArchiveFileLocator(DEFAULTS["run_locator_prefix"])
 
-    return add_routes(app, journal_server, run_locator)
+    journalroutes.add_routes(app, journal_server)
+    nexusroutes.add_routes(app, journal_server, run_locator)
+    return app
 
 
 # In future add any command-line arguments here
