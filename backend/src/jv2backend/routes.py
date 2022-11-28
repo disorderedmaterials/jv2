@@ -194,13 +194,12 @@ def add_routes(
         :param instrument: The instrument name
         :param cycle: The cycle containing the runs
         :param runs: The run numbers
-        :return: A JSON-encoded list of spectrum counts
+        :return: The number of monitors encoded as a str
         """
         # To conform to the frontend expectation take only the first run supplied
         run = runs
         if ";" in runs:
             run = runs[: runs.index(";")]
-
         filepaths = _locate_run_files(
             journal_server, run_locator, instrument, cycle, run
         )

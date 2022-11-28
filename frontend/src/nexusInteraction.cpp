@@ -693,7 +693,6 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
 {
     setLoadScreen(false);
     auto spectraCount = count->response.toUtf8();
-    spectraCount.chop(1);
     bool valid;
     auto spectrumNumber = QInputDialog::getInt(this, tr("Plot Detector Spectrum"),
                                                tr("Enter detector spectrum to plot (0-" + spectraCount + "):"), 0, 0,
@@ -720,7 +719,6 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
 {
     setLoadScreen(false);
     auto monCount = count->response.toUtf8();
-    monCount.chop(1);
     bool valid;
     auto monNumber =
         QInputDialog::getInt(this, tr("Plot Monitor Spectrum"), tr("Enter monitor spectrum to plot (0-" + monCount + "):"), 0,
