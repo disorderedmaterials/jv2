@@ -17,9 +17,15 @@ class NXStrings:
     StartTime = "start_time"
     EndTime = "end_time"
     ValueLog = "value_log"
-    Detector1 = "detector_1"
+    DetectorPrefix = "detector_"
+    MonitorPrefix = "monitor_"
+    Data = "data"
     Counts = "counts"
-    MonitorRE = re.compile(r"^monitor_\d+$")
+    ToF = "time_of_flight"
+
+
+# Match a monitor group name
+_MonitorRE = re.compile(f"^{NXStrings.MonitorPrefix}\\d+$")
 
 
 def logpaths_from_path(filepath: Path) -> Sequence[Sequence[str]]:
@@ -116,6 +122,36 @@ def spectra_count(filepath: Path) -> int:
         return len(group_at(h5file, 0)[NXStrings.Detector1][NXStrings.Counts][0])  # type: ignore
 
 
+def spectrum(filepath: Path, spectrum: int) -> Sequence[Tuple[float, float]]:
+    """Return a single spectra of data from a file as a list of (tof,signal) pairs
+
+    If the TOF values are bin edges then they are converted to bin centres.
+    :param filepath: _description_
+    :param spectrum: _description_
+    :return: A list of (tof,signal) pairs as float64
+    """
+    with h5.File(filepath) as h5file:
+        det1 = group_at(h5file, 0)[NXStrings.DetectorPrefix + "1"]
+        return _tof_signal_points(
+            det1[NXStrings.ToF], det1[NXStrings.Counts][0][spectrum]
+        )
+
+
+def monitor_spectrum(filepath: Path, monitor: int) -> Sequence[Tuple[float, float]]:
+    """Return a single spectra of data from a file as a list of (tof,signal) pairs
+
+    If the TOF values are bin edges then they are converted to bin centres.
+    :param filepath: Path to a HDF5 file
+    :param monitor: The number of the monitor whose data should be returned
+    :return: A list of (tof,signal) pairs as float64
+    """
+    with h5.File(filepath) as h5file:
+        monitor_group = group_at(h5file, 0)[NXStrings.MonitorPrefix + str(monitor)]
+        return _tof_signal_points(
+            monitor_group[NXStrings.ToF], monitor_group[NXStrings.Data][0][0]
+        )
+
+
 def monitor_count(filepath: Path) -> int:
     """Return the number of monitors in the first group
 
@@ -125,11 +161,7 @@ def monitor_count(filepath: Path) -> int:
     with h5.File(filepath) as h5file:
         first_group = group_at(h5file, 0)
         return len(
-            [
-                key
-                for key in first_group.keys()
-                if NXStrings.MonitorRE.match(key) is not None
-            ]
+            [key for key in first_group.keys() if _MonitorRE.match(key) is not None]
         )
 
 
@@ -142,3 +174,23 @@ def open_at(filepath: Path, index: int) -> Tuple[h5.File, h5.Group]:
 def group_at(h5file: h5.File, index: int) -> h5.Group:
     """Return the group at the index given"""
     return list(h5file.values())[index]
+
+
+# private helpers
+
+
+def _tof_signal_points(
+    tof_bins: h5.Dataset, counts: h5.Dataset
+) -> Sequence[Tuple[float, float]]:
+    """Take 2 datasets of binned TOF values and point count values
+    and convert to a single list of (tof,signal) pairs where tof is the bin centre
+
+    :param tof_bins: Bin edge values for ToF
+    :param counts: Count values
+    :return: A single list of (tof,signal) pairs where tof is the bin centre
+    """
+    tof_centres = 0.5 * (tof_bins[1:] + tof_bins[:-1])
+    return [
+        (tof.astype("float64"), count.astype("float64"))
+        for tof, count in zip(tof_centres, counts)
+    ]
