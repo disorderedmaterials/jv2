@@ -236,6 +236,14 @@ def test_getMonitor_returns_monitor_data(client):
     assert len(data[1]) == 1361
 
 
+def test_getTotalMuAmps_for_runs(client):
+    response = client.get(
+        f"/getTotalMuAmps/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml/85423;85423"
+    )
+
+    assert response.data == b"0.9252;0.9252"
+
+
 # ---------------------- Private functions ----------------------
 
 
