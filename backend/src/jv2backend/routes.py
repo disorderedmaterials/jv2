@@ -184,7 +184,7 @@ def add_routes(
         if not any(filepaths):
             return jsonify(f"Unable to find run {run}")
 
-        return str(nxs.spectra_count(filepaths[0]))
+        return str(nxs.spectra_count(filepaths[0]))  # type: ignore
 
     @app.route("/getMonitorRange/<instrument>/<cycle>/<runs>")
     def getMonitorRange(instrument, cycle, runs):
@@ -206,7 +206,7 @@ def add_routes(
         if not any(filepaths):
             return jsonify(f"Unable to find run {runs}")
 
-        return str(nxs.monitor_count(filepaths[0]))
+        return str(nxs.monitor_count(filepaths[0]))  # type: ignore
 
     @app.route("/getSpectrum/<instrument>/<cycle>/<runs>/<spectrum>")
     def getSpectrum(instrument, cycle, runs, spectrum):
@@ -226,7 +226,7 @@ def add_routes(
 
         # first entry matches expectation of the frontend with sending back the parameters
         data = [[runs, spectrum, "detector"]]
-        data.extend([nxs.spectrum(filepath, int(spectrum)) for filepath in filepaths])
+        data.extend([nxs.spectrum(filepath, int(spectrum)) for filepath in filepaths])  # type: ignore
         return _json_response(data)
 
     @app.route("/getMonSpectrum/<instrument>/<cycle>/<runs>/<monitor>")
@@ -247,8 +247,29 @@ def add_routes(
 
         # first entry matches expectation of the frontend with sending back the parameters
         data = [[runs, monitor, "monitor"]]
-        data.extend([nxs.spectrum(filepath, int(monitor)) for filepath in filepaths])
+        data.extend([nxs.spectrum(filepath, int(monitor)) for filepath in filepaths])  # type: ignore
         return _json_response(data)
+
+    @app.route("/getTotalMuAmps/<instrument>/<cycle>/<runs>")
+    def getTotalMuAmps(instrument, cycle, runs):
+        """Return the total current values for each run
+
+        :param instrument: The name of the instrument
+        :param cycle: The cycle containing the runs
+        :param runs: The list of runs whose data is returned
+        :return: The total current in microamps, for each run as a ';' separate string
+        """
+        try:
+            journal = journal_server.journal(instrument_name=instrument, filename=cycle)
+        except Exception as exc:
+            return jsonify(
+                f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
+            )
+        run_info = [journal.run(run) for run in _split(runs, ";")]
+        if not all(run_info):
+            return jsonify(f"Unable to find all run information: {runs}")
+
+        return ";".join([info["proton_charge"] for info in run_info])  # type: ignore
 
     # -------------- No op routes for backwards compatability -----------
     @app.route("/setLocalSource/<source>")
