@@ -172,15 +172,19 @@ def add_routes(
         :param instrument: The instrument name
         :param cycle: The cycle containing the runs
         :param runs: The run numbers
-        :return: A JSON-encoded list of spectrum counts
+        :return: A
         """
+        # To conform to the frontend expectation take only the first run supplied
+        run = runs
+        if ";" in runs:
+            run = runs[: runs.index(";")]
         filepaths = _locate_run_files(
-            journal_server, run_locator, instrument, cycle, runs[: runs.index(";")]
+            journal_server, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
-            return jsonify(f"Unable to find run {runs}")
+            return jsonify(f"Unable to find run {run}")
 
-        return _json_response([nxs.spectra_count(filepath) for filepath in filepaths])
+        return str(nxs.spectra_count(filepaths[0]))
 
     @app.route("/getMonitorRange/<instrument>/<cycle>/<runs>")
     def getMonitorRange(instrument, cycle, runs):
@@ -192,13 +196,18 @@ def add_routes(
         :param runs: The run numbers
         :return: A JSON-encoded list of spectrum counts
         """
+        # To conform to the frontend expectation take only the first run supplied
+        run = runs
+        if ";" in runs:
+            run = runs[: runs.index(";")]
+
         filepaths = _locate_run_files(
-            journal_server, run_locator, instrument, cycle, runs[: runs.index(";")]
+            journal_server, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
             return jsonify(f"Unable to find run {runs}")
 
-        return _json_response([nxs.monitor_count(filepath) for filepath in filepaths])
+        return str(nxs.monitor_count(filepaths[0]))
 
     @app.route("/getSpectrum/<instrument>/<cycle>/<runs>/<spectrum>")
     def getSpectrum(instrument, cycle, runs, spectrum):
