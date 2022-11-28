@@ -250,6 +250,23 @@ def add_routes(
         data.extend([nxs.spectrum(filepath, int(monitor)) for filepath in filepaths])  # type: ignore
         return _json_response(data)
 
+    @app.route("/getDetectorAnalysis/<instrument>/<cycle>/<run>")
+    def getDetectorAnalysis(instrument, cycle, run):
+        """Determine the number of spectra with non-zero signal values
+
+        :param instrument: The instrument name
+        :param cycle: The cycle containing the run
+        :param run: The run to analyse
+        :return: A string of the form "count(non_zero)/count(all_spectra)"
+        """
+        filepaths = _locate_run_files(
+            journal_server, run_locator, instrument, cycle, run
+        )
+        if not any(filepaths):
+            return jsonify(f"Unable to find run {run}")
+
+        return nxs.nonzero_spectra_ratio(filepaths[0])  # type: ignore
+
     @app.route("/getTotalMuAmps/<instrument>/<cycle>/<runs>")
     def getTotalMuAmps(instrument, cycle, runs):
         """Return the total current values for each run

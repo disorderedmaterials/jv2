@@ -4,7 +4,9 @@
 from pathlib import Path, PurePath
 import re
 from typing import Any, MutableSequence, Sequence, Tuple
+
 import h5py as h5
+import numpy as np
 
 
 class NXStrings:
@@ -163,6 +165,18 @@ def monitor_count(filepath: Path) -> int:
         return len(
             [key for key in first_group.keys() if _MonitorRE.match(key) is not None]
         )
+
+
+def nonzero_spectra_ratio(filepath: Path) -> str:
+    """Return the ratio of number of (non_zero spectra/spectra_count)
+
+    :param filepath: A path to a NeXus file
+    :return: The nonzero_spectra ratio
+    """
+    with h5.File(filepath) as h5file:
+        counts = group_at(h5file, 0)[NXStrings.DetectorPrefix + "1"][NXStrings.Counts]  # type: ignore
+        non_zero_count = np.count_nonzero(np.sum(counts[0], axis=1))  # type: ignore
+        return f"{non_zero_count}/{len(counts[0])}"  # type: ignore
 
 
 def open_at(filepath: Path, index: int) -> Tuple[h5.File, h5.Group]:

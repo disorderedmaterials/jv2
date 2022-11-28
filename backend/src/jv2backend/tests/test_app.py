@@ -244,6 +244,12 @@ def test_getTotalMuAmps_for_runs(client):
     assert response.data == b"0.9252;0.9252"
 
 
+def test_getDetectorAnalysis_for_run_returns_correct_number_of_nonzero_spectra(client):
+    response = client.get(f"/getDetectorAnalysis/{TESTDATA_INSTRUMENT_NAME}/21_1/85423")
+
+    assert response.data == b"974/2368"
+
+
 # ---------------------- Private functions ----------------------
 
 

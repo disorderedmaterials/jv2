@@ -79,3 +79,9 @@ def test_monitor_spectrum_returns_expected_monitor_data(sample_nexus_filepath):
     assert len(data) == 1361
     assert data[714][0] == pytest.approx(793.703125)
     assert data[714][1] == pytest.approx(0)
+
+
+def test_nonzero_spectra_returns_ratio_as_string(sample_nexus_filepath):
+    ratio_str = nxs.nonzero_spectra_ratio(sample_nexus_filepath)
+
+    assert ratio_str == "974/2368"
