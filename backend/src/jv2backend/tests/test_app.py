@@ -160,6 +160,12 @@ def test_updatejournal_returns_runs_later_than_last_given(client):
     assert runs[1]["run_number"] == "85424"
 
 
+def test_getGoToCycle_returns_expected_journal_filename(client):
+    response = client.get(f"/getGoToCycle/{TESTDATA_INSTRUMENT_NAME}/85422")
+
+    assert response.data == b"journal_21_1.xml"
+
+
 # ---------------------- NeXus access routes ----------------------
 
 
@@ -204,8 +210,7 @@ def test_getSpectrumRange_returns_spectrum_count(client):
     response = client.get(f"/getSpectrumRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423")
 
     data = json.loads(response.data)
-    assert len(data) == 1
-    assert data[0] == 2368
+    assert data == 2368
 
 
 def test_getMonitorRange_returns_monitor_count(client):
@@ -214,8 +219,7 @@ def test_getMonitorRange_returns_monitor_count(client):
     )
 
     data = json.loads(response.data)
-    assert len(data) == 1
-    assert data[0] == 3
+    assert data == 3
 
 
 def test_getSpectrum_returns_spectrum_data(client):
