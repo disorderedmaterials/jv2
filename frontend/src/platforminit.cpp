@@ -8,5 +8,8 @@
 
 #include <QtPlugin>
 
-// TODO: Generalize this for other platforms
+#if defined(Q_OS_LINUX)
 Q_IMPORT_PLUGIN(QXcbIntegrationPlugin)
+#else
+#error "Static plugin configuration not supported on this platform."
+#endif

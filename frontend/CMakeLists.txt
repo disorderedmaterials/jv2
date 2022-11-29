@@ -28,24 +28,21 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 # Build output locations
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
-# Configure options
-option(JV2_USE_CONAN "If True, use the Conan package manager" OFF)
-
 # Setup Conan for dependency management
-if(JV2_USE_CONAN)
-  include(conan-jv2)
-endif()
+option(BUILD_SHARED_LIBS "If ON, build shared libraries otherwise build static" ON)
+include(conan-jv2)
 
+# Dependencies
 find_package(
   Qt6
   COMPONENTS Core
-             Gui
-             Widgets
-             Network
-             Charts
-             Xml
-             OpenGL
-             OpenGLWidgets
+  Gui
+  Widgets
+  Network
+  Charts
+  Xml
+  OpenGL
+  OpenGLWidgets
   REQUIRED)
 
 # Common sources
@@ -70,37 +67,10 @@ set(PROJECT_SOURCES
     src/mysortfilterproxymodel.cpp
     src/mysortfilterproxymodel.h)
 
-# OS-dependent flags
-if(MSVC)
-  set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-  set(CMAKE_EXE_LINKER_FLAGS_RELEASE
-      "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-elseif()
-  set(MACOSX_BUNDLE_ICON_FILE "jv2.icns")
-  set(MACOSX_BUNDLE_LONG_VERSION_STRING
-      "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-  set(MACOSX_BUNDLE_BUNDLE_NAME "jv2")
-  set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}")
-  set(MACOSX_BUNDLE_BUNDLE_VERSION
-      "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-  set(MACOSX_BUNDLE_COPYRIGHT "${AUTHOR}")
-
-  # Set some specific C++11 related options here (set_property below does not
-  # seem to persist)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-
-  # Suppress warnings for undefined template vars
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-undefined-var-template")
-
-  set(CMAKE_OSX_ARCHITECTURES "x86_64")
-  add_definitions(-D_MAC)
-  find_package(GLUT REQUIRED)
-else()
-  if(JV2_USE_CONAN)
-    list(APPEND PROJECT_SOURCES src/platforminit.cpp)
-    set(STATIC_PLATFORM_PLUGINS Qt6::QXcbIntegrationPlugin Qt6::XcbQpaPrivate)
-  endif()
+if(NOT BUILD_SHARED_LIBS)
+  # Link in static plugins - only Linux supported
+  list(APPEND PROJECT_SOURCES src/platforminit.cpp)
+  set(STATIC_PLATFORM_PLUGINS Qt6::QXcbIntegrationPlugin Qt6::XcbQpaPrivate)
 endif()
 
 # Resources
@@ -116,10 +86,5 @@ target_link_libraries(
           Qt6::Charts
           Qt6::Xml
           Qt6::OpenGLWidgets
-          ${STATIC_PLATFORM_PLUGINS})
-
-set_target_properties(
-  jv2
-  PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-             MACOSX_BUNDLE_SHORT_VERSION_STRING
-             ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
+          ${STATIC_PLATFORM_PLUGINS}
+)

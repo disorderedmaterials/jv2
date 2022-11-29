@@ -20,7 +20,9 @@ Stage: build
     # Frontend
     cd /var/jv2/frontend
     mkdir build && cd build
-    cmake -G Ninja -DJV2_USE_CONAN=ON -DCMAKE_BUILD_TYPE=Release \
+    cmake -G Ninja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_SHARED_LIBS=OFF \
       -DCMAKE_INSTALL_PREFIX=/usr/local \
       -B . -S ../
     cmake --build .
