@@ -47,6 +47,7 @@ find_package(
 
 # Common sources
 set(PROJECT_SOURCES
+    src/backend.cpp
     src/main.cpp
     src/mainwindow.cpp
     src/filtering.cpp
