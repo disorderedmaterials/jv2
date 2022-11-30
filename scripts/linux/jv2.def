@@ -11,10 +11,6 @@ Stage: final
     /var/jv2/frontend/build/bin/jv2 /usr/local/bin/jv2
     /var/jv2/backend/wheels/jv2backend*.whl /var/wheels/
 
-%files
-    # wrapper script
-    ./jv2launcher /usr/local/bin/jv2launcher
-
 %environment
     export FONTCONFIG_PATH=/etc/fonts
     export LC_ALL=${LC_ALL:-'C'}
@@ -65,4 +61,4 @@ Stage: final
     # Disable session management as it causes a Qt warning:
     #   Qt: Session management error: None of the authentication protocols specified are supported
     unset SESSION_MANAGER
-    jv2launcher
+    jv2
