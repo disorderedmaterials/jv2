@@ -24,6 +24,7 @@ exit_if_command_not_available apt
 # Install base packages
 echo "Installing base packages."
 test `id -u` -ne 0 && echo "sudo access required."
+run_elevated sed -i -e "s/archive.ubuntu.com/gb.archive.ubuntu.com/g" /etc/apt/sources.list
 run_elevated apt update
 run_elevated apt -y install --no-install-recommends \
   cmake \
