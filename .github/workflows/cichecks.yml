@@ -1,0 +1,44 @@
+name: CI Pull Request Checks
+
+on:
+  push:
+    branches: ["backend-isisdatacache"]
+
+jobs:
+  cichecks:
+    # match singularity base
+    runs-on: ${{ matrix.variant.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - {os: ubuntu-22.04, cmake-preset: ci-linux}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Development Dependencies
+        run: |
+          bash -x scripts/linux/setup-for-development-ubuntu.sh
+
+      - name: Cache conan setup
+        id: conan-cache-key
+        run: |
+          echo "path=$(conan config home)" >> $GITHUB_OUTPUT
+      - name: Cache conan
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.conan-cache-key.outputs.path }}
+          key: conan-${{ matrix.variant.os }}-${{ hashFiles('frontend/cmake/Modules/conan-jv2.cmake') }}
+
+      - name: Build the frontend
+        run: |
+          cd frontend
+          cmake --preset ${{ matrix.variant.cmake-preset }}
+          cmake --build --preset build
+
+      - name: Build backend
+        run: |
+          cd backend
+          python3 -mpip wheel .
