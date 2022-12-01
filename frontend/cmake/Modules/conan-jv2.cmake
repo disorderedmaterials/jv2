@@ -8,7 +8,7 @@ include(${CMAKE_BINARY_DIR}/conan.cmake)
 set(_conan_requires_os)
 set(_conan_options qt:qtcharts=True qt:qtmultimedia=False qt:with_gstreamer=False)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(_conan_requires_os glib/2.73.1)  # Override to avoid clash with Qt
+  set(_conan_requires_os ${_conan_requires_os} glib/2.73.1)  # Override to avoid clash with Qt
   set(_conan_options ${_conan_options} qt:with_glib=True)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(_conan_options_os ${_conan_options} qt:with_glib=False)
