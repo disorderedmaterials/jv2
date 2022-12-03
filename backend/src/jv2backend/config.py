@@ -3,6 +3,7 @@
 """Access configuration values for the program"""
 import os
 
+# This must match that defined in frontend
 ENVIRON_NAME_PREFIX = "JV2"
 
 DEFAULTS = {
