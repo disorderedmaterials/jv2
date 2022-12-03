@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 import json
+import os
 import pytest
-from unittest.mock import MagicMock
 
 from jv2backend.app import create_app
 
@@ -10,14 +10,28 @@ FAKE_SERVER_ADDRESS = "http://fake.url/testing"
 TESTDATA_INSTRUMENT_NAME = "ALF"
 
 
+class FakeRunLocator:
+
+    SAMPLE_FILEPATH = None
+
+    def __init__(self, _):
+        # Unused init to satisfy expectations app.py:_create_runfilelocator
+        pass
+
+    def locate(self, _):
+        return self.SAMPLE_FILEPATH
+
+
 @pytest.fixture()
 def app(
     requests_mock, sample_journallist_xml, sample_journal_xml, sample_nexus_filepath
 ):
-    run_locator_mock = MagicMock()
-    run_locator_mock.locate.return_value = sample_nexus_filepath
+    # Configuration for testing app
+    FakeRunLocator.SAMPLE_FILEPATH = sample_nexus_filepath
+    os.environ["JV2_JOURNAL_SERVER_URL"] = FAKE_SERVER_ADDRESS
+    os.environ["JV2_RUN_LOCATOR_CLASS"] = "jv2backend.tests.test_app.FakeRunLocator"
 
-    app = create_app(FAKE_SERVER_ADDRESS, run_locator=run_locator_mock)
+    app = create_app()
     app.config.update({"TESTING": True})
     requests_mock.get(
         _fake_instrument_journallist_url(TESTDATA_INSTRUMENT_NAME),

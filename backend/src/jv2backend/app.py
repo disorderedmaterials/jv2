@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Define the Flask instance and backend API routes"""
+import importlib
 from logging.config import dictConfig as loggerConfig
-from typing import Optional
 from flask import Flask
 
-from jv2backend.config import DEFAULTS
+from jv2backend import config
 from jv2backend import journalroutes
 from jv2backend import nexusroutes
 
@@ -18,37 +18,45 @@ from jv2backend.io.isis.filelocator import (
 )
 
 
-def create_app(
-    journal_server_url: Optional[str] = None,
-    run_locator: Optional[RunDataFileLocator] = None,
-) -> Flask:
+def create_app() -> Flask:
     """Create the Flask application and define
     the routes served by the backend.
 
-    :param journal_server_url: The address of the server providing the journal information.
-                               Defaults to the value store in CONFIG
+    See config.py for configuration settings
     """
     loggerConfig(
         {
             "version": 1,
             "root": {
-                "level": "INFO",
+                "level": config.get("logger_level"),
             },
         }
     )
 
+    journal_server = ISISJournalServer(config.get("journal_server_url"))
+    run_locator = _create_runfilelocator()
+
     app = Flask(__name__)
-    if journal_server_url is None:
-        journal_server_url = DEFAULTS["journal_server_url"]
-    journal_server = ISISJournalServer(journal_server_url)
-
-    if run_locator is None:
-        run_locator = LegacyArchiveFileLocator(DEFAULTS["run_locator_prefix"])
-
     journalroutes.add_routes(app, journal_server)
     nexusroutes.add_routes(app, journal_server, run_locator)
     return app
 
+def _create_runfilelocator() -> RunDataFileLocator:
+    """Create the run locator from the configuration values
+
+    :raises: RuntimeError if the class cannot be found.
+    """
+    try:
+        full_cls_name = config.get("run_locator_class")
+        last_period_index = full_cls_name.rfind(".")
+        module_name, class_name = full_cls_name[:last_period_index], full_cls_name[last_period_index + 1:]
+        module = importlib.import_module(module_name)
+        cls = getattr(module, class_name)
+        prefix = config.get("run_locator_prefix")
+    except Exception as exc:
+        raise RuntimeError(str(exc)) from exc
+
+    return cls(prefix)
 
 # In future add any command-line arguments here
 def main():  # pragma: no cover
