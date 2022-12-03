@@ -1,12 +1,56 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 E. Devlin and T. Youngs
 #include "backend.h"
+#include "args.h"
+#include <QCommandLineParser>
 #include <QDebug>
+
+namespace
+{
+// This must match that defined in backend/config module
+constexpr auto ENVIRON_NAME_PREFIX = "JV2_";
+
+/**
+ * Take a program argument name and convert to a backend environment variable name.
+ * Replace '-' with '_' and add prefix
+ */
+QString argToEnvironName(QString argName) { return ENVIRON_NAME_PREFIX + argName.replace("-", "_"); }
+} // namespace
 
 /**
  * Configure process for start to be called
  */
-Backend::Backend()
+Backend::Backend(const QCommandLineParser &args) : process_(), env_(QProcessEnvironment::systemEnvironment())
+{
+    configureProcessArgs();
+    configureEnvironment(args);
+    process_.setProcessEnvironment(env_);
+}
+
+/**
+ * Start the backend process and hold the process open
+ */
+void Backend::start()
+{
+    qDebug() << "Starting backend process";
+    process_.start();
+    process_.waitForStarted();
+    qDebug() << "Backend process started with pid " << process_.processId();
+}
+
+/**
+ * Stop the process
+ */
+void Backend::stop()
+{
+    qDebug() << "Stopping backend process with pid " << process_.processId();
+    process_.terminate();
+    process_.waitForFinished();
+}
+
+// Private
+
+void Backend::configureProcessArgs()
 {
     process_.setProgram("gunicorn");
     QStringList args;
@@ -20,22 +64,10 @@ Backend::Backend()
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
-/**
- * Start the backend process and hold the process open
- */
-void Backend::start()
+void Backend::configureEnvironment(const QCommandLineParser &args)
 {
-    qDebug() << "Starting backend";
-    process_.start();
-    process_.waitForStarted();
-}
-
-/**
- * Stop the process
- */
-void Backend::stop()
-{
-    qDebug() << "Stopping backend.";
-    process_.terminate();
-    process_.waitForFinished();
+    if (args.isSet(Args::RunLocatorClass))
+        env_.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
+    if (args.isSet(Args::RunLocatorPrefix))
+        env_.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
 }
