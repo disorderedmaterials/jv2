@@ -20,12 +20,8 @@ Stage: build
     # Frontend
     cd /var/jv2/frontend
     mkdir build && cd build
-    cmake -G Ninja \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DBUILD_SHARED_LIBS=OFF \
-      -DCMAKE_INSTALL_PREFIX=/usr/local \
-      -B . -S ../
-    cmake --build .
+    cmake --preset=singularity
+    cmake --build --preset=build
 
     # Backend
     cd /var/jv2/backend
