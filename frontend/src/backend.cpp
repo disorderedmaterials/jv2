@@ -14,7 +14,7 @@ Backend::Backend()
     args << "--bind" << Backend::bind_address()
          << "--graceful-timeout" << "120"
          << "--timeout" << "120"
-         << "jv2backend.app:create_app()";
+         << "jv2backend.app:create_app";
     // clang-format on
     process_.setArguments(args);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);

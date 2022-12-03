@@ -25,6 +25,15 @@
       "name": "ci-macos",
       "inherits": "base",
       "description": "CI build on macOS"
+    },
+    {
+      "name": "singularity",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_SHARED_LIBS": "OFF",
+        "CMAKE_INSTALL_PREFIX": "/usr/local"
+      }
     }
   ],
   "buildPresets": [
