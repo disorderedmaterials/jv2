@@ -38,7 +38,8 @@ jobs:
           cmake --preset ${{ matrix.variant.cmake-preset }}
           cmake --build --preset build
 
-      - name: Build backend
+      - name: Build and test backend
         run: |
           cd backend
-          python3 -mpip wheel .
+          python3 -mpip install ".[test]"
+          python3 -mpytest src
