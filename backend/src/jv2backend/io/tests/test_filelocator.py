@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
+from pathlib import Path
 from jv2backend.io.isis.filelocator import (
     DAaaSDataCacheFileLocator,
     LegacyArchiveFileLocator,
@@ -43,6 +44,23 @@ def archive_faker(fs, sample_run):
 # ======================== DAaaSDataCache =========================
 
 
+def test_prefix_property_returns_expected_value_on_construction():
+    prefix = "/mnt"
+    filefinder = DAaaSDataCacheFileLocator(prefix)
+
+    assert filefinder.prefix == Path(prefix)
+
+
+def test_prefix_setter_accepts_new_prefix():
+    prefix = "/mnt1"
+    filefinder = DAaaSDataCacheFileLocator(prefix)
+
+    new_prefix = "/mnt2"
+    filefinder.prefix = new_prefix
+
+    assert filefinder.prefix == Path(new_prefix)
+
+
 @pytest.mark.parametrize("part_number", [1, 3, 5])
 def test_path_found_when_file_exists_in_one_part_number_directory(
     part_number, sample_run, datacache_faker
@@ -81,6 +99,23 @@ def test_locator_created_with_non_existing_prefix_does_not_raise_error():
 
 
 # ======================== LegacyArchive =========================
+
+
+def test_prefix_property_returns_expected_value_on_construction():
+    prefix = "/mnt"
+    filefinder = LegacyArchiveFileLocator(prefix)
+
+    assert filefinder.prefix == Path(prefix)
+
+
+def test_prefix_setter_accepts_new_prefix():
+    prefix = "/mnt1"
+    filefinder = LegacyArchiveFileLocator(prefix)
+
+    new_prefix = "/mnt2"
+    filefinder.prefix = new_prefix
+
+    assert filefinder.prefix == Path(new_prefix)
 
 
 def test_legacyarchive_finds_existing_file(sample_run, archive_faker):

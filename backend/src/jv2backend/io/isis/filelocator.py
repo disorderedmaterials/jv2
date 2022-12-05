@@ -7,7 +7,30 @@ from typing import Optional
 from jv2backend.io.rundatafilelocator import RunDataFileLocator
 
 
-class DAaaSDataCacheFileLocator(RunDataFileLocator):
+class PrefixPathFileLocator(RunDataFileLocator):
+    """Base class to support setting/getting a prefix to run data paths"""
+
+    def __init__(self, prefix: str) -> None:
+        """
+        :param prefix: Filesystem prefix for all run data.
+        """
+        super().__init__()
+        self.prefix = prefix
+
+    @property
+    def prefix(self) -> Path:
+        """Return the prefix for all run paths"""
+        return self._prefix
+
+    @prefix.setter
+    def prefix(self, prefix: str):
+        """
+        :param prefix: A new Filesystem prefix for all run data
+        """
+        self._prefix = Path(prefix)
+
+
+class DAaaSDataCacheFileLocator(PrefixPathFileLocator):
     """Implments file searching based on the ISIS
     IDAaaS data cache layout. Files can be found by constructing
     the following path
@@ -23,8 +46,7 @@ class DAaaSDataCacheFileLocator(RunDataFileLocator):
         """
         :param prefix: Filesystem prefix for all run data.
         """
-        super().__init__()
-        self._prefix = Path(prefix)
+        super().__init__(prefix)
 
     def locate(self, run: dict) -> Optional[Path]:
         """For a given run find the data file and return the full Path if the file
@@ -50,7 +72,7 @@ class DAaaSDataCacheFileLocator(RunDataFileLocator):
             return None
 
 
-class LegacyArchiveFileLocator(RunDataFileLocator):
+class LegacyArchiveFileLocator(PrefixPathFileLocator):
     """Implments file searching based on the ISIS
     archive layout. Files can be found by constructing
     the following path
@@ -64,8 +86,7 @@ class LegacyArchiveFileLocator(RunDataFileLocator):
         """
         :param prefix: Filesystem prefix for all run data.
         """
-        super().__init__()
-        self._prefix = Path(prefix)
+        super().__init__(prefix)
 
     def locate(self, run: dict) -> Optional[Path]:
         """For a given run find the data file and return the full Path if the file

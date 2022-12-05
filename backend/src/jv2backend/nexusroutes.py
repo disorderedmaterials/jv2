@@ -7,6 +7,7 @@ from typing import Optional, Sequence
 
 from flask import Flask, jsonify
 
+import jv2backend.config as config
 from jv2backend.io.journalserver import JournalServer
 from jv2backend.io.rundatafilelocator import RunDataFileLocator
 from jv2backend.utils import json_response, split
@@ -17,6 +18,14 @@ def add_routes(
     app: Flask, journal_server: JournalServer, run_locator: RunDataFileLocator
 ) -> Flask:
     """Add routes to the given Flask application."""
+
+    @app.route("/setRoot/<prefix>")
+    def setRoot(prefix):
+        if prefix == "Default":
+            prefix = config.get("run_locator_prefix")
+        run_locator.prefix = f"/{prefix}"
+
+        return jsonify("success")
 
     @app.route("/getNexusFields/<instrument>/<cycles>/<runs>")
     def getNexusFields(instrument, cycles, runs):

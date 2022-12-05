@@ -9,6 +9,24 @@ from typing import Optional
 class RunDataFileLocator(ABC):
     """Subclass and implement the appropriate behaviour to find a Run"""
 
+    @property
+    @abstractmethod
+    def prefix(self) -> Path:
+        """Set a new base prefix for the file search
+
+        :param prefix: A Path prefix that is the common base of all files
+        """
+        raise NotImplementedError()  # pragma: no cover
+
+    @prefix.setter
+    @abstractmethod
+    def prefix(self, prefix: str):
+        """Set a new base prefix for the file search
+
+        :param prefix: A Path prefix that is the common base of all files
+        """
+        raise NotImplementedError()  # pragma: no cover
+
     @abstractmethod
     def locate(self, run: dict) -> Optional[Path]:
         """For a given run find the data file

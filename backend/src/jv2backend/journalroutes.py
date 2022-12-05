@@ -140,10 +140,6 @@ def add_routes(
     def setLocalSource(source=""):
         return json_response("")
 
-    @app.route("/setRoot/<prefix>")
-    def setRoot(prefix):
-        return json_response("")
-
     @app.route("/clearLocalSource")
     def clearLocalSource():
         return json_response("")
