@@ -19,9 +19,8 @@ Stage: build
 
     # Frontend
     cd /var/jv2/frontend
-    mkdir build && cd build
-    cmake --preset=singularity
-    cmake --build --preset=build
+    cmake --preset singularity
+    cmake --build --preset build
 
     # Backend
     cd /var/jv2/backend
