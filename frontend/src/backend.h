@@ -5,7 +5,6 @@
 #define BACKEND_H
 
 #include <QProcess>
-#include <QProcessEnvironment>
 #include <QString>
 
 // Forward-declarations
@@ -33,7 +32,6 @@ class Backend : public QObject
     void configureEnvironment(const QCommandLineParser &args);
 
     QProcess process_;
-    QProcessEnvironment env_;
 };
 
 #endif

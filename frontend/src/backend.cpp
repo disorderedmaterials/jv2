@@ -4,6 +4,7 @@
 #include "args.h"
 #include <QCommandLineParser>
 #include <QDebug>
+#include <QProcessEnvironment>
 
 namespace
 {
@@ -20,7 +21,7 @@ QString argToEnvironName(QString argName) { return ENVIRON_NAME_PREFIX + argName
 /**
  * Configure process for start to be called
  */
-Backend::Backend(const QCommandLineParser &args) : process_(), env_(QProcessEnvironment::systemEnvironment())
+Backend::Backend(const QCommandLineParser &args) : process_()
 {
     configureProcessArgs();
     configureEnvironment(args);
@@ -68,9 +69,16 @@ void Backend::configureProcessArgs()
 
 void Backend::configureEnvironment(const QCommandLineParser &args)
 {
+    QProcessEnvironment env;
     if (args.isSet(Args::RunLocatorClass))
-        env_.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
+        env.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
     if (args.isSet(Args::RunLocatorPrefix))
-        env_.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
-    process_.setProcessEnvironment(env_);
+        env.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
+
+    qDebug() << "Configured additional environment variables for backend:";
+    for (const auto &keyValue : env.toStringList())
+        qDebug() << keyValue;
+
+    env.insert(QProcessEnvironment::systemEnvironment());
+    process_.setProcessEnvironment(env);
 }
