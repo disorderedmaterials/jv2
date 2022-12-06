@@ -1,8 +1,9 @@
-name: CI Pull Request Checks
+name: CI Checks
 
 on:
   push:
-    branches: ["backend-isisdatacache"]
+    branches: ["main"]
+  pull_request:
 
 jobs:
   cichecks:
