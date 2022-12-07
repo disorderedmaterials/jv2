@@ -2,7 +2,7 @@
 # Copyright (c) 2022 E. Devlin, M. Gigg and T. Youngs
 """Define the Flask instance and backend API routes"""
 import importlib
-from logging.config import dictConfig as loggerConfig
+import logging
 from flask import Flask
 
 from jv2backend import config
@@ -13,18 +13,40 @@ from jv2backend import nexusroutes
 # alternate implementations be required
 from jv2backend.io.isis.isisjournalserver import ISISJournalServer
 from jv2backend.io.isis.filelocator import (
-    LegacyArchiveFileLocator,
     RunDataFileLocator,
 )
 
 
-def create_app() -> Flask:
+def create_app(indside_gunicorn: bool = True) -> Flask:
     """Create the Flask application and define
-    the routes served by the backend.
+    the routes served by the backend. See config.py for configuration settings
 
-    See config.py for configuration settings
+    :param inside_gunicorn: If True, the app has been run by gunicorn and not directly
     """
-    loggerConfig(
+    app = Flask(__name__)
+    _configure_logging(app, indside_gunicorn)
+    journal_server = ISISJournalServer(config.get("journal_server_url"))
+    run_locator = _create_runfilelocator()
+
+    journalroutes.add_routes(app, journal_server)
+    nexusroutes.add_routes(app, journal_server, run_locator)
+    return app
+
+def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
+    """_summary_
+
+    :param app: Flask app to configure
+    :param inside_gunicorn: If True, the app has been run by gunicorn and not directly
+    """
+    if inside_gunicorn:
+        # Match logging handlers and configuration with gunicorn
+        gunicorn_logger = logging.getLogger('gunicorn.error')
+        app.logger.handlers = gunicorn_logger.handlers
+        app.logger.setLevel(gunicorn_logger.level)
+        root = logging.getLogger()
+        root.setLevel(gunicorn_logger.level)
+    else:
+        logging.config.dictConfig(
         {
             "version": 1,
             "root": {
@@ -33,13 +55,8 @@ def create_app() -> Flask:
         }
     )
 
-    journal_server = ISISJournalServer(config.get("journal_server_url"))
-    run_locator = _create_runfilelocator()
-
-    app = Flask(__name__)
-    journalroutes.add_routes(app, journal_server)
-    nexusroutes.add_routes(app, journal_server, run_locator)
     return app
+
 
 def _create_runfilelocator() -> RunDataFileLocator:
     """Create the run locator from the configuration values
