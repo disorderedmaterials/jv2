@@ -28,7 +28,7 @@ class Backend : public QObject
     void stop();
 
     private:
-    void configureProcessArgs();
+    void configureProcessArgs(const QCommandLineParser &args);
     void configureEnvironment(const QCommandLineParser &args);
 
     QProcess process_;

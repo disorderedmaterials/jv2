@@ -23,7 +23,7 @@ QString argToEnvironName(QString argName) { return ENVIRON_NAME_PREFIX + argName
  */
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
-    configureProcessArgs();
+    configureProcessArgs(args);
     configureEnvironment(args);
 }
 
@@ -37,8 +37,14 @@ void Backend::start()
         qDebug() << arg;
 
     process_.start();
-    process_.waitForStarted();
-    qDebug() << "Backend process started with pid " << process_.processId();
+    if (process_.waitForStarted())
+    {
+        qDebug() << "Backend process started with pid " << process_.processId();
+    }
+    else
+    {
+        qDebug() << "Error starting backend " << process_.errorString();
+    }
 }
 
 /**
@@ -53,17 +59,19 @@ void Backend::stop()
 
 // Private
 
-void Backend::configureProcessArgs()
+void Backend::configureProcessArgs(const QCommandLineParser &args)
 {
     process_.setProgram("gunicorn");
-    QStringList args;
+    QStringList backendArgs;
     // clang-format off
-    args << "--bind" << Backend::bind_address()
+    backendArgs << "--bind" << Backend::bind_address()
          << "--graceful-timeout" << "120"
-         << "--timeout" << "120"
-         << "jv2backend.app:create_app()";
+         << "--timeout" << "120";
+    if(args.isSet(Args::LogLevel))
+         backendArgs << "--log-level" << "debug";
+    backendArgs << "jv2backend.app:create_app()";
     // clang-format on
-    process_.setArguments(args);
+    process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
@@ -75,10 +83,12 @@ void Backend::configureEnvironment(const QCommandLineParser &args)
     if (args.isSet(Args::RunLocatorPrefix))
         env.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
 
-    qDebug() << "Configured additional environment variables for backend:";
-    for (const auto &keyValue : env.toStringList())
-        qDebug() << keyValue;
-
+    if (env.isEmpty())
+    {
+        qDebug() << "Configured additional environment variables for backend:";
+        for (const auto &keyValue : env.toStringList())
+            qDebug() << keyValue;
+    }
     env.insert(QProcessEnvironment::systemEnvironment());
     process_.setProcessEnvironment(env);
 }
