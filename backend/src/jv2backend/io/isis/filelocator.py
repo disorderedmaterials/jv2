@@ -32,12 +32,8 @@ class PrefixPathFileLocator(RunDataFileLocator):
 
 class DAaaSDataCacheFileLocator(PrefixPathFileLocator):
     """Implments file searching based on the ISIS
-    IDAaaS data cache layout. Files can be found by constructing
-    the following path
-
+    IDAaaS data cache layout. The files can be found on the following path
     <prefix>/<instrument_name>/<YYYY>/RB<experiment_identifier>-<part_number>/<name>.nxs
-
-    The part_number has to be determined by globbing for the required file
     """
 
     EXTENSION = ".nxs"
@@ -54,18 +50,25 @@ class DAaaSDataCacheFileLocator(PrefixPathFileLocator):
 
         :param run: A mapping describing the run
         """
+        # Files for a given experiment can be split across directories, for the full path
+        # format see the class docstring. Each RB directory is suffixed with an incrementing
+        # part number after the RB number. Construct everything up to the year then glob
+        # for the part number
         instrument, cycle_name, experiment_id = (
             run["instrument_name"],
             run["isis_cycle"],
             run["experiment_identifier"],
         )
-        cycle_prefix = self._prefix / instrument / _cycle_year(cycle_name)
-        # Files for an experiment can be split across directories each with an incrementing
-        # part number after the RB number. If multiple matches are found for the same
-        # file then the file from the latest part is returned
-        matches = list(
-            cycle_prefix.glob(f"RB{experiment_id}-*/{run['name']}{self.EXTENSION}")
+        logging.debug(
+            f"Locate: instrument={instrument}, isis_cycle={cycle_name}, rb={experiment_id}"
         )
+        year_prefix = self._prefix / instrument / _cycle_year(cycle_name)
+        logging.debug(f"Constructed year_prefix={year_prefix}")
+        glob_expr = f"RB{experiment_id}-*/{run['name']}{self.EXTENSION}"
+        logging.debug(f"Constructed glob_expr={glob_expr}")
+        matches = list(year_prefix.glob(glob_expr))
+        logging.debug(f"Glob matches: {matches}")
+
         if len(matches) > 0:
             return matches[-1]
         else:
@@ -99,6 +102,7 @@ class LegacyArchiveFileLocator(PrefixPathFileLocator):
             run["instrument_name"],
             run["isis_cycle"],
         )
+        logging.debug(f"Locate: instrument={instrument}, isis_cycle={cycle_id}")
         filepath = (
             self._prefix
             / f"ndx{instrument.lower()}"
