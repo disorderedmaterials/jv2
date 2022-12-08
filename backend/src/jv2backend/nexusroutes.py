@@ -21,9 +21,10 @@ def add_routes(
 
     @app.route("/setRoot/<prefix>")
     def setRoot(prefix):
+        """Set the prefix to use by the RunDataFileLocator"""
         if prefix == "Default":
             prefix = config.get("run_locator_prefix")
-        run_locator.prefix = f"/{prefix}"
+        run_locator.prefix = f"{prefix}"
 
         return jsonify("success")
 
