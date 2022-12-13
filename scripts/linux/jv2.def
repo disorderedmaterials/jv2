@@ -1,0 +1,68 @@
+Bootstrap: localimage
+From: ./jv2-build.sif
+Stage: build
+
+Bootstrap: library
+From: ubuntu:jammy
+Stage: final
+
+%files from build
+    # GUI executable
+    /var/jv2/frontend/build/bin/jv2 /usr/local/bin/jv2
+    /var/jv2/backend/wheels/jv2backend*.whl /var/wheels/
+
+%files
+    # wrapper script
+    ./jv2launcher /usr/local/bin/jv2launcher
+
+%environment
+    export FONTCONFIG_PATH=/etc/fonts
+    export LC_ALL=${LC_ALL:-'C'}
+
+%post
+    # Build variables
+    export LC_ALL=C
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Install mimimal X libraries for frontend application
+    # List compiled from output of 'ldd /usr/local/bin/jv2'
+    apt update && apt -y install --no-install-recommends \
+        chrpath \
+        fontconfig-config \
+        libx11-xcb1 \
+        libice6 \
+        libsm6 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-randr0 \
+        libxcb-render-util0 \
+        libxcb-render0 \
+        libxcb-shape0 \
+        libxcb-sync1 \
+        libxcb-xfixes0 \
+        libxcb-xkb1 \
+        libgl1 \
+        libstdc++6
+    # Install Python
+    apt install -y --no-install-recommends \
+        python3-setuptools \
+        python3-pip \
+        python3-wheel
+    rm -r /var/lib/apt/lists/*
+
+    # Remove RPATH pointing to conan
+    chrpath --delete /usr/local/bin/jv2
+    # Remove utility
+    apt purge -y chrpath
+
+    # Install backend and gunicorn to run it
+    python3 -m pip install /var/wheels/* && \
+      rm -fr /var/wheels
+    python3 -m pip install gunicorn
+
+%runscript
+    # Disable session management as it causes a Qt warning:
+    #   Qt: Session management error: None of the authentication protocols specified are supported
+    unset SESSION_MANAGER
+    jv2launcher

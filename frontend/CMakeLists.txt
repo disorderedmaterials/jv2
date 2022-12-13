@@ -1,31 +1,36 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
 project(
   jv2
   VERSION 0.1
   LANGUAGES CXX)
 
+# Metadata
 set(DESCRIPTION "jv2")
 set(AUTHOR "Team jv2")
 set(VERSION_MAJOR "0")
 set(VERSION_MINOR "1")
 set(VERSION_PATCH "0")
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
+# Global CMake settings
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Custom CMake modules
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules")
 
-if(UNIX)
-  list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules")
+# Configure options
+option(JV2_USE_CONAN "If True, use the Conan package manager" OFF)
+
+# Setup Conan for dependency management
+if(JV2_USE_CONAN)
+  include(conan-jv2)
 endif()
 
-set(QT_DEFAULT_MAJOR_VERSION 6)
-find_package(OpenGL REQUIRED)
 find_package(
   Qt6
   COMPONENTS Core
@@ -36,43 +41,37 @@ find_package(
              Xml
              OpenGL
              OpenGLWidgets
-             REQUIRED)
+  REQUIRED)
 
-find_package(Qt6OpenGL 6.0 REQUIRED)
-find_package(Qt6OpenGLWidgets 6.0 REQUIRED)
-
+# Common sources
 set(PROJECT_SOURCES
-    frontend/main.cpp
-    frontend/mainwindow.cpp
-    frontend/filtering.cpp
-    frontend/datagathering.cpp
-    frontend/searching.cpp
-    frontend/nexusInteraction.cpp
-    frontend/mainwindow.h
-    frontend/mainwindow.ui
-    frontend/httprequestworker.cpp
-    frontend/httprequestworker.h
-    frontend/jsontablemodel.cpp
-    frontend/jsontablemodel.h
-    frontend/chartview.cpp
-    frontend/chartview.h
-    frontend/graphwidget.cpp
-    frontend/graphwidget.h
-    frontend/graphwidget.ui
-    frontend/mysortfilterproxymodel.cpp
-    frontend/mysortfilterproxymodel.h)
+    src/main.cpp
+    src/mainwindow.cpp
+    src/filtering.cpp
+    src/datagathering.cpp
+    src/searching.cpp
+    src/nexusInteraction.cpp
+    src/mainwindow.h
+    src/mainwindow.ui
+    src/httprequestworker.cpp
+    src/httprequestworker.h
+    src/jsontablemodel.cpp
+    src/jsontablemodel.h
+    src/chartview.cpp
+    src/chartview.h
+    src/graphwidget.cpp
+    src/graphwidget.h
+    src/graphwidget.ui
+    src/mysortfilterproxymodel.cpp
+    src/mysortfilterproxymodel.h)
 
+# OS-dependent flags
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
       "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-endif()
-
-if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS_RELEASE
       "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-endif()
-
-if(APPLE)
+elseif()
   set(MACOSX_BUNDLE_ICON_FILE "jv2.icns")
   set(MACOSX_BUNDLE_LONG_VERSION_STRING
       "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
@@ -91,24 +90,31 @@ if(APPLE)
 
   set(CMAKE_OSX_ARCHITECTURES "x86_64")
   add_definitions(-D_MAC)
-
   find_package(GLUT REQUIRED)
-endif(APPLE)
+else()
+  if(JV2_USE_CONAN)
+    list(APPEND PROJECT_SOURCES src/platforminit.cpp)
+    set(STATIC_PLATFORM_PLUGINS Qt6::QXcbIntegrationPlugin Qt6::XcbQpaPrivate)
+  endif()
+endif()
 
 # Resources
-set(jv2_RES_QRC "frontend/icons.qrc")
+set(jv2_RES_QRC "src/icons.qrc")
 
-add_executable(jv2 MACOSX_BUNDLE ${PROJECT_SOURCES} ${jv2_RES_QRC})
-
+qt6_add_executable(jv2 MACOSX_BUNDLE ${PROJECT_SOURCES} ${jv2_RES_QRC})
+target_include_directories(jv2 PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
 target_link_libraries(
   jv2
-  PRIVATE # External libs
-          Qt6::Widgets Qt6::Core Qt6::Network Qt6::Charts Qt6::Xml OpenGL::GL)
+  PRIVATE Qt6::Core
+          Qt6::Widgets
+          Qt6::Network
+          Qt6::Charts
+          Qt6::Xml
+          Qt6::OpenGLWidgets
+          ${STATIC_PLATFORM_PLUGINS})
 
 set_target_properties(
   jv2
   PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
              MACOSX_BUNDLE_SHORT_VERSION_STRING
              ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
-
-qt_finalize_executable(jv2)
