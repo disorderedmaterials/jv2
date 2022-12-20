@@ -29,20 +29,21 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 # Setup Conan for dependency management
-option(BUILD_SHARED_LIBS "If ON, build shared libraries otherwise build static" ON)
+option(BUILD_SHARED_LIBS "If ON, build shared libraries otherwise build static"
+       ON)
 include(conan-jv2)
 
 # Dependencies
 find_package(
   Qt6
   COMPONENTS Core
-  Gui
-  Widgets
-  Network
-  Charts
-  Xml
-  OpenGL
-  OpenGLWidgets
+             Gui
+             Widgets
+             Network
+             Charts
+             Xml
+             OpenGL
+             OpenGLWidgets
   REQUIRED)
 
 # Common sources
@@ -87,5 +88,4 @@ target_link_libraries(
           Qt6::Charts
           Qt6::Xml
           Qt6::OpenGLWidgets
-          ${STATIC_PLATFORM_PLUGINS}
-)
+          ${STATIC_PLATFORM_PLUGINS})
