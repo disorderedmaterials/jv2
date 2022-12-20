@@ -3,6 +3,8 @@
 Viewer for data archive journals.
 A successor to [Journal Viewer](https://github.com/disorderedmaterials/jv).
 
+Team JournalViewer is: E. Devlin, M. Gigg, and T. Youngs.
+
 ## Quick User Guide
 
  - Click and drag column headings to re-order your table view.

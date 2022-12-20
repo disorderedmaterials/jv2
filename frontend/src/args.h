@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 E. Devlin and T. Youngs
+// Copyright (c) 2022 Team JournalViewer and contributors
 
 #ifndef ARGS_H
 #define ARGS_H
