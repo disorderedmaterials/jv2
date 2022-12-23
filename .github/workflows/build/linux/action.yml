@@ -10,16 +10,29 @@ runs:
     with:
       singularity-version: 3.8.3
 
-  - name: Build Singularity Image
+  - name: Install Development Dependencies
     shell: bash
     run: |
-      cd scripts/linux
-      sudo ${SINGULARITY_ROOT}/bin/singularity build jv2-build.sif ./jv2-build.def
-      sudo ${SINGULARITY_ROOT}/bin/singularity build jv2.sif ./jv2.def
+      bash -x scripts/linux/setup-for-development-ubuntu.sh
 
-  - name: Upload Artifact
+  - name: Build Frontend
+    shell: bash
+    run: |
+      cd frontend
+      cmake --preset ci-linux
+      cmake --build --preset build
+
+  - name: Build Backend
+    shell: bash
+    run: |
+      cd backend
+      python3 -mpip install ".[test]"
+
+  - name: Upload Raw Build Artifacts
     uses: actions/upload-artifact@v3
     with:
-      name: Packages
-      path: scripts/linux/jv2.sif
+      name: linux-build
+      path: |
+        frontend
+        backend
       if-no-files-found: error
