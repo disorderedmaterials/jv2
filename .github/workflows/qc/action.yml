@@ -35,11 +35,11 @@ runs:
       git diff
       git diff --quiet
 
-  - name: Python Formatting
-    shell: bash
-    run: |
-      set -ex
-      python -m flake8 backend/
+#  - name: Python Formatting
+#    shell: bash
+#    run: |
+#      set -ex
+#      python -m flake8 backend/
 
   - name: Copyright Year
     shell: bash
