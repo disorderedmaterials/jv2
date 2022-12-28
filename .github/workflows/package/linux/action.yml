@@ -10,24 +10,15 @@ runs:
     with:
       singularity-version: 3.8.3
 
-  - name: Probe conan Setup Location
-    id: conan-cache-key
-    shell: bash
-    run: |
-      echo "path=$(conan config home)" >> $GITHUB_OUTPUT
-
-  - name: Cache conan Setup
-    uses: actions/cache@v3
+  - name: Download Artifacts
+    uses: actions/download-artifact@v3
     with:
-      path: ${{ steps.conan-cache-key.outputs.path }}
-      key: conan-${{ matrix.variant.os }}-${{ hashFiles('frontend/cmake/Modules/conan-jv2.cmake') }}
+      name: linux-build
+      path: ${{ github.workspace }}/linux-build
 
   - name: Build Singularity Image
     shell: bash
-    run: |
-      cd scripts/linux
-      sudo ${SINGULARITY_ROOT}/bin/singularity build jv2-build.sif ./jv2-build.def
-      sudo ${SINGULARITY_ROOT}/bin/singularity build jv2.sif ./jv2.def
+    run: sudo ${SINGULARITY_ROOT}/bin/singularity build jv2.sif scripts/linux/jv2.def
 
   - name: Upload artifact
     uses: actions/upload-artifact@v3
