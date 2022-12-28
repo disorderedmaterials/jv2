@@ -11,6 +11,7 @@ runs:
       singularity-version: 3.8.3
 
   - name: Build Singularity Image
+    shell: bash
     run: |
       cd scripts/linux
       sudo ${SINGULARITY_ROOT}/bin/singularity build jv2-build.sif ./jv2-build.def
