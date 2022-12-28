@@ -5,11 +5,6 @@ runs:
   using: "composite"
   steps:
 
-  - name: Install singularity
-    uses: eWaterCycle/setup-singularity@v7
-    with:
-      singularity-version: 3.8.3
-
   - name: Install Development Dependencies
     shell: bash
     run: |
