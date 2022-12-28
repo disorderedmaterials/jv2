@@ -1,0 +1,17 @@
+name: Test
+description: Perform Python tests
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.pythonVersion }}
+
+    - name: Build and test backend
+      shell: bash
+      run: |
+        cd backend
+        python3 -mpip install ".[test]"
+        python3 -mpytest src
