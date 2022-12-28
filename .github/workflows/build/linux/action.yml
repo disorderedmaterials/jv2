@@ -1,5 +1,5 @@
 name: Build
-description: Build Linux (Singularity) Images
+description: Build Linux artifacts
 
 runs:
   using: "composite"
@@ -7,14 +7,12 @@ runs:
 
   - name: Install Development Dependencies
     shell: bash
-    run: |
-      bash -x scripts/linux/setup-for-development-ubuntu.sh
+    run: bash -x scripts/linux/setup-for-development-ubuntu.sh
 
   - name: Probe conan Setup Location
     id: conan-cache-key
     shell: bash
-    run: |
-      echo "path=$(conan config home)" >> $GITHUB_OUTPUT
+    run: echo "path=$(conan config home)" >> $GITHUB_OUTPUT
 
   - name: Cache conan Setup
     uses: actions/cache@v3

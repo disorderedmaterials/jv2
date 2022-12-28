@@ -20,7 +20,7 @@ Stage: final
     export LC_ALL=C
     export DEBIAN_FRONTEND=noninteractive
 
-    # Install mimimal X libraries for frontend application
+    # Install minimal X libraries for frontend application
     # List compiled from output of 'ldd /usr/local/bin/jv2'
     apt update && apt -y install --no-install-recommends \
         chrpath \
