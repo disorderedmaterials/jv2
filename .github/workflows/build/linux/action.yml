@@ -10,13 +10,13 @@ runs:
     run: |
       bash -x scripts/linux/setup-for-development-ubuntu.sh
 
-  - name: Store conan setup
+  - name: Probe conan Setup Location
     id: conan-cache-key
     shell: bash
     run: |
       echo "path=$(conan config home)" >> $GITHUB_OUTPUT
 
-  - name: Cache conan setup
+  - name: Cache conan Setup
     uses: actions/cache@v3
     with:
       path: ${{ steps.conan-cache-key.outputs.path }}

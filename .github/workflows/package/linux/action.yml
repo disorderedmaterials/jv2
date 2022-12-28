@@ -5,10 +5,22 @@ runs:
   using: "composite"
   steps:
 
-  - name: Install singularity
+  - name: Install Singularity
     uses: eWaterCycle/setup-singularity@v7
     with:
       singularity-version: 3.8.3
+
+  - name: Probe conan Setup Location
+    id: conan-cache-key
+    shell: bash
+    run: |
+      echo "path=$(conan config home)" >> $GITHUB_OUTPUT
+
+  - name: Cache conan Setup
+    uses: actions/cache@v3
+    with:
+      path: ${{ steps.conan-cache-key.outputs.path }}
+      key: conan-${{ matrix.variant.os }}-${{ hashFiles('frontend/cmake/Modules/conan-jv2.cmake') }}
 
   - name: Build Singularity Image
     shell: bash
