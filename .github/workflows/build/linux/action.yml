@@ -1,0 +1,42 @@
+name: Build
+description: Build Linux artifacts
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Install Development Dependencies
+    shell: bash
+    run: bash -x scripts/linux/setup-for-development-ubuntu.sh
+
+  - name: Probe conan Setup Location
+    shell: bash
+    run: echo "conanHome=$(conan config home)" >> $GITHUB_ENV
+
+  - name: Cache conan Setup
+    uses: actions/cache@v3
+    with:
+      path: ${{ env.conanHome }}
+      key: conan-${{ runner.os }}-${{ hashFiles('frontend/cmake/Modules/conan-jv2.cmake') }}
+
+  - name: Build Frontend
+    shell: bash
+    run: |
+      cd frontend
+      cmake --preset singularity
+      cmake --build --preset build
+
+  - name: Build Backend
+    shell: bash
+    run: |
+      cd backend
+      python3 -m pip wheel --wheel-dir=wheels .
+
+  - name: Upload Raw Build Artifacts
+    uses: actions/upload-artifact@v3
+    with:
+      name: linux-build
+      path: |
+        frontend
+        backend
+      if-no-files-found: error

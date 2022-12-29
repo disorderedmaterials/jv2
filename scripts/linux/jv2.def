@@ -1,15 +1,11 @@
-Bootstrap: localimage
-From: ./jv2-build.sif
-Stage: build
-
 Bootstrap: library
 From: ubuntu:jammy
 Stage: final
 
-%files from build
-    # GUI executable
-    /var/jv2/frontend/build/bin/jv2 /usr/local/bin/jv2
-    /var/jv2/backend/wheels/jv2backend*.whl /var/wheels/
+%files
+    # Assume build artifacts are present in the current directory in 'linux-build'
+    ./linux-build/frontend/build/bin/jv2 /usr/local/bin/jv2
+    ./linux-build/backend/wheels/jv2backend*.whl /var/wheels/
 
 %environment
     export FONTCONFIG_PATH=/etc/fonts
@@ -20,7 +16,7 @@ Stage: final
     export LC_ALL=C
     export DEBIAN_FRONTEND=noninteractive
 
-    # Install mimimal X libraries for frontend application
+    # Install minimal X libraries for frontend application
     # List compiled from output of 'ldd /usr/local/bin/jv2'
     apt update && apt -y install --no-install-recommends \
         chrpath \
@@ -40,6 +36,7 @@ Stage: final
         libxcb-xkb1 \
         libgl1 \
         libstdc++6
+
     # Install Python
     apt install -y --no-install-recommends \
         python3-setuptools \
@@ -56,6 +53,9 @@ Stage: final
     python3 -m pip install /var/wheels/* && \
       rm -fr /var/wheels
     python3 -m pip install gunicorn
+
+    # Make main binary executable
+    chmod a+rwx /usr/local/bin/jv2
 
 %runscript
     # Disable session management as it causes a Qt warning:

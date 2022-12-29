@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 E. Devlin and T. Youngs
+// Copyright (c) 2022 Team JournalViewer and contributors
 
 #include "./ui_mainwindow.h"
 #include "chartview.h"
@@ -305,15 +305,15 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
                 auto *dateSeries = new QLineSeries();
                 auto *relSeries = new QLineSeries();
 
-                connect(dateSeries, &QLineSeries::hovered, [=](const QPointF point, bool hovered) {
-                    dateTimeChartView->setHovered(point, hovered, dateSeries->name());
-                });
+                connect(dateSeries, &QLineSeries::hovered,
+                        [=](const QPointF point, bool hovered)
+                        { dateTimeChartView->setHovered(point, hovered, dateSeries->name()); });
                 connect(dateTimeChartView, SIGNAL(showCoordinates(qreal, qreal, QString)), this,
                         SLOT(showStatus(qreal, qreal, QString)));
                 connect(dateTimeChartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));
-                connect(relSeries, &QLineSeries::hovered, [=](const QPointF point, bool hovered) {
-                    relTimeChartView->setHovered(point, hovered, relSeries->name());
-                });
+                connect(relSeries, &QLineSeries::hovered,
+                        [=](const QPointF point, bool hovered)
+                        { relTimeChartView->setHovered(point, hovered, relSeries->name()); });
                 connect(relTimeChartView, SIGNAL(showCoordinates(qreal, qreal, QString)), this,
                         SLOT(showStatus(qreal, qreal, QString)));
                 connect(relTimeChartView, SIGNAL(clearCoordinates()), statusBar(), SLOT(clearMessage()));

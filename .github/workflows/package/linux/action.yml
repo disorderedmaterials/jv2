@@ -1,0 +1,28 @@
+name: Package
+description: Package Linux (Singularity) Images
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Install Singularity
+    uses: eWaterCycle/setup-singularity@v7
+    with:
+      singularity-version: 3.8.3
+
+  - name: Download Artifacts
+    uses: actions/download-artifact@v3
+    with:
+      name: linux-build
+      path: ${{ github.workspace }}/linux-build
+
+  - name: Build Singularity Image
+    shell: bash
+    run: sudo ${SINGULARITY_ROOT}/bin/singularity build jv2.sif scripts/linux/jv2.def
+
+  - name: Upload artifact
+    uses: actions/upload-artifact@v3
+    with:
+      name: packages
+      path: jv2.sif
+      if-no-files-found: error
