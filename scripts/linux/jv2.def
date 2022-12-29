@@ -36,6 +36,7 @@ Stage: final
         libxcb-xkb1 \
         libgl1 \
         libstdc++6
+
     # Install Python
     apt install -y --no-install-recommends \
         python3-setuptools \
@@ -52,6 +53,9 @@ Stage: final
     python3 -m pip install /var/wheels/* && \
       rm -fr /var/wheels
     python3 -m pip install gunicorn
+
+    # Make main binary executable
+    chmod u+x /usr/local/bin/jv2
 
 %runscript
     # Disable session management as it causes a Qt warning:
