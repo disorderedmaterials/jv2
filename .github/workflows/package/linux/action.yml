@@ -24,5 +24,5 @@ runs:
     uses: actions/upload-artifact@v3
     with:
       name: packages
-      path: scripts/linux/jv2.sif
+      path: jv2.sif
       if-no-files-found: error
