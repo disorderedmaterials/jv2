@@ -18,7 +18,7 @@ runs:
     uses: actions/cache@v3
     with:
       path: ${{ steps.conan-cache-key.outputs.path }}
-      key: conan-${{ matrix.variant.os }}-${{ hashFiles('frontend/cmake/Modules/conan-jv2.cmake') }}
+      key: conan-${{ runner.os }}-${{ hashFiles('frontend/cmake/Modules/conan-jv2.cmake') }}
 
   - name: Build Frontend
     shell: bash
