@@ -10,14 +10,13 @@ runs:
     run: bash -x scripts/linux/setup-for-development-ubuntu.sh
 
   - name: Probe conan Setup Location
-    id: conan-cache-key
     shell: bash
-    run: echo "path=$(conan config home)" >> $GITHUB_OUTPUT
+    run: echo "conanHome=$(conan config home)" >> $GITHUB_ENV
 
   - name: Cache conan Setup
     uses: actions/cache@v3
     with:
-      path: ${{ steps.conan-cache-key.outputs.path }}
+      path: ${{ env.conanHome }}
       key: conan-${{ runner.os }}-${{ hashFiles('frontend/cmake/Modules/conan-jv2.cmake') }}
 
   - name: Build Frontend
