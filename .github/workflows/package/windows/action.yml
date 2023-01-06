@@ -1,0 +1,52 @@
+name: Package
+description: Package Windows artifacts
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Download Raw Build Artifacts
+    uses: actions/download-artifact@v3
+    with:
+      name: windows-build
+      path: build
+
+  - name: Install Prerequisites
+    shell: bash
+    run: choco install -y zip innoextract
+
+  - name: Create Installer
+    shell: bash
+    run: |
+      set -ex
+      ls -R build/
+
+      export Qt6_DIR="build/backend/build/bin"
+      export JV2_DIR="build/backend/build/bin"
+      export BACKEND_DIR="build/backend/build/bin"
+      
+      # Run Inno Setup Compiler
+      iscc.exe -O./ ./ci/windows/jv2.iss
+      exe=${ls *.exe}
+      exeBase=${basename $exe}
+      echo "Executable installer is $exe, basename is $exeBase"
+
+  - name: Create Zip
+    shell: bash
+    run: |
+      set -ex
+
+      exe=$(ls -1 *.exe)
+      echo "Executable installer is ${exe}"
+      
+      # Create Zip from Exe
+      innoextract.exe $exe.Name -d $exe.BaseName
+      mv "$($exe.BaseName)\app\bin\*" $exe.BaseName
+      mv "$($exe.BaseName)\app" ./
+      #rm -Force "$($exe.BaseName)\app"
+      $zip = $exe.BaseName + ".zip"
+      zip -r $zip $exe.BaseName
+
+      mkdir packages
+      mv $zip packages
+      mv $exe.Name packages
