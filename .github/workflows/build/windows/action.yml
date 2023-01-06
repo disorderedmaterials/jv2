@@ -1,0 +1,52 @@
+name: Build
+description: Build Windows artifacts
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Install Qt
+    uses: jurplel/install-qt-action@v3
+    with:
+      version: ${{ env.qtVersion }}
+      modules: qtcharts
+
+  - name: Setup MSVC Compiler
+    uses: ilammy/msvc-dev-cmd@v1
+
+  - name: Build Frontend
+    shell: bash
+    run: |
+      cd frontend
+      cmake --preset ci-windows
+      cmake --build --preset build
+
+  - name: Deploy Runtime Libs
+    shell: bash
+    run: |
+      cd frontend/build/bin
+      windeployqt.exe jv2.exe
+
+  - name: Setup Python
+    uses: actions/setup-python@v4
+    with:
+      python-version: ${{ env.pythonVersion }}
+
+  - name: Build Backend
+    shell: bash
+    run: |
+      set -ex
+
+      python3 -m pip install h5py
+
+      cd backend
+      python3 -m pip wheel --wheel-dir=wheels .
+
+  - name: Upload Raw Build Artifacts
+    uses: actions/upload-artifact@v3
+    with:
+      name: windows-build
+      path: |
+        frontend
+        backend
+      if-no-files-found: error
