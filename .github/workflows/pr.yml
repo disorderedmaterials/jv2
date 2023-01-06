@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [osx-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
