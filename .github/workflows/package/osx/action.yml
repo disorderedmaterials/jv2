@@ -1,0 +1,51 @@
+name: Package
+description: Package OSX artifacts
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Download Raw Build Artifacts
+    uses: actions/download-artifact@v3
+    with:
+      name: osx-build
+      path: build
+
+  - name: Install Prerequisites
+    shell: bash
+    run: |
+      pip3 install dmgbuild biplist
+      wget https://raw.githubusercontent.com/disorderedmaterials/scripts/master/prep-dmg
+      chmod u+x ./prep-dmg
+
+  - name: Prepare DMG Dirs
+    shell: bash
+    run: |
+      set -ex
+
+      ls -R build/
+      Qt6_ROOT=./build/frontend/deploy
+
+      # Get program version
+      export VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
+      ./prep-dmg -a jv2 -v ${VERSION} -b build/frontend/build/bin/jv2.app/Contents/MacOS/jv2 -d ${{ env.qtVersion }} -i extra/jv2_1024.png -p build/jv2.app/Contents/Info.plist
+
+  - name: Create Images
+    shell: bash
+    run: |
+      set -ex
+       # Get program version
+      export VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
+      # Create DMG
+      macdeployqt build/jv2.app
+
+  - name: Rename Artifacts
+    shell: bash
+    run: |
+      set -ex
+      mkdir packages
+      mkdir packages/jv2
+      mv dist/jv2Setup packages
+      mv dist/isisInternal packages
+      mv build/jv2.app packages/jv2
+      zip jv2.zip packages
