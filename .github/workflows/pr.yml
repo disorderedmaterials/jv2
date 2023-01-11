@@ -60,6 +60,10 @@ jobs:
     needs: Package
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Get Code Version
+      uses: "./.github/workflows/get-version"
     - name: "Publish"
       uses: "./.github/workflows/publish"
       with:
