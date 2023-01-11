@@ -18,11 +18,11 @@ runs:
 
   - name: Build Singularity Image
     shell: bash
-    run: sudo ${SINGULARITY_ROOT}/bin/singularity build jv2.sif scripts/linux/jv2.def
+    run: sudo ${SINGULARITY_ROOT}/bin/singularity build jv2-${{ env.jv2Version }}.sif scripts/linux/jv2.def
 
   - name: Upload artifact
     uses: actions/upload-artifact@v3
     with:
       name: packages
-      path: jv2.sif
+      path: jv2-*.sif
       if-no-files-found: error
