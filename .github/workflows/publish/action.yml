@@ -32,36 +32,38 @@ runs:
       wget https://raw.githubusercontent.com/disorderedmaterials/scripts/master/update-release
       chmod u+x ./update-release
 
-  - name: Publish on GitHub (Release)
-    if: inputs.publishGitHub == true && inputs.isRelease == true
+  - name: Publish on Harbor (Continuous)
+    if: ${{ inputs.publishHarbor == 'true' && inputs.isRelease == 'false' }}
     shell: bash
     run: |
-      echo "Release tag will be: ${{ env.jv2Version }}"
-      echo "Release name will be: ${{ env.jv2Version }}"
-      export GITHUB_TOKEN=${{ github.token }}
-      ./update-release -r disorderedmaterials/gudpy -t ${{ env.jv2Version }} -n "${{ env.jv2Version }}" -f ReleaseNotes.md packages/*
+      echo "${{ inputs.publishHarbor }} and ${{ inputs.isRelease }}"
+      echo "Release tag will be: continuous"
+      singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
+      ${SINGULARITY_ROOT}/bin/singularity push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:continuous
 
   - name: Publish on Harbor (Release)
-    if: inputs.publishHarbor == true && inputs.isRelease == true
+    if: ${{ inputs.publishHarbor == 'true' && inputs.isRelease == 'true' }}
     shell: bash
     run: |
+      echo "${{ inputs.publishHarbor }} and ${{ inputs.isRelease }}"
       echo "Release tag will be: latest"
       singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
       ${SINGULARITY_ROOT}/bin/singularity push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:latest
 
   - name: Publish on GitHub (Continuous)
-    if: inputs.publishGitHub == true && inputs.isRelease == false
+    if: ${{ inputs.publishGitHub == 'true' && inputs.isRelease == 'false' }}
     shell: bash
     run: |
       echo "Release tag will be: continuous"
       echo "Release name will be: 'Continuous (${{ env.jv2Version }})'"
       export GITHUB_TOKEN=${{ github.token }}
-      ./update-release -r disorderedmaterials/gudpy -t continuous -n "Continuous (${{ env.jv2Version }})" -b "Continuous release from \`main\` branch. Built $(date)." packages/*
+      ./update-release -r disorderedmaterials/jv2 -t continuous -n "Continuous (${{ env.jv2Version }})" -b "Continuous release from \`main\` branch. Built $(date)." packages/*
 
-  - name: Publish on Harbor (Continuous)
-    if: inputs.publishHarbor == true && inputs.isRelease == false
+  - name: Publish on GitHub (Release)
+    if: ${{ inputs.publishGitHub == 'true' && inputs.isRelease == 'true' }}
     shell: bash
     run: |
-      echo "Release tag will be: continuous"
-      singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
-      ${SINGULARITY_ROOT}/bin/singularity push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:continuous
+      echo "Release tag will be: ${{ env.jv2Version }}"
+      echo "Release name will be: ${{ env.jv2Version }}"
+      export GITHUB_TOKEN=${{ github.token }}
+      ./update-release -r disorderedmaterials/jv2 -t ${{ env.jv2Version }} -n "${{ env.jv2Version }}" -f ReleaseNotes.md packages/*
