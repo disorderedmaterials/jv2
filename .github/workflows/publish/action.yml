@@ -1,0 +1,67 @@
+name: Publish
+
+inputs:
+  isRelease:
+    type: boolean
+    default: false
+  publishGitHub:
+    type: boolean
+    default: true
+  publishHarbor:
+    type: boolean
+    default: true
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Install singularity
+    uses: eWaterCycle/setup-singularity@v7
+    with:
+      singularity-version: 3.8.3
+
+  - name: Download Artifacts
+    uses: actions/download-artifact@v3
+    with:
+      name: Packages
+      path: ${{ github.workspace }}/packages
+
+  - name: Download Prerequisites
+    shell: bash
+    run: |
+      wget https://raw.githubusercontent.com/disorderedmaterials/scripts/master/update-release
+      chmod u+x ./update-release
+
+  - name: Publish on GitHub (Release)
+    if: inputs.publishGitHub == true && inputs.isRelease == true
+    shell: bash
+    run: |
+      echo "Release tag will be: ${{ env.gudPyVersion }}"
+      echo "Release name will be: ${{ env.gudPyVersion }}"
+      export GITHUB_TOKEN=${{ github.token }}
+      ./update-release -r disorderedmaterials/gudpy -t ${{ env.gudPyVersion }} -n "${{ env.gudPyVersion }}" -f ReleaseNotes.md packages/*
+
+  - name: Publish on Harbor (Release)
+    if: inputs.publishHarbor == true && inputs.isRelease == true
+    shell: bash
+    run: |
+      echo "Release tag will be: latest"
+      singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
+      ${SINGULARITY_ROOT}/bin/singularity push packages/GudPy-${{ env.gudPyVersion }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:latest
+
+  - name: Publish on GitHub (Continuous)
+    if: inputs.publishGitHub == true && inputs.isRelease == false
+    shell: bash
+    run: |
+      echo "Release tag will be: continuous"
+      echo "Release name will be: 'Continuous (${{ env.gudPyVersion }})'"
+      export GITHUB_TOKEN=${{ github.token }}
+      ./update-release -r disorderedmaterials/gudpy -t continuous -n "Continuous (${{ env.gudPyVersion }})" -b "Continuous release from \`main\` branch. Built $(date)." packages/*
+
+  - name: Publish on Harbor (Continuous)
+    if: inputs.publishHarbor == true && inputs.isRelease == false
+    shell: bash
+    run: |
+      echo "Release tag will be: continuous"
+      singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
+      ${SINGULARITY_ROOT}/bin/singularity push packages/GudPy-${{ env.gudPyVersion }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:continuous
