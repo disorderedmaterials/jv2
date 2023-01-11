@@ -53,3 +53,15 @@ jobs:
       uses: actions/checkout@v3
     - name: "Package (${{ matrix.os }})"
       uses: "./.github/workflows/package"
+
+  Publish:
+    needs: Package
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Publish"
+      uses: "./.github/workflows/publish"
+      with:
+        publishGitHub: false
+      env:
+        HARBOR_USER: ${{ secrets.HARBOR_USER }}
+        HARBOR_SECRET: ${{ secrets.HARBOR_SECRET }}
