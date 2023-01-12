@@ -5,10 +5,6 @@ on:
     branches:
     - 'main'
 
-env:
-  pythonVersion: 3.9
-  qtVersion: 6.3.*
-
 jobs:
 
   QC:
@@ -16,6 +12,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Set Environment Variables
+      uses: "./.github/workflows/set-environment" 
     - name: Quality Control
       uses: "./.github/workflows/qc"
 
@@ -23,10 +21,12 @@ jobs:
     needs: QC
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: "Test (Backend)"
-        uses: "./.github/workflows/test"
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set Environment Variables
+      uses: "./.github/workflows/set-environment" 
+    - name: "Test (Backend)"
+      uses: "./.github/workflows/test"
 
   Build:
     needs: Test
@@ -38,6 +38,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Set Environment Variables
+      uses: "./.github/workflows/set-environment" 
     - name: "Build (${{ matrix.os }})"
       uses: "./.github/workflows/build"
 
