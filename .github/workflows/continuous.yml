@@ -1,9 +1,9 @@
-name: Pull Request
+name: Continuous
 
 on:
-  pull_request:
+  push:
     branches:
-    - '*'
+    - 'main'
 
 env:
   pythonVersion: 3.9
@@ -55,3 +55,19 @@ jobs:
       uses: "./.github/workflows/get-version"
     - name: "Package (${{ matrix.os }})"
       uses: "./.github/workflows/package"
+
+  Publish:
+    needs: Package
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Get Code Version
+      uses: "./.github/workflows/get-version"
+    - name: Publish
+      uses: "./.github/workflows/publish"
+      with:
+        isRelease: false
+      env:
+        HARBOR_USER: ${{ secrets.HARBOR_USER }}
+        HARBOR_SECRET: ${{ secrets.HARBOR_SECRET }}
