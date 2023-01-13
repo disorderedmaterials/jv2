@@ -36,7 +36,6 @@ runs:
     if: ${{ inputs.publishHarbor == 'true' && inputs.isRelease == 'false' }}
     shell: bash
     run: |
-      echo "${{ inputs.publishHarbor }} and ${{ inputs.isRelease }}"
       echo "Release tag will be: continuous"
       singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
       ${SINGULARITY_ROOT}/bin/singularity push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:continuous
@@ -45,7 +44,6 @@ runs:
     if: ${{ inputs.publishHarbor == 'true' && inputs.isRelease == 'true' }}
     shell: bash
     run: |
-      echo "${{ inputs.publishHarbor }} and ${{ inputs.isRelease }}"
       echo "Release tag will be: latest"
       singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
       ${SINGULARITY_ROOT}/bin/singularity push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:latest
