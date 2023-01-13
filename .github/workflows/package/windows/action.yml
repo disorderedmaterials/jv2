@@ -21,9 +21,9 @@ runs:
       set -ex
       ls -R build/
 
-      export Qt6_DIR="build/backend/build/bin"
-      export JV2_DIR="build/backend/build/bin"
-      export BACKEND_DIR="build/backend/build/bin"
+      export Qt6_DIR="${pwd}/build/backend/build/bin"
+      export JV2_DIR="${pwd}/build/backend/build/bin"
+      export BACKEND_DIR="${pwd}/build/backend/build/bin"
       
       # Run Inno Setup Compiler
       iscc.exe -O./ ./ci/windows/jv2.iss
