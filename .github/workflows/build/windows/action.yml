@@ -47,6 +47,6 @@ runs:
     with:
       name: windows-build
       path: |
-        frontend
-        backend
+        ${{ github.workspace }}\frontend
+        ${{ github.workspace }}\backend
       if-no-files-found: error
