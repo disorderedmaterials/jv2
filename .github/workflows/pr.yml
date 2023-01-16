@@ -48,7 +48,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [osx-latest]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
