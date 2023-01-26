@@ -23,15 +23,11 @@ runs:
     run: |
       set -ex
 
-      ls -R build/
+      # Make macdeployqt user rwx
+      ls -larth ./build/frontend/deploy/qt/bin/macdeployqt
+      chmod a+rwx ./build/frontend/deploy/qt/bin/macdeployqt
 
       ./prep-dmg -a jv2 -v ${{ env.jv2Version }} -b build/frontend/build/bin/jv2.app/Contents/MacOS/jv2 -d ./build/frontend/deploy/qt -i extra/jv2_1024.png -p build/frontend/build/bin/jv2.app/Contents/Info.plist
-
-  - name: Create Images
-    shell: bash
-    run: |
-      set -ex
-      macdeployqt build/jv2.app
 
   - name: Rename Artifacts
     shell: bash
