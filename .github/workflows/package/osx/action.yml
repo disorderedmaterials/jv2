@@ -1,0 +1,41 @@
+name: Package
+description: Package OSX artifacts
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Download Raw Build Artifacts
+    uses: actions/download-artifact@v3
+    with:
+      name: osx-build
+      path: build
+
+  - name: Install Prerequisites
+    shell: bash
+    run: |
+      pip3 install dmgbuild biplist
+      wget https://raw.githubusercontent.com/disorderedmaterials/scripts/master/prep-dmg
+      chmod u+x ./prep-dmg
+
+  - name: Prepare DMG Dirs
+    shell: bash
+    run: |
+      set -ex
+
+      # Make macdeployqt user rwx
+      ls -larth ./build/frontend/deploy/qt/bin/macdeployqt
+      chmod a+rwx ./build/frontend/deploy/qt/bin/macdeployqt
+
+      ./prep-dmg -a jv2 -v ${{ env.jv2Version }} -b build/frontend/build/bin/jv2.app/Contents/MacOS/jv2 -d ./build/frontend/deploy/qt -i extra/jv2_1024.png -p build/frontend/build/bin/jv2.app/Contents/Info.plist
+
+  - name: Rename Artifacts
+    shell: bash
+    run: |
+      set -ex
+      mkdir packages
+      mkdir packages/jv2
+      mv dist/jv2Setup packages
+      mv dist/isisInternal packages
+      mv build/jv2.app packages/jv2
+      zip jv2.zip packages
