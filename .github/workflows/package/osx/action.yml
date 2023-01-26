@@ -25,7 +25,7 @@ runs:
 
       ls -R build/
 
-      ./prep-dmg -a jv2 -v ${{ env.jv2Version }} -b build/frontend/build/bin/jv2.app/Contents/MacOS/jv2 -d ./build/frontend/deploy -i extra/jv2_1024.png -p build/frontend/build/bin/jv2.app/Contents/Info.plist
+      ./prep-dmg -a jv2 -v ${{ env.jv2Version }} -b build/frontend/build/bin/jv2.app/Contents/MacOS/jv2 -d ./build/frontend/deploy/qt -i extra/jv2_1024.png -p build/frontend/build/bin/jv2.app/Contents/Info.plist
 
   - name: Create Images
     shell: bash
