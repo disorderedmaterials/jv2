@@ -46,7 +46,7 @@ in {
     src = fetchurl {
       url =
         "${mirror}/official_releases/qt/${minor}/${patch}/submodules/qtcharts-everywhere-src-${patch}.tar.xz";
-      sha256 = "";
+      sha256 = "ZydixfZBzMiKMK7t77Y/A8D4N2SbM09G7qV1kuh+Ns0=";
       name = "qtcharts-everywhere-src-${patch}.tar.xz";
     };
   };
@@ -73,7 +73,7 @@ in {
     src = fetchurl {
       url =
         "${mirror}/official_releases/qt/${minor}/${patch}/submodules/qtdeclarative-everywhere-src-${patch}.tar.xz";
-      sha256 = "";
+      sha256 = "0pSwKdwrLU9l2lFv3DuAiNMmQ+t/932xNai5zpBMqjc=";
       name = "qtdeclarative-everywhere-src-${patch}.tar.xz";
     };
   };
@@ -226,7 +226,7 @@ in {
     src = fetchurl {
       url =
         "${mirror}/official_releases/qt/${minor}/${patch}/submodules/qtshadertools-everywhere-src-${patch}.tar.xz";
-      sha256 = "";
+      sha256 = "VJiVm503wlS9EmqxMgz4auuKMbPqflHbZmqPlpivvWw=";
       name = "qtshadertools-everywhere-src-${patch}.tar.xz";
     };
   };

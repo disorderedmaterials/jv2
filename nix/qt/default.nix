@@ -65,6 +65,7 @@ let
 
       qt3d = callPackage ./modules/qt3d.nix { };
       qt5compat = callPackage ./modules/qt5compat.nix { };
+      qtcharts = callPackage ./modules/qtcharts.nix { };
       qtdatavis3d = callPackage ./modules/qtdatavis3d.nix { };
       qtdeclarative = callPackage ./modules/qtdeclarative.nix { };
       qtshadertools = callPackage ./modules/qtshadertools.nix { };
