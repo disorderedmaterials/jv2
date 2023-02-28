@@ -53,20 +53,6 @@
       let
         pkgs = import nixpkgs { inherit system; };
         nixGL = import nixGL-src { inherit pkgs; };
-        # mkSingularity = { mpi ? false, gui ? false, threading ? true }:
-        #   outdated.legacyPackages.${system}.singularity-tools.buildImage {
-        #     name = "${exe-name mpi gui}-${version}";
-        #     diskSize = 1024 * 50;
-        #     contents = [ (dissolve { inherit mpi gui threading; }) ];
-        #     runScript = if gui then
-        #       "${nixGL.nixGLIntel}/bin/nixGLIntel ${
-        #         dissolve { inherit mpi gui threading; }
-        #       }/bin/${exe-name mpi gui}"
-        #     else
-        #       "${dissolve { inherit mpi gui threading; }}/bin/${
-        #         exe-name mpi gui
-        #       }";
-        #   };
       in {
         devShells.default = pkgs.stdenv.mkDerivation {
           name = "jv2-shell";
@@ -156,14 +142,20 @@
             '';
 
             meta = with pkgs.lib; {
-              description = "";
-              homepage = "";
+              description = "Journal Viewer for ISIS Experiments";
+              homepage = "https://github.com/disorderedmaterials/jv2";
               license = licenses.gpl3;
               maintainers = [ maintainers.rprospero ];
             };
           });
 
-          # singularity = mkSingularity { };
+          singularity =
+            nixpkgs.legacyPackages.${system}.singularity-tools.buildImage {
+              name = "jv2-${version}";
+              diskSize = 1024 * 250;
+              contents = [ self.packages.${system}.frontend ];
+              runScript = "${self.packages.${system}.frontend}/bin/jv2";
+            };
         };
       });
 }
