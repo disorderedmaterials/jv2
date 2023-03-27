@@ -1,20 +1,18 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    future.url = "github:NixOS/nixpkgs/nixos-unstable";
     outdated.url = "github:NixOS/nixpkgs/nixos-21.05";
     nixGL-src.url = "github:guibou/nixGL";
     nixGL-src.flake = false;
   };
-  outputs = { self, nixpkgs, outdated, flake-utils, bundlers, nixGL-src }:
+  outputs = { self, nixpkgs, future, outdated, flake-utils, bundlers, nixGL-src }:
     let
 
       version = "0.1";
       base_libs = pkgs: with pkgs; [ cmake ninja ];
       pylibs = pkgs:
-        with pkgs;
-        [
-          (python3.withPackages (ps:
-            with ps; [
+            with pkgs; [
               flask
               gunicorn
               h5py
@@ -23,19 +21,20 @@
               pytest
               requests
               setuptools
-            ]))
-        ];
+              virtualenv
+            ];
       gui_libs = pkgs:
         let
-          q = import ./nix/qt {
-            inherit (pkgs)
-              newScope lib stdenv fetchurl fetchgit fetchpatch fetchFromGitHub
-              makeSetupHook makeWrapper bison cups harfbuzz libGL perl ninja
-              writeText gtk3 dconf libglvnd darwin buildPackages;
-            cmake = pkgs.cmake.overrideAttrs (attrs: {
-              patches = attrs.patches ++ [ ./nix/qt/patches/cmake.patch ];
-            });
-          };
+          q = pkgs.qt6;
+          # q = import ./nix/qt {
+            # inherit (pkgs)
+              # newScope lib stdenv fetchurl fetchgit fetchpatch fetchFromGitHub
+              # makeSetupHook makeWrapper bison cups harfbuzz libGL perl ninja
+              # writeText gtk3 dconf libglvnd darwin buildPackages;
+            # cmake = pkgs.cmake.overrideAttrs (attrs: {
+              # patches = attrs.patches ++ [ ./nix/qt/patches/cmake.patch ];
+            # });
+          # };
         in with pkgs; [
           glib
           libGL.dev
@@ -52,6 +51,7 @@
 
       let
         pkgs = import nixpkgs { inherit system; };
+        next = import future { inherit system; };
         nixGL = import nixGL-src { inherit pkgs; };
       in {
         devShells.default = pkgs.stdenv.mkDerivation {
@@ -76,6 +76,7 @@
           CMAKE_CXX_COMPILER_LAUNCHER = "${pkgs.ccache}/bin/ccache";
           CMAKE_CXX_FLAGS_DEBUG = "-g -O0";
           CXXL = "${pkgs.stdenv.cc.cc.lib}";
+          my_proxy = "socks5://localhost:8888";
         };
 
         apps = {
@@ -84,43 +85,24 @@
         };
 
         packages = {
-          backend = pkgs.python3Packages.buildPythonPackage {
+          backend = next.python3Packages.buildPythonPackage {
             inherit version;
             pname = "jv2backend";
 
             src = ./backend;
-            propagatedBuildInputs = with pkgs.python3Packages; [
-              flask
-              gunicorn
-              h5py
-              lxml
-              pandas
-              pytest
-              requests
-              setuptools
-            ];
+            propagatedBuildInputs = pylibs next.python3Packages;
             format = "pyproject";
 
-            meta = with pkgs.lib; {
-              homepage = "https://github.com/pytoolz/toolz";
-              description = "List processing tools and functional utilities";
-              license = licenses.bsd3;
-              maintainers = with maintainers; [ fridh ];
-            };
+            # meta = with pkgs.lib; {
+            #   homepage = "https://github.com/pytoolz/toolz";
+            #   description = "List processing tools and functional utilities";
+            #   license = licenses.bsd3;
+            #   maintainers = with maintainers; [ fridh ];
+            # };
           };
 
-          mython = pkgs.python3.withPackages (ps:
-            with ps; [
-              flask
-              gunicorn
-              h5py
-              lxml
-              pandas
-              pytest
-              requests
-              setuptools
-              self.packages.${system}.backend
-            ]);
+          mython = next.python3.withPackages (ps:
+            with ps; pylibs ps ++ [self.packages.${system}.backend]);
           frontend = pkgs.stdenv.mkDerivation ({
             inherit version;
             pname = "jv2";
@@ -153,7 +135,10 @@
             nixpkgs.legacyPackages.${system}.singularity-tools.buildImage {
               name = "jv2-${version}";
               diskSize = 1024 * 250;
-              contents = [ self.packages.${system}.frontend ];
+              contents = [
+                self.packages.${system}.mython
+                self.packages.${system}.frontend
+              ];
               runScript = "${self.packages.${system}.frontend}/bin/jv2";
             };
         };

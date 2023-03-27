@@ -48,6 +48,22 @@
         "type": "indirect"
       }
     },
+    "future": {
+      "locked": {
+        "lastModified": 1679865578,
+        "narHash": "sha256-sYQmxxqIYL3QFsRYjW0AufhGur8qWfwoOGPGHRJZlGc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "4361baa782dc3d3b35fd455a1adc370681d9187c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nix-bundle": {
       "inputs": {
         "nixpkgs": "nixpkgs"
@@ -180,6 +196,7 @@
       "inputs": {
         "bundlers": "bundlers",
         "flake-utils": "flake-utils_2",
+        "future": "future",
         "nixGL-src": "nixGL-src",
         "nixpkgs": "nixpkgs_4",
         "outdated": "outdated"
