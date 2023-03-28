@@ -84,7 +84,7 @@ def main():  # pragma: no cover
     # be used during development so we activate debugging.
     # In production use a WSGI server such as gunicorn
     # and pass the create_app function to it
-    app.run(debug=True)
+    app.run(debug=False)
 
 
 # On running this module as main, start the server

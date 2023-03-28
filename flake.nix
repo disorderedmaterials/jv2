@@ -6,35 +6,35 @@
     nixGL-src.url = "github:guibou/nixGL";
     nixGL-src.flake = false;
   };
-  outputs = { self, nixpkgs, future, outdated, flake-utils, bundlers, nixGL-src }:
+  outputs =
+    { self, nixpkgs, future, outdated, flake-utils, bundlers, nixGL-src }:
     let
 
       version = "0.1";
       base_libs = pkgs: with pkgs; [ cmake ninja ];
       pylibs = pkgs:
-            with pkgs; [
-              flask
-              gunicorn
-              h5py
-              lxml
-              pandas
-              pytest
-              requests
-              setuptools
-              virtualenv
-            ];
+        with pkgs; [
+          flask
+          gunicorn
+          h5py
+          lxml
+          pandas
+          pytest
+          requests
+          setuptools
+          virtualenv
+        ];
       gui_libs = pkgs:
         let
-          q = pkgs.qt6;
-          # q = import ./nix/qt {
-            # inherit (pkgs)
-              # newScope lib stdenv fetchurl fetchgit fetchpatch fetchFromGitHub
-              # makeSetupHook makeWrapper bison cups harfbuzz libGL perl ninja
-              # writeText gtk3 dconf libglvnd darwin buildPackages;
-            # cmake = pkgs.cmake.overrideAttrs (attrs: {
-              # patches = attrs.patches ++ [ ./nix/qt/patches/cmake.patch ];
-            # });
-          # };
+          q = import ./nix/qt {
+            inherit (pkgs)
+              newScope lib stdenv fetchurl fetchgit fetchpatch fetchFromGitHub
+              makeSetupHook makeWrapper bison cups harfbuzz libGL perl ninja
+              writeText gtk3 dconf libglvnd darwin buildPackages;
+            cmake = pkgs.cmake.overrideAttrs (attrs: {
+              patches = attrs.patches ++ [ ./nix/qt/patches/cmake.patch ];
+            });
+          };
         in with pkgs; [
           glib
           libGL.dev
@@ -93,16 +93,16 @@
             propagatedBuildInputs = pylibs next.python3Packages;
             format = "pyproject";
 
-            # meta = with pkgs.lib; {
-            #   homepage = "https://github.com/pytoolz/toolz";
-            #   description = "List processing tools and functional utilities";
-            #   license = licenses.bsd3;
-            #   maintainers = with maintainers; [ fridh ];
-            # };
+            meta = with pkgs.lib; {
+              description = "Journal Viewer for ISIS Experiments";
+              homepage = "https://github.com/disorderedmaterials/jv2";
+              license = licenses.gpl3;
+              maintainers = with maintainers; [ rprospero ];
+            };
           };
 
-          mython = next.python3.withPackages (ps:
-            with ps; pylibs ps ++ [self.packages.${system}.backend]);
+          mython = next.python3.withPackages
+            (ps: with ps; pylibs ps ++ [ self.packages.${system}.backend ]);
           frontend = pkgs.stdenv.mkDerivation ({
             inherit version;
             pname = "jv2";
@@ -127,7 +127,7 @@
               description = "Journal Viewer for ISIS Experiments";
               homepage = "https://github.com/disorderedmaterials/jv2";
               license = licenses.gpl3;
-              maintainers = [ maintainers.rprospero ];
+              maintainers = with maintainers; [ rprospero ];
             };
           });
 
