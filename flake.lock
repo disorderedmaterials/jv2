@@ -197,11 +197,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1680525265,
-        "narHash": "sha256-5P4vTV7HomSmAbXjr2+/paa/o5aEqFrijVv9GlPU9Ug=",
+        "lastModified": 1680528871,
+        "narHash": "sha256-DPb7Z638N94c/4/cXzSx8BdxnxTPFj+QxA7tWIVaBZ4=",
         "owner": "rprospero",
         "repo": "qt-idaaas",
-        "rev": "a23409c0350a862dc47769f811a6be8680caa89f",
+        "rev": "3fb484d010b4efa7aa591e914cb990ba8704ba46",
         "type": "github"
       },
       "original": {
