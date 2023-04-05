@@ -3,7 +3,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     future.url = "github:NixOS/nixpkgs/nixos-unstable";
     outdated.url = "github:NixOS/nixpkgs/nixos-21.05";
-    qt-idaaas.url = "github:rprospero/qt-idaaas";
+    qt-idaaas.url = "github:disorderedmaterials/qt-idaaas";
   };
   outputs =
     { self, nixpkgs, future, outdated, flake-utils, bundlers, qt-idaaas }:

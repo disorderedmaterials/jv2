@@ -199,13 +199,13 @@
       "locked": {
         "lastModified": 1680528871,
         "narHash": "sha256-DPb7Z638N94c/4/cXzSx8BdxnxTPFj+QxA7tWIVaBZ4=",
-        "owner": "rprospero",
+        "owner": "disorderedmaterials",
         "repo": "qt-idaaas",
         "rev": "3fb484d010b4efa7aa591e914cb990ba8704ba46",
         "type": "github"
       },
       "original": {
-        "owner": "rprospero",
+        "owner": "disorderedmaterials",
         "repo": "qt-idaaas",
         "type": "github"
       }
