@@ -42,11 +42,11 @@ runs:
     run: |
       set -ex
 
-      nix bundle -L .#backend -o backend
+      # nix bundle -L .#backend -o backend
       nix bundle -L .#frontend -o frontend
 
       # Assemble artifacts
-      cp -v backend packages/backend
+      # cp -v backend packages/backend
       cp -v frontend packages/frontend
 
   - name: Tidy nix Store
