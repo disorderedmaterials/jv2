@@ -25,17 +25,17 @@ runs:
     shell: bash
     run: nix-store --import < /tmp/nixcache
 
-  - name: Build Singularity
-    shell: bash
-    run: |
-      set -ex
+  # - name: Build Singularity
+  #   shell: bash
+  #   run: |
+  #     set -ex
 
-      # Build Singularity target
-      nix build -L .#singularity
+  #     # Build Singularity target
+  #     nix build -L .#singularity
 
-      # Assemble artifacts
-      mkdir packages
-      cp -v result packages/jv2.sif
+  #     # Assemble artifacts
+  #     mkdir packages
+  #     cp -v result packages/jv2.sif
 
   - name: Bundle Executable
     shell: bash
