@@ -1,9 +1,21 @@
 name: Build
 description: Stub action for multi-platform builds
 
+inputs:
+  cacheOnly:
+    type: boolean
+    default: false
+
 runs:
   using: "composite"
   steps:
+
+
+  - name: Build (Linux)
+    if: runner.os == 'Linux'
+    uses: "./.github/workflows/build/linux"
+    with:
+      cacheOnly: ${{ inputs.cacheOnly }}
 
   - name: Build (Linux)
     if: runner.os == 'Linux'
