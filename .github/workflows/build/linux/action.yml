@@ -42,13 +42,13 @@ runs:
     run: |
       set -ex
 
-      nix bundle -L .#backend -o backend
-      nix bundle -L .#frontend -o frontend
+      nix bundle -L .#backend -o back
+      nix bundle -L .#frontend -o front
 
       # Assemble artifacts
       mkdir -p packages
-      cp -v backend packages/backend
-      cp -v frontend packages/frontend
+      cp -v back packages/backend
+      cp -v front packages/frontend
 
   - name: Tidy nix Store
     if: ${{ inputs.cacheOnly == 'true' }}
