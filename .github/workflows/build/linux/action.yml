@@ -43,6 +43,7 @@ runs:
       set -ex
 
       mkdir -p packages
+
       nix bundle -L .#backend -o packages/backend
       nix bundle -L .#frontend -o packages/frontend
 
