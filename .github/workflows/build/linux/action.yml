@@ -46,6 +46,7 @@ runs:
 
       nix bundle -L .#backend -o packages/backend
       nix bundle -L .#frontend -o packages/frontend
+      nix build -L .#singularity -o packages/singularity
 
   - name: Tidy nix Store
     if: ${{ inputs.cacheOnly == 'true' }}
