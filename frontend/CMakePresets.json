@@ -18,6 +18,14 @@
       }
     },
     {
+      "name": "idaaas",
+      "inherits": "base",
+      "description": "nix build on IDAaaS",
+      "cacheVariables": {
+        "USE_CONAN": "OFF"
+      }
+    },
+    {
       "name": "ci-linux",
       "inherits": "base",
       "description": "CI build on Linux"
