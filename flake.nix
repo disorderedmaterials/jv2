@@ -131,7 +131,7 @@
               self.packages.${system}.mython
               self.packages.${system}.frontend
             ];
-            runScript = "${self.packages.${system}.frontend}/bin/jv2";
+            runScript = "${self.packages.${system}.frontend}/bin/jv2 $@";
           };
       };
     });
