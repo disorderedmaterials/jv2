@@ -37,16 +37,20 @@ HttpRequestWorker *Backend::createRequest(const QString &url, const HttpRequestW
 // Configure backend process arguments
 void Backend::configureProcessArgs(const QCommandLineParser &args)
 {
-    process_.setProgram("gunicorn");
     QStringList backendArgs;
 
-    backendArgs << "--bind" << Backend::bindAddress() << "--graceful-timeout"
-                << "120"
-                << "--timeout"
-                << "120";
-    if (args.isSet(CLIArgs::LogLevel))
-        backendArgs << "--log-level" << args.value(CLIArgs::LogLevel);
-    backendArgs << "jv2backend.app:create_app()";
+    // TODO Add enum CLI option to choose backend
+//    process_.setProgram("gunicorn");
+//    backendArgs << "--bind" << Backend::bindAddress() << "--graceful-timeout"
+//                << "120"
+//                << "--timeout"
+//                << "120";
+//    if (args.isSet(CLIArgs::LogLevel))
+//        backendArgs << "--log-level" << args.value(CLIArgs::LogLevel);
+//    backendArgs << "jv2backend.app:create_app()";
+    process_.setProgram("waitress-serve");
+    backendArgs << "--listen" << Backend::bindAddress();
+    backendArgs << "--call" << "jv2backend.app:create_app()";
 
     process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
