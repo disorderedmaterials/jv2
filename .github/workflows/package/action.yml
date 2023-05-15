@@ -5,10 +5,6 @@ runs:
   using: "composite"
   steps:
 
-  - name: Package (Linux)
-    if: runner.os == 'Linux'
-    uses: "./.github/workflows/package/linux"
-
   - name: Package (OSX)
     if: runner.os == 'MacOS'
     uses: "./.github/workflows/package/osx"
