@@ -104,11 +104,11 @@
             [ self.packages.${system}.mython ];
           nativeBuildInputs = [ pkgs.wrapGAppsHook ];
 
-          cmakeFlags = [ "-G Ninja" "-DJV2_USE_CONAN=OFF" ];
+          cmakeFlags = [ "-G Ninja" ];
           configurePhase = ''
             cd frontend
             mkdir build
-            cmake -G Ninja -DJV2_USE_CONAN=OFF
+            cmake -G Ninja
           '';
           installPhase = ''
             mkdir -p $out/bin
