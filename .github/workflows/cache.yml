@@ -8,18 +8,14 @@ jobs:
   Cache:
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        target: [dissolve-gui]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Environment
         uses: "./.github/workflows/set-environment"
-      - name: "Build (Cache Only) (${{ matrix.os }})"
+      - name: "Build (Cache Only)"
         uses: "./.github/workflows/build"
         with:
-          target: ${{ matrix.target }}
           cacheOnly: true
 
