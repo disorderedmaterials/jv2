@@ -22,7 +22,7 @@ runs:
       ls -R build/
 
       export Qt6_DIR="${{ github.workspace }}\build\backend\build\bin"
-      export JV2_DIR="${{ github.workspace }}\build\backend\build\bin"
+      export FRONTEND_DIR="${{ github.workspace }}\build\frontend\build\bin"
       export BACKEND_DIR="${{ github.workspace }}\build\backend\build\bin"
       
       # Run Inno Setup Compiler

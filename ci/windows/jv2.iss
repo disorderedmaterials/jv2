@@ -3,14 +3,15 @@
 
 #define MyAppName "jv2"
 #define MyAppVersion "1.2.0"
-#define MyAppPublisher "Ethan Devlin & Tristan Youngs"
-#define MyAppURL "https://www.projectaten.com/"
+#define MyAppPublisher "Team JournalViewer"
+#define MyAppURL "https://isis.stfc.ac.uk"
 #define MyAppExeName "jv2.exe"
 
-; Locations of bin directories of Dissolve, Qt, GnuWin, MinGW etc.
+; Locations of bin directories
 #define Jv2Dir GetEnv('JV2_DIR')
 #define QtDir GetEnv('Qt6_DIR')
 #define BackendDir GetEnv('BACKEND_DIR')
+#define FrontendDir GetEnv('FRONTEND_DIR')
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -19,12 +20,11 @@
 AppId={{EB65EDA8-F371-4934-962B-8F79CF9D7980}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={commonpf}\jv2
+DefaultDirName={commonpf}\JournalViewer2
 DefaultGroupName={#MyAppName}
 LicenseFile=..\..\LICENSE.txt
 OutputDir=..\..\
@@ -40,7 +40,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "{#Jv2Dir}\jv2.exe"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
+Source: "{#FrontendDir}\jv2.exe"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "JournalViewer2.ico"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "{#QtDir}\bin\Qt6Gui.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
