@@ -1,9 +1,14 @@
-name: Continuous
+name: Release
 
 on:
   push:
     branches:
     - 'release/*'
+    paths-ignore:
+    - '.github/workflows/cache.yml'
+    - '.github/workflows/continuous.yml'
+    - '.github/workflows/pr.yml'
+    - 'README.md'
 
 jobs:
 

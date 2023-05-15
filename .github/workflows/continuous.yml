@@ -3,7 +3,12 @@ name: Continuous
 on:
   push:
     branches:
-    - 'main'
+    - 'develop'
+    paths-ignore:
+    - '.github/workflows/cache.yml'
+    - '.github/workflows/pr.yml'
+    - '.github/workflows/release.yml'
+    - 'README.md'
 
 jobs:
 
