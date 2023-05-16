@@ -126,7 +126,8 @@
         singularity =
           nixpkgs.legacyPackages.${system}.singularity-tools.buildImage {
             name = "jv2-${version}";
-            diskSize = 1024 * 500;
+            diskSize = 1024 * 50;
+            memSize = 1024 * 2;
             contents = [
               self.packages.${system}.mython
               self.packages.${system}.frontend
