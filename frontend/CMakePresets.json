@@ -41,6 +41,7 @@
       "description": "CI build on Windows",
       "cacheVariables": {
         "USE_CONAN": "OFF",
+        "USE_WAITRESS": "ON",
         "CMAKE_CXX_COMPILER": "cl"
       }
     },

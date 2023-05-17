@@ -39,7 +39,7 @@ void Backend::configureProcessArgs(const QCommandLineParser &args)
 {
     QStringList backendArgs;
 
-    // TODO Add enum CLI option to choose backend
+    // TODO Add CLI option to choose backend
 //    process_.setProgram("gunicorn");
 //    backendArgs << "--bind" << Backend::bindAddress() << "--graceful-timeout"
 //                << "120"
