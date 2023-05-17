@@ -56,7 +56,7 @@ Source: "{#QtDir}\Qt6Xml.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\iconengines\qsvgicon.dll"; DestDir: "{app}\bin\jv2\iconengines"; Flags: ignoreversion
 Source: "{#QtDir}\platforms\qwindows.dll"; DestDir: "{app}\bin\jv2\platforms"; Flags: ignoreversion
 Source: "{#QtDir}\imageformats\*.dll"; DestDir: "{app}\bin\jv2\imageformats"; Flags: ignoreversion
-Source: "{#BackendDir}\jv2Setup.dist\*"; DestDir: "{app}\bin\jv2Setup"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#FrontendDir}\jv2Setup.dist\*"; DestDir: "{app}\bin\jv2Setup"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#BackendDir}\isisInternal.dist\*"; DestDir: "{app}\bin\jv2Setup\isisInternal"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Jv2Dir}\..\..\extra\*"; DestDir: "{app}\bin\extra"; Flags: ignoreversion
 ; Windows 7

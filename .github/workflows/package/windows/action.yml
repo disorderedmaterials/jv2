@@ -21,7 +21,7 @@ runs:
       set -ex
       ls -R build/
 
-      export Qt6_DIR="${{ github.workspace }}\build\backend\build\bin"
+      export Qt6_DIR="${{ github.workspace }}\build\frontend\build\bin"
       export FRONTEND_DIR="${{ github.workspace }}\build\frontend\build\bin"
       export BACKEND_DIR="${{ github.workspace }}\build\backend\build\bin"
       
