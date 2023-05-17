@@ -3,6 +3,7 @@
 
 """Define the Flask instance and backend API routes"""
 import logging
+import logging.config
 from flask import Flask
 
 from jv2backend import config
@@ -16,15 +17,18 @@ import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
 
 
-def create_app(inside_gunicorn: bool = True, activate_cache: bool = True) -> Flask:
-    """Create the Flask application and define
-    the routes served by the backend. See config.py for configuration settings
+def create_app(run_by_wsgi_server: bool = True,
+               activate_cache: bool = True) -> Flask:
+    """Create the Flask application and define the routes served by the
+    backend.
 
-    :param inside_gunicorn: Whether the app has been run by gunicorn and
-                            not directly
+    See config.py for configuration settings
+
+    :param run_by_wsgi_server: Whether the app has been run by the WSGI server
+                               rather than directly
     """
     app = Flask(__name__)
-    configure_logging(app, inside_gunicorn)
+    configure_logging(app, run_by_wsgi_server)
 
     # Create our main objects
     journalGenerator = jv2backend.generator.JournalGenerator()
@@ -47,20 +51,22 @@ def create_app(inside_gunicorn: bool = True, activate_cache: bool = True) -> Fla
     return app
 
 
-def configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
+def configure_logging(app: Flask, run_by_wsgi_server: bool) -> Flask:
     """_summary_
 
     :param app: Flask app to configure
-    :param inside_gunicorn: Whether the app has been run by gunicorn and
-                            not directly
+    :param run_by_wsgi_server: If True, the app has been run by the WSGI server
+                               and not directly
     """
-    if inside_gunicorn:
+    if run_by_wsgi_server:
         # Match logging handlers and configuration with gunicorn
-        gunicorn_logger = logging.getLogger('gunicorn.error')
-        app.logger.handlers = gunicorn_logger.handlers
-        app.logger.setLevel(gunicorn_logger.level)
+        wsgi_logger = logging.getLogger('gunicorn.error')
+        if not wsgi_logger:
+            wsgi_logger = logging.getLogger('waitress')
+        app.logger.handlers = wsgi_logger.handlers
+        app.logger.setLevel(wsgi_logger.level)
         root = logging.getLogger()
-        root.setLevel(gunicorn_logger.level)
+        root.setLevel(wsgi_logger.level)
     else:
         logging.config.dictConfig(
             {
