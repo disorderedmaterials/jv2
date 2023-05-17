@@ -50,7 +50,6 @@ Source: "{#QtDir}\Qt6OpenGLWidgets.dll"; DestDir: "{app}\bin\jv2"; Flags: ignore
 Source: "{#QtDir}\Qt6Svg.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\Qt6Widgets.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\Qt6Network.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
-Source: "{#QtDir}\Qt6PrintSupport.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\Qt6Charts.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\Qt6Xml.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\iconengines\qsvgicon.dll"; DestDir: "{app}\bin\jv2\iconengines"; Flags: ignoreversion
