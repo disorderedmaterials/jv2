@@ -37,16 +37,14 @@ runs:
   #     mkdir packages
   #     cp -v result packages/jv2.sif
 
-  - name: Bundle Executable
+  - name: Build Singularity
     shell: bash
     run: |
       set -ex
 
       mkdir -p packages
 
-      nix bundle -L .#backend -o packages/backend
-      nix bundle -L .#frontend -o packages/frontend
-      nix build -L .#singularity -o packages/singularity
+      nix build -L .#singularity -o packages/jv2-${{ env.jv2Version }}.sif
 
   - name: Tidy nix Store
     if: ${{ inputs.cacheOnly == 'true' }}
