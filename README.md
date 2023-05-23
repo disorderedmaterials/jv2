@@ -1,6 +1,6 @@
 # Journal Viewer 2
 
-_Last Release: 0.1.0, Wednesday 3rd May 2023_
+_Last Release: 1.2.0, Tuesday 23rd May 2023_
 
 _Release Build::_ [![Release Build Status](https://github.com/disorderedmaterials/jv2/actions/workflows/release.yml/badge.svg)](https://github.com/disorderedmaterials/jv2/actions/workflows/release.yml)
 _Development Build::_ [![Development Build Status](https://github.com/disorderedmaterials/jv2/actions/workflows/continuous.yml/badge.svg)](https://github.com/disorderedmaterials/jv2/actions/workflows/continuous.yml)

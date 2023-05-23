@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "jv2"
-#define MyAppVersion "0.1"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Ethan Devlin & Tristan Youngs"
 #define MyAppURL "https://www.projectaten.com/"
 #define MyAppExeName "jv2.exe"

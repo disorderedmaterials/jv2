@@ -4,7 +4,7 @@
 #ifndef JOURNALVIEWER2_VERSION_H
 #define JOURNALVIEWER2_VERSION_H
 
-#define JV2VERSION "0.1"
+#define JV2VERSION "1.2.0"
 #define JV2URL "https://github.com/disorderedmaterials/jv2"
 
 #endif
