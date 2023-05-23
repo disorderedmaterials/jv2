@@ -8,8 +8,8 @@ project(
 # Metadata
 set(DESCRIPTION "jv2")
 set(AUTHOR "Team jv2")
-set(VERSION_MAJOR "0")
-set(VERSION_MINOR "1")
+set(VERSION_MAJOR "1")
+set(VERSION_MINOR "2")
 set(VERSION_PATCH "0")
 
 # Global CMake settings
