@@ -55,7 +55,7 @@ runs:
       echo "Release tag will be: continuous"
       echo "Release name will be: 'Continuous (${{ env.jv2Version }})'"
       export GITHUB_TOKEN=${{ github.token }}
-      ./update-release -r disorderedmaterials/jv2 -t continuous -n "Continuous (${{ env.jv2Version }})" -b "Continuous release from \`main\` branch. Built $(date)." packages/*
+      ./update-release -r disorderedmaterials/jv2 -t continuous -n "Continuous (${{ env.jv2Version }})" -b "Continuous release from \`main\` branch. Built $(date)." -e packages/*
 
   - name: Publish on GitHub (Release)
     if: ${{ inputs.publishGitHub == 'true' && inputs.isRelease == 'true' }}
@@ -64,4 +64,4 @@ runs:
       echo "Release tag will be: ${{ env.jv2Version }}"
       echo "Release name will be: ${{ env.jv2Version }}"
       export GITHUB_TOKEN=${{ github.token }}
-      ./update-release -r disorderedmaterials/jv2 -t ${{ env.jv2Version }} -n "${{ env.jv2Version }}" -f ReleaseNotes.md packages/*
+      ./update-release -r disorderedmaterials/jv2 -t ${{ env.jv2Version }} -n "${{ env.jv2Version }}" -f ReleaseNotes.md -e packages/*

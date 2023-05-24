@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Environment
-        uses: "./.github/workflows/set-environment"
+        uses: "./.github/workflows/setup"
       - name: "Build (Cache Only)"
         uses: "./.github/workflows/build"
         with:
