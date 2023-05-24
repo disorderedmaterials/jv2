@@ -18,7 +18,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set Environment Variables
-      uses: "./.github/workflows/set-environment" 
+      uses: "./.github/workflows/setup"
     - name: Quality Control
       uses: "./.github/workflows/qc"
 
@@ -29,7 +29,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set Environment Variables
-      uses: "./.github/workflows/set-environment" 
+      uses: "./.github/workflows/setup"
     - name: "Test (Backend)"
       uses: "./.github/workflows/test"
 
@@ -44,7 +44,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Set Environment Variables
-      uses: "./.github/workflows/set-environment" 
+      uses: "./.github/workflows/setup"
     - name: "Build (${{ matrix.os }})"
       uses: "./.github/workflows/build"
 
@@ -58,8 +58,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Get Code Version
-      uses: "./.github/workflows/get-version"
+    - name: Set Environment Variables
+      uses: "./.github/workflows/setup"
     - name: "Package (${{ matrix.os }})"
       uses: "./.github/workflows/package"
 
@@ -69,8 +69,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Get Code Version
-      uses: "./.github/workflows/get-version"
+    - name: Set Environment Variables
+      uses: "./.github/workflows/setup"
     - name: Publish
       uses: "./.github/workflows/publish"
       with:
