@@ -109,7 +109,7 @@ You don't have to install VSCode, but it's a pretty decent (and free!) developme
 First, install the Microsoft signing key:
 
 ```sh
-rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 ```
 
 Now add the repository:
@@ -138,7 +138,7 @@ code
 
 #### 4. Install a Git Credential Manager (Optional)
 
-If you're intending to do a lot of development it may be worth installing a suitable credential manager such as the one nbased on Gnome's `libsecret`:
+If you're intending to do a lot of development it may be worth installing a suitable credential manager such as the one based on Gnome's `libsecret`:
 
 ```sh
 sudo dnf install git-credential-libsecret -y
