@@ -104,6 +104,7 @@ QString MainWindow::getRunNos()
 {
     // Gathers all selected runs
     auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
+
     // Finds run number location in table
     int runNoColumn;
     int cycleColumn;
@@ -114,11 +115,13 @@ QString MainWindow::getRunNos()
         else if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "isis_cycle")
             cycleColumn = i;
     }
+
     // Gets all selected run numbers and fills graphing toggles
     QString runNos = "";
     QString runNo;
     QString cycles = "";
     QString cycle;
+
     // Concats runs
     for (auto run : selectedRuns)
     {
@@ -147,6 +150,7 @@ QString MainWindow::getRunNos()
             cycles.append("cycle_" + cycle + ";");
         }
     }
+
     // Removes final ";"
     runNos.chop(1);
     cycles.chop(1);
@@ -206,7 +210,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             auto formattedName = name.append("og");
             auto *subMenu = new QMenu("Add data from " + formattedName);
             logArray.removeFirst();
-            if (logArray.size() > 0)
+            if (!logArray.empty())
                 fieldsMenu->addMenu(subMenu);
 
             auto logArrayVar = logArray.toVariantList();
@@ -755,7 +759,7 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
@@ -779,7 +783,7 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
     cycle.replace(0, 7, "cycle").replace(".xml", "");
     QString url_str = "http://127.0.0.1:5000/getSpectrum/" + instName_ + "/" + cycle + "/" + run + "/" + currentDetector;
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,
@@ -803,7 +807,7 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
     cycle.replace(0, 7, "cycle").replace(".xml", "");
     QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + instName_ + "/" + cycle + "/" + currentRun + "/" + mon;
     HttpRequestInput input(url_str);
-    HttpRequestWorker *worker = new HttpRequestWorker(this);
+    auto *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, &HttpRequestWorker::on_execution_finished,

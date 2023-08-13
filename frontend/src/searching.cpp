@@ -16,16 +16,17 @@ void MainWindow::updateSearch(const QString &arg1)
         statusBar()->clearMessage();
         return;
     }
-    // Find all occurences of search string in table elements
+    // Find all occurrences of search string in table elements
     for (auto i = 0; i < proxyModel_->columnCount(); ++i)
     {
         auto location = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
-        if (ui_->runDataTable->isColumnHidden(location) == false)
+        if (!ui_->runDataTable->isColumnHidden(location))
             foundIndices_.append(
                 proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, arg1, -1, Qt::MatchContains));
     }
+
     // Select first match
-    if (foundIndices_.size() > 0)
+    if (!foundIndices_.empty())
     {
         goToCurrentFoundIndex(foundIndices_[0]);
         statusBar()->showMessage("Find \"" + searchString_ + "\": 1/" + QString::number(foundIndices_.size()) + " Results");
@@ -40,49 +41,46 @@ void MainWindow::updateSearch(const QString &arg1)
 // Select previous match
 void MainWindow::findUp()
 {
-    // Boundary/ error handling
-    if (foundIndices_.size() > 0)
-    {
-        if (currentFoundIndex_ >= 1)
-            currentFoundIndex_ -= 1;
-        else
-            currentFoundIndex_ = foundIndices_.size() - 1;
-        goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
-        statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
-                                 QString::number(foundIndices_.size()) + " Results");
-    }
+    if (foundIndices_.empty())
+        return;
+
+    if (currentFoundIndex_ >= 1)
+        currentFoundIndex_ -= 1;
+    else
+        currentFoundIndex_ = foundIndices_.size() - 1;
+    goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
+    statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
+                             QString::number(foundIndices_.size()) + " Results");
 }
 
 // Select next match
 void MainWindow::findDown()
 {
-    // Boundary/ error handling
-    if (foundIndices_.size() > 0)
-    {
-        currentFoundIndex_ = ++currentFoundIndex_ % foundIndices_.size();
-        goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
-        statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
-                                 QString::number(foundIndices_.size()) + " Results");
-    }
+    if (foundIndices_.empty())
+        return;
+
+    currentFoundIndex_ = ++currentFoundIndex_ % foundIndices_.size();
+    goToCurrentFoundIndex(foundIndices_[currentFoundIndex_]);
+    statusBar()->showMessage("Find \"" + searchString_ + "\": " + QString::number(currentFoundIndex_ + 1) + "/" +
+                             QString::number(foundIndices_.size()) + " Results");
 }
 
 // Select all matches
 void MainWindow::selectAllSearches()
 {
-    // Error handling
-    if (foundIndices_.size() > 0)
+    if (foundIndices_.empty())
+        return;
+
+    ui_->runDataTable->selectionModel()->clearSelection();
+    currentFoundIndex_ = -1;
+    for (auto i = 0; i < foundIndices_.size(); ++i)
     {
-        ui_->runDataTable->selectionModel()->clearSelection();
-        currentFoundIndex_ = -1;
-        for (auto i = 0; i < foundIndices_.size(); ++i)
-        {
-            ui_->runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
-                                                                 QItemSelectionModel::Select | QItemSelectionModel::Rows);
-        }
-        statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) +
-                                 " Results");
+        ui_->runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
+                                                             QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
+    statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) + " Results");
 }
+
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
 {
     ui_->runDataTable->selectionModel()->setCurrentIndex(index,
@@ -130,16 +128,18 @@ void MainWindow::on_actionSearch_triggered()
         statusBar()->clearMessage();
         return;
     }
-    // Find all occurences of search string in table elements
+
+    // Find all occurrences of search string in table elements
     for (auto i = 0; i < proxyModel_->columnCount(); ++i)
     {
         auto location = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
-        if (ui_->runDataTable->isColumnHidden(location) == false)
+        if (!ui_->runDataTable->isColumnHidden(location))
             foundIndices_.append(
                 proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, textInput, -1, Qt::MatchContains));
     }
+
     // Select first match
-    if (foundIndices_.size() > 0)
+    if (!foundIndices_.empty())
     {
         goToCurrentFoundIndex(foundIndices_[0]);
         statusBar()->showMessage("Find \"" + searchString_ + "\": 1/" + QString::number(foundIndices_.size()) + " Results");

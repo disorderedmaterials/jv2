@@ -139,8 +139,8 @@ void JsonTableModel::groupData()
             }
         }
         if (unique)
-            groupedData.push_back(std::make_tuple(valueObj["title"].toString(), valueObj["duration"].toString(),
-                                                  valueObj["run_number"].toString()));
+            groupedData.emplace_back(valueObj["title"].toString(), valueObj["duration"].toString(),
+                                     valueObj["run_number"].toString());
     }
     for (std::tuple<QString, QString, QString> data : groupedData)
     {

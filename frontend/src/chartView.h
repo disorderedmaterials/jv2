@@ -12,8 +12,8 @@ class ChartView : public QChartView
     Q_OBJECT
 
     public:
-    ChartView(QChart *chart, QWidget *parent = 0);
-    ChartView(QWidget *parent = 0);
+    ChartView(QChart *chart, QWidget *parent = nullptr);
+    ChartView(QWidget *parent = nullptr);
     void assignChart(QChart *chart);
 
     public slots:
@@ -25,12 +25,12 @@ class ChartView : public QChartView
     void clearCoordinates();
 
     protected:
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     private slots:
     void setGraphics(QChart *chart);

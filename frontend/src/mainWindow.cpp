@@ -53,7 +53,6 @@ void MainWindow::initialiseElements()
     // Sets instrument to last used
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     QString recentInstrument = settings.value("recentInstrument").toString();
-    int instrumentIndex = -1;
     bool found = false;
     for (auto i = 0; i < instrumentsMenu_->actions().count(); i++)
         if (instrumentsMenu_->actions()[i]->text() == recentInstrument)
@@ -146,6 +145,7 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
     ui_->instrumentButton->setText(instDisplayName_);
     currentInstrumentChanged(instName_);
 }
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
@@ -189,9 +189,9 @@ void MainWindow::massSearch(QString name, QString value)
         QFormLayout form(&dialog);
 
         form.addRow(new QLabel(name));
-        QLineEdit *start = new QLineEdit(&dialog);
+        auto *start = new QLineEdit(&dialog);
         form.addRow("Start:", start);
-        QLineEdit *end = new QLineEdit(&dialog);
+        auto *end = new QLineEdit(&dialog);
         form.addRow("End:", end);
 
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
@@ -210,9 +210,9 @@ void MainWindow::massSearch(QString name, QString value)
         QFormLayout form(&dialog);
 
         form.addRow(new QLabel(name));
-        QLineEdit *input = new QLineEdit(&dialog);
+        auto *input = new QLineEdit(&dialog);
         form.addRow(name, input);
-        QCheckBox *caseSensitive = new QCheckBox(&dialog);
+        auto *caseSensitive = new QCheckBox(&dialog);
         form.addRow("Case sensitive", caseSensitive);
 
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
@@ -245,6 +245,7 @@ void MainWindow::massSearch(QString name, QString value)
             return;
         }
     }
+
     // mass search for data
     QString searchOptions;
     QString sensitivityText = "caseSensitivity=";

@@ -121,8 +121,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         foreach (const QString &key, jsonObject.keys())
         {
 
-            QCheckBox *checkBox = new QCheckBox(viewMenu_);
-            QWidgetAction *checkableAction = new QWidgetAction(viewMenu_);
+            auto *checkBox = new QCheckBox(viewMenu_);
+            auto *checkableAction = new QWidgetAction(viewMenu_);
             checkableAction->setDefaultWidget(checkBox);
             checkBox->setText(headersMap_[key]);
             checkBox->setCheckState(Qt::PartiallyChecked);
