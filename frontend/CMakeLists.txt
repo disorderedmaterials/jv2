@@ -40,8 +40,6 @@ find_package(
              Network
              Charts
              Xml
-             OpenGL
-             OpenGLWidgets
   REQUIRED)
 
 # Set source and target binary
@@ -62,5 +60,4 @@ target_link_libraries(
           Qt6::Network
           Qt6::Charts
           Qt6::Xml
-          Qt6::OpenGLWidgets
           ${STATIC_PLATFORM_PLUGINS})
