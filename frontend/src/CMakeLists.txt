@@ -21,6 +21,7 @@ add_library(
   graphWidget.cpp
   graphWidget.h
   graphWidget.ui
+  version.h
   icons.qrc)
 
 # Link in static plugins - only Linux supported

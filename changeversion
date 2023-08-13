@@ -42,7 +42,7 @@ then
 fi
 
 # Get current version number from correct target
-CURRENT_VERSION=$(grep '#define JV2VERSION' version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g')
+CURRENT_VERSION=$(grep '#define JV2VERSION' src/frontend/version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g')
 
 PARTS=($(echo $CURRENT_VERSION | tr "." " "))
 MAJOR=${PARTS[0]}
@@ -97,10 +97,10 @@ then
   # Program (main/version.h)
   if [ "$CHECK" = "false" ]
   then
-    sed -i -e "s/#define JV2VERSION \"[0-9\.]\+\(.*\)\"/#define JV2VERSION \"$MAJOR.$MINOR.$PATCH\"\1/g" version.h
+    sed -i -e "s/#define JV2VERSION \"[0-9\.]\+\(.*\)\"/#define JV2VERSION \"$MAJOR.$MINOR.$PATCH\"\1/g" src/frontend/version.h
   fi
   echo -n "           version.h (Program Version) : "
-  grep '#define JV2VERSION' version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g'
+  grep '#define JV2VERSION' src/frontend/version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g'
   
   
   # Flake (flake.nix)
@@ -159,4 +159,3 @@ then
 fi
 
 exit 0
-

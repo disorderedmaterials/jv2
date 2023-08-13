@@ -15,7 +15,6 @@ runs:
     shell: bash
     run: |
       set -ex
-      VERSION=`grep "#define JV2VERSION" version.h | sed "s/.*\"\(.*\)\"/\1/g"`
+      VERSION=`grep "#define JV2VERSION" src/frontend/version.h | sed "s/.*\"\(.*\)\"/\1/g"`
       echo "JV2 code version is ${VERSION}"
       echo "jv2Version=${VERSION}" >> ${GITHUB_ENV}
-
