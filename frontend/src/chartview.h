@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#ifndef CHARTVIEW_H
-#define CHARTVIEW_H
+#pragma once
 
 #include "httprequestworker.h"
 #include <QtCharts/QChartView>
@@ -45,4 +44,3 @@ class ChartView : public QChartView
     QGraphicsSimpleTextItem *coordStartLabelY_;
 };
 
-#endif // CHARTVIEW_H

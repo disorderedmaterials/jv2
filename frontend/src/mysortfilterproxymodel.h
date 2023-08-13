@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#ifndef MYSORTFILTERPROXYMODEL_H
-#define MYSORTFILTERPROXYMODEL_H
+#pragma once
 
 #include "jsontablemodel.h"
 #include <QModelIndex>
@@ -32,4 +31,3 @@ class MySortFilterProxyModel : public QSortFilterProxyModel
     void updateFilter();
 };
 
-#endif // MYSORTFILTERPROXYMODEL_H

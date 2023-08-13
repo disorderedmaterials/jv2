@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include "httprequestworker.h"
 #include "jsontablemodel.h"
@@ -145,4 +144,4 @@ class MainWindow : public QMainWindow
     QPoint pos_;
     QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
 };
-#endif // MAINWINDOW_H
+

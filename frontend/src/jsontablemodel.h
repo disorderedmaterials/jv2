@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#ifndef JSONTABLEMODEL_H
-#define JSONTABLEMODEL_H
+#pragma once
 
 #include <QAbstractTableModel>
 #include <QJsonArray>
@@ -45,4 +44,3 @@ class JsonTableModel : public QAbstractTableModel
     QJsonArray tableHoldJsonData_;
 };
 
-#endif // JSONTABLEMODEL_H
