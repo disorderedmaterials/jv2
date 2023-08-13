@@ -28,12 +28,11 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 # Build output locations
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
-# Setup Conan for dependency management
+# Dependencies
 option(BUILD_SHARED_LIBS "If ON, build shared libraries otherwise build static"
        ON)
 include(conan-jv2)
 
-# Dependencies
 find_package(
   Qt6
   COMPONENTS Core
@@ -46,42 +45,19 @@ find_package(
              OpenGLWidgets
   REQUIRED)
 
-# Common sources
-set(PROJECT_SOURCES
-    src/backend.cpp
-    src/main.cpp
-    src/mainWindow.cpp
-    src/filtering.cpp
-    src/dataGathering.cpp
-    src/searching.cpp
-    src/nexusInteraction.cpp
-    src/mainWindow.h
-    src/mainWindow.ui
-    src/httpRequestWorker.cpp
-    src/httpRequestWorker.h
-    src/jsonTableModel.cpp
-    src/jsonTableModel.h
-    src/jsonTableFilterProxy.cpp
-    src/jsonTableFilterProxy.h
-    src/chartView.cpp
-    src/chartView.h
-    src/graphWidget.cpp
-    src/graphWidget.h
-    src/graphWidget.ui)
+# Set source and target binary
+set(SRCS src/)
+add_subdirectory(${SRCS})
+qt6_add_executable(jv2 MACOSX_BUNDLE ${SRCS}/mainWindow.cpp)
 
+# Link in static plugins if required - only Linux supported
 if(NOT BUILD_SHARED_LIBS)
-  # Link in static plugins - only Linux supported
-  list(APPEND PROJECT_SOURCES src/platformInit.cpp)
   set(STATIC_PLATFORM_PLUGINS Qt6::QXcbIntegrationPlugin Qt6::XcbQpaPrivate)
-endif()
+endif(NOT BUILD_SHARED_LIBS)
 
-# Resources
-set(jv2_RES_QRC "src/icons.qrc")
-
-qt6_add_executable(jv2 MACOSX_BUNDLE ${PROJECT_SOURCES} ${jv2_RES_QRC})
-target_include_directories(jv2 PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src)
 target_link_libraries(
   jv2
+  PUBLIC main
   PRIVATE Qt6::Core
           Qt6::Widgets
           Qt6::Network
