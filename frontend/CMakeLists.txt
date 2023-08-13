@@ -47,7 +47,7 @@ find_package(
 # Set source and target binary
 set(SRCS src/)
 add_subdirectory(${SRCS})
-qt6_add_executable(jv2 MACOSX_BUNDLE ${SRCS}/mainWindow.cpp)
+qt6_add_executable(jv2 MACOSX_BUNDLE ${SRCS}/main.cpp)
 
 # Link in static plugins if required - only Linux supported
 if(NOT BUILD_SHARED_LIBS)

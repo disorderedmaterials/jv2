@@ -8,6 +8,7 @@ add_library(
   searching.cpp
   nexusInteraction.cpp
   mainWindow.h
+  mainWindow.cpp
   mainWindow.ui
   httpRequestWorker.cpp
   httpRequestWorker.h
