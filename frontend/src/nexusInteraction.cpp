@@ -10,16 +10,12 @@
 #include <QChartView>
 #include <QDateTimeAxis>
 #include <QInputDialog>
-#include <QJsonArray>
-#include <QJsonDocument>
 #include <QJsonObject>
 #include <QLineSeries>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
-#include <QTabWidget>
 #include <QValueAxis>
-#include <QWidgetAction>
 #include <algorithm>
 
 // Collect plot options and display menu

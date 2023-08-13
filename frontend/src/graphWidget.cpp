@@ -6,12 +6,9 @@
 #include "mainWindow.h"
 #include "ui_graphWidget.h"
 #include <QChart>
-#include <QChartView>
-#include <QDateTime>
 #include <QDebug>
 #include <QInputDialog>
 #include <QJsonArray>
-#include <QValueAxis>
 #include <QXYSeries>
 
 GraphWidget::GraphWidget(QWidget *parent, QChart *chart, QString type) : QWidget(parent), ui_(new Ui::GraphWidget)
