@@ -43,4 +43,3 @@ class JsonTableModel : public QAbstractTableModel
     QJsonArray tableJsonData_;
     QJsonArray tableHoldJsonData_;
 };
-

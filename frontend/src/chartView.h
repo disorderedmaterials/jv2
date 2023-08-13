@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "httprequestworker.h"
+#include "httpRequestWorker.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
 
@@ -43,4 +43,3 @@ class ChartView : public QChartView
     QGraphicsSimpleTextItem *coordStartLabelX_;
     QGraphicsSimpleTextItem *coordStartLabelY_;
 };
-

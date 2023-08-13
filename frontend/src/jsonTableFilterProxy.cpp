@@ -1,29 +1,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#include "mysortfilterproxymodel.h"
-#include "jsontablemodel.h"
+#include "jsonTableFilterProxy.h"
+#include "jsonTableModel.h"
 #include <QModelIndex>
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-MySortFilterProxyModel::MySortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent)
+JSONTableFilterProxy::JSONTableFilterProxy(QObject *parent) : QSortFilterProxyModel(parent)
 {
     filterString_ = "";
     caseSensitive_ = false;
 }
 
-void MySortFilterProxyModel::setFilterString(QString filterString) { filterString_ = filterString; }
+void JSONTableFilterProxy::setFilterString(QString filterString) { filterString_ = filterString; }
 
-QString MySortFilterProxyModel::filterString() const { return filterString_; }
+QString JSONTableFilterProxy::filterString() const { return filterString_; }
 
-void MySortFilterProxyModel::toggleCaseSensitivity(bool caseSensitive)
+void JSONTableFilterProxy::toggleCaseSensitivity(bool caseSensitive)
 {
     caseSensitive_ = caseSensitive;
     emit updateFilter();
 }
 
-bool MySortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool JSONTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     auto filterString = filterString_;
     if (!caseSensitive_)

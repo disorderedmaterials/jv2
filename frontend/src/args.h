@@ -11,4 +11,3 @@ struct Args
     const inline static QString RunLocatorClass = QStringLiteral("run-locator-class");
     const inline static QString RunLocatorPrefix = QStringLiteral("run-locator-prefix");
 };
-

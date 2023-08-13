@@ -3,17 +3,16 @@
 
 #pragma once
 
-#include "jsontablemodel.h"
 #include <QModelIndex>
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-class MySortFilterProxyModel : public QSortFilterProxyModel
+class JSONTableFilterProxy : public QSortFilterProxyModel
 {
     Q_OBJECT
 
     public:
-    MySortFilterProxyModel(QObject *parent = 0);
+    JSONTableFilterProxy(QObject *parent = 0);
 
     public slots:
     void setFilterString(QString filterString);
@@ -30,4 +29,3 @@ class MySortFilterProxyModel : public QSortFilterProxyModel
     signals:
     void updateFilter();
 };
-

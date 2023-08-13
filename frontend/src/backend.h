@@ -32,4 +32,3 @@ class Backend : public QObject
 
     QProcess process_;
 };
-

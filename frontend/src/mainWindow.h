@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "httprequestworker.h"
-#include "jsontablemodel.h"
-#include "mysortfilterproxymodel.h"
+#include "httpRequestWorker.h"
+#include "jsonTableFilterProxy.h"
+#include "jsonTableModel.h"
 #include <QChart>
 #include <QCheckBox>
 #include <QDomDocument>
@@ -119,7 +119,7 @@ class MainWindow : public QMainWindow
     Ui::MainWindow *ui_;
     // Table Stuff
     JsonTableModel *model_;
-    MySortFilterProxyModel *proxyModel_;
+    JSONTableFilterProxy *proxyModel_;
     JsonTableModel::Header header_;
     std::vector<std::pair<QString, QString>> desiredHeader_;
     // Menus
@@ -144,4 +144,3 @@ class MainWindow : public QMainWindow
     QPoint pos_;
     QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
 };
-

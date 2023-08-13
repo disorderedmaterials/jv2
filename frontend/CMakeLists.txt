@@ -50,28 +50,28 @@ find_package(
 set(PROJECT_SOURCES
     src/backend.cpp
     src/main.cpp
-    src/mainwindow.cpp
+    src/mainWindow.cpp
     src/filtering.cpp
-    src/datagathering.cpp
+    src/dataGathering.cpp
     src/searching.cpp
     src/nexusInteraction.cpp
-    src/mainwindow.h
-    src/mainwindow.ui
-    src/httprequestworker.cpp
-    src/httprequestworker.h
-    src/jsontablemodel.cpp
-    src/jsontablemodel.h
-    src/chartview.cpp
-    src/chartview.h
-    src/graphwidget.cpp
-    src/graphwidget.h
-    src/graphwidget.ui
-    src/mysortfilterproxymodel.cpp
-    src/mysortfilterproxymodel.h)
+    src/mainWindow.h
+    src/mainWindow.ui
+    src/httpRequestWorker.cpp
+    src/httpRequestWorker.h
+    src/jsonTableModel.cpp
+    src/jsonTableModel.h
+    src/jsonTableFilterProxy.cpp
+    src/jsonTableFilterProxy.h
+    src/chartView.cpp
+    src/chartView.h
+    src/graphWidget.cpp
+    src/graphWidget.h
+    src/graphWidget.ui)
 
 if(NOT BUILD_SHARED_LIBS)
   # Link in static plugins - only Linux supported
-  list(APPEND PROJECT_SOURCES src/platforminit.cpp)
+  list(APPEND PROJECT_SOURCES src/platformInit.cpp)
   set(STATIC_PLATFORM_PLUGINS Qt6::QXcbIntegrationPlugin Qt6::XcbQpaPrivate)
 endif()
 

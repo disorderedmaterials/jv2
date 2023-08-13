@@ -3,8 +3,7 @@
 
 #include "args.h"
 #include "backend.h"
-#include "mainwindow.h"
-
+#include "mainWindow.h"
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QProcess>

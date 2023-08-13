@@ -201,7 +201,7 @@
   <customwidget>
    <class>ChartView</class>
    <extends>QChartView</extends>
-   <header>chartview.h</header>
+   <header>chartView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

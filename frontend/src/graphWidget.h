@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "chartview.h"
-#include "httprequestworker.h"
+#include "chartView.h"
+#include "httpRequestWorker.h"
 #include <QChart>
 #include <QChartView>
 #include <QWidget>
@@ -60,4 +60,3 @@ class GraphWidget : public QWidget
     void runDivide(QString currentDetector, QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 };
-

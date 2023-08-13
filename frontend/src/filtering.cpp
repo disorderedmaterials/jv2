@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#include "./ui_mainwindow.h"
-#include "mainwindow.h"
+#include "mainWindow.h"
+#include "ui_mainWindow.h"
 #include <QDebug>
 #include <QInputDialog>
 #include <QMessageBox>

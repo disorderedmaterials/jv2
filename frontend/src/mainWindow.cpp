@@ -1,34 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#include "mainwindow.h"
-#include "./ui_mainwindow.h"
-#include "jsontablemodel.h"
-#include "mysortfilterproxymodel.h"
+#include "mainWindow.h"
+#include "ui_mainWindow.h"
 #include <QChart>
 #include <QChartView>
 #include <QCheckBox>
-#include <QDateTime>
-#include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDomDocument>
 #include <QFormLayout>
 #include <QInputDialog>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QLineSeries>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
-#include <QSortFilterProxyModel>
 #include <QTimer>
 #include <QWidgetAction>
 #include <QtGui>
-
-#include "./ui_graphwidget.h"
-#include "graphwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {

@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2022 Team JournalViewer and contributors
 
-#include "httprequestworker.h"
+#include "httpRequestWorker.h"
 #include <QBuffer>
-#include <QDateTime>
-#include <QFileInfo>
-#include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QUrl>
 
 // Object for request URL
