@@ -50,7 +50,7 @@
         buildInputs = base_libs pkgs ++ gui_libs {inherit pkgs; q=qt;} ++ check_libs pkgs
           ++ (with pkgs; [
           (pkgs.clang-tools.override {
-            llvmPackages = pkgs.llvmPackages_7;
+            llvmPackages = pkgs.llvmPackages_13;
           })
           ccache
           ccls
