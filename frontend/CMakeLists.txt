@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(
-  jv2
-  LANGUAGES CXX)
+project(jv2 LANGUAGES CXX)
 
 # Metadata
-set(DESCRIPTION "Journal data browsing, searching, and plotting for the ISIS Facility")
+set(DESCRIPTION
+    "Journal data browsing, searching, and plotting for the ISIS Facility")
 set(AUTHOR "Team JV2")
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "2")
@@ -34,12 +33,7 @@ include(conan-jv2)
 
 find_package(
   Qt6
-  COMPONENTS Core
-             Gui
-             Widgets
-             Network
-             Charts
-             Xml
+  COMPONENTS Core Gui Widgets Network Charts Xml
   REQUIRED)
 
 # Set source and target binary
@@ -55,9 +49,5 @@ endif(NOT BUILD_SHARED_LIBS)
 target_link_libraries(
   jv2
   PUBLIC main
-  PRIVATE Qt6::Core
-          Qt6::Widgets
-          Qt6::Network
-          Qt6::Charts
-          Qt6::Xml
+  PRIVATE Qt6::Core Qt6::Widgets Qt6::Network Qt6::Charts Qt6::Xml
           ${STATIC_PLATFORM_PLUGINS})
