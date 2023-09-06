@@ -120,6 +120,12 @@ class Journal:
         """
         self._instrument = instrument
         self._data = data
+
+        # Strip whitespace from all fields
+        for col in self._data.columns:
+            if col.dtype == 'object':
+                col = col.map(str.strip)
+
         # todo: check instrument matches data
 
     @property
