@@ -18,7 +18,6 @@
           h5py
           lxml
           pandas
-          pytest
           requests
           setuptools
           virtualenv
@@ -62,7 +61,7 @@
           openmpi
           tbb
           valgrind
-          self.packages.${system}.mython
+          (next.python3.withPackages (ps: with ps; pylibs ps ++ [ pyfakefs pytest requests-mock ]))
         ]);
         shellHook = ''
           export XDG_DATA_DIRS=$GSETTINGS_SCHEMAS_PATH:$XDG_DATA_DIRS
