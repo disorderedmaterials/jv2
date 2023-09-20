@@ -18,7 +18,6 @@
           h5py
           lxml
           pandas
-          pytest
           requests
           setuptools
           virtualenv
@@ -50,7 +49,7 @@
         buildInputs = base_libs pkgs ++ gui_libs {inherit pkgs; q=qt;} ++ check_libs pkgs
           ++ (with pkgs; [
           (pkgs.clang-tools.override {
-            llvmPackages = pkgs.llvmPackages_7;
+            llvmPackages = pkgs.llvmPackages_13;
           })
           ccache
           ccls
@@ -62,8 +61,16 @@
           openmpi
           tbb
           valgrind
-          self.packages.${system}.mython
+          (next.python3.withPackages (ps: with ps; pylibs ps ++ [ pyfakefs pytest requests-mock ]))
         ]);
+        shellHook = ''
+          export XDG_DATA_DIRS=$GSETTINGS_SCHEMAS_PATH:$XDG_DATA_DIRS
+          export LIBGL_DRIVERS_PATH=${pkgs.lib.makeSearchPathOutput "lib" "lib/dri" [pkgs.mesa.drivers]}
+          export LIBVA_DRIVERS_PATH=${pkgs.lib.makeSearchPathOutput "out" "lib/dri" [pkgs.mesa.drivers]}
+          export __EGL_VENDOR_LIBRARY_FILENAMES=${pkgs.mesa.drivers}/share/glvnd/egl_vendor.d/50_mesa.json
+          export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [pkgs.mesa.drivers]}:${pkgs.lib.makeSearchPathOutput "lib" "lib/vdpau" [pkgs.libvdpau]}:${pkgs.lib.makeLibraryPath [pkgs.libglvnd]}"''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export QT_PLUGIN_PATH="${qt-idaaas.packages.${system}.qtsvg}/lib/qt-6/plugins:$QT_PLUGIN_PATH"
+        '';
         CMAKE_CXX_COMPILER_LAUNCHER = "${pkgs.ccache}/bin/ccache";
         CMAKE_CXX_FLAGS_DEBUG = "-g -O0";
         CXXL = "${pkgs.stdenv.cc.cc.lib}";
