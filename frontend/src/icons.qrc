@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="group.svg">../../extra/group.svg</file>
-        <file alias="cross.svg">../../extra/cross.svg</file>
-        <file alias="filter.svg">../../extra/filter.svg</file>
-        <file alias="icon">../../extra/JournalViewer2.png</file>
-        <file alias="instrumentData.xml">../../extra/instrumentData.xml</file>
-        <file alias="tableConfig.xml">../../extra/tableConfig.xml</file>
+        <file alias="group.svg">icons/group.svg</file>
+        <file alias="cross.svg">icons/cross.svg</file>
+        <file alias="filter.svg">icons/filter.svg</file>
+        <file alias="icon">icons/JournalViewer2.png</file>
+        <file alias="instrumentData.xml">../data/instrumentData.xml</file>
+        <file alias="tableConfig.xml">../data/tableConfig.xml</file>
     </qresource>
 </RCC>
