@@ -288,7 +288,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 // Get instrument data from config file
 QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
 {
-    QFile file(":/instrumentData.xml");
+    QFile file(":/data/instrumentData.xml");
+    if (!file.exists())
+        return {};
+
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -328,7 +331,7 @@ QDomDocument MainWindow::getConfig()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     if (!settings.contains("tableConfig"))
     {
-        QFile file(":/tableConfig.xml");
+        QFile file(":/data/tableConfig.xml");
         file.open(QIODevice::ReadOnly);
         dom.setContent(&file);
         file.close();
