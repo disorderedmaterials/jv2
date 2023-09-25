@@ -28,18 +28,47 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 # Dependencies
 include(conan-jv2)
-
 find_package(
   Qt6
   COMPONENTS Core Gui Widgets Network Charts Xml
   REQUIRED)
 
-# Set source and target binary
-set(SRCS src/)
-add_subdirectory(${SRCS})
-qt6_add_executable(jv2 MACOSX_BUNDLE ${SRCS}/main.cpp)
-
-target_link_libraries(
+# Build main binary
+qt6_add_executable(
   jv2
-  PUBLIC main
-  PRIVATE Qt6::Core Qt6::Widgets Qt6::Network Qt6::Charts Qt6::Xml)
+  MACOSX_BUNDLE
+  backend.cpp
+  main.cpp
+  mainWindow.cpp
+  filtering.cpp
+  dataGathering.cpp
+  searching.cpp
+  nexusInteraction.cpp
+  mainWindow.h
+  mainWindow.cpp
+  mainWindow.ui
+  httpRequestWorker.cpp
+  httpRequestWorker.h
+  jsonTableModel.cpp
+  jsonTableModel.h
+  jsonTableFilterProxy.cpp
+  jsonTableFilterProxy.h
+  chartView.cpp
+  chartView.h
+  graphWidget.cpp
+  graphWidget.h
+  graphWidget.ui
+  version.h
+  # Resources
+  icons.qrc
+  # Main
+  main.cpp)
+
+target_link_libraries(jv2 PRIVATE Qt6::Core Qt6::Widgets Qt6::Network
+                                  Qt6::Charts Qt6::Xml)
+
+target_include_directories(
+  jv2
+  PRIVATE ${PROJECT_SOURCE_DIR} ${Qt6Widgets_INCLUDE_DIRS}
+          ${Qt6Xml_INCLUDE_DIRS} ${Qt6Network_INCLUDE_DIRS}
+          ${Qt6Charts_INCLUDE_DIRS})
