@@ -27,8 +27,6 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 # Dependencies
-option(BUILD_SHARED_LIBS "If ON, build shared libraries otherwise build static"
-       ON)
 include(conan-jv2)
 
 find_package(
@@ -41,13 +39,7 @@ set(SRCS src/)
 add_subdirectory(${SRCS})
 qt6_add_executable(jv2 MACOSX_BUNDLE ${SRCS}/main.cpp)
 
-# Link in static plugins if required - only Linux supported
-if(NOT BUILD_SHARED_LIBS)
-  set(STATIC_PLATFORM_PLUGINS Qt6::QXcbIntegrationPlugin Qt6::XcbQpaPrivate)
-endif(NOT BUILD_SHARED_LIBS)
-
 target_link_libraries(
   jv2
   PUBLIC main
-  PRIVATE Qt6::Core Qt6::Widgets Qt6::Network Qt6::Charts Qt6::Xml
-          ${STATIC_PLATFORM_PLUGINS})
+  PRIVATE Qt6::Core Qt6::Widgets Qt6::Network Qt6::Charts Qt6::Xml)

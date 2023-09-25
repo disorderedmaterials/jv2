@@ -116,11 +116,6 @@
           nativeBuildInputs = [ pkgs.wrapGAppsHook ];
 
           cmakeFlags = [ "-G Ninja" ];
-          configurePhase = ''
-            cd frontend
-            mkdir build
-            cmake -G Ninja
-          '';
           installPhase = ''
             mkdir -p $out/bin
             mv bin/* $out/bin/
