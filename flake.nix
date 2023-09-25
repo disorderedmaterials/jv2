@@ -105,7 +105,10 @@
         frontend = pkgs.stdenv.mkDerivation ({
           inherit version;
           pname = "jv2";
-          src = ./.;
+          src = builtins.path {
+            path = ./frontend;
+            name = "frontend-src";
+          };
           buildInputs = base_libs pkgs ++ (gui_libs {inherit pkgs; q=qt;});
           propagatedBuildInputs = with pkgs;
             [ self.packages.${system}.mython ];
