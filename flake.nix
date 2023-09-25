@@ -62,7 +62,7 @@
           qt-idaaas.packages.${system}.qttools
           tbb
           valgrind
-          (next.python3.withPackages (ps: with ps; pylibs ps ++ [ pyfakefs pytest requests-mock ]))
+          (next.python3.withPackages (ps: with ps; pylibs ps ++ [ pyfakefs pytest requests-mock build ]))
         ]);
         shellHook = ''
           export XDG_DATA_DIRS=$GSETTINGS_SCHEMAS_PATH:$XDG_DATA_DIRS
