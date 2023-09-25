@@ -369,7 +369,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
         // If config preferences blank
         if (configDefaultFields.isEmpty())
         {
-            QFile file(":/instrumentData.xml");
+            QFile file(":/data/instrumentData.xml");
             file.open(QIODevice::ReadOnly);
             dom.setContent(&file);
             file.close();
