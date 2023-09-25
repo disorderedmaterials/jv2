@@ -59,6 +59,7 @@
           distcc
           gdb
           openmpi
+          qt-idaaas.packages.${system}.qttools
           tbb
           valgrind
           (next.python3.withPackages (ps: with ps; pylibs ps ++ [ pyfakefs pytest requests-mock ]))
