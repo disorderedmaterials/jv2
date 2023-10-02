@@ -84,7 +84,7 @@ void MainWindow::on_groupButton_clicked(bool checked)
 }
 
 // Clears filter parameters
-void MainWindow::on_clearSearchButton_clicked() { ui_->filterBox->clear(); }
+void MainWindow::on_clearSearchButton_clicked() { ui_->RunFilterEdit->clear(); }
 
 void MainWindow::on_actionMassSearchRB_No_triggered() { massSearch("RB No.", "experiment_identifier"); }
 

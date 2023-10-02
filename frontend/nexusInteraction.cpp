@@ -428,14 +428,14 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             dateTimeYAxis->setTitleText(tabName);
             relTimeYAxis->setTitleText(tabName);
         }
-        ui_->tabWidget->addTab(window, tabName);
+        ui_->MainTabs->addTab(window, tabName);
         QString runs;
         for (auto series : dateTimeChart->series())
             runs.append(series->name() + ", ");
         runs.chop(2);
         QString toolTip = instDisplayName_ + "\n" + tabName + "\n" + runs;
-        ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
-        ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
+        ui_->MainTabs->setTabToolTip(ui_->MainTabs->count() - 1, toolTip);
+        ui_->MainTabs->setCurrentIndex(ui_->MainTabs->count() - 1);
         dateTimeChartView->setFocus();
     }
     else
@@ -446,7 +446,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     }
 }
 
-void MainWindow::removeTab(int index) { delete ui_->tabWidget->widget(index); }
+void MainWindow::removeTab(int index) { delete ui_->MainTabs->widget(index); }
 
 void MainWindow::toggleAxis(int state)
 {
@@ -470,7 +470,7 @@ void MainWindow::toggleAxis(int state)
 void MainWindow::getField()
 {
     auto *action = qobject_cast<QAction *>(sender());
-    auto *graphParent = ui_->tabWidget->currentWidget();
+    auto *graphParent = ui_->MainTabs->currentWidget();
     auto tabCharts = graphParent->findChildren<QChartView *>();
 
     auto runNos = getRunNos().split("-")[0];
@@ -562,10 +562,10 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
         chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
         QString tabName = field;
-        ui_->tabWidget->addTab(window, tabName);
-        ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
+        ui_->MainTabs->addTab(window, tabName);
+        ui_->MainTabs->setCurrentIndex(ui_->MainTabs->count() - 1);
         QString toolTip = field + "\n" + runs;
-        ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
+        ui_->MainTabs->setTabToolTip(ui_->MainTabs->count() - 1, toolTip);
         chartView->setFocus();
 
         QString cycle = cyclesMap_[ui_->cycleButton->text()];
@@ -637,10 +637,10 @@ void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
         chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
         QString tabName = field;
-        ui_->tabWidget->addTab(window, tabName);
-        ui_->tabWidget->setCurrentIndex(ui_->tabWidget->count() - 1);
+        ui_->MainTabs->addTab(window, tabName);
+        ui_->MainTabs->setCurrentIndex(ui_->MainTabs->count() - 1);
         QString toolTip = field + "\n" + runs;
-        ui_->tabWidget->setTabToolTip(ui_->tabWidget->count() - 1, toolTip);
+        ui_->MainTabs->setTabToolTip(ui_->MainTabs->count() - 1, toolTip);
         chartView->setFocus();
     }
     else

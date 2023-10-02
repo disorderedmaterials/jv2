@@ -80,8 +80,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         else
             validSource_ = true;
         // Error handling
-        if (ui_->groupButton->isChecked())
-            ui_->groupButton->setChecked(false);
+        if (ui_->GroupRunsButton->isChecked())
+            ui_->GroupRunsButton->setChecked(false);
 
         // Get desired fields and titles from config files
         desiredHeader_ = getFields(instName_, instType_);
@@ -106,9 +106,9 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         model_ = new JsonTableModel(header_, this);
         proxyModel_ = new JSONTableFilterProxy(this);
         proxyModel_->setSourceModel(model_);
-        connect(ui_->caseSensitivityButton, SIGNAL(clicked(bool)), proxyModel_, SLOT(toggleCaseSensitivity(bool)));
+        connect(ui_->FilterCaseSensitivityButton, SIGNAL(clicked(bool)), proxyModel_, SLOT(toggleCaseSensitivity(bool)));
         connect(proxyModel_, &JSONTableFilterProxy::updateFilter,
-                [=]() { on_filterBox_textChanged(ui_->filterBox->text()); }); // refresh filter on toggle
+                [=]() { on_filterBox_textChanged(ui_->RunFilterEdit->text()); }); // refresh filter on toggle
         ui_->runDataTable->setModel(proxyModel_);
         model_->setJson(jsonArray);
         ui_->runDataTable->show();
@@ -153,7 +153,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         }
         ui_->runDataTable->resizeColumnsToContents();
         updateSearch(searchString_);
-        ui_->filterBox->clear();
+        ui_->RunFilterEdit->clear();
         emit tableFilled();
     }
     else

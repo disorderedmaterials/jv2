@@ -11,6 +11,7 @@
 #include <QDomDocument>
 #include <QFormLayout>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
@@ -64,8 +65,8 @@ void MainWindow::initialiseElements()
         instrumentsMenu_->actions()[instrumentsMenu_->actions().count() - 1]->trigger();
 
     // Disables closing data tab + handles tab closing
-    ui_->tabWidget->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
-    connect(ui_->tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
+    ui_->MainTabs->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
+    connect(ui_->MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
 
     // Context menu stuff
     ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -271,8 +272,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
     {
-        bool checked = ui_->groupButton->isChecked();
-        ui_->groupButton->setChecked(!checked);
+        bool checked = ui_->GroupRunsButton->isChecked();
+        ui_->GroupRunsButton->setChecked(!checked);
         on_groupButton_clicked(!checked);
     }
     if (event->key() == Qt::Key_R && event->modifiers() == Qt::ControlModifier)
