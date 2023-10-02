@@ -40,7 +40,7 @@ qt6_add_executable(
   # Backend
   backend.cpp
   # Main Window
-  dataGathering.cpp
+  data.cpp
   filtering.cpp
   httpRequestWorker.cpp
   httpRequestWorker.h

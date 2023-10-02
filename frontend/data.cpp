@@ -2,7 +2,6 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "mainWindow.h"
-#include "ui_mainWindow.h"
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QNetworkReply>
@@ -206,4 +205,141 @@ void MainWindow::changeCycle(QString value)
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     setLoadScreen(true);
     worker->execute(input);
+}
+
+// Sets cycle to most recently viewed
+void MainWindow::recentCycle()
+{
+    // Disable selections if api fails
+    if (cyclesMenu_->actions().count() == 0)
+        QWidget::setEnabled(false);
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    QString recentCycle = settings.value("recentCycle").toString();
+    // Sets cycle to last used/ most recent if unavailable
+    for (QAction *action : cyclesMenu_->actions())
+    {
+        if (action->text() == recentCycle)
+        {
+            action->trigger();
+            return;
+        }
+    }
+    cyclesMenu_->actions()[0]->trigger();
+}
+
+// Fill instrument list
+void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> instruments)
+{
+    // Only allow calls after initial population
+    instrumentsMenu_ = new QMenu("instrumentsMenu");
+    cyclesMenu_ = new QMenu("cyclesMenu");
+
+    connect(ui_.instrumentButton, &QPushButton::clicked,
+            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
+    connect(ui_.cycleButton, &QPushButton::clicked,
+            [=]() { cyclesMenu_->exec(ui_.cycleButton->mapToGlobal(QPoint(0, ui_.cycleButton->height()))); });
+    foreach (const auto instrument, instruments)
+    {
+        auto *action = new QAction(std::get<2>(instrument), this);
+        connect(action, &QAction::triggered, [=]() { changeInst(instrument); });
+        instrumentsMenu_->addAction(action);
+    }
+}
+
+// Handle Instrument selection
+void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
+{
+    instType_ = std::get<1>(instrument);
+    instName_ = std::get<0>(instrument);
+    instDisplayName_ = std::get<2>(instrument);
+    ui_.instrumentButton->setText(instDisplayName_);
+    currentInstrumentChanged(instName_);
+}
+
+void MainWindow::checkForUpdates()
+{
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_;
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { refresh(workerProxy->response); });
+    worker->execute(input);
+}
+
+void MainWindow::refresh(QString status)
+{
+    if (status != "")
+    {
+        qDebug() << "Update";
+        currentInstrumentChanged(instName_);
+        if (cyclesMap_[cyclesMenu_->actions()[0]->text()] != status) // if new cycle found
+        {
+            auto displayName = "Cycle " + status.split("_")[1] + "/" + status.split("_")[2].remove(".xml");
+            cyclesMap_[displayName] = status;
+
+            auto *action = new QAction(displayName, this);
+            connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
+            cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
+        }
+        else if (cyclesMap_[ui_.cycleButton->text()] == status) // if current opened cycle changed
+        {
+            QString url_str = "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
+                              model_->getJsonObject(model_->index(model_->rowCount() - 1, 0))["run_number"].toString();
+            HttpRequestInput input(url_str);
+            auto *worker = new HttpRequestWorker(this);
+            connect(worker, &HttpRequestWorker::on_execution_finished,
+                    [=](HttpRequestWorker *workerProxy) { update(workerProxy); });
+            worker->execute(input);
+        }
+    }
+    else
+    {
+        qDebug() << "no change";
+        return;
+    }
+}
+
+void MainWindow::update(HttpRequestWorker *worker)
+{
+    for (auto row : worker->jsonArray)
+    {
+        auto rowObject = row.toObject();
+        model_->insertRows(model_->rowCount(), 1);
+        auto index = model_->index(model_->rowCount() - 1, 0);
+        model_->setData(index, rowObject);
+    }
+}
+
+void MainWindow::refreshTable()
+{
+    for (auto i = 0; i < model_->columnCount(); ++i)
+    {
+        ui_.runDataTable->setColumnHidden(i, true);
+    }
+    currentInstrumentChanged(instName_);
+}
+
+// Hide column on view menu change
+void MainWindow::columnHider(int state)
+{
+    auto *action = qobject_cast<QCheckBox *>(sender());
+
+    for (auto i = 0; i < model_->columnCount(); ++i)
+    {
+        if (action->text() == headersMap_[model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
+        {
+            switch (state)
+            {
+                case Qt::Unchecked:
+                    ui_.runDataTable->setColumnHidden(i, true);
+                    break;
+                case Qt::Checked:
+                    ui_.runDataTable->setColumnHidden(i, false);
+                    break;
+                default:
+                    action->setCheckState(Qt::Checked);
+            }
+            break;
+        }
+    }
 }

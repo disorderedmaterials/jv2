@@ -19,21 +19,41 @@ class MainWindow : public QMainWindow
 
     public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() = default;
 
     /*
      * UI
      */
     private:
     Ui::MainWindow ui_;
-
+    QMenu *viewMenu_;
+    QMenu *findMenu_;
+    QMenu *contextMenu_;
+    QMenu *instrumentsMenu_;
+    QMenu *cyclesMenu_;    
     bool init_;
     bool validSource_;
     QPoint pos_;
 
+    protected:
+    // Window close event
+    void closeEvent(QCloseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+
     /*
      * Main Data
      */
+    private:
+    QString instType_;
+    QString instName_;
+    QString instDisplayName_;
+    QMap<QString, QString> cyclesMap_;
+    QMap<QString, QString> headersMap_;
+    JsonTableModel *model_;
+    JSONTableFilterProxy *proxyModel_;
+    JsonTableModel::Header header_;
+    std::vector<std::pair<QString, QString>> desiredHeader_;
+
     private:
     // Init
     void fillInstruments(QList<std::tuple<QString, QString, QString>> instruments);
@@ -54,48 +74,18 @@ class MainWindow : public QMainWindow
     // Misc Interface Functions
     void removeTab(int index);
     void columnHider(int state);
-
     void refresh(QString Status);
     void update(HttpRequestWorker *worker);
     void refreshTable();
 
-    protected:
-    // Window close event
-    void closeEvent(QCloseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-
     signals:
     void tableFilled();
 
-    private:
-    // Table Stuff
-    JsonTableModel *model_;
-    JSONTableFilterProxy *proxyModel_;
-    JsonTableModel::Header header_;
-    std::vector<std::pair<QString, QString>> desiredHeader_;
-    // Menus
-    QMenu *viewMenu_;
-    QMenu *findMenu_;
-    QMenu *contextMenu_;
-    QMenu *instrumentsMenu_;
-    QMenu *cyclesMenu_;
-
-    QModelIndexList foundIndices_;
-    int currentFoundIndex_;
-    // Menu button data
-    QString searchString_;
-    QString instType_;
-    QString instName_;
-    QString instDisplayName_;
-    QMap<QString, QString> cyclesMap_;
-    QMap<QString, QString> headersMap_;
 
     /*
      * Settings
      */
     private:
-    void savePref();
-    void clearPref();
     // Get available instruments from config file
     QList<std::tuple<QString, QString, QString>> getInstruments();
     QDomDocument getConfig();
@@ -103,6 +93,8 @@ class MainWindow : public QMainWindow
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType);
 
     private slots:
+        void savePref();
+    void clearPref();
     void on_actionMountPoint_triggered();
     void on_actionClearMountPoint_triggered();
     void on_actionSetLocalSource_triggered();
@@ -111,6 +103,11 @@ class MainWindow : public QMainWindow
     /*
      * Searching
      */
+    private:
+    QString searchString_;
+    QModelIndexList foundIndices_;
+    int currentFoundIndex_;
+
     private:
     void updateSearch(const QString &arg1);
     void findUp();
