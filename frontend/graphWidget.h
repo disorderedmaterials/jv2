@@ -5,14 +5,10 @@
 
 #include "chartView.h"
 #include "httpRequestWorker.h"
+#include "ui_graphWidget.h"
 #include <QChart>
 #include <QChartView>
 #include <QWidget>
-
-namespace Ui
-{
-class GraphWidget;
-}
 
 class GraphWidget : public QWidget
 {
@@ -21,6 +17,18 @@ class GraphWidget : public QWidget
     public:
     GraphWidget(QWidget *parent = nullptr, QChart *chart = nullptr, QString type = nullptr);
     ~GraphWidget();
+
+    private:
+    Ui::GraphWidget ui_;
+    QString run_;
+    QString chartRuns_;
+    QString chartDetector_;
+    QJsonArray chartData_;
+    QVector<QVector<double>> binWidths_;
+    QString type_;
+    QString modified_;
+
+    public:
     ChartView *getChartView();
 
     QString getChartRuns();
@@ -44,16 +52,6 @@ class GraphWidget : public QWidget
     void monDivideSpinHandling(); // Handle normalisation conflicts
     void on_countsPerMicrosecondCheck_stateChanged(int state);
     void on_countsPerMicroAmpCheck_stateChanged(int state);
-
-    private:
-    Ui::GraphWidget *ui_;
-    QString run_;
-    QString chartRuns_;
-    QString chartDetector_;
-    QJsonArray chartData_;
-    QVector<QVector<double>> binWidths_;
-    QString type_;
-    QString modified_;
 
     signals:
     void muAmps(QString runs, bool checked, QString modified);

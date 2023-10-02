@@ -22,7 +22,7 @@
 void MainWindow::customMenuRequested(QPoint pos)
 {
     pos_ = pos;
-    auto index = ui_->runDataTable->indexAt(pos);
+    auto index = ui_.runDataTable->indexAt(pos);
     auto runNos = getRunNos().split("-")[0];
     auto cycles = getRunNos().split("-")[1];
     if (cycles == "")
@@ -39,7 +39,7 @@ void MainWindow::customMenuRequested(QPoint pos)
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_contextMenu(HttpRequestWorker *)));
-    contextMenu_->popup(ui_->runDataTable->viewport()->mapToGlobal(pos_));
+    contextMenu_->popup(ui_.runDataTable->viewport()->mapToGlobal(pos_));
     worker->execute(input);
 }
 
@@ -103,12 +103,12 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 QString MainWindow::getRunNos()
 {
     // Gathers all selected runs
-    auto selectedRuns = ui_->runDataTable->selectionModel()->selectedRows();
+    auto selectedRuns = ui_.runDataTable->selectionModel()->selectedRows();
 
     // Finds run number location in table
     int runNoColumn;
     int cycleColumn;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+    for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
     {
         if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
             runNoColumn = i;
@@ -428,14 +428,14 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
             dateTimeYAxis->setTitleText(tabName);
             relTimeYAxis->setTitleText(tabName);
         }
-        ui_->MainTabs->addTab(window, tabName);
+        ui_.MainTabs->addTab(window, tabName);
         QString runs;
         for (auto series : dateTimeChart->series())
             runs.append(series->name() + ", ");
         runs.chop(2);
         QString toolTip = instDisplayName_ + "\n" + tabName + "\n" + runs;
-        ui_->MainTabs->setTabToolTip(ui_->MainTabs->count() - 1, toolTip);
-        ui_->MainTabs->setCurrentIndex(ui_->MainTabs->count() - 1);
+        ui_.MainTabs->setTabToolTip(ui_.MainTabs->count() - 1, toolTip);
+        ui_.MainTabs->setCurrentIndex(ui_.MainTabs->count() - 1);
         dateTimeChartView->setFocus();
     }
     else
@@ -446,7 +446,7 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     }
 }
 
-void MainWindow::removeTab(int index) { delete ui_->MainTabs->widget(index); }
+void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
 
 void MainWindow::toggleAxis(int state)
 {
@@ -470,7 +470,7 @@ void MainWindow::toggleAxis(int state)
 void MainWindow::getField()
 {
     auto *action = qobject_cast<QAction *>(sender());
-    auto *graphParent = ui_->MainTabs->currentWidget();
+    auto *graphParent = ui_.MainTabs->currentWidget();
     auto tabCharts = graphParent->findChildren<QChartView *>();
 
     auto runNos = getRunNos().split("-")[0];
@@ -562,13 +562,13 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
         chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
         QString tabName = field;
-        ui_->MainTabs->addTab(window, tabName);
-        ui_->MainTabs->setCurrentIndex(ui_->MainTabs->count() - 1);
+        ui_.MainTabs->addTab(window, tabName);
+        ui_.MainTabs->setCurrentIndex(ui_.MainTabs->count() - 1);
         QString toolTip = field + "\n" + runs;
-        ui_->MainTabs->setTabToolTip(ui_->MainTabs->count() - 1, toolTip);
+        ui_.MainTabs->setTabToolTip(ui_.MainTabs->count() - 1, toolTip);
         chartView->setFocus();
 
-        QString cycle = cyclesMap_[ui_->cycleButton->text()];
+        QString cycle = cyclesMap_[ui_.cycleButton->text()];
         cycle.replace(0, 7, "cycle").replace(".xml", "");
 
         QString url_str = "http://127.0.0.1:5000/getDetectorAnalysis/";
@@ -637,10 +637,10 @@ void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
         chart->axes(Qt::Horizontal)[0]->setTitleText("Time of flight, &#181;s");
         chart->axes(Qt::Vertical)[0]->setTitleText("Counts");
         QString tabName = field;
-        ui_->MainTabs->addTab(window, tabName);
-        ui_->MainTabs->setCurrentIndex(ui_->MainTabs->count() - 1);
+        ui_.MainTabs->addTab(window, tabName);
+        ui_.MainTabs->setCurrentIndex(ui_.MainTabs->count() - 1);
         QString toolTip = field + "\n" + runs;
-        ui_->MainTabs->setTabToolTip(ui_->MainTabs->count() - 1, toolTip);
+        ui_.MainTabs->setTabToolTip(ui_.MainTabs->count() - 1, toolTip);
         chartView->setFocus();
     }
     else
@@ -658,7 +658,7 @@ void MainWindow::getSpectrumCount()
     if (runNos.size() == 0)
         return;
 
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getSpectrumRange/";
@@ -677,7 +677,7 @@ void MainWindow::getMonitorCount()
     if (runNos.size() == 0)
         return;
 
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getMonitorRange/";
@@ -704,7 +704,7 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     if (runNos.size() == 0)
         return;
 
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getSpectrum/";
@@ -730,7 +730,7 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     if (runNos.size() == 0)
         return;
 
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getMonSpectrum/";
@@ -747,7 +747,7 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
     auto *window = qobject_cast<GraphWidget *>(sender());
     QString modifier = "/muAmps";
     QString url_str =
-        "http://127.0.0.1:5000/getTotalMuAmps/" + instName_ + "/" + cyclesMap_[ui_->cycleButton->text()] + "/" + runs;
+        "http://127.0.0.1:5000/getTotalMuAmps/" + instName_ + "/" + cyclesMap_[ui_.cycleButton->text()] + "/" + runs;
     auto yAxisTitle = window->getChartView()->chart()->axes(Qt::Vertical)[0]->titleText();
 
     if (modified != "-1")
@@ -779,7 +779,7 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
     QString url_str = "http://127.0.0.1:5000/getSpectrum/" + instName_ + "/" + cycle + "/" + run + "/" + currentDetector;
     HttpRequestInput input(url_str);
@@ -803,7 +803,7 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    QString cycle = cyclesMap_[ui_->cycleButton->text()];
+    QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
     QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + instName_ + "/" + cycle + "/" + currentRun + "/" + mon;
     HttpRequestInput input(url_str);

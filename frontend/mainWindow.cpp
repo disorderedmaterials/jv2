@@ -19,9 +19,9 @@
 #include <QWidgetAction>
 #include <QtGui>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    ui_->setupUi(this);
+    ui_.setupUi(this);
     initialiseElements();
 
     QTimer *timer = new QTimer(this);
@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainW
     timer->start(30000);
 }
 
-MainWindow::~MainWindow() { delete ui_; }
+MainWindow::~MainWindow() { }
 
 // Configure initial application state
 void MainWindow::initialiseElements()
@@ -42,14 +42,14 @@ void MainWindow::initialiseElements()
     searchString_ = "";
 
     // View menu for column toggles
-    viewMenu_ = ui_->menubar->addMenu("View");
+    viewMenu_ = ui_.menubar->addMenu("View");
 
     // Allows re-arranging of table columns
-    ui_->runDataTable->horizontalHeader()->setSectionsMovable(true);
-    ui_->runDataTable->horizontalHeader()->setDragEnabled(true);
-    ui_->runDataTable->setAlternatingRowColors(true);
-    ui_->runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
-    ui_->runDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    ui_.runDataTable->horizontalHeader()->setSectionsMovable(true);
+    ui_.runDataTable->horizontalHeader()->setDragEnabled(true);
+    ui_.runDataTable->setAlternatingRowColors(true);
+    ui_.runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
+    ui_.runDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
 
     // Sets instrument to last used
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
@@ -65,16 +65,16 @@ void MainWindow::initialiseElements()
         instrumentsMenu_->actions()[instrumentsMenu_->actions().count() - 1]->trigger();
 
     // Disables closing data tab + handles tab closing
-    ui_->MainTabs->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
-    connect(ui_->MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
+    ui_.MainTabs->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
+    connect(ui_.MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
 
     // Context menu stuff
-    ui_->runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui_->runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+    ui_.runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui_.runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     contextMenu_ = new QMenu("Context");
 
     // Connect exit action
-    connect(ui_->action_Quit, SIGNAL(triggered()), this, SLOT(close()));
+    connect(ui_.action_Quit, SIGNAL(triggered()), this, SLOT(close()));
 
     // Tests and assigns local sources from memory
     QString localSource = settings.value("localSource").toString();
@@ -125,10 +125,10 @@ void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> in
     instrumentsMenu_ = new QMenu("instrumentsMenu");
     cyclesMenu_ = new QMenu("cyclesMenu");
 
-    connect(ui_->instrumentButton, &QPushButton::clicked,
-            [=]() { instrumentsMenu_->exec(ui_->instrumentButton->mapToGlobal(QPoint(0, ui_->instrumentButton->height()))); });
-    connect(ui_->cycleButton, &QPushButton::clicked,
-            [=]() { cyclesMenu_->exec(ui_->cycleButton->mapToGlobal(QPoint(0, ui_->cycleButton->height()))); });
+    connect(ui_.instrumentButton, &QPushButton::clicked,
+            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
+    connect(ui_.cycleButton, &QPushButton::clicked,
+            [=]() { cyclesMenu_->exec(ui_.cycleButton->mapToGlobal(QPoint(0, ui_.cycleButton->height()))); });
     foreach (const auto instrument, instruments)
     {
         auto *action = new QAction(std::get<2>(instrument), this);
@@ -143,7 +143,7 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
     instType_ = std::get<1>(instrument);
     instName_ = std::get<0>(instrument);
     instDisplayName_ = std::get<2>(instrument);
-    ui_->instrumentButton->setText(instDisplayName_);
+    ui_.instrumentButton->setText(instDisplayName_);
     currentInstrumentChanged(instName_);
 }
 
@@ -152,7 +152,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     // Update history on close
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("recentInstrument", instDisplayName_);
-    settings.setValue("recentCycle", ui_->cycleButton->text());
+    settings.setValue("recentCycle", ui_.cycleButton->text());
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";
@@ -264,7 +264,7 @@ void MainWindow::massSearch(QString name, QString value)
     auto *action = new QAction("[" + text + "]", this);
     connect(action, &QAction::triggered, [=]() { changeCycle("[" + text + "]"); });
     cyclesMenu_->addAction(action);
-    ui_->cycleButton->setText("[" + text + "]");
+    ui_.cycleButton->setText("[" + text + "]");
     setLoadScreen(true);
 }
 
@@ -272,9 +272,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
     {
-        bool checked = ui_->GroupRunsButton->isChecked();
-        ui_->GroupRunsButton->setChecked(!checked);
-        on_groupButton_clicked(!checked);
+        bool checked = ui_.GroupRunsButton->isChecked();
+        ui_.GroupRunsButton->setChecked(!checked);
+        on_GroupRunsButton_clicked(!checked);
     }
     if (event->key() == Qt::Key_R && event->modifiers() == Qt::ControlModifier)
         checkForUpdates();
@@ -414,10 +414,10 @@ void MainWindow::savePref()
     // Get current table fields
     QString currentFields;
     int realIndex;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+    for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
     {
-        realIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
-        if (!ui_->runDataTable->isColumnHidden(realIndex))
+        realIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(i);
+        if (!ui_.runDataTable->isColumnHidden(realIndex))
         {
             currentFields += model_->headerData(realIndex, Qt::Horizontal, Qt::UserRole).toString();
             currentFields += ",";
@@ -555,7 +555,7 @@ void MainWindow::refresh(QString status)
             connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
             cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
         }
-        else if (cyclesMap_[ui_->cycleButton->text()] == status) // if current opened cycle changed
+        else if (cyclesMap_[ui_.cycleButton->text()] == status) // if current opened cycle changed
         {
             QString url_str = "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
                               model_->getJsonObject(model_->index(model_->rowCount() - 1, 0))["run_number"].toString();
@@ -619,7 +619,7 @@ void MainWindow::refreshTable()
 {
     for (auto i = 0; i < model_->columnCount(); ++i)
     {
-        ui_->runDataTable->setColumnHidden(i, true);
+        ui_.runDataTable->setColumnHidden(i, true);
     }
     currentInstrumentChanged(instName_);
 }

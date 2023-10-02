@@ -12,15 +12,15 @@ void MainWindow::updateSearch(const QString &arg1)
     currentFoundIndex_ = 0;
     if (arg1.isEmpty())
     {
-        ui_->runDataTable->selectionModel()->clearSelection();
+        ui_.runDataTable->selectionModel()->clearSelection();
         statusBar()->clearMessage();
         return;
     }
     // Find all occurrences of search string in table elements
     for (auto i = 0; i < proxyModel_->columnCount(); ++i)
     {
-        auto location = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
-        if (!ui_->runDataTable->isColumnHidden(location))
+        auto location = ui_.runDataTable->horizontalHeader()->logicalIndex(i);
+        if (!ui_.runDataTable->isColumnHidden(location))
             foundIndices_.append(
                 proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, arg1, -1, Qt::MatchContains));
     }
@@ -33,7 +33,7 @@ void MainWindow::updateSearch(const QString &arg1)
     }
     else
     {
-        ui_->runDataTable->selectionModel()->clearSelection();
+        ui_.runDataTable->selectionModel()->clearSelection();
         statusBar()->showMessage("No results");
     }
 }
@@ -71,11 +71,11 @@ void MainWindow::selectAllSearches()
     if (foundIndices_.empty())
         return;
 
-    ui_->runDataTable->selectionModel()->clearSelection();
+    ui_.runDataTable->selectionModel()->clearSelection();
     currentFoundIndex_ = -1;
     for (auto i = 0; i < foundIndices_.size(); ++i)
     {
-        ui_->runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
+        ui_.runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
                                                              QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
     statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) + " Results");
@@ -83,23 +83,23 @@ void MainWindow::selectAllSearches()
 
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
 {
-    ui_->runDataTable->selectionModel()->setCurrentIndex(index,
+    ui_.runDataTable->selectionModel()->setCurrentIndex(index,
                                                          QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
 void MainWindow::selectIndex(QString runNumber)
 {
-    ui_->runDataTable->selectionModel()->clearSelection();
+    ui_.runDataTable->selectionModel()->clearSelection();
 
     updateSearch(runNumber);
-    statusBar()->showMessage("Found run " + runNumber + " in " + ui_->cycleButton->text(), 5000);
+    statusBar()->showMessage("Found run " + runNumber + " in " + ui_.cycleButton->text(), 5000);
     disconnect(this, &MainWindow::tableFilled, nullptr, nullptr);
 }
 
 void MainWindow::selectSimilar()
 {
     int TitleColumn;
-    for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+    for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
     {
         if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "title")
         {
@@ -107,11 +107,11 @@ void MainWindow::selectSimilar()
             break;
         }
     }
-    QString title = proxyModel_->index(ui_->runDataTable->rowAt(pos_.y()), TitleColumn).data().toString();
+    QString title = proxyModel_->index(ui_.runDataTable->rowAt(pos_.y()), TitleColumn).data().toString();
     for (auto i = 0; i < model_->rowCount(); i++)
     {
         if (proxyModel_->index(i, TitleColumn).data().toString() == title)
-            ui_->runDataTable->selectionModel()->setCurrentIndex(proxyModel_->index(i, TitleColumn),
+            ui_.runDataTable->selectionModel()->setCurrentIndex(proxyModel_->index(i, TitleColumn),
                                                                  QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
@@ -124,7 +124,7 @@ void MainWindow::on_actionSearch_triggered()
     currentFoundIndex_ = 0;
     if (textInput.isEmpty())
     {
-        ui_->runDataTable->selectionModel()->clearSelection();
+        ui_.runDataTable->selectionModel()->clearSelection();
         statusBar()->clearMessage();
         return;
     }
@@ -132,8 +132,8 @@ void MainWindow::on_actionSearch_triggered()
     // Find all occurrences of search string in table elements
     for (auto i = 0; i < proxyModel_->columnCount(); ++i)
     {
-        auto location = ui_->runDataTable->horizontalHeader()->logicalIndex(i);
-        if (!ui_->runDataTable->isColumnHidden(location))
+        auto location = ui_.runDataTable->horizontalHeader()->logicalIndex(i);
+        if (!ui_.runDataTable->isColumnHidden(location))
             foundIndices_.append(
                 proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, textInput, -1, Qt::MatchContains));
     }
@@ -146,7 +146,7 @@ void MainWindow::on_actionSearch_triggered()
     }
     else
     {
-        ui_->runDataTable->selectionModel()->clearSelection();
+        ui_.runDataTable->selectionModel()->clearSelection();
         statusBar()->showMessage("No results");
     }
 }

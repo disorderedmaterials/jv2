@@ -47,7 +47,7 @@ void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
         // Keep cycle over instruments
         for (QAction *action : cyclesMenu_->actions())
         {
-            if (action->text() == ui_->cycleButton->text())
+            if (action->text() == ui_.cycleButton->text())
             {
                 action->trigger();
                 return;
@@ -80,8 +80,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         else
             validSource_ = true;
         // Error handling
-        if (ui_->GroupRunsButton->isChecked())
-            ui_->GroupRunsButton->setChecked(false);
+        if (ui_.GroupRunsButton->isChecked())
+            ui_.GroupRunsButton->setChecked(false);
 
         // Get desired fields and titles from config files
         desiredHeader_ = getFields(instName_, instType_);
@@ -106,12 +106,12 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         model_ = new JsonTableModel(header_, this);
         proxyModel_ = new JSONTableFilterProxy(this);
         proxyModel_->setSourceModel(model_);
-        connect(ui_->FilterCaseSensitivityButton, SIGNAL(clicked(bool)), proxyModel_, SLOT(toggleCaseSensitivity(bool)));
+        connect(ui_.FilterCaseSensitivityButton, SIGNAL(clicked(bool)), proxyModel_, SLOT(toggleCaseSensitivity(bool)));
         connect(proxyModel_, &JSONTableFilterProxy::updateFilter,
-                [=]() { on_filterBox_textChanged(ui_->RunFilterEdit->text()); }); // refresh filter on toggle
-        ui_->runDataTable->setModel(proxyModel_);
+                [=]() { on_RunFilterEdit_textChanged(ui_.RunFilterEdit->text()); }); // refresh filter on toggle
+        ui_.runDataTable->setModel(proxyModel_);
         model_->setJson(jsonArray);
-        ui_->runDataTable->show();
+        ui_.runDataTable->show();
 
         // Fills viewMenu_ with all columns
         viewMenu_->clear();
@@ -141,19 +141,19 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         int logIndex;
         for (auto i = 0; i < desiredHeader_.size(); ++i)
         {
-            for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
+            for (auto j = 0; j < ui_.runDataTable->horizontalHeader()->count(); ++j)
             {
-                logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
+                logIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(j);
                 // If index matches model data, swap columns in view
                 if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                 {
-                    ui_->runDataTable->horizontalHeader()->swapSections(j, i);
+                    ui_.runDataTable->horizontalHeader()->swapSections(j, i);
                 }
             }
         }
-        ui_->runDataTable->resizeColumnsToContents();
+        ui_.runDataTable->resizeColumnsToContents();
         updateSearch(searchString_);
-        ui_->RunFilterEdit->clear();
+        ui_.RunFilterEdit->clear();
         emit tableFilled();
     }
     else
@@ -190,13 +190,13 @@ void MainWindow::changeCycle(QString value)
                                [value](const auto &tuple) { return std::get<1>(tuple) == value.mid(1, value.length() - 2); });
         if (it != cachedMassSearch_.end())
         {
-            ui_->cycleButton->setText(value);
+            ui_.cycleButton->setText(value);
             setLoadScreen(true);
             handle_result_cycles(std::get<0>(*it));
         }
         return;
     }
-    ui_->cycleButton->setText(value);
+    ui_.cycleButton->setText(value);
 
     QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + cyclesMap_[value];
     HttpRequestInput input(url_str);
