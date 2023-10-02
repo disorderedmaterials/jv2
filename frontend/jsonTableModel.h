@@ -29,9 +29,7 @@ class JsonTableModel : public QAbstractTableModel
 
     public:
     bool setJson(const QJsonArray &array);
-    QJsonArray getJson();
     bool setHeader(const Header &array);
-    Header getHeader();
     QJsonObject getJsonObject(const QModelIndex &index) const; // get row data
     void groupData();
     void unGroupData();

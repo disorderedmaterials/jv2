@@ -23,8 +23,6 @@ bool JsonTableModel::setJson(const QJsonArray &array)
     return true;
 }
 
-QJsonArray JsonTableModel::getJson() { return tableJsonData_; }
-
 // Sets header_ data to define table
 bool JsonTableModel::setHeader(const Header &array)
 {
@@ -33,8 +31,6 @@ bool JsonTableModel::setHeader(const Header &array)
     endResetModel();
     return true;
 }
-
-JsonTableModel::Header JsonTableModel::getHeader() { return tableHeader_; }
 
 QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
