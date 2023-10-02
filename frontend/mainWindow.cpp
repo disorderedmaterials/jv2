@@ -20,7 +20,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // View menu for column toggles
     viewMenu_ = ui_.menubar->addMenu("View");
 
-    // Allows re-arranging of table columns
+    // Set up the main data table
+    runDataFilterProxy_.setSourceModel(&runDataModel_);
+    // -- Allow re-arranging of table columns
     ui_.runDataTable->horizontalHeader()->setSectionsMovable(true);
     ui_.runDataTable->horizontalHeader()->setDragEnabled(true);
     ui_.runDataTable->setAlternatingRowColors(true);
@@ -103,9 +105,9 @@ void MainWindow::columnHider(int state)
 {
     auto *action = qobject_cast<QCheckBox *>(sender());
 
-    for (auto i = 0; i < model_->columnCount(); ++i)
+    for (auto i = 0; i < runDataModel_.columnCount(); ++i)
     {
-        if (action->text() == headersMap_[model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
+        if (action->text() == headersMap_[runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
         {
             switch (state)
             {

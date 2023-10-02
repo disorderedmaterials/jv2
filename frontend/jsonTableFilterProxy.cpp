@@ -2,32 +2,34 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "jsonTableFilterProxy.h"
-#include "jsonTableModel.h"
 #include <QModelIndex>
-#include <QObject>
 #include <QSortFilterProxyModel>
 
-JSONTableFilterProxy::JSONTableFilterProxy(QObject *parent) : QSortFilterProxyModel(parent)
+// Set text string to filter by
+void JsonTableFilterProxy::setFilterString(QString filterString)
 {
-    filterString_ = "";
-    caseSensitive_ = false;
+    filterString_ = filterString;
+
+    invalidateFilter();
 }
 
-void JSONTableFilterProxy::setFilterString(QString filterString) { filterString_ = filterString; }
-
-QString JSONTableFilterProxy::filterString() const { return filterString_; }
-
-void JSONTableFilterProxy::toggleCaseSensitivity(bool caseSensitive)
+// Set whether the filtering is case sensitive
+void JsonTableFilterProxy::setCaseSensitivity(bool caseSensitive)
 {
     caseSensitive_ = caseSensitive;
-    emit updateFilter();
+
+    invalidateFilter();
 }
 
-bool JSONTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
+    if (filterString_.isEmpty())
+        return true;
+
     auto filterString = filterString_;
     if (!caseSensitive_)
         filterString = filterString.toLower();
+
     auto accept = false;
     for (auto i = 0; i < sourceModel()->columnCount(); i++)
     {
@@ -37,8 +39,8 @@ bool JSONTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &so
             tableData = tableData.toLower();
 
         if (tableData.contains(filterString))
-            accept = true;
+            return true;
     }
 
-    return (accept);
+    return false;
 }

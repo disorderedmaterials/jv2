@@ -3,29 +3,28 @@
 
 #pragma once
 
-#include <QModelIndex>
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-class JSONTableFilterProxy : public QSortFilterProxyModel
+// Forward Declarations
+class QModelIndex;
+
+class JsonTableFilterProxy : public QSortFilterProxyModel
 {
     Q_OBJECT
 
-    public:
-    JSONTableFilterProxy(QObject *parent = 0);
+    private:
+    // Text string to filter by
+    QString filterString_;
+    // Whether the filtering is case sensitive
+    bool caseSensitive_{false};
 
-    public slots:
+    public:
+    // Set text string to filter by
     void setFilterString(QString filterString);
-    void toggleCaseSensitivity(bool caseSensitive);
-    QString filterString() const;
+    // Set whether the filtering is case sensitive
+    void setCaseSensitivity(bool caseSensitive);
 
     protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
-
-    private:
-    QString filterString_;
-    bool caseSensitive_;
-
-    signals:
-    void updateFilter();
 };

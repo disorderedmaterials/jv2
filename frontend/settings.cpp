@@ -27,9 +27,9 @@ void MainWindow::savePref()
         realIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(i);
         if (!ui_.runDataTable->isColumnHidden(realIndex))
         {
-            currentFields += model_->headerData(realIndex, Qt::Horizontal, Qt::UserRole).toString();
+            currentFields += runDataModel_.headerData(realIndex, Qt::Horizontal, Qt::UserRole).toString();
             currentFields += ",";
-            currentFields += model_->headerData(realIndex, Qt::Horizontal).toString();
+            currentFields += runDataModel_.headerData(realIndex, Qt::Horizontal).toString();
             currentFields += ",;";
         }
     }

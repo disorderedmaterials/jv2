@@ -53,8 +53,8 @@ class MainWindow : public QMainWindow
     QString instDisplayName_;
     QMap<QString, QString> cyclesMap_;
     QMap<QString, QString> headersMap_;
-    JsonTableModel *model_;
-    JSONTableFilterProxy *proxyModel_;
+    JsonTableModel runDataModel_;
+    JsonTableFilterProxy runDataFilterProxy_;
     JsonTableModel::Header header_;
     std::vector<std::pair<QString, QString>> desiredHeader_;
 
@@ -74,7 +74,7 @@ class MainWindow : public QMainWindow
     void changeInst(std::tuple<QString, QString, QString> instrument);
 
     void refresh(QString Status);
-    void update(HttpRequestWorker *worker);
+    void handleRunData(HttpRequestWorker *worker);
     void refreshTable();
 
     signals:
@@ -129,7 +129,8 @@ class MainWindow : public QMainWindow
 
     private slots:
     void on_RunFilterEdit_textChanged(const QString &arg1);
-    void on_ClearFilterButton_clicked();
+    void on_RunFilterCaseSensitivityButton_clicked(bool checked);
+    void on_RunFilterClearButton_clicked(bool checked);
     void on_GroupRunsButton_clicked(bool checked);
 
     /*
