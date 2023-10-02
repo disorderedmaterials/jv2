@@ -34,7 +34,6 @@ class JsonTableModel : public QAbstractTableModel
     void groupData();
     void unGroupData();
     void setColumnTitle(int section, QString title);
-    bool setData(const QModelIndex &index, QJsonObject rowData, int role = Qt::EditRole);
 
     /*
      * QAbstractTableModel Overrides

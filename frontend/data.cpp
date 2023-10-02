@@ -284,7 +284,7 @@ void MainWindow::refresh(QString status)
             HttpRequestInput input(url_str);
             auto *worker = new HttpRequestWorker(this);
             connect(worker, &HttpRequestWorker::on_execution_finished,
-                    [=](HttpRequestWorker *workerProxy) { update(workerProxy); });
+                    [=](HttpRequestWorker *workerProxy) { handleRunData(workerProxy); });
             worker->execute(input);
         }
     }
@@ -295,16 +295,7 @@ void MainWindow::refresh(QString status)
     }
 }
 
-void MainWindow::update(HttpRequestWorker *worker)
-{
-    for (auto row : worker->jsonArray)
-    {
-        auto rowObject = row.toObject();
-        runDataModel_.insertRows(runDataModel_.rowCount(), 1);
-        auto index = runDataModel_.index(runDataModel_.rowCount() - 1, 0);
-        runDataModel_.setData(index, rowObject);
-    }
-}
+void MainWindow::handleRunData(HttpRequestWorker *worker) { runDataModel_.setJson(worker->jsonArray); }
 
 void MainWindow::refreshTable()
 {

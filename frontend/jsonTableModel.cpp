@@ -94,19 +94,6 @@ void JsonTableModel::unGroupData()
 
 void JsonTableModel::setColumnTitle(int section, QString title) { tableHeader_[section]["index"] = title; }
 
-bool JsonTableModel::setData(const QModelIndex &index, QJsonObject rowData, int role)
-{
-    if (index.isValid() && role == Qt::EditRole)
-    {
-        const int row = index.row();
-        tableJsonData_[row] = rowData;
-        emit dataChanged(index, index.siblingAtColumn(rowData.count()), {Qt::DisplayRole, Qt::EditRole});
-        return true;
-    }
-
-    return false;
-}
-
 bool JsonTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     emit layoutAboutToBeChanged();

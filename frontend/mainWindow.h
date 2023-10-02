@@ -74,7 +74,7 @@ class MainWindow : public QMainWindow
     void changeInst(std::tuple<QString, QString, QString> instrument);
 
     void refresh(QString Status);
-    void update(HttpRequestWorker *worker);
+    void handleRunData(HttpRequestWorker *worker);
     void refreshTable();
 
     signals:
