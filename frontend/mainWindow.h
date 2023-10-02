@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
     QMenu *findMenu_;
     QMenu *contextMenu_;
     QMenu *instrumentsMenu_;
-    QMenu *cyclesMenu_;    
+    QMenu *cyclesMenu_;
     bool init_;
     bool validSource_;
     QPoint pos_;
@@ -81,7 +81,6 @@ class MainWindow : public QMainWindow
     signals:
     void tableFilled();
 
-
     /*
      * Settings
      */
@@ -93,7 +92,7 @@ class MainWindow : public QMainWindow
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType);
 
     private slots:
-        void savePref();
+    void savePref();
     void clearPref();
     void on_actionMountPoint_triggered();
     void on_actionClearMountPoint_triggered();
