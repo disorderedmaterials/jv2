@@ -2,8 +2,11 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "mainWindow.h"
-#include "ui_mainWindow.h"
 #include <QInputDialog>
+
+/*
+ * Private Functions
+ */
 
 // Search table data
 void MainWindow::updateSearch(const QString &arg1)
@@ -81,11 +84,6 @@ void MainWindow::selectAllSearches()
     statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) + " Results");
 }
 
-void MainWindow::goToCurrentFoundIndex(QModelIndex index)
-{
-    ui_.runDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-}
-
 void MainWindow::selectIndex(QString runNumber)
 {
     ui_.runDataTable->selectionModel()->clearSelection();
@@ -114,6 +112,16 @@ void MainWindow::selectSimilar()
                                                                 QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
+
+void MainWindow::goToCurrentFoundIndex(QModelIndex index)
+{
+    ui_.runDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+}
+
+/*
+ * UI
+ */
+
 void MainWindow::on_actionSearch_triggered()
 {
     QString textInput =
