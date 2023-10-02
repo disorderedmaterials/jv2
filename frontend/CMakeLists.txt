@@ -37,22 +37,27 @@ find_package(
 qt6_add_executable(
   jv2
   MACOSX_BUNDLE
+  # Backend
   backend.cpp
-  main.cpp
-  mainWindow.cpp
+  # Main Window
+  data.cpp
   filtering.cpp
-  dataGathering.cpp
-  searching.cpp
-  nexusInteraction.cpp
-  mainWindow.h
-  mainWindow.cpp
-  mainWindow.ui
   httpRequestWorker.cpp
   httpRequestWorker.h
+  massSearch.cpp
+  mainWindow.cpp
+  mainWindow.cpp
+  mainWindow.h
+  mainWindow.ui
+  nexusInteraction.cpp
+  searching.cpp
+  settings.cpp
+  # Models
   jsonTableModel.cpp
   jsonTableModel.h
   jsonTableFilterProxy.cpp
   jsonTableFilterProxy.h
+  # Graphing
   chartView.cpp
   chartView.h
   graphWidget.cpp

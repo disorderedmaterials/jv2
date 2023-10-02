@@ -446,8 +446,6 @@ void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
     }
 }
 
-void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
-
 void MainWindow::toggleAxis(int state)
 {
     auto *toggleBox = qobject_cast<QCheckBox *>(sender());

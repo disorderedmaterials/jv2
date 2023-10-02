@@ -19,47 +19,52 @@ class MainWindow : public QMainWindow
 
     public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() = default;
 
+    /*
+     * UI
+     */
     private:
     Ui::MainWindow ui_;
+    QMenu *viewMenu_;
+    QMenu *findMenu_;
+    QMenu *contextMenu_;
+    QMenu *instrumentsMenu_;
+    QMenu *cyclesMenu_;
+    bool init_;
+    bool validSource_;
+    QPoint pos_;
 
+    private slots:
+    void setLoadScreen(bool state);
+    void removeTab(int index);
+    void columnHider(int state);
+
+    protected:
+    void closeEvent(QCloseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+
+    /*
+     * Main Data
+     */
+    private:
+    QString instType_;
+    QString instName_;
+    QString instDisplayName_;
+    QMap<QString, QString> cyclesMap_;
+    QMap<QString, QString> headersMap_;
+    JsonTableModel *model_;
+    JSONTableFilterProxy *proxyModel_;
+    JsonTableModel::Header header_;
+    std::vector<std::pair<QString, QString>> desiredHeader_;
+
+    private:
     // Init
     void fillInstruments(QList<std::tuple<QString, QString, QString>> instruments);
-    void initialiseElements();
-    // Misc
-    void goToCurrentFoundIndex(QModelIndex index);                 // Selects given index
-    QList<std::tuple<QString, QString, QString>> getInstruments(); // Get Instruments from config file
-    std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType); // Get Fields from config file
-    void setLoadScreen(bool state);
     QString getRunNos();
-    QDomDocument getConfig();
     void checkForUpdates();
 
     private slots:
-    // Search Controls
-    void updateSearch(const QString &arg1);
-    void on_actionSearch_triggered();
-    void on_actionSelectNext_triggered();
-    void on_actionSelectPrevious_triggered();
-    void on_actionSelectAll_triggered();
-    void findUp();
-    void findDown();
-    void selectAllSearches();
-    void selectIndex(QString runNumber);
-    void selectSimilar();
-    // Filter Controls
-    void on_RunFilterEdit_textChanged(const QString &arg1);
-    void on_ClearFilterButton_clicked();
-    void massSearch(QString name, QString value);
-    void on_actionMassSearchRB_No_triggered();
-    void on_actionMassSearchTitle_triggered();
-    void on_actionMassSearchUser_triggered();
-    void on_actionMassSearchRunRange_triggered();
-    void on_actionMassSearchDateRange_triggered();
-    void on_actionClear_cached_searches_triggered();
-    void goTo(HttpRequestWorker *worker, QString runNumber);
-    void on_actionRun_Number_triggered();
     // Data Selection
     void handle_result_instruments(HttpRequestWorker *worker);
     void handle_result_cycles(HttpRequestWorker *worker);
@@ -67,9 +72,90 @@ class MainWindow : public QMainWindow
     void changeCycle(QString value);
     void recentCycle();
     void changeInst(std::tuple<QString, QString, QString> instrument);
-    // Grouping
+
+    void refresh(QString Status);
+    void update(HttpRequestWorker *worker);
+    void refreshTable();
+
+    signals:
+    void tableFilled();
+
+    /*
+     * Settings
+     */
+    private:
+    // Get available instruments from config file
+    QList<std::tuple<QString, QString, QString>> getInstruments();
+    QDomDocument getConfig();
+    // Get Fields from config file
+    std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType);
+
+    private slots:
+    void savePref();
+    void clearPref();
+    void on_actionMountPoint_triggered();
+    void on_actionClearMountPoint_triggered();
+    void on_actionSetLocalSource_triggered();
+    void on_actionClearLocalSource_triggered();
+
+    /*
+     * Searching
+     */
+    private:
+    QString searchString_;
+    QModelIndexList foundIndices_;
+    int currentFoundIndex_;
+
+    private:
+    void updateSearch(const QString &arg1);
+    void findUp();
+    void findDown();
+    void selectAllSearches();
+    void selectIndex(QString runNumber);
+    void selectSimilar();
+    void goToCurrentFoundIndex(QModelIndex index);
+
+    private slots:
+    void on_actionSearch_triggered();
+    void on_actionSelectNext_triggered();
+    void on_actionSelectPrevious_triggered();
+    void on_actionSelectAll_triggered();
+
+    /*
+     * Filtering
+     */
+    private:
+    void goTo(HttpRequestWorker *worker, QString runNumber);
+
+    private slots:
+    void on_RunFilterEdit_textChanged(const QString &arg1);
+    void on_ClearFilterButton_clicked();
     void on_GroupRunsButton_clicked(bool checked);
-    // Visualisation
+
+    /*
+     * Mass Search
+     */
+    private:
+    // Cached mass search results
+    QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
+
+    private:
+    // Perform mass search across cycles
+    void massSearch(QString name, QString value);
+
+    private slots:
+    void on_actionMassSearchRB_No_triggered();
+    void on_actionMassSearchTitle_triggered();
+    void on_actionMassSearchUser_triggered();
+    void on_actionMassSearchRunRange_triggered();
+    void on_actionMassSearchDateRange_triggered();
+    void on_actionClear_cached_searches_triggered();
+    void on_actionRun_Number_triggered();
+
+    /*
+     * Visualisation
+     */
+    private slots:
     void customMenuRequested(QPoint pos);
     void handle_result_contextGraph(HttpRequestWorker *worker);
     void contextGraph();
@@ -89,55 +175,4 @@ class MainWindow : public QMainWindow
     void muAmps(QString runs, bool checked, QString);
     void runDivide(QString currentDetector, QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
-
-    // Misc Interface Functions
-    void removeTab(int index);
-    void savePref();
-    void clearPref();
-    void columnHider(int state);
-
-    void on_actionMountPoint_triggered();
-    void on_actionClearMountPoint_triggered();
-
-    void refresh(QString Status);
-    void update(HttpRequestWorker *worker);
-    void on_actionSetLocalSource_triggered();
-    void on_actionClearLocalSource_triggered();
-    void refreshTable();
-
-    protected:
-    // Window close event
-    void closeEvent(QCloseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-
-    signals:
-    void tableFilled();
-
-    private:
-    // Table Stuff
-    JsonTableModel *model_;
-    JSONTableFilterProxy *proxyModel_;
-    JsonTableModel::Header header_;
-    std::vector<std::pair<QString, QString>> desiredHeader_;
-    // Menus
-    QMenu *viewMenu_;
-    QMenu *findMenu_;
-    QMenu *contextMenu_;
-    QMenu *instrumentsMenu_;
-    QMenu *cyclesMenu_;
-
-    QModelIndexList foundIndices_;
-    int currentFoundIndex_;
-    // Menu button data
-    QString searchString_;
-    QString instType_;
-    QString instName_;
-    QString instDisplayName_;
-    QMap<QString, QString> cyclesMap_;
-    QMap<QString, QString> headersMap_;
-    // Misc
-    bool init_;
-    bool validSource_;
-    QPoint pos_;
-    QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
 };

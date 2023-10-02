@@ -2,37 +2,13 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "mainWindow.h"
-#include "ui_mainWindow.h"
-#include <QDebug>
 #include <QInputDialog>
 #include <QMessageBox>
 
-// Hide column on view menu change
-void MainWindow::columnHider(int state)
-{
-    auto *action = qobject_cast<QCheckBox *>(sender());
+/*
+ * UI
+ */
 
-    for (auto i = 0; i < model_->columnCount(); ++i)
-    {
-        if (action->text() == headersMap_[model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
-        {
-            switch (state)
-            {
-                case Qt::Unchecked:
-                    ui_.runDataTable->setColumnHidden(i, true);
-                    break;
-                case Qt::Checked:
-                    ui_.runDataTable->setColumnHidden(i, false);
-                    break;
-                default:
-                    action->setCheckState(Qt::Checked);
-            }
-            break;
-        }
-    }
-}
-
-// Filter table data
 void MainWindow::on_RunFilterEdit_textChanged(const QString &arg1)
 {
     proxyModel_->setFilterString(arg1.trimmed());
@@ -85,30 +61,6 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
 
 // Clears filter parameters
 void MainWindow::on_ClearFilterButton_clicked() { ui_.RunFilterEdit->clear(); }
-
-void MainWindow::on_actionMassSearchRB_No_triggered() { massSearch("RB No.", "experiment_identifier"); }
-
-void MainWindow::on_actionMassSearchTitle_triggered() { massSearch("Title", "title"); }
-
-void MainWindow::on_actionMassSearchUser_triggered() { massSearch("User name", "user_name"); }
-
-void MainWindow::on_actionMassSearchRunRange_triggered() { massSearch("Run Range", "run_number"); }
-
-void MainWindow::on_actionMassSearchDateRange_triggered() { massSearch("Date Range", "start_date"); }
-
-void MainWindow::on_actionClear_cached_searches_triggered()
-{
-    cachedMassSearch_.clear();
-    for (auto i = cyclesMenu_->actions().count() - 1; i >= 0; i--)
-    {
-        if (cyclesMenu_->actions()[i]->text()[0] == '[')
-        {
-            cyclesMenu_->removeAction(cyclesMenu_->actions()[i]);
-        }
-    }
-    if (ui_.cycleButton->text()[0] == '[')
-        cyclesMenu_->actions()[0]->trigger();
-}
 
 void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 {
