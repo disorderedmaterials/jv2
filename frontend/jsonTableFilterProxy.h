@@ -13,15 +13,18 @@ class JsonTableFilterProxy : public QSortFilterProxyModel
 {
     Q_OBJECT
 
-    public slots:
+    private:
+    // Text string to filter by
+    QString filterString_;
+    // Whether the filtering is case sensitive
+    bool caseSensitive_{false};
+
+    public:
+    // Set text string to filter by
     void setFilterString(QString filterString);
+    // Set whether the filtering is case sensitive
     void setCaseSensitivity(bool caseSensitive);
-    QString filterString() const;
 
     protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
-
-    private:
-    QString filterString_;
-    bool caseSensitive_{false};
 };

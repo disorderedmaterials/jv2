@@ -5,6 +5,7 @@
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 
+// Set text string to filter by
 void JsonTableFilterProxy::setFilterString(QString filterString)
 {
     filterString_ = filterString;
@@ -12,8 +13,7 @@ void JsonTableFilterProxy::setFilterString(QString filterString)
     invalidateFilter();
 }
 
-QString JsonTableFilterProxy::filterString() const { return filterString_; }
-
+// Set whether the filtering is case sensitive
 void JsonTableFilterProxy::setCaseSensitivity(bool caseSensitive)
 {
     caseSensitive_ = caseSensitive;
