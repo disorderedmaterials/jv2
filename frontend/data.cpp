@@ -103,7 +103,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
         // Set table data
         runDataModel_.setHeader(header_);
-        runDataModel_.setJson(runData_);
+        runDataModel_.setData(runData_);
 
         // Fills viewMenu_ with all columns
         viewMenu_->clear();
@@ -276,9 +276,8 @@ void MainWindow::refresh(QString status)
         }
         else if (cyclesMap_[ui_.cycleButton->text()] == status) // if current opened cycle changed
         {
-            QString url_str =
-                "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
-                runDataModel_.getJsonObject(runDataModel_.index(runDataModel_.rowCount() - 1, 0))["run_number"].toString();
+            QString url_str = "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
+                              runData_.last().toObject()["run_number"].toString();
             HttpRequestInput input(url_str);
             auto *worker = new HttpRequestWorker(this);
             connect(worker, &HttpRequestWorker::on_execution_finished,
@@ -297,7 +296,7 @@ void MainWindow::refresh(QString status)
 void MainWindow::handleRunData(HttpRequestWorker *worker)
 {
     runData_ = worker->jsonArray;
-    runDataModel_.setJson(runData_);
+    runDataModel_.setData(runData_);
 }
 
 void MainWindow::refreshTable()

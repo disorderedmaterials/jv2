@@ -25,13 +25,18 @@ class JsonTableModel : public QAbstractTableModel
     Header tableHeader_;
     Header tableHoldHeader_;
     Header tableGroupedHeader_;
-    OptionalReferenceWrapper<const QJsonArray> tableJsonData_;
+    OptionalReferenceWrapper<const QJsonArray> jsonData_;
     QJsonArray tableHoldJsonData_;
 
+    private:
+    // Get Json data at index specified
+    QJsonObject getData(const QModelIndex &index) const;
+
     public:
-    bool setJson(const QJsonArray &array);
-    bool setHeader(const Header &array);
-    QJsonObject getJsonObject(const QModelIndex &index) const; // get row data
+    // Set the source data to display
+    void setData(const QJsonArray &array);
+    // Set the table headers
+    void setHeader(const Header &array);
     void groupData();
     void unGroupData();
     void setColumnTitle(int section, QString title);

@@ -14,41 +14,47 @@ JsonTableModel::JsonTableModel() : QAbstractTableModel()
     tableGroupedHeader_.push_back(Heading({{"title", "Run Numbers"}, {"index", "run_number"}}));
 }
 
-// Sets json data to populate table
-bool JsonTableModel::setJson(const QJsonArray &array)
+/*
+ * Private Functions
+ */
+
+// Get Json data at index specified
+QJsonObject JsonTableModel::getData(const QModelIndex &index) const
 {
-    beginResetModel();
-    tableJsonData_ = array;
-    endResetModel();
-    return true;
+    if (!jsonData_)
+        return {};
+
+    return jsonData_->get()[index.row()].toObject();
 }
 
-// Sets header_ data to define table
-bool JsonTableModel::setHeader(const Header &array)
+/*
+ * Public Functions
+ */
+
+// Set the source data to display
+void JsonTableModel::setData(const QJsonArray &array)
+{
+    beginResetModel();
+    jsonData_ = array;
+    endResetModel();
+}
+
+// Set the table headers
+void JsonTableModel::setHeader(const Header &array)
 {
     beginResetModel();
     tableHeader_ = array;
     endResetModel();
-    return true;
-}
-
-// Get row data
-QJsonObject JsonTableModel::getJsonObject(const QModelIndex &index) const
-{
-    if (!tableJsonData_)
-        return {};
-
-    return tableJsonData_->get()[index.row()].toObject();
 }
 
 // Returns grouped table data
 void JsonTableModel::groupData()
 {
-    if (!tableJsonData_)
+    if (!jsonData_)
         return;
 
     QJsonArray groupedJson;
-    auto &data = tableJsonData_->get();
+    auto &data = jsonData_->get();
 
     // holds data in tuple as QJson referencing is incomplete
     std::vector<std::tuple<QString, QString, QString>> groupedData;
@@ -85,19 +91,19 @@ void JsonTableModel::groupData()
     }
 
     // Hold ungrouped values
-    tableHoldJsonData_ = tableJsonData_->get();
+    tableHoldJsonData_ = jsonData_->get();
     tableHoldHeader_ = tableHeader_;
 
     // Get and assign array headers
     setHeader(tableGroupedHeader_);
-    setJson(groupedJson);
+    setData(groupedJson);
 }
 
 // Apply held (ungrouped) values to table
 void JsonTableModel::unGroupData()
 {
     setHeader(tableHoldHeader_);
-    setJson(tableHoldJsonData_);
+    setData(tableHoldJsonData_);
 }
 
 void JsonTableModel::setColumnTitle(int section, QString title) { tableHeader_[section]["index"] = title; }
@@ -106,19 +112,19 @@ void JsonTableModel::setColumnTitle(int section, QString title) { tableHeader_[s
  * QAbstractTableModel Overrides
  */
 
-int JsonTableModel::rowCount(const QModelIndex &parent) const { return tableJsonData_ ? tableJsonData_->get().size() : 0; }
+int JsonTableModel::rowCount(const QModelIndex &parent) const { return jsonData_ ? jsonData_->get().size() : 0; }
 
 int JsonTableModel::columnCount(const QModelIndex &parent) const { return tableHeader_.size(); }
 
 QVariant JsonTableModel::data(const QModelIndex &index, int role) const
 {
-    if (!tableJsonData_)
+    if (!jsonData_)
         return {};
 
     if (role != Qt::DisplayRole)
         return {};
 
-    QJsonObject obj = getJsonObject(index);
+    QJsonObject obj = getData(index);
     const QString &key = tableHeader_[index.column()]["index"];
     if (!obj.contains(key))
         return {};
