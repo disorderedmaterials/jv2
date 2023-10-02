@@ -19,6 +19,8 @@ void MainWindow::on_RunFilterEdit_textChanged(const QString &arg1)
         updateSearch(searchString_);
 }
 
+void MainWindow::on_RunFilterCaseSensitivityButton_clicked(bool checked) { runDataFilterProxy_.toggleCaseSensitivity(checked); }
+
 // Groups table data
 void MainWindow::on_GroupRunsButton_clicked(bool checked)
 {
@@ -60,7 +62,7 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
 }
 
 // Clears filter parameters
-void MainWindow::on_ClearFilterButton_clicked() { ui_.RunFilterEdit->clear(); }
+void MainWindow::on_ClearFilterButton_clicked(bool checked) { ui_.RunFilterEdit->clear(); }
 
 void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 {

@@ -5,14 +5,20 @@
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 
-void JsonTableFilterProxy::setFilterString(QString filterString) { filterString_ = filterString; }
+void JsonTableFilterProxy::setFilterString(QString filterString)
+{
+    filterString_ = filterString;
+
+    invalidateFilter();
+}
 
 QString JsonTableFilterProxy::filterString() const { return filterString_; }
 
 void JsonTableFilterProxy::toggleCaseSensitivity(bool caseSensitive)
 {
     caseSensitive_ = caseSensitive;
-    emit updateFilter();
+
+    invalidateFilter();
 }
 
 bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

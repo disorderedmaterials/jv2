@@ -103,10 +103,6 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
         // Sets and fills table data
         runDataModel_.setHeader(header_);
-        connect(ui_.FilterCaseSensitivityButton, SIGNAL(clicked(bool)), &runDataFilterProxy_,
-                SLOT(toggleCaseSensitivity(bool)));
-        connect(&runDataFilterProxy_, &JsonTableFilterProxy::updateFilter,
-                [=]() { on_RunFilterEdit_textChanged(ui_.RunFilterEdit->text()); }); // refresh filter on toggle
         ui_.runDataTable->setModel(&runDataFilterProxy_);
         runDataModel_.setJson(jsonArray);
         ui_.runDataTable->show();

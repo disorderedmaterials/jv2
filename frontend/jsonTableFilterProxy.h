@@ -24,7 +24,4 @@ class JsonTableFilterProxy : public QSortFilterProxyModel
     private:
     QString filterString_;
     bool caseSensitive_{false};
-
-    signals:
-    void updateFilter();
 };

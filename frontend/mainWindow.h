@@ -129,7 +129,8 @@ class MainWindow : public QMainWindow
 
     private slots:
     void on_RunFilterEdit_textChanged(const QString &arg1);
-    void on_ClearFilterButton_clicked();
+    void on_RunFilterCaseSensitivityButton_clicked(bool checked);
+    void on_ClearFilterButton_clicked(bool checked);
     void on_GroupRunsButton_clicked(bool checked);
 
     /*
