@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataModel_(header_, this)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui_.setupUi(this);
 
@@ -20,7 +20,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataModel_(hea
     // View menu for column toggles
     viewMenu_ = ui_.menubar->addMenu("View");
 
-    // Allows re-arranging of table columns
+    // Set up the main data table
+    runDataFilterProxy_.setSourceModel(&runDataModel_);
+    // -- Allow re-arranging of table columns
     ui_.runDataTable->horizontalHeader()->setSectionsMovable(true);
     ui_.runDataTable->horizontalHeader()->setDragEnabled(true);
     ui_.runDataTable->setAlternatingRowColors(true);

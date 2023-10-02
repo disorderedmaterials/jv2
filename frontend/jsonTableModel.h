@@ -17,7 +17,7 @@ class JsonTableModel : public QAbstractTableModel
     // Assigning custom data types for table headings
     typedef QMap<QString, QString> Heading;
     typedef QVector<Heading> Header;
-    JsonTableModel(const Header &header_, QObject *parent = nullptr);
+    JsonTableModel();
 
     bool setJson(const QJsonArray &array);
     QJsonArray getJson();

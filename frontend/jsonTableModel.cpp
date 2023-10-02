@@ -7,8 +7,7 @@
 #include <QTime>
 
 // Model to handle json data in table view
-JsonTableModel::JsonTableModel(const JsonTableModel::Header &header_, QObject *parent)
-    : QAbstractTableModel(parent), tableHeader_(header_)
+JsonTableModel::JsonTableModel() : QAbstractTableModel()
 {
     tableGroupedHeader_.push_back(Heading({{"title", "Title"}, {"index", "title"}}));
     tableGroupedHeader_.push_back(Heading({{"title", "Total Duration"}, {"index", "duration"}}));
@@ -39,6 +38,9 @@ JsonTableModel::Header JsonTableModel::getHeader() { return tableHeader_; }
 
 QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    if (tableHeader_.empty())
+        return {};
+
     if (role == Qt::UserRole)
         return tableHeader_[section]["index"]; // Index == database name
 

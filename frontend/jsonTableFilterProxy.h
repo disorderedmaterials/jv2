@@ -12,7 +12,7 @@ class JsonTableFilterProxy : public QSortFilterProxyModel
     Q_OBJECT
 
     public:
-    JsonTableFilterProxy(QObject *parent = 0);
+    JsonTableFilterProxy() = default;
 
     public slots:
     void setFilterString(QString filterString);
@@ -24,7 +24,7 @@ class JsonTableFilterProxy : public QSortFilterProxyModel
 
     private:
     QString filterString_;
-    bool caseSensitive_;
+    bool caseSensitive_{false};
 
     signals:
     void updateFilter();
