@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "optionalRef.h"
 #include <QAbstractTableModel>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -24,7 +25,7 @@ class JsonTableModel : public QAbstractTableModel
     Header tableHeader_;
     Header tableHoldHeader_;
     Header tableGroupedHeader_;
-    QJsonArray tableJsonData_;
+    OptionalReferenceWrapper<const QJsonArray> tableJsonData_;
     QJsonArray tableHoldJsonData_;
 
     public:

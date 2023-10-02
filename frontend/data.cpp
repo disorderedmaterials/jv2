@@ -84,8 +84,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
         // Get desired fields and titles from config files
         desiredHeader_ = getFields(instName_, instType_);
-        auto jsonArray = worker->jsonArray;
-        auto jsonObject = jsonArray.at(0).toObject();
+        runData_ = worker->jsonArray;
+        auto jsonObject = runData_.at(0).toObject();
         // Add columns to header and give titles where applicable
         header_.clear();
         foreach (const QString &key, jsonObject.keys())
@@ -101,11 +101,9 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
                 header_.push_back(JsonTableModel::Heading({{"title", headersMap_[key]}, {"index", key}}));
         }
 
-        // Sets and fills table data
+        // Set table data
         runDataModel_.setHeader(header_);
-        ui_.runDataTable->setModel(&runDataFilterProxy_);
-        runDataModel_.setJson(jsonArray);
-        ui_.runDataTable->show();
+        runDataModel_.setJson(runData_);
 
         // Fills viewMenu_ with all columns
         viewMenu_->clear();
@@ -295,7 +293,12 @@ void MainWindow::refresh(QString status)
     }
 }
 
-void MainWindow::handleRunData(HttpRequestWorker *worker) { runDataModel_.setJson(worker->jsonArray); }
+// Handle JSON data returned from worker
+void MainWindow::handleRunData(HttpRequestWorker *worker)
+{
+    runData_ = worker->jsonArray;
+    runDataModel_.setJson(runData_);
+}
 
 void MainWindow::refreshTable()
 {

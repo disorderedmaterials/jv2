@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Set up the main data table
     runDataFilterProxy_.setSourceModel(&runDataModel_);
+    ui_.runDataTable->setModel(&runDataFilterProxy_);
     // -- Allow re-arranging of table columns
     ui_.runDataTable->horizontalHeader()->setSectionsMovable(true);
     ui_.runDataTable->horizontalHeader()->setDragEnabled(true);

@@ -51,6 +51,7 @@ class MainWindow : public QMainWindow
     QString instType_;
     QString instName_;
     QString instDisplayName_;
+    QJsonArray runData_;
     QMap<QString, QString> cyclesMap_;
     QMap<QString, QString> headersMap_;
     JsonTableModel runDataModel_;
@@ -74,6 +75,7 @@ class MainWindow : public QMainWindow
     void changeInst(std::tuple<QString, QString, QString> instrument);
 
     void refresh(QString Status);
+    // Handle JSON data returned from workers
     void handleRunData(HttpRequestWorker *worker);
     void refreshTable();
 
