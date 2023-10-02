@@ -62,7 +62,7 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
 }
 
 // Clears filter parameters
-void MainWindow::on_ClearFilterButton_clicked(bool checked) { ui_.RunFilterEdit->clear(); }
+void MainWindow::on_RunFilterClearButton_clicked(bool checked) { ui_.RunFilterEdit->clear(); }
 
 void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 {
