@@ -27,14 +27,12 @@ class JsonTableModel : public QAbstractTableModel
     QJsonArray tableJsonData_;
     QJsonArray tableHoldJsonData_;
 
-    private:
+    public:
     bool setJson(const QJsonArray &array);
     QJsonArray getJson();
     bool setHeader(const Header &array);
     Header getHeader();
-
     QJsonObject getJsonObject(const QModelIndex &index) const; // get row data
-
     void groupData();
     void unGroupData();
     void setColumnTitle(int section, QString title);
@@ -43,7 +41,7 @@ class JsonTableModel : public QAbstractTableModel
     /*
      * QAbstractTableModel Overrides
      */
-    protected:
+    public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
