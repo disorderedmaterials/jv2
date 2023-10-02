@@ -6,18 +6,12 @@
 #include "httpRequestWorker.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
+#include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>
 #include <QDomDocument>
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
-
-QT_BEGIN_NAMESPACE
-namespace Ui
-{
-class MainWindow;
-}
-QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
@@ -26,6 +20,10 @@ class MainWindow : public QMainWindow
     public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    private:
+    Ui::MainWindow ui_;
+
     // Init
     void fillInstruments(QList<std::tuple<QString, QString, QString>> instruments);
     void initialiseElements();
@@ -51,8 +49,8 @@ class MainWindow : public QMainWindow
     void selectIndex(QString runNumber);
     void selectSimilar();
     // Filter Controls
-    void on_filterBox_textChanged(const QString &arg1);
-    void on_clearSearchButton_clicked();
+    void on_RunFilterEdit_textChanged(const QString &arg1);
+    void on_ClearFilterButton_clicked();
     void massSearch(QString name, QString value);
     void on_actionMassSearchRB_No_triggered();
     void on_actionMassSearchTitle_triggered();
@@ -70,7 +68,7 @@ class MainWindow : public QMainWindow
     void recentCycle();
     void changeInst(std::tuple<QString, QString, QString> instrument);
     // Grouping
-    void on_groupButton_clicked(bool checked);
+    void on_GroupRunsButton_clicked(bool checked);
     // Visualisation
     void customMenuRequested(QPoint pos);
     void handle_result_contextGraph(HttpRequestWorker *worker);
@@ -116,7 +114,6 @@ class MainWindow : public QMainWindow
     void tableFilled();
 
     private:
-    Ui::MainWindow *ui_;
     // Table Stuff
     JsonTableModel *model_;
     JSONTableFilterProxy *proxyModel_;

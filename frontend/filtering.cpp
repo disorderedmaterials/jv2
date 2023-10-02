@@ -19,10 +19,10 @@ void MainWindow::columnHider(int state)
             switch (state)
             {
                 case Qt::Unchecked:
-                    ui_->runDataTable->setColumnHidden(i, true);
+                    ui_.runDataTable->setColumnHidden(i, true);
                     break;
                 case Qt::Checked:
-                    ui_->runDataTable->setColumnHidden(i, false);
+                    ui_.runDataTable->setColumnHidden(i, false);
                     break;
                 default:
                     action->setCheckState(Qt::Checked);
@@ -33,7 +33,7 @@ void MainWindow::columnHider(int state)
 }
 
 // Filter table data
-void MainWindow::on_filterBox_textChanged(const QString &arg1)
+void MainWindow::on_RunFilterEdit_textChanged(const QString &arg1)
 {
     proxyModel_->setFilterString(arg1.trimmed());
     proxyModel_->setFilterKeyColumn(-1);
@@ -44,47 +44,47 @@ void MainWindow::on_filterBox_textChanged(const QString &arg1)
 }
 
 // Groups table data
-void MainWindow::on_groupButton_clicked(bool checked)
+void MainWindow::on_GroupRunsButton_clicked(bool checked)
 {
     if (checked)
     {
         model_->groupData();
-        for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
-            ui_->runDataTable->setColumnHidden(i, false);
-        ui_->runDataTable->resizeColumnsToContents();
+        for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
+            ui_.runDataTable->setColumnHidden(i, false);
+        ui_.runDataTable->resizeColumnsToContents();
         // Make view match desired order
-        ui_->runDataTable->horizontalHeader()->swapSections(ui_->runDataTable->horizontalHeader()->visualIndex(0), 0);
-        ui_->runDataTable->horizontalHeader()->swapSections(ui_->runDataTable->horizontalHeader()->visualIndex(1), 1);
+        ui_.runDataTable->horizontalHeader()->swapSections(ui_.runDataTable->horizontalHeader()->visualIndex(0), 0);
+        ui_.runDataTable->horizontalHeader()->swapSections(ui_.runDataTable->horizontalHeader()->visualIndex(1), 1);
     }
     else
     {
         model_->unGroupData();
-        for (auto i = 0; i < ui_->runDataTable->horizontalHeader()->count(); ++i)
+        for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
         {
             auto index = model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString();
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
                                    [index](const auto &data) { return data.first == index; });
             if (it == desiredHeader_.end())
-                ui_->runDataTable->setColumnHidden(i, true);
+                ui_.runDataTable->setColumnHidden(i, true);
         }
         // Re-sort columns on change
         int logIndex;
         for (auto i = 0; i < desiredHeader_.size(); ++i)
         {
-            for (auto j = 0; j < ui_->runDataTable->horizontalHeader()->count(); ++j)
+            for (auto j = 0; j < ui_.runDataTable->horizontalHeader()->count(); ++j)
             {
-                logIndex = ui_->runDataTable->horizontalHeader()->logicalIndex(j);
+                logIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(j);
                 if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
-                    ui_->runDataTable->horizontalHeader()->swapSections(j, i);
+                    ui_.runDataTable->horizontalHeader()->swapSections(j, i);
             }
         }
-        ui_->runDataTable->resizeColumnsToContents();
+        ui_.runDataTable->resizeColumnsToContents();
     }
     updateSearch(searchString_);
 }
 
 // Clears filter parameters
-void MainWindow::on_clearSearchButton_clicked() { ui_->filterBox->clear(); }
+void MainWindow::on_ClearFilterButton_clicked() { ui_.RunFilterEdit->clear(); }
 
 void MainWindow::on_actionMassSearchRB_No_triggered() { massSearch("RB No.", "experiment_identifier"); }
 
@@ -106,7 +106,7 @@ void MainWindow::on_actionClear_cached_searches_triggered()
             cyclesMenu_->removeAction(cyclesMenu_->actions()[i]);
         }
     }
-    if (ui_->cycleButton->text()[0] == '[')
+    if (ui_.cycleButton->text()[0] == '[')
         cyclesMenu_->actions()[0]->trigger();
 }
 
@@ -122,7 +122,7 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
             statusBar()->showMessage("Search query not found", 5000);
             return;
         }
-        if (cyclesMap_[ui_->cycleButton->text()] == worker->response)
+        if (cyclesMap_[ui_.cycleButton->text()] == worker->response)
         {
             selectIndex(runNumber);
             return;
