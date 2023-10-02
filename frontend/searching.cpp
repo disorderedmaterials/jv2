@@ -76,15 +76,14 @@ void MainWindow::selectAllSearches()
     for (auto i = 0; i < foundIndices_.size(); ++i)
     {
         ui_.runDataTable->selectionModel()->setCurrentIndex(foundIndices_[i],
-                                                             QItemSelectionModel::Select | QItemSelectionModel::Rows);
+                                                            QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
     statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) + " Results");
 }
 
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
 {
-    ui_.runDataTable->selectionModel()->setCurrentIndex(index,
-                                                         QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    ui_.runDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 }
 
 void MainWindow::selectIndex(QString runNumber)
@@ -112,7 +111,7 @@ void MainWindow::selectSimilar()
     {
         if (proxyModel_->index(i, TitleColumn).data().toString() == title)
             ui_.runDataTable->selectionModel()->setCurrentIndex(proxyModel_->index(i, TitleColumn),
-                                                                 QItemSelectionModel::Select | QItemSelectionModel::Rows);
+                                                                QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
 void MainWindow::on_actionSearch_triggered()

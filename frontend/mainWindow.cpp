@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     timer->start(30000);
 }
 
-MainWindow::~MainWindow() { }
+MainWindow::~MainWindow() {}
 
 // Configure initial application state
 void MainWindow::initialiseElements()
