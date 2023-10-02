@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "graphwidget.h"
-#include "./ui_graphwidget.h"
-#include "chartview.h"
-#include "mainwindow.h"
+#include "graphWidget.h"
+#include "chartView.h"
+#include "mainWindow.h"
+#include "ui_graphWidget.h"
 #include <QChart>
-#include <QChartView>
-#include <QDateTime>
 #include <QDebug>
 #include <QInputDialog>
 #include <QJsonArray>
-#include <QValueAxis>
 #include <QXYSeries>
 
 GraphWidget::GraphWidget(QWidget *parent, QChart *chart, QString type) : QWidget(parent), ui_(new Ui::GraphWidget)

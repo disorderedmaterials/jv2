@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
+
 #include "backend.h"
 #include "args.h"
 #include <QCommandLineParser>
-#include <QDebug>
 #include <QProcessEnvironment>
 
 namespace

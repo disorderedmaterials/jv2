@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "chartview.h"
-#include "httprequestworker.h"
+#include "chartView.h"
+#include "httpRequestWorker.h"
 #include <QApplication>
 #include <QBrush>
-#include <QCategoryAxis>
 #include <QDateTime>
 #include <QDateTimeAxis>
-#include <QDebug>
 #include <QFont>
 #include <QGraphicsSimpleTextItem>
 #include <QLineSeries>

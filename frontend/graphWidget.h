@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#ifndef GRAPHWIDGET_H
-#define GRAPHWIDGET_H
+#pragma once
 
-#include "chartview.h"
-#include "httprequestworker.h"
+#include "chartView.h"
+#include "httpRequestWorker.h"
 #include <QChart>
 #include <QChartView>
 #include <QWidget>
@@ -61,5 +60,3 @@ class GraphWidget : public QWidget
     void runDivide(QString currentDetector, QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 };
-
-#endif

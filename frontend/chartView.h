@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#ifndef CHARTVIEW_H
-#define CHARTVIEW_H
+#pragma once
 
-#include "httprequestworker.h"
+#include "httpRequestWorker.h"
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
 
@@ -13,8 +12,8 @@ class ChartView : public QChartView
     Q_OBJECT
 
     public:
-    ChartView(QChart *chart, QWidget *parent = 0);
-    ChartView(QWidget *parent = 0);
+    ChartView(QChart *chart, QWidget *parent = nullptr);
+    ChartView(QWidget *parent = nullptr);
     void assignChart(QChart *chart);
 
     public slots:
@@ -26,12 +25,12 @@ class ChartView : public QChartView
     void clearCoordinates();
 
     protected:
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     private slots:
     void setGraphics(QChart *chart);
@@ -44,5 +43,3 @@ class ChartView : public QChartView
     QGraphicsSimpleTextItem *coordStartLabelX_;
     QGraphicsSimpleTextItem *coordStartLabelY_;
 };
-
-#endif // CHARTVIEW_H

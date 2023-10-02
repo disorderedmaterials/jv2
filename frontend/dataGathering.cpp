@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "./ui_mainwindow.h"
-#include "mainwindow.h"
+#include "mainWindow.h"
+#include "ui_mainWindow.h"
 #include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
@@ -106,10 +104,10 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
 
         // Sets and fills table data
         model_ = new JsonTableModel(header_, this);
-        proxyModel_ = new MySortFilterProxyModel(this);
+        proxyModel_ = new JSONTableFilterProxy(this);
         proxyModel_->setSourceModel(model_);
         connect(ui_->caseSensitivityButton, SIGNAL(clicked(bool)), proxyModel_, SLOT(toggleCaseSensitivity(bool)));
-        connect(proxyModel_, &MySortFilterProxyModel::updateFilter,
+        connect(proxyModel_, &JSONTableFilterProxy::updateFilter,
                 [=]() { on_filterBox_textChanged(ui_->filterBox->text()); }); // refresh filter on toggle
         ui_->runDataTable->setModel(proxyModel_);
         model_->setJson(jsonArray);
@@ -123,8 +121,8 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         foreach (const QString &key, jsonObject.keys())
         {
 
-            QCheckBox *checkBox = new QCheckBox(viewMenu_);
-            QWidgetAction *checkableAction = new QWidgetAction(viewMenu_);
+            auto *checkBox = new QCheckBox(viewMenu_);
+            auto *checkableAction = new QWidgetAction(viewMenu_);
             checkableAction->setDefaultWidget(checkBox);
             checkBox->setText(headersMap_[key]);
             checkBox->setCheckState(Qt::PartiallyChecked);

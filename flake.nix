@@ -59,9 +59,10 @@
           distcc
           gdb
           openmpi
+          qt-idaaas.packages.${system}.qttools
           tbb
           valgrind
-          (next.python3.withPackages (ps: with ps; pylibs ps ++ [ pyfakefs pytest requests-mock ]))
+          (next.python3.withPackages (ps: with ps; pylibs ps ++ [ pyfakefs pytest requests-mock build ]))
         ]);
         shellHook = ''
           export XDG_DATA_DIRS=$GSETTINGS_SCHEMAS_PATH:$XDG_DATA_DIRS
@@ -105,18 +106,16 @@
         frontend = pkgs.stdenv.mkDerivation ({
           inherit version;
           pname = "jv2";
-          src = ./.;
+          src = builtins.path {
+            path = ./frontend;
+            name = "frontend-src";
+          };
           buildInputs = base_libs pkgs ++ (gui_libs {inherit pkgs; q=qt;});
           propagatedBuildInputs = with pkgs;
             [ self.packages.${system}.mython ];
           nativeBuildInputs = [ pkgs.wrapGAppsHook ];
 
           cmakeFlags = [ "-G Ninja" ];
-          configurePhase = ''
-            cd frontend
-            mkdir build
-            cmake -G Ninja
-          '';
           installPhase = ''
             mkdir -p $out/bin
             mv bin/* $out/bin/

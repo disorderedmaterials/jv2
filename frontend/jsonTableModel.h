@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#ifndef JSONTABLEMODEL_H
-#define JSONTABLEMODEL_H
+#pragma once
 
 #include <QAbstractTableModel>
 #include <QJsonArray>
@@ -18,7 +17,7 @@ class JsonTableModel : public QAbstractTableModel
     // Assigning custom data types for table headings
     typedef QMap<QString, QString> Heading;
     typedef QVector<Heading> Header;
-    JsonTableModel(const Header &header_, QObject *parent = 0);
+    JsonTableModel(const Header &header_, QObject *parent = nullptr);
 
     bool setJson(const QJsonArray &array);
     QJsonArray getJson();
@@ -44,5 +43,3 @@ class JsonTableModel : public QAbstractTableModel
     QJsonArray tableJsonData_;
     QJsonArray tableHoldJsonData_;
 };
-
-#endif // JSONTABLEMODEL_H

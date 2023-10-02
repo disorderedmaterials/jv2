@@ -1,34 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "mainwindow.h"
-#include "./ui_mainwindow.h"
-#include "jsontablemodel.h"
-#include "mysortfilterproxymodel.h"
+#include "mainWindow.h"
+#include "ui_mainWindow.h"
 #include <QChart>
 #include <QChartView>
 #include <QCheckBox>
-#include <QDateTime>
-#include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDomDocument>
 #include <QFormLayout>
 #include <QInputDialog>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QLineSeries>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QSettings>
-#include <QSortFilterProxyModel>
 #include <QTimer>
 #include <QWidgetAction>
 #include <QtGui>
-
-#include "./ui_graphwidget.h"
-#include "graphwidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui_(new Ui::MainWindow)
 {
@@ -65,7 +53,6 @@ void MainWindow::initialiseElements()
     // Sets instrument to last used
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     QString recentInstrument = settings.value("recentInstrument").toString();
-    int instrumentIndex = -1;
     bool found = false;
     for (auto i = 0; i < instrumentsMenu_->actions().count(); i++)
         if (instrumentsMenu_->actions()[i]->text() == recentInstrument)
@@ -158,6 +145,7 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
     ui_->instrumentButton->setText(instDisplayName_);
     currentInstrumentChanged(instName_);
 }
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
@@ -201,9 +189,9 @@ void MainWindow::massSearch(QString name, QString value)
         QFormLayout form(&dialog);
 
         form.addRow(new QLabel(name));
-        QLineEdit *start = new QLineEdit(&dialog);
+        auto *start = new QLineEdit(&dialog);
         form.addRow("Start:", start);
-        QLineEdit *end = new QLineEdit(&dialog);
+        auto *end = new QLineEdit(&dialog);
         form.addRow("End:", end);
 
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
@@ -222,9 +210,9 @@ void MainWindow::massSearch(QString name, QString value)
         QFormLayout form(&dialog);
 
         form.addRow(new QLabel(name));
-        QLineEdit *input = new QLineEdit(&dialog);
+        auto *input = new QLineEdit(&dialog);
         form.addRow(name, input);
-        QCheckBox *caseSensitive = new QCheckBox(&dialog);
+        auto *caseSensitive = new QCheckBox(&dialog);
         form.addRow("Case sensitive", caseSensitive);
 
         QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
@@ -257,6 +245,7 @@ void MainWindow::massSearch(QString name, QString value)
             return;
         }
     }
+
     // mass search for data
     QString searchOptions;
     QString sensitivityText = "caseSensitivity=";
@@ -299,7 +288,10 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 // Get instrument data from config file
 QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
 {
-    QFile file(":/instrumentData.xml");
+    QFile file(":/data/instrumentData.xml");
+    if (!file.exists())
+        return {};
+
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
     dom.setContent(&file);
@@ -339,7 +331,7 @@ QDomDocument MainWindow::getConfig()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     if (!settings.contains("tableConfig"))
     {
-        QFile file(":/tableConfig.xml");
+        QFile file(":/data/tableConfig.xml");
         file.open(QIODevice::ReadOnly);
         dom.setContent(&file);
         file.close();
@@ -377,7 +369,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
         // If config preferences blank
         if (configDefaultFields.isEmpty())
         {
-            QFile file(":/instrumentData.xml");
+            QFile file(":/data/instrumentData.xml");
             file.open(QIODevice::ReadOnly);
             dom.setContent(&file);
             file.close();

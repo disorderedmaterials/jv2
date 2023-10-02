@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "httprequestworker.h"
+#include "httpRequestWorker.h"
 #include <QBuffer>
-#include <QDateTime>
-#include <QFileInfo>
-#include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QUrl>
 
 // Object for request URL
 HttpRequestInput::HttpRequestInput(QString v_url_str) { url_str = v_url_str; }
 
-HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager_(NULL)
+HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager_(nullptr)
 {
     manager_ = new QNetworkAccessManager(this);
     connect(manager_, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_manager_finished(QNetworkReply *)));

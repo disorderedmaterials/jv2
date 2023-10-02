@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "jsontablemodel.h"
+#include "jsonTableModel.h"
 #include <QDebug>
 #include <QJsonObject>
 #include <QTime>
@@ -139,8 +139,8 @@ void JsonTableModel::groupData()
             }
         }
         if (unique)
-            groupedData.push_back(std::make_tuple(valueObj["title"].toString(), valueObj["duration"].toString(),
-                                                  valueObj["run_number"].toString()));
+            groupedData.emplace_back(valueObj["title"].toString(), valueObj["duration"].toString(),
+                                     valueObj["run_number"].toString());
     }
     for (std::tuple<QString, QString, QString> data : groupedData)
     {

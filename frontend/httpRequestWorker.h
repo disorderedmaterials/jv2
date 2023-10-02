@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#ifndef HTTPREQUESTWORKER_H
-#define HTTPREQUESTWORKER_H
+#pragma once
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -48,5 +47,3 @@ class HttpRequestWorker : public QObject
     private slots:
     void on_manager_finished(QNetworkReply *reply);
 };
-
-#endif // HTTPREQUESTWORKER_H

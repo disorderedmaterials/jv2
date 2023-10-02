@@ -1,20 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#ifndef MYSORTFILTERPROXYMODEL_H
-#define MYSORTFILTERPROXYMODEL_H
+#pragma once
 
-#include "jsontablemodel.h"
 #include <QModelIndex>
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-class MySortFilterProxyModel : public QSortFilterProxyModel
+class JSONTableFilterProxy : public QSortFilterProxyModel
 {
     Q_OBJECT
 
     public:
-    MySortFilterProxyModel(QObject *parent = 0);
+    JSONTableFilterProxy(QObject *parent = 0);
 
     public slots:
     void setFilterString(QString filterString);
@@ -31,5 +29,3 @@ class MySortFilterProxyModel : public QSortFilterProxyModel
     signals:
     void updateFilter();
 };
-
-#endif // MYSORTFILTERPROXYMODEL_H

@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="icons">
+    <file alias="group.svg">icons/group.svg</file>
+    <file alias="cross.svg">icons/cross.svg</file>
+    <file alias="filter.svg">icons/filter.svg</file>
+    <file alias="icon">icons/JournalViewer2.png</file>
+  </qresource>
+  <qresource prefix="data">
+    <file alias="instrumentData.xml">data/instrumentData.xml</file>
+    <file alias="tableConfig.xml">data/tableConfig.xml</file>
+  </qresource>
+</RCC>

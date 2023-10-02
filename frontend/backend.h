@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2022 Team JournalViewer and contributors
+// Copyright (c) 2023 Team JournalViewer and contributors
 
-#ifndef BACKEND_H
-#define BACKEND_H
+#pragma once
 
 #include <QProcess>
 #include <QString>
@@ -33,5 +32,3 @@ class Backend : public QObject
 
     QProcess process_;
 };
-
-#endif
