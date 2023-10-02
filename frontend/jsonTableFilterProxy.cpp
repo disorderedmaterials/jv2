@@ -17,9 +17,13 @@ void JsonTableFilterProxy::toggleCaseSensitivity(bool caseSensitive)
 
 bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
+    if (filterString_.isEmpty())
+        return true;
+
     auto filterString = filterString_;
     if (!caseSensitive_)
         filterString = filterString.toLower();
+
     auto accept = false;
     for (auto i = 0; i < sourceModel()->columnCount(); i++)
     {
