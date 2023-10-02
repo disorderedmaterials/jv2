@@ -3,9 +3,11 @@
 
 #pragma once
 
-#include <QModelIndex>
 #include <QObject>
 #include <QSortFilterProxyModel>
+
+// Forward Declarations
+class QModelIndex;
 
 class JsonTableFilterProxy : public QSortFilterProxyModel
 {
