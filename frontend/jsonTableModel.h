@@ -24,14 +24,14 @@ class JsonTableModel : public QAbstractTableModel
     bool setHeader(const Header &array);
     Header getHeader();
 
-    virtual QJsonObject getJsonObject(const QModelIndex &index) const; // get row data
+    QJsonObject getJsonObject(const QModelIndex &index) const; // get row data
 
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    virtual void groupData();
-    virtual void unGroupData();
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    void groupData();
+    void unGroupData();
     void setColumnTitle(int section, QString title);
     bool setData(const QModelIndex &index, QJsonObject rowData, int role = Qt::EditRole);
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
