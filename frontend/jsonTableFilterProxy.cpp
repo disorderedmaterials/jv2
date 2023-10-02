@@ -33,8 +33,8 @@ bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &so
             tableData = tableData.toLower();
 
         if (tableData.contains(filterString))
-            accept = true;
+            return true;
     }
 
-    return (accept);
+    return false;
 }
