@@ -94,17 +94,6 @@ void JsonTableModel::unGroupData()
 
 void JsonTableModel::setColumnTitle(int section, QString title) { tableHeader_[section]["index"] = title; }
 
-bool JsonTableModel::insertRows(int row, int count, const QModelIndex &parent)
-{
-    emit layoutAboutToBeChanged();
-    beginInsertRows(parent, row, row + count);
-    for (int position = 0; position < count; ++position)
-        tableJsonData_.insert(row, QJsonValue());
-    endInsertRows();
-    emit layoutChanged();
-    return true;
-}
-
 /*
  * QAbstractTableModel Overrides
  */
