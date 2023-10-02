@@ -35,8 +35,12 @@ class MainWindow : public QMainWindow
     bool validSource_;
     QPoint pos_;
 
+    private slots:
+    void setLoadScreen(bool state);
+    void removeTab(int index);
+    void columnHider(int state);
+
     protected:
-    // Window close event
     void closeEvent(QCloseEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
@@ -57,9 +61,7 @@ class MainWindow : public QMainWindow
     private:
     // Init
     void fillInstruments(QList<std::tuple<QString, QString, QString>> instruments);
-    void setLoadScreen(bool state);
     QString getRunNos();
-
     void checkForUpdates();
 
     private slots:
@@ -71,9 +73,6 @@ class MainWindow : public QMainWindow
     void recentCycle();
     void changeInst(std::tuple<QString, QString, QString> instrument);
 
-    // Misc Interface Functions
-    void removeTab(int index);
-    void columnHider(int state);
     void refresh(QString Status);
     void update(HttpRequestWorker *worker);
     void refreshTable();

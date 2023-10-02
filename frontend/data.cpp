@@ -318,28 +318,3 @@ void MainWindow::refreshTable()
     }
     currentInstrumentChanged(instName_);
 }
-
-// Hide column on view menu change
-void MainWindow::columnHider(int state)
-{
-    auto *action = qobject_cast<QCheckBox *>(sender());
-
-    for (auto i = 0; i < model_->columnCount(); ++i)
-    {
-        if (action->text() == headersMap_[model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
-        {
-            switch (state)
-            {
-                case Qt::Unchecked:
-                    ui_.runDataTable->setColumnHidden(i, true);
-                    break;
-                case Qt::Checked:
-                    ui_.runDataTable->setColumnHidden(i, false);
-                    break;
-                default:
-                    action->setCheckState(Qt::Checked);
-            }
-            break;
-        }
-    }
-}

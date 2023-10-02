@@ -78,6 +78,55 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     timer->start(30000);
 }
 
+/*
+ * UI
+ */
+
+void MainWindow::setLoadScreen(bool state)
+{
+    if (state)
+    {
+        QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        QWidget::setEnabled(false);
+    }
+    else
+    {
+        QWidget::setEnabled(true);
+        QGuiApplication::restoreOverrideCursor();
+    }
+}
+
+void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
+
+// Hide column on view menu change
+void MainWindow::columnHider(int state)
+{
+    auto *action = qobject_cast<QCheckBox *>(sender());
+
+    for (auto i = 0; i < model_->columnCount(); ++i)
+    {
+        if (action->text() == headersMap_[model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
+        {
+            switch (state)
+            {
+                case Qt::Unchecked:
+                    ui_.runDataTable->setColumnHidden(i, true);
+                    break;
+                case Qt::Checked:
+                    ui_.runDataTable->setColumnHidden(i, false);
+                    break;
+                default:
+                    action->setCheckState(Qt::Checked);
+            }
+            break;
+        }
+    }
+}
+
+/*
+ * Window
+ */
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
@@ -115,19 +164,5 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         searchString_ = "";
         updateSearch(searchString_);
         return;
-    }
-}
-
-void MainWindow::setLoadScreen(bool state)
-{
-    if (state)
-    {
-        QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        QWidget::setEnabled(false);
-    }
-    else
-    {
-        QWidget::setEnabled(true);
-        QGuiApplication::restoreOverrideCursor();
     }
 }
