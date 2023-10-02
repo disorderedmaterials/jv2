@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataModel_(header_, this)
 {
     ui_.setupUi(this);
 
@@ -103,9 +103,9 @@ void MainWindow::columnHider(int state)
 {
     auto *action = qobject_cast<QCheckBox *>(sender());
 
-    for (auto i = 0; i < model_->columnCount(); ++i)
+    for (auto i = 0; i < runDataModel_.columnCount(); ++i)
     {
-        if (action->text() == headersMap_[model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
+        if (action->text() == headersMap_[runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
         {
             switch (state)
             {

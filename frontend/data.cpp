@@ -102,14 +102,13 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         }
 
         // Sets and fills table data
-        model_ = new JsonTableModel(header_, this);
-        proxyModel_ = new JSONTableFilterProxy(this);
-        proxyModel_->setSourceModel(model_);
-        connect(ui_.FilterCaseSensitivityButton, SIGNAL(clicked(bool)), proxyModel_, SLOT(toggleCaseSensitivity(bool)));
-        connect(proxyModel_, &JSONTableFilterProxy::updateFilter,
+        runDataFilterProxy_.setSourceModel(&runDataModel_);
+        connect(ui_.FilterCaseSensitivityButton, SIGNAL(clicked(bool)), &runDataFilterProxy_,
+                SLOT(toggleCaseSensitivity(bool)));
+        connect(&runDataFilterProxy_, &JsonTableFilterProxy::updateFilter,
                 [=]() { on_RunFilterEdit_textChanged(ui_.RunFilterEdit->text()); }); // refresh filter on toggle
-        ui_.runDataTable->setModel(proxyModel_);
-        model_->setJson(jsonArray);
+        ui_.runDataTable->setModel(&runDataFilterProxy_);
+        runDataModel_.setJson(jsonArray);
         ui_.runDataTable->show();
 
         // Fills viewMenu_ with all columns
@@ -144,7 +143,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             {
                 logIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(j);
                 // If index matches model data, swap columns in view
-                if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
+                if (desiredHeader_[i].first == runDataModel_.headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                 {
                     ui_.runDataTable->horizontalHeader()->swapSections(j, i);
                 }
@@ -283,8 +282,9 @@ void MainWindow::refresh(QString status)
         }
         else if (cyclesMap_[ui_.cycleButton->text()] == status) // if current opened cycle changed
         {
-            QString url_str = "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
-                              model_->getJsonObject(model_->index(model_->rowCount() - 1, 0))["run_number"].toString();
+            QString url_str =
+                "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
+                runDataModel_.getJsonObject(runDataModel_.index(runDataModel_.rowCount() - 1, 0))["run_number"].toString();
             HttpRequestInput input(url_str);
             auto *worker = new HttpRequestWorker(this);
             connect(worker, &HttpRequestWorker::on_execution_finished,
@@ -304,15 +304,15 @@ void MainWindow::update(HttpRequestWorker *worker)
     for (auto row : worker->jsonArray)
     {
         auto rowObject = row.toObject();
-        model_->insertRows(model_->rowCount(), 1);
-        auto index = model_->index(model_->rowCount() - 1, 0);
-        model_->setData(index, rowObject);
+        runDataModel_.insertRows(runDataModel_.rowCount(), 1);
+        auto index = runDataModel_.index(runDataModel_.rowCount() - 1, 0);
+        runDataModel_.setData(index, rowObject);
     }
 }
 
 void MainWindow::refreshTable()
 {
-    for (auto i = 0; i < model_->columnCount(); ++i)
+    for (auto i = 0; i < runDataModel_.columnCount(); ++i)
     {
         ui_.runDataTable->setColumnHidden(i, true);
     }

@@ -11,8 +11,8 @@
 
 void MainWindow::on_RunFilterEdit_textChanged(const QString &arg1)
 {
-    proxyModel_->setFilterString(arg1.trimmed());
-    proxyModel_->setFilterKeyColumn(-1);
+    runDataFilterProxy_.setFilterString(arg1.trimmed());
+    runDataFilterProxy_.setFilterKeyColumn(-1);
 
     // Update search to new data
     if (searchString_ != "")
@@ -24,7 +24,7 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
 {
     if (checked)
     {
-        model_->groupData();
+        runDataModel_.groupData();
         for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
             ui_.runDataTable->setColumnHidden(i, false);
         ui_.runDataTable->resizeColumnsToContents();
@@ -34,10 +34,10 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
     }
     else
     {
-        model_->unGroupData();
+        runDataModel_.unGroupData();
         for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
         {
-            auto index = model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString();
+            auto index = runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString();
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
                                    [index](const auto &data) { return data.first == index; });
             if (it == desiredHeader_.end())
@@ -50,7 +50,7 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
             for (auto j = 0; j < ui_.runDataTable->horizontalHeader()->count(); ++j)
             {
                 logIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(j);
-                if (desiredHeader_[i].first == model_->headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
+                if (desiredHeader_[i].first == runDataModel_.headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                     ui_.runDataTable->horizontalHeader()->swapSections(j, i);
             }
         }

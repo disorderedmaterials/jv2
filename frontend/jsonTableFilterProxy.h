@@ -7,12 +7,12 @@
 #include <QObject>
 #include <QSortFilterProxyModel>
 
-class JSONTableFilterProxy : public QSortFilterProxyModel
+class JsonTableFilterProxy : public QSortFilterProxyModel
 {
     Q_OBJECT
 
     public:
-    JSONTableFilterProxy(QObject *parent = 0);
+    JsonTableFilterProxy(QObject *parent = 0);
 
     public slots:
     void setFilterString(QString filterString);

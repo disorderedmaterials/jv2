@@ -20,12 +20,12 @@ void MainWindow::updateSearch(const QString &arg1)
         return;
     }
     // Find all occurrences of search string in table elements
-    for (auto i = 0; i < proxyModel_->columnCount(); ++i)
+    for (auto i = 0; i < runDataFilterProxy_.columnCount(); ++i)
     {
         auto location = ui_.runDataTable->horizontalHeader()->logicalIndex(i);
         if (!ui_.runDataTable->isColumnHidden(location))
-            foundIndices_.append(
-                proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, arg1, -1, Qt::MatchContains));
+            foundIndices_.append(runDataFilterProxy_.match(runDataFilterProxy_.index(0, location), Qt::DisplayRole, arg1, -1,
+                                                           Qt::MatchContains));
     }
 
     // Select first match
@@ -98,17 +98,17 @@ void MainWindow::selectSimilar()
     int TitleColumn;
     for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
     {
-        if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "title")
+        if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "title")
         {
             TitleColumn = i;
             break;
         }
     }
-    QString title = proxyModel_->index(ui_.runDataTable->rowAt(pos_.y()), TitleColumn).data().toString();
-    for (auto i = 0; i < model_->rowCount(); i++)
+    QString title = runDataFilterProxy_.index(ui_.runDataTable->rowAt(pos_.y()), TitleColumn).data().toString();
+    for (auto i = 0; i < runDataModel_.rowCount(); i++)
     {
-        if (proxyModel_->index(i, TitleColumn).data().toString() == title)
-            ui_.runDataTable->selectionModel()->setCurrentIndex(proxyModel_->index(i, TitleColumn),
+        if (runDataFilterProxy_.index(i, TitleColumn).data().toString() == title)
+            ui_.runDataTable->selectionModel()->setCurrentIndex(runDataFilterProxy_.index(i, TitleColumn),
                                                                 QItemSelectionModel::Select | QItemSelectionModel::Rows);
     }
 }
@@ -137,12 +137,12 @@ void MainWindow::on_actionSearch_triggered()
     }
 
     // Find all occurrences of search string in table elements
-    for (auto i = 0; i < proxyModel_->columnCount(); ++i)
+    for (auto i = 0; i < runDataFilterProxy_.columnCount(); ++i)
     {
         auto location = ui_.runDataTable->horizontalHeader()->logicalIndex(i);
         if (!ui_.runDataTable->isColumnHidden(location))
-            foundIndices_.append(
-                proxyModel_->match(proxyModel_->index(0, location), Qt::DisplayRole, textInput, -1, Qt::MatchContains));
+            foundIndices_.append(runDataFilterProxy_.match(runDataFilterProxy_.index(0, location), Qt::DisplayRole, textInput,
+                                                           -1, Qt::MatchContains));
     }
 
     // Select first match

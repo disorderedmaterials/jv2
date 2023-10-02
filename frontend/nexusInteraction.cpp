@@ -110,9 +110,9 @@ QString MainWindow::getRunNos()
     int cycleColumn;
     for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
     {
-        if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
+        if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
             runNoColumn = i;
-        else if (model_->headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "isis_cycle")
+        else if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "isis_cycle")
             cycleColumn = i;
     }
 
@@ -125,8 +125,8 @@ QString MainWindow::getRunNos()
     // Concats runs
     for (auto run : selectedRuns)
     {
-        runNo = proxyModel_->index(run.row(), runNoColumn).data().toString();
-        cycle = proxyModel_->index(run.row(), cycleColumn).data().toString();
+        runNo = runDataFilterProxy_.index(run.row(), runNoColumn).data().toString();
+        cycle = runDataFilterProxy_.index(run.row(), cycleColumn).data().toString();
         if (runNo.contains("-") || runNo.contains(","))
         {
             QString groupedRuns;

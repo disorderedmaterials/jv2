@@ -2,28 +2,26 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "jsonTableFilterProxy.h"
-#include "jsonTableModel.h"
 #include <QModelIndex>
-#include <QObject>
 #include <QSortFilterProxyModel>
 
-JSONTableFilterProxy::JSONTableFilterProxy(QObject *parent) : QSortFilterProxyModel(parent)
+JsonTableFilterProxy::JsonTableFilterProxy(QObject *parent) : QSortFilterProxyModel(parent)
 {
     filterString_ = "";
     caseSensitive_ = false;
 }
 
-void JSONTableFilterProxy::setFilterString(QString filterString) { filterString_ = filterString; }
+void JsonTableFilterProxy::setFilterString(QString filterString) { filterString_ = filterString; }
 
-QString JSONTableFilterProxy::filterString() const { return filterString_; }
+QString JsonTableFilterProxy::filterString() const { return filterString_; }
 
-void JSONTableFilterProxy::toggleCaseSensitivity(bool caseSensitive)
+void JsonTableFilterProxy::toggleCaseSensitivity(bool caseSensitive)
 {
     caseSensitive_ = caseSensitive;
     emit updateFilter();
 }
 
-bool JSONTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     auto filterString = filterString_;
     if (!caseSensitive_)

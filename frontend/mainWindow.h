@@ -53,8 +53,8 @@ class MainWindow : public QMainWindow
     QString instDisplayName_;
     QMap<QString, QString> cyclesMap_;
     QMap<QString, QString> headersMap_;
-    JsonTableModel *model_;
-    JSONTableFilterProxy *proxyModel_;
+    JsonTableModel runDataModel_;
+    JsonTableFilterProxy runDataFilterProxy_;
     JsonTableModel::Header header_;
     std::vector<std::pair<QString, QString>> desiredHeader_;
 
