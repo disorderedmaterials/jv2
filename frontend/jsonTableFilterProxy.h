@@ -15,7 +15,7 @@ class JsonTableFilterProxy : public QSortFilterProxyModel
 
     public slots:
     void setFilterString(QString filterString);
-    void toggleCaseSensitivity(bool caseSensitive);
+    void setCaseSensitivity(bool caseSensitive);
     QString filterString() const;
 
     protected:

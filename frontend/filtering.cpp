@@ -19,7 +19,7 @@ void MainWindow::on_RunFilterEdit_textChanged(const QString &arg1)
         updateSearch(searchString_);
 }
 
-void MainWindow::on_RunFilterCaseSensitivityButton_clicked(bool checked) { runDataFilterProxy_.toggleCaseSensitivity(checked); }
+void MainWindow::on_RunFilterCaseSensitivityButton_clicked(bool checked) { runDataFilterProxy_.setCaseSensitivity(checked); }
 
 // Groups table data
 void MainWindow::on_GroupRunsButton_clicked(bool checked)

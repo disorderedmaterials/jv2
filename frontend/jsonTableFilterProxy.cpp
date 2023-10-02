@@ -14,7 +14,7 @@ void JsonTableFilterProxy::setFilterString(QString filterString)
 
 QString JsonTableFilterProxy::filterString() const { return filterString_; }
 
-void JsonTableFilterProxy::toggleCaseSensitivity(bool caseSensitive)
+void JsonTableFilterProxy::setCaseSensitivity(bool caseSensitive)
 {
     caseSensitive_ = caseSensitive;
 
