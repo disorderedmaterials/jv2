@@ -8,6 +8,91 @@
 #include <QSettings>
 #include <QWidgetAction>
 
+/*
+ * Private Functions
+ */
+
+// Fill instrument list
+void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> instruments)
+{
+    // Only allow calls after initial population
+    instrumentsMenu_ = new QMenu("instrumentsMenu");
+    cyclesMenu_ = new QMenu("cyclesMenu");
+
+    connect(ui_.instrumentButton, &QPushButton::clicked,
+            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
+    connect(ui_.cycleButton, &QPushButton::clicked,
+            [=]() { cyclesMenu_->exec(ui_.cycleButton->mapToGlobal(QPoint(0, ui_.cycleButton->height()))); });
+    foreach (const auto instrument, instruments)
+    {
+        auto *action = new QAction(std::get<2>(instrument), this);
+        connect(action, &QAction::triggered, [=]() { changeInst(instrument); });
+        instrumentsMenu_->addAction(action);
+    }
+}
+
+// Generate grouped run data from current run data
+void MainWindow::generateGroupedData()
+{
+    // holds data in tuple as QJson referencing is incomplete
+    std::vector<std::tuple<QString, QString, QString>> groupedData;
+    for (const auto &value : runData_)
+    {
+        const QJsonObject &valueObj = value.toObject();
+        bool unique = true;
+
+        // add duplicate title data to stack
+        for (std::tuple<QString, QString, QString> &data : groupedData)
+        {
+            if (std::get<0>(data) == valueObj["title"].toString())
+            {
+                auto currentTotal = QTime::fromString(std::get<1>(data), "HH:mm:ss");
+                // convert duration to seconds
+                auto newTime = QTime(0, 0, 0).secsTo(QTime::fromString(valueObj["duration"].toString(), "HH:mm:ss"));
+                auto totalRunTime = currentTotal.addSecs(newTime).toString("HH:mm:ss");
+                std::get<1>(data) = QString(totalRunTime);
+                std::get<2>(data) += ";" + valueObj["run_number"].toString();
+                unique = false;
+                break;
+            }
+        }
+        if (unique)
+            groupedData.emplace_back(valueObj["title"].toString(), valueObj["duration"].toString(),
+                                     valueObj["run_number"].toString());
+    }
+
+    // Clear existing grouped data and generate new
+    groupedRunData_ = QJsonArray();
+    for (const auto &group : groupedData)
+    {
+        auto groupData = QJsonObject({qMakePair(QString("title"), QJsonValue(std::get<0>(group))),
+                                      qMakePair(QString("duration"), QJsonValue(std::get<1>(group))),
+                                      qMakePair(QString("run_number"), QJsonValue(std::get<2>(group)))});
+        groupedRunData_.push_back(QJsonValue(groupData));
+    }
+}
+
+void MainWindow::checkForUpdates()
+{
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_;
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { refresh(workerProxy->response); });
+    worker->execute(input);
+}
+
+/*
+ * HTTP Worker Handling
+ */
+
+// Handle JSON run data returned from workers
+void MainWindow::handleRunData(HttpRequestWorker *worker)
+{
+    runData_ = worker->jsonArray;
+    runDataModel_.setData(runData_);
+}
+
 // Fills cycles box on request completion
 void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
 {
@@ -102,7 +187,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         }
 
         // Set table data
-        runDataModel_.setHeader(header_);
+        runDataModel_.setHorizontalHeaders(header_);
         runDataModel_.setData(runData_);
 
         // Fills viewMenu_ with all columns
@@ -155,6 +240,10 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         QMessageBox::information(this, "", msg);
     }
 }
+
+/*
+ * UI
+ */
 
 // Update cycles list when Instrument changed
 void MainWindow::currentInstrumentChanged(const QString &arg1)
@@ -220,25 +309,6 @@ void MainWindow::recentCycle()
     cyclesMenu_->actions()[0]->trigger();
 }
 
-// Fill instrument list
-void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> instruments)
-{
-    // Only allow calls after initial population
-    instrumentsMenu_ = new QMenu("instrumentsMenu");
-    cyclesMenu_ = new QMenu("cyclesMenu");
-
-    connect(ui_.instrumentButton, &QPushButton::clicked,
-            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
-    connect(ui_.cycleButton, &QPushButton::clicked,
-            [=]() { cyclesMenu_->exec(ui_.cycleButton->mapToGlobal(QPoint(0, ui_.cycleButton->height()))); });
-    foreach (const auto instrument, instruments)
-    {
-        auto *action = new QAction(std::get<2>(instrument), this);
-        connect(action, &QAction::triggered, [=]() { changeInst(instrument); });
-        instrumentsMenu_->addAction(action);
-    }
-}
-
 // Handle Instrument selection
 void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
 {
@@ -247,16 +317,6 @@ void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
     instDisplayName_ = std::get<2>(instrument);
     ui_.instrumentButton->setText(instDisplayName_);
     currentInstrumentChanged(instName_);
-}
-
-void MainWindow::checkForUpdates()
-{
-    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { refresh(workerProxy->response); });
-    worker->execute(input);
 }
 
 void MainWindow::refresh(QString status)
@@ -290,13 +350,6 @@ void MainWindow::refresh(QString status)
         qDebug() << "no change";
         return;
     }
-}
-
-// Handle JSON data returned from worker
-void MainWindow::handleRunData(HttpRequestWorker *worker)
-{
-    runData_ = worker->jsonArray;
-    runDataModel_.setData(runData_);
 }
 
 void MainWindow::refreshTable()

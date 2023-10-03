@@ -22,24 +22,19 @@ class JsonTableModel : public QAbstractTableModel
     typedef QVector<Heading> Header;
 
     private:
-    Header tableHeader_;
-    Header tableHoldHeader_;
-    Header tableGroupedHeader_;
+    // Data source for the model
     OptionalReferenceWrapper<const QJsonArray> jsonData_;
-    QJsonArray tableHoldJsonData_;
+    OptionalReferenceWrapper<const Header> horizontalHeaders_;
 
     private:
     // Get Json data at index specified
     QJsonObject getData(const QModelIndex &index) const;
 
     public:
-    // Set the source data to display
+    // Set the source data for the model
     void setData(const QJsonArray &array);
-    // Set the table headers
-    void setHeader(const Header &array);
-    void groupData();
-    void unGroupData();
-    void setColumnTitle(int section, QString title);
+    // Set the table column (horizontal) headers
+    void setHorizontalHeaders(const Header &array);
 
     /*
      * QAbstractTableModel Overrides

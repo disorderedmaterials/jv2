@@ -16,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Define initial variable states
     init_ = true;
     searchString_ = "";
+    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Title"}, {"index", "title"}}));
+    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Total Duration"}, {"index", "duration"}}));
+    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Run Numbers"}, {"index", "run_number"}}));
 
     // View menu for column toggles
     viewMenu_ = ui_.menubar->addMenu("View");

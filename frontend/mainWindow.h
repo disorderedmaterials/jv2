@@ -51,32 +51,36 @@ class MainWindow : public QMainWindow
     QString instType_;
     QString instName_;
     QString instDisplayName_;
-    QJsonArray runData_;
+    QJsonArray runData_, groupedRunData_;
     QMap<QString, QString> cyclesMap_;
     QMap<QString, QString> headersMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
-    JsonTableModel::Header header_;
+    JsonTableModel::Header header_, groupedTableHeaders_;
     std::vector<std::pair<QString, QString>> desiredHeader_;
 
     private:
-    // Init
+    // Fill instrument list
     void fillInstruments(QList<std::tuple<QString, QString, QString>> instruments);
+    // Generate grouped run data from current run data
+    void generateGroupedData();
     QString getRunNos();
     void checkForUpdates();
 
     private slots:
-    // Data Selection
+    // Handle JSON run data returned from workers
+    void handleRunData(HttpRequestWorker *worker);
     void handle_result_instruments(HttpRequestWorker *worker);
     void handle_result_cycles(HttpRequestWorker *worker);
+
+    private slots:
     void currentInstrumentChanged(const QString &arg1);
     void changeCycle(QString value);
     void recentCycle();
     void changeInst(std::tuple<QString, QString, QString> instrument);
 
     void refresh(QString Status);
-    // Handle JSON data returned from workers
-    void handleRunData(HttpRequestWorker *worker);
+
     void refreshTable();
 
     signals:

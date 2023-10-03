@@ -26,7 +26,11 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
 {
     if (checked)
     {
-        runDataModel_.groupData();
+        generateGroupedData();
+
+        runDataModel_.setData(groupedRunData_);
+        runDataModel_.setHorizontalHeaders(groupedTableHeaders_);
+
         for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
             ui_.runDataTable->setColumnHidden(i, false);
         ui_.runDataTable->resizeColumnsToContents();
@@ -36,7 +40,9 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
     }
     else
     {
-        runDataModel_.unGroupData();
+        runDataModel_.setData(runData_);
+        runDataModel_.setHorizontalHeaders(header_);
+
         for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
         {
             auto index = runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString();
@@ -45,6 +51,7 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
             if (it == desiredHeader_.end())
                 ui_.runDataTable->setColumnHidden(i, true);
         }
+
         // Re-sort columns on change
         int logIndex;
         for (auto i = 0; i < desiredHeader_.size(); ++i)
