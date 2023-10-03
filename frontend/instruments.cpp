@@ -1,0 +1,115 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2023 Team JournalViewer and contributors
+
+#include "mainWindow.h"
+#include <QDomDocument>
+#include <QFile>
+
+/*
+ * Private Functions
+ */
+
+// Parse instruments from specified source
+bool MainWindow::parseInstruments(const QDomDocument &source)
+{
+    auto docRoot = source.documentElement();
+    auto instrumentNodes = docRoot.elementsByTagName("inst");
+
+    // Loop over instruments
+    for (auto i = 0; i < instrumentNodes.count(); ++i)
+    {
+        auto instElement = instrumentNodes.item(i).toElement();
+
+        // Get instrument name
+        auto instrumentName = instElement.attribute("name");
+
+        // Get instrument type
+        auto typeElements = instElement.elementsByTagName("type");
+        QString typeString = typeElements.count() == 1 ? typeElements.at(0).toElement().text() : "Neutron";
+        auto instrumentType = Instrument::InstrumentType::Neutron;
+        if (typeString == "Muon")
+            instrumentType = Instrument::InstrumentType::Muon;
+
+        auto &inst = instruments_.emplace_back(instrumentName, instrumentType);
+
+        // If display columns are defined parse them now, otherwise assign defaults based on instrument
+        auto columns = instElement.elementsByTagName("columns");
+        // TODO
+    }
+
+    return true;
+}
+
+// Get default instrument complement
+void MainWindow::getDefaultInstruments()
+{
+    QFile file(":/data/instruments.xml");
+    if (!file.exists())
+        throw(std::runtime_error("Internal instrument data not found.\n"));
+
+    file.open(QIODevice::ReadOnly);
+    QDomDocument dom;
+    dom.setContent(&file);
+    file.close();
+    if (!parseInstruments(dom))
+        throw(std::runtime_error("Couldn't parse internal instrument data.\n"));
+}
+
+// Fill instrument list
+void MainWindow::fillInstruments()
+{
+    // Only allow calls after initial population
+    instrumentsMenu_ = new QMenu("instrumentsMenu");
+    cyclesMenu_ = new QMenu("cyclesMenu");
+
+    connect(ui_.instrumentButton, &QPushButton::clicked,
+            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
+    connect(ui_.cycleButton, &QPushButton::clicked,
+            [=]() { cyclesMenu_->exec(ui_.cycleButton->mapToGlobal(QPoint(0, ui_.cycleButton->height()))); });
+    for (auto &inst : instruments_)
+    {
+        auto *action = new QAction(inst.name(), this);
+        connect(action, &QAction::triggered, [=]() { setCurrentInstrument(inst.name()); });
+        instrumentsMenu_->addAction(action);
+    }
+}
+
+/*
+ * UI
+ */
+
+// Set current instrument
+void MainWindow::setCurrentInstrument(QString name)
+{
+    // Find the instrument specified
+    auto instIt =
+        std::find_if(instruments_.begin(), instruments_.end(), [name](const auto &inst) { return inst.name() == name; });
+    if (instIt == instruments_.end())
+        throw(std::runtime_error("Selected instrument does not exist!\n"));
+
+    currentInstrument_ = *instIt;
+
+    ui_.instrumentButton->setText(name);
+
+    // Clear any mass search results since they're instrument-specific
+    cachedMassSearch_.clear();
+
+    // Configure api call
+    QString url_str = "http://127.0.0.1:5000/getCycles/" + currentInstrument().lowerCaseName();
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+
+    // Call result handler when request completed
+    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleGetCycles(HttpRequestWorker *)));
+    setLoadScreen(true);
+    worker->execute(input);
+}
+
+// Return current instrument
+const Instrument &MainWindow::currentInstrument() const
+{
+    if (currentInstrument_)
+        return currentInstrument_->get();
+
+    throw(std::runtime_error("No current instrument defined.\n"));
+}

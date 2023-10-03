@@ -14,6 +14,10 @@
 // Perform mass search across cycles
 void MainWindow::massSearch(QString name, QString value)
 {
+    if (!currentInstrument_)
+        return;
+    auto &inst = currentInstrument_->get();
+
     const char *prompt;
     QString textInput;
     QString text;
@@ -95,7 +99,8 @@ void MainWindow::massSearch(QString name, QString value)
     QString sensitivityText = "caseSensitivity=";
     sensitivityText.append(caseSensitivity ? "true" : "false");
     searchOptions.append(sensitivityText);
-    QString url_str = "http://127.0.0.1:5000/getAllJournals/" + instName_ + "/" + value + "/" + textInput + "/" + searchOptions;
+    QString url_str =
+        "http://127.0.0.1:5000/getAllJournals/" + inst.lowerCaseName() + "/" + value + "/" + textInput + "/" + searchOptions;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));

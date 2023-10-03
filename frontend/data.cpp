@@ -12,25 +12,6 @@
  * Private Functions
  */
 
-// Fill instrument list
-void MainWindow::fillInstruments(QList<std::tuple<QString, QString, QString>> instruments)
-{
-    // Only allow calls after initial population
-    instrumentsMenu_ = new QMenu("instrumentsMenu");
-    cyclesMenu_ = new QMenu("cyclesMenu");
-
-    connect(ui_.instrumentButton, &QPushButton::clicked,
-            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
-    connect(ui_.cycleButton, &QPushButton::clicked,
-            [=]() { cyclesMenu_->exec(ui_.cycleButton->mapToGlobal(QPoint(0, ui_.cycleButton->height()))); });
-    foreach (const auto instrument, instruments)
-    {
-        auto *action = new QAction(std::get<2>(instrument), this);
-        connect(action, &QAction::triggered, [=]() { changeInst(instrument); });
-        instrumentsMenu_->addAction(action);
-    }
-}
-
 // Generate grouped run data from current run data
 void MainWindow::generateGroupedData()
 {
@@ -74,17 +55,52 @@ void MainWindow::generateGroupedData()
 
 void MainWindow::checkForUpdates()
 {
-    QString url_str = "http://127.0.0.1:5000/pingCycle/" + instName_;
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().lowerCaseName();
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { refresh(workerProxy->response); });
+            [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });
     worker->execute(input);
 }
 
 /*
  * HTTP Worker Handling
  */
+
+// Handle cycle update result
+void MainWindow::handleCycleUpdate(QString response)
+{
+    // TODO
+    if (response != "")
+    {
+        qDebug() << "Update";
+        // currentInstrumentChanged(currentInstrument().name());
+        if (cyclesMap_[cyclesMenu_->actions()[0]->text()] != response) // if new cycle found
+        {
+            auto displayName = "Cycle " + response.split("_")[1] + "/" + response.split("_")[2].remove(".xml");
+            cyclesMap_[displayName] = response;
+
+            auto *action = new QAction(displayName, this);
+            connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
+            cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
+        }
+        else if (cyclesMap_[ui_.cycleButton->text()] == response) // if current opened cycle changed
+        {
+            QString url_str = "http://127.0.0.1:5000/updateJournal/" + currentInstrument().lowerCaseName() + "/" + response +
+                              "/" + runData_.last().toObject()["run_number"].toString();
+            HttpRequestInput input(url_str);
+            auto *worker = new HttpRequestWorker(this);
+            connect(worker, &HttpRequestWorker::on_execution_finished,
+                    [=](HttpRequestWorker *workerProxy) { handleRunData(workerProxy); });
+            worker->execute(input);
+        }
+    }
+    else
+    {
+        qDebug() << "no change";
+        return;
+    }
+}
 
 // Handle JSON run data returned from workers
 void MainWindow::handleRunData(HttpRequestWorker *worker)
@@ -93,58 +109,57 @@ void MainWindow::handleRunData(HttpRequestWorker *worker)
     runDataModel_.setData(runData_);
 }
 
-// Fills cycles box on request completion
-void MainWindow::handle_result_instruments(HttpRequestWorker *worker)
+// Handle returned cycle information for an instrument
+void MainWindow::handleGetCycles(HttpRequestWorker *worker)
 {
     setLoadScreen(false);
-    QString msg;
-    if (worker->errorType == QNetworkReply::NoError)
-    {
-        auto response = worker->response;
 
-        cyclesMenu_->clear();
-        cyclesMap_.clear();
-        QJsonValue value;
-        for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
-        {
-            value = worker->jsonArray[i];
-            // removes header_ file
-            if (value.toString() != "journal.xml")
-            {
-                auto displayName =
-                    "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
-                cyclesMap_[displayName] = value.toString();
+    cyclesMenu_->clear();
+    cyclesMap_.clear();
 
-                auto *action = new QAction(displayName, this);
-                connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
-                cyclesMenu_->addAction(action);
-            }
-        }
-
-        if (init_)
-        {
-            // Sets cycle to most recently viewed
-            recentCycle();
-            init_ = false;
-            return;
-        }
-        // Keep cycle over instruments
-        for (QAction *action : cyclesMenu_->actions())
-        {
-            if (action->text() == ui_.cycleButton->text())
-            {
-                action->trigger();
-                return;
-            }
-        }
-        cyclesMenu_->actions()[0]->trigger();
-    }
-    else
+    if (worker->errorType != QNetworkReply::NoError)
     {
         // an error occurred
-        msg = "Error1: " + worker->errorString;
+        QString msg = "Error1: " + worker->errorString;
         QMessageBox::information(this, "", msg);
+        return;
     }
+
+    auto response = worker->response;
+
+    QJsonValue value;
+    for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
+    {
+        value = worker->jsonArray[i];
+        // removes header_ file
+        if (value.toString() != "journal.xml")
+        {
+            auto displayName = "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
+            cyclesMap_[displayName] = value.toString();
+
+            auto *action = new QAction(displayName, this);
+            connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
+            cyclesMenu_->addAction(action);
+        }
+    }
+
+    if (init_)
+    {
+        // Sets cycle to most recently viewed
+        recentCycle();
+        init_ = false;
+        return;
+    }
+    // Keep cycle over instruments
+    for (QAction *action : cyclesMenu_->actions())
+    {
+        if (action->text() == ui_.cycleButton->text())
+        {
+            action->trigger();
+            return;
+        }
+    }
+    cyclesMenu_->actions()[0]->trigger();
 }
 
 // Fills table view with run
@@ -168,7 +183,7 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
             ui_.GroupRunsButton->setChecked(false);
 
         // Get desired fields and titles from config files
-        desiredHeader_ = getFields(instName_, instType_);
+        desiredHeader_ = getFields(currentInstrument().name(), "Neutron"); // FIXME
         runData_ = worker->jsonArray;
         auto jsonObject = runData_.at(0).toObject();
         // Add columns to header and give titles where applicable
@@ -245,23 +260,6 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
  * UI
  */
 
-// Update cycles list when Instrument changed
-void MainWindow::currentInstrumentChanged(const QString &arg1)
-{
-    cachedMassSearch_.clear();
-
-    // Configure api call
-    QString url_str = "http://127.0.0.1:5000/getCycles/" + arg1;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-
-    // Call result handler when request completed
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-            SLOT(handle_result_instruments(HttpRequestWorker *)));
-    setLoadScreen(true);
-    worker->execute(input);
-}
-
 // Populate table with cycle data
 void MainWindow::changeCycle(QString value)
 {
@@ -279,7 +277,7 @@ void MainWindow::changeCycle(QString value)
     }
     ui_.cycleButton->setText(value);
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + instName_ + "/" + cyclesMap_[value];
+    QString url_str = "http://127.0.0.1:5000/getJournal/" + currentInstrument().lowerCaseName() + "/" + cyclesMap_[value];
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
 
@@ -307,56 +305,4 @@ void MainWindow::recentCycle()
         }
     }
     cyclesMenu_->actions()[0]->trigger();
-}
-
-// Handle Instrument selection
-void MainWindow::changeInst(std::tuple<QString, QString, QString> instrument)
-{
-    instType_ = std::get<1>(instrument);
-    instName_ = std::get<0>(instrument);
-    instDisplayName_ = std::get<2>(instrument);
-    ui_.instrumentButton->setText(instDisplayName_);
-    currentInstrumentChanged(instName_);
-}
-
-void MainWindow::refresh(QString status)
-{
-    if (status != "")
-    {
-        qDebug() << "Update";
-        currentInstrumentChanged(instName_);
-        if (cyclesMap_[cyclesMenu_->actions()[0]->text()] != status) // if new cycle found
-        {
-            auto displayName = "Cycle " + status.split("_")[1] + "/" + status.split("_")[2].remove(".xml");
-            cyclesMap_[displayName] = status;
-
-            auto *action = new QAction(displayName, this);
-            connect(action, &QAction::triggered, [=]() { changeCycle(displayName); });
-            cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
-        }
-        else if (cyclesMap_[ui_.cycleButton->text()] == status) // if current opened cycle changed
-        {
-            QString url_str = "http://127.0.0.1:5000/updateJournal/" + instName_ + "/" + status + "/" +
-                              runData_.last().toObject()["run_number"].toString();
-            HttpRequestInput input(url_str);
-            auto *worker = new HttpRequestWorker(this);
-            connect(worker, &HttpRequestWorker::on_execution_finished,
-                    [=](HttpRequestWorker *workerProxy) { handleRunData(workerProxy); });
-            worker->execute(input);
-        }
-    }
-    else
-    {
-        qDebug() << "no change";
-        return;
-    }
-}
-
-void MainWindow::refreshTable()
-{
-    for (auto i = 0; i < runDataModel_.columnCount(); ++i)
-    {
-        ui_.RunDataTable->setColumnHidden(i, true);
-    }
-    currentInstrumentChanged(instName_);
 }

@@ -38,6 +38,8 @@ qt6_add_executable(
   jv2
   MACOSX_BUNDLE
   # Base Classes
+  instrument.cpp
+  instrument.h
   optionalRef.h
   # Backend
   backend.cpp
@@ -46,6 +48,7 @@ qt6_add_executable(
   filtering.cpp
   httpRequestWorker.cpp
   httpRequestWorker.h
+  instruments.cpp
   massSearch.cpp
   mainWindow.cpp
   mainWindow.cpp

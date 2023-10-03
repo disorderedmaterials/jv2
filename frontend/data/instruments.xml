@@ -1,189 +1,152 @@
 <xml>
 <insts>
-	<inst name="alf">
-		<location>ndxalf</location>
+	<inst name="ALF">
+		<dataDirectory>ndxalf</dataDirectory>
 		<type>Neutron</type>
-		<displayName>ALF</displayName>
 	</inst>
-	<inst name="argus">
-		<location>ndxargus</location>
+	<inst name="ARGUS">
+		<dataDirectory>ndxargus</dataDirectory>
 		<type>Muon</type>
-		<displayName>ARGUS</displayName>
 	</inst>
-	<inst name="chipir">
-		<location>ndxchipir</location>
+	<inst name="ChipIr">
+		<dataDirectory>ndxchipir</dataDirectory>
 		<type>Neutron</type>
-		<displayName>ChipIr</displayName>
 	</inst>
-	<inst name="chronus">
-		<location>ndxchronus</location>
+	<inst name="CHRONUS">
+		<dataDirectory>ndxchronus</dataDirectory>
 		<type>Neutron</type>
-		<displayName>CHRONUS</displayName>
 	</inst>
-	<inst name="crisp">
-		<location>ndxcrisp</location>
+	<inst name="CRISP">
+		<dataDirectory>ndxcrisp</dataDirectory>
 		<type>Neutron</type>
-		<displayName>CRISP</displayName>
 	</inst>
-	<inst name="emma">
-		<location>ndxemma</location>
+	<inst name="EMMA">
+		<dataDirectory>ndxemma</dataDirectory>
 		<type>Neutron</type>
-		<displayName>EMMA</displayName>
 	</inst>
-	<inst name="emu">
-		<location>ndxemu</location>
+	<inst name="EMU">
+		<dataDirectory>ndxemu</dataDirectory>
 		<type>Muon</type>
-		<displayName>EMU</displayName>
 	</inst>
-	<inst name="enginx">
-		<location>ndxenginx</location>
+	<inst name="ENGINX">
+		<dataDirectory>ndxenginx</dataDirectory>
 		<type>Neutron</type>
-		<displayName>ENGINX</displayName>
 	</inst>
-	<inst name="gem">
-		<location>ndxgem</location>
+	<inst name="GEM">
+		<dataDirectory>ndxgem</dataDirectory>
 		<type>Neutron</type>
-		<displayName>GEM</displayName>
 	</inst>
-	<inst name="het">
-		<location>ndxenginx</location>
+	<inst name="HET">
+		<dataDirectory>ndxenginx</dataDirectory>
 		<type>Neutron</type>
-		<displayName>HET</displayName>
 	</inst>
-	<inst name="hifi">
-		<location>ndxhifi</location>
+	<inst name="HIFI">
+		<dataDirectory>ndxhifi</dataDirectory>
 		<type>Muon</type>
-		<displayName>HIFI</displayName>
 	</inst>
-	<inst name="hrpd">
-		<location>ndxhrpd</location>
+	<inst name="HRPD">
+		<dataDirectory>ndxhrpd</dataDirectory>
 		<type>Neutron</type>
-		<displayName>HRPD</displayName>
 	</inst>
-	<inst name="imat">
-		<location>ndximat</location>
+	<inst name="IMAT">
+		<dataDirectory>ndximat</dataDirectory>
 		<type>Neutron</type>
-		<displayName>IMAT</displayName>
 	</inst>
-	<inst name="ines">
-		<location>ndxines</location>
+	<inst name="INES">
+		<dataDirectory>ndxines</dataDirectory>
 		<type>Neutron</type>
-		<displayName>INES</displayName>
 	</inst>
-	<inst name="inter">
-		<location>ndxinter</location>
+	<inst name="INTER">
+		<dataDirectory>ndxinter</dataDirectory>
 		<type>Neutron</type>
-		<displayName>INTER</displayName>
 	</inst>
-	<inst name="iris">
-		<location>ndxiris</location>
+	<inst name="IRIS">
+		<dataDirectory>ndxiris</dataDirectory>
 		<type>Neutron</type>
-		<displayName>IRIS</displayName>
 	</inst>
-	<inst name="let">
-		<location>ndxlet</location>
+	<inst name="LET">
+		<dataDirectory>ndxlet</dataDirectory>
 		<type>Neutron</type>
-		<displayName>LET</displayName>
 	</inst>
-	<inst name="larmor">
-		<location>ndxlarmor</location>
+	<inst name="LARMOR">
+		<dataDirectory>ndxlarmor</dataDirectory>
 		<type>Neutron</type>
-		<displayName>LARMOR</displayName>
 	</inst>
-	<inst name="loq">
-		<location>ndxloq</location>
+	<inst name="LOQ">
+		<dataDirectory>ndxloq</dataDirectory>
 		<type>Neutron</type>
-		<displayName>LOQ</displayName>
 	</inst>
-	<inst name="maps">
-		<location>ndxmaps</location>
+	<inst name="MAPS">
+		<dataDirectory>ndxmaps</dataDirectory>
 		<type>Neutron</type>
-		<displayName>MAPS</displayName>
 	</inst>
-	<inst name="mari">
-		<location>ndxmari</location>
+	<inst name="MARI">
+		<dataDirectory>ndxmari</dataDirectory>
 		<type>Neutron</type>
-		<displayName>MARI</displayName>
 	</inst>
-	<inst name="merlin">
-		<location>ndxmerlin</location>
+	<inst name="MERLIN">
+		<dataDirectory>ndxmerlin</dataDirectory>
 		<type>Neutron</type>
-		<displayName>MERLIN</displayName>
 	</inst>
-	<inst name="musr">
-		<location>ndxmusr</location>
+	<inst name="MUSR">
+		<dataDirectory>ndxmusr</dataDirectory>
 		<type>Muon</type>
-		<displayName>MUSR</displayName>
 	</inst>
-	<inst name="nimrod">
-		<location>ndxnimrod</location>
+	<inst name="NIMROD">
+		<dataDirectory>ndxnimrod</dataDirectory>
 		<type>Neutron</type>
-		<displayName>NIMROD</displayName>
 	</inst>
-	<inst name="offspec">
-		<location>ndxoffspec</location>
+	<inst name="OFFSPEC">
+		<dataDirectory>ndxoffspec</dataDirectory>
 		<type>Neutron</type>
-		<displayName>OFFSPEC</displayName>
 	</inst>
-	<inst name="osiris">
-		<location>ndxosiris</location>
+	<inst name="OSIRIS">
+		<dataDirectory>ndxosiris</dataDirectory>
 		<type>Neutron</type>
-		<displayName>OSIRIS</displayName>
 	</inst>
-	<inst name="pearl">
-		<location>ndxpearl</location>
+	<inst name="PEARL">
+		<dataDirectory>ndxpearl</dataDirectory>
 		<type>Neutron</type>
-		<displayName>PEARL</displayName>
 	</inst>
-	<inst name="polaris">
-		<location>ndxpolaris</location>
+	<inst name="POLARIS">
+		<dataDirectory>ndxpolaris</dataDirectory>
 		<type>Neutron</type>
-		<displayName>POLARIS</displayName>
 	</inst>
-	<inst name="polref">
-		<location>ndxpolref</location>
+	<inst name="POLREF">
+		<dataDirectory>ndxpolref</dataDirectory>
 		<type>Neutron</type>
-		<displayName>POLREF</displayName>
 	</inst>
-	<inst name="sandals">
-		<location>ndxsandals</location>
+	<inst name="SANDALS">
+		<dataDirectory>ndxsandals</dataDirectory>
 		<type>Neutron</type>
-		<displayName>SANDALS</displayName>
 	</inst>
-	<inst name="sans2d">
-		<location>ndxsans2d</location>
+	<inst name="SANS2d">
+		<dataDirectory>ndxsans2d</dataDirectory>
 		<type>Neutron</type>
-		<displayName>SANS2d</displayName>
 	</inst>
-	<inst name="surf">
-		<location>ndxsurf</location>
+	<inst name="SURF">
+		<dataDirectory>ndxsurf</dataDirectory>
 		<type>Neutron</type>
-		<displayName>SURF</displayName>
 	</inst>
-	<inst name="sxd">
-		<location>ndxsxd</location>
+	<inst name="SXD">
+		<dataDirectory>ndxsxd</dataDirectory>
 		<type>Neutron</type>
-		<displayName>SXD</displayName>
 	</inst>
-	<inst name="tosca">
-		<location>ndxtosca</location>
+	<inst name="TOSCA">
+		<dataDirectory>ndxtosca</dataDirectory>
 		<type>Neutron</type>
-		<displayName>TOSCA</displayName>
 	</inst>
-	<inst name="vesuvio">
-		<location>ndxevs</location>
+	<inst name="VESUVIO">
+		<dataDirectory>ndxevs</dataDirectory>
 		<type>Neutron</type>
-		<displayName>VESUVIO</displayName>
 	</inst>
-	<inst name="wish">
-		<location>ndxwish</location>
+	<inst name="WISH">
+		<dataDirectory>ndxwish</dataDirectory>
 		<type>Neutron</type>
-		<displayName>WISH</displayName>
 	</inst>
-	<inst name="zoom">
-		<location>ndxzoom</location>
+	<inst name="ZOOM">
+		<dataDirectory>ndxzoom</dataDirectory>
 		<type>Neutron</type>
-		<displayName>ZOOM</displayName>
 	</inst>
 </insts>
 </xml>

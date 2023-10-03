@@ -10,8 +10,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui_.setupUi(this);
 
-    auto instruments = getInstruments();
-    fillInstruments(instruments);
+    // Get available instruments
+    getDefaultInstruments();
+    fillInstruments();
 
     // Define initial variable states
     init_ = true;
@@ -137,8 +138,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.setValue("recentInstrument", instDisplayName_);
-    settings.setValue("recentCycle", ui_.cycleButton->text());
+    if (currentInstrument_)
+    {
+        auto &inst = currentInstrument_->get();
+        settings.setValue("recentInstrument", inst.name());
+        settings.setValue("recentCycle", ui_.cycleButton->text());
+    }
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";

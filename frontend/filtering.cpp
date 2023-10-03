@@ -101,11 +101,15 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 // Go-To run number
 void MainWindow::on_actionRun_Number_triggered()
 {
+    if (!currentInstrument_)
+        return;
+    auto &inst = currentInstrument_->get();
+
     QString textInput = QInputDialog::getText(this, tr("Find"), tr("Run No: "), QLineEdit::Normal);
     if (textInput.isEmpty())
         return;
 
-    QString url_str = "http://127.0.0.1:5000/getGoToCycle/" + instName_ + "/" + textInput;
+    QString url_str = "http://127.0.0.1:5000/getGoToCycle/" + inst.lowerCaseName() + "/" + textInput;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, &HttpRequestWorker::on_execution_finished,
