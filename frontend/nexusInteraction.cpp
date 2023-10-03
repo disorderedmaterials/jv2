@@ -46,57 +46,55 @@ void MainWindow::customMenuRequested(QPoint pos)
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    QString msg;
+    contextMenu_->clear();
 
-    if (worker->errorType == QNetworkReply::NoError)
+    // Network error?
+    if (worker->errorType != QNetworkReply::NoError)
     {
-        contextMenu_->clear();
+        QMessageBox::information(this, "Network Error",
+                                 "A network error occurred while retrieving the run information.\nThe reported error was: " +
+                                     worker->errorString);
+        return;
+    }
 
-        foreach (const auto &log, worker->jsonArray)
+    foreach (const auto &log, worker->jsonArray)
+    {
+        auto logArray = log.toArray();
+        auto name = logArray.first().toString().toUpper();
+        name.chop(2);
+        auto formattedName = name.append("og");
+        auto *subMenu = new QMenu("Plot from " + formattedName);
+        logArray.removeFirst();
+        if (logArray.size() > 0)
+            contextMenu_->addMenu(subMenu);
+
+        auto logArrayVar = logArray.toVariantList();
+        std::sort(logArrayVar.begin(), logArrayVar.end(),
+                  [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
+
+        foreach (const auto &block, logArrayVar)
         {
-            auto logArray = log.toArray();
-            auto name = logArray.first().toString().toUpper();
-            name.chop(2);
-            auto formattedName = name.append("og");
-            auto *subMenu = new QMenu("Plot from " + formattedName);
-            logArray.removeFirst();
-            if (logArray.size() > 0)
-                contextMenu_->addMenu(subMenu);
-
-            auto logArrayVar = logArray.toVariantList();
-            std::sort(logArrayVar.begin(), logArrayVar.end(),
-                      [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
-
-            foreach (const auto &block, logArrayVar)
-            {
-                // Fills contextMenu with all columns
-                QString path = block.toString();
-                auto *action = new QAction(path.right(path.size() - path.lastIndexOf("/") - 1), this);
-                action->setData(path);
-                connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
-                subMenu->addAction(action);
-            }
+            // Fills contextMenu with all columns
+            QString path = block.toString();
+            auto *action = new QAction(path.right(path.size() - path.lastIndexOf("/") - 1), this);
+            action->setData(path);
+            connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
+            subMenu->addAction(action);
         }
-
-        // Additional context options
-        auto *action = new QAction("Select runs with same title", this);
-        connect(action, SIGNAL(triggered()), this, SLOT(selectSimilar()));
-        contextMenu_->addAction(action);
-
-        auto *action2 = new QAction("Plot detector spectrum", this);
-        connect(action2, SIGNAL(triggered()), this, SLOT(getSpectrumCount()));
-        contextMenu_->addAction(action2);
-
-        auto *action3 = new QAction("Plot monitor spectrum", this);
-        connect(action3, SIGNAL(triggered()), this, SLOT(getMonitorCount()));
-        contextMenu_->addAction(action3);
     }
-    else
-    {
-        // an error occurred
-        msg = "Error2: " + worker->errorString;
-        QMessageBox::information(this, "", msg);
-    }
+
+    // Additional context options
+    auto *action = new QAction("Select runs with same title", this);
+    connect(action, SIGNAL(triggered()), this, SLOT(selectSimilar()));
+    contextMenu_->addAction(action);
+
+    auto *action2 = new QAction("Plot detector spectrum", this);
+    connect(action2, SIGNAL(triggered()), this, SLOT(getSpectrumCount()));
+    contextMenu_->addAction(action2);
+
+    auto *action3 = new QAction("Plot monitor spectrum", this);
+    connect(action3, SIGNAL(triggered()), this, SLOT(getMonitorCount()));
+    contextMenu_->addAction(action3);
 }
 
 // Returns run and cycle values for selected runs
