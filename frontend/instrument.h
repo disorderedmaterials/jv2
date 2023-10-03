@@ -15,6 +15,12 @@ class Instrument
         Neutron,
         Muon
     };
+    // Return text string for specified instrument type
+    static QString instrumentType(InstrumentType type);
+    // Convert text string to instrument type
+    static InstrumentType instrumentType(QString typeString);
+
+    public:
     Instrument(QString name, InstrumentType type, bool userDefined = false);
 
     /*

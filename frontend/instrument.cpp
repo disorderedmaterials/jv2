@@ -3,6 +3,31 @@
 
 #include "instrument.h"
 
+// Return text string for specified instrument type
+QString Instrument::instrumentType(Instrument::InstrumentType type)
+{
+    switch (type)
+    {
+        case (InstrumentType::Neutron):
+            return "Neutron";
+        case (InstrumentType::Muon):
+            return "Muon";
+        default:
+            throw(std::runtime_error("Instrument type not known and can't be converted to a QString.\n"));
+    }
+}
+
+// Convert text string to instrument type
+Instrument::InstrumentType Instrument::instrumentType(QString typeString)
+{
+    if (typeString.toLower() == "neutron")
+        return InstrumentType::Neutron;
+    else if (typeString.toLower() == "muon")
+        return InstrumentType::Muon;
+    else
+        throw(std::runtime_error("Instrument string can't be converted to an InstrumentType.\n"));
+}
+
 Instrument::Instrument(QString name, InstrumentType type, bool userDefined)
     : name_(name), type_(type), userDefined_(userDefined)
 {
