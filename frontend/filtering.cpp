@@ -31,12 +31,7 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
         runDataModel_.setData(groupedRunData_);
         runDataModel_.setHorizontalHeaders(groupedTableHeaders_);
 
-        for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
-            ui_.runDataTable->setColumnHidden(i, false);
         ui_.runDataTable->resizeColumnsToContents();
-        // Make view match desired order
-        ui_.runDataTable->horizontalHeader()->swapSections(ui_.runDataTable->horizontalHeader()->visualIndex(0), 0);
-        ui_.runDataTable->horizontalHeader()->swapSections(ui_.runDataTable->horizontalHeader()->visualIndex(1), 1);
     }
     else
     {
