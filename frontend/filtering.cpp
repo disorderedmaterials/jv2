@@ -31,34 +31,34 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
         runDataModel_.setData(groupedRunData_);
         runDataModel_.setHorizontalHeaders(groupedTableHeaders_);
 
-        ui_.runDataTable->resizeColumnsToContents();
+        ui_.RunDataTable->resizeColumnsToContents();
     }
     else
     {
         runDataModel_.setData(runData_);
         runDataModel_.setHorizontalHeaders(header_);
 
-        for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
+        for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
         {
             auto index = runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString();
             auto it = std::find_if(desiredHeader_.begin(), desiredHeader_.end(),
                                    [index](const auto &data) { return data.first == index; });
             if (it == desiredHeader_.end())
-                ui_.runDataTable->setColumnHidden(i, true);
+                ui_.RunDataTable->setColumnHidden(i, true);
         }
 
         // Re-sort columns on change
         int logIndex;
         for (auto i = 0; i < desiredHeader_.size(); ++i)
         {
-            for (auto j = 0; j < ui_.runDataTable->horizontalHeader()->count(); ++j)
+            for (auto j = 0; j < ui_.RunDataTable->horizontalHeader()->count(); ++j)
             {
-                logIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(j);
+                logIndex = ui_.RunDataTable->horizontalHeader()->logicalIndex(j);
                 if (desiredHeader_[i].first == runDataModel_.headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
-                    ui_.runDataTable->horizontalHeader()->swapSections(j, i);
+                    ui_.RunDataTable->horizontalHeader()->swapSections(j, i);
             }
         }
-        ui_.runDataTable->resizeColumnsToContents();
+        ui_.RunDataTable->resizeColumnsToContents();
     }
     updateSearch(searchString_);
 }

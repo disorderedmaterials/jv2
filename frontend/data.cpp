@@ -218,17 +218,17 @@ void MainWindow::handle_result_cycles(HttpRequestWorker *worker)
         int logIndex;
         for (auto i = 0; i < desiredHeader_.size(); ++i)
         {
-            for (auto j = 0; j < ui_.runDataTable->horizontalHeader()->count(); ++j)
+            for (auto j = 0; j < ui_.RunDataTable->horizontalHeader()->count(); ++j)
             {
-                logIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(j);
+                logIndex = ui_.RunDataTable->horizontalHeader()->logicalIndex(j);
                 // If index matches model data, swap columns in view
                 if (desiredHeader_[i].first == runDataModel_.headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
                 {
-                    ui_.runDataTable->horizontalHeader()->swapSections(j, i);
+                    ui_.RunDataTable->horizontalHeader()->swapSections(j, i);
                 }
             }
         }
-        ui_.runDataTable->resizeColumnsToContents();
+        ui_.RunDataTable->resizeColumnsToContents();
         updateSearch(searchString_);
         ui_.RunFilterEdit->clear();
         emit tableFilled();
@@ -356,7 +356,7 @@ void MainWindow::refreshTable()
 {
     for (auto i = 0; i < runDataModel_.columnCount(); ++i)
     {
-        ui_.runDataTable->setColumnHidden(i, true);
+        ui_.RunDataTable->setColumnHidden(i, true);
     }
     currentInstrumentChanged(instName_);
 }

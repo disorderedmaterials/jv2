@@ -22,7 +22,7 @@
 void MainWindow::customMenuRequested(QPoint pos)
 {
     pos_ = pos;
-    auto index = ui_.runDataTable->indexAt(pos);
+    auto index = ui_.RunDataTable->indexAt(pos);
     auto runNos = getRunNos().split("-")[0];
     auto cycles = getRunNos().split("-")[1];
     if (cycles == "")
@@ -39,7 +39,7 @@ void MainWindow::customMenuRequested(QPoint pos)
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
             SLOT(handle_result_contextMenu(HttpRequestWorker *)));
-    contextMenu_->popup(ui_.runDataTable->viewport()->mapToGlobal(pos_));
+    contextMenu_->popup(ui_.RunDataTable->viewport()->mapToGlobal(pos_));
     worker->execute(input);
 }
 
@@ -103,12 +103,12 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 QString MainWindow::getRunNos()
 {
     // Gathers all selected runs
-    auto selectedRuns = ui_.runDataTable->selectionModel()->selectedRows();
+    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
 
     // Finds run number location in table
     int runNoColumn;
     int cycleColumn;
-    for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
+    for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
     {
         if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
             runNoColumn = i;
