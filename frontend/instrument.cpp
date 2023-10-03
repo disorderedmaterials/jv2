@@ -7,7 +7,7 @@
 
 // Static Singleton
 // -- Default columns for instrument types
-std::map<Instrument::InstrumentType, std::map<QString, QString>> Instrument::defaultColumns_;
+std::map<Instrument::InstrumentType, Instrument::RunDataColumns> Instrument::defaultColumns_;
 
 // Return text string for specified instrument type
 QString Instrument::instrumentType(Instrument::InstrumentType type)
@@ -81,20 +81,20 @@ void Instrument::getDefaultColumns()
 
         // Get instrument type to which the columns apply
         auto instType = Instrument::instrumentType(columnsElement.attribute("type"));
-        auto &columnMap = defaultColumns_[instType];
+        auto &columnVector = defaultColumns_[instType];
 
         // Get columns
-        auto columns = columnsElement.elementsByTagName("defaultColumns");
+        auto columns = columnsElement.elementsByTagName("column");
         for (auto c = 0; c < columns.count(); ++c)
         {
             auto colElement = columns.item(c).toElement();
-            columnMap[colElement.attribute("name")] = colElement.attribute("data");
+            columnVector.emplace_back(colElement.attribute("name"), colElement.attribute("data"));
         }
     }
 }
 
 // Get run data columns to use for this instrument
-const std::map<QString, QString> &Instrument::runDataColumns() const
+const Instrument::RunDataColumns &Instrument::runDataColumns() const
 {
     // If there are no defined custom columns, return the defaults instead
     return customColumns_.empty() ? defaultColumns_[type_] : customColumns_;

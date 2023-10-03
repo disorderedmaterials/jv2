@@ -48,17 +48,21 @@ class Instrument
     /*
      * Run Data Columns
      */
+    public:
+    using RunDataColumn = std::pair<QString, QString>;
+    using RunDataColumns = std::vector<std::pair<QString, QString>>;
+
     private:
     // Default columns for instrument types
-    static std::map<InstrumentType, std::map<QString, QString>> defaultColumns_;
+    static std::map<InstrumentType, RunDataColumns> defaultColumns_;
     // Custom columns for this instrument
-    std::map<QString, QString> customColumns_;
+    RunDataColumns customColumns_;
 
     public:
     // Get default instrument columns
     static void getDefaultColumns();
     // Get run data columns to use for this instrument
-    const std::map<QString, QString> &runDataColumns() const;
+    const std::vector<RunDataColumn> &runDataColumns() const;
 
     /*
      * Additional Information

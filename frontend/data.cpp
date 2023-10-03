@@ -194,23 +194,8 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
         ui_.GroupRunsButton->setChecked(false);
 
     // Get desired fields and titles from config files
-    desiredHeader_ = getFields(currentInstrument().name(), "Neutron"); // FIXME
+    header_ = currentInstrument().runDataColumns();
     runData_ = worker->jsonArray;
-    auto jsonObject = runData_.at(0).toObject();
-
-    // Add columns to header and give titles where applicable
-    foreach (const QString &key, jsonObject.keys())
-    {
-        if (headersMap_[key].isEmpty())
-            headersMap_[key] = key;
-        // Find matching indices
-        auto it =
-            std::find_if(desiredHeader_.begin(), desiredHeader_.end(), [key](const auto &data) { return data.first == key; });
-        if (it != desiredHeader_.end())
-            header_.push_back(JsonTableModel::Heading({{"title", it->second}, {"index", key}}));
-        else
-            header_.push_back(JsonTableModel::Heading({{"title", headersMap_[key]}, {"index", key}}));
-    }
 
     // Set table data
     runDataModel_.setHorizontalHeaders(header_);
@@ -221,13 +206,13 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
     viewMenu_->addAction("Save column state", this, SLOT(savePref()));
     viewMenu_->addAction("Reset column state to default", this, SLOT(clearPref()));
     viewMenu_->addSeparator();
+    auto jsonObject = runData_.at(0).toObject();
     foreach (const QString &key, jsonObject.keys())
     {
-
         auto *checkBox = new QCheckBox(viewMenu_);
         auto *checkableAction = new QWidgetAction(viewMenu_);
         checkableAction->setDefaultWidget(checkBox);
-        checkBox->setText(headersMap_[key]);
+        checkBox->setText(key);
         checkBox->setCheckState(Qt::PartiallyChecked);
         viewMenu_->addAction(checkableAction);
         connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
@@ -241,19 +226,19 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
         else
             checkBox->setCheckState(Qt::Unchecked);
     }
-    int logIndex;
-    for (auto i = 0; i < desiredHeader_.size(); ++i)
-    {
-        for (auto j = 0; j < ui_.RunDataTable->horizontalHeader()->count(); ++j)
-        {
-            logIndex = ui_.RunDataTable->horizontalHeader()->logicalIndex(j);
-            // If index matches model data, swap columns in view
-            if (desiredHeader_[i].first == runDataModel_.headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
-            {
-                ui_.RunDataTable->horizontalHeader()->swapSections(j, i);
-            }
-        }
-    }
+    // int logIndex;
+    // for (auto i = 0; i < desiredHeader_.size(); ++i)
+    // {
+    //     for (auto j = 0; j < ui_.RunDataTable->horizontalHeader()->count(); ++j)
+    //     {
+    //         logIndex = ui_.RunDataTable->horizontalHeader()->logicalIndex(j);
+    //         // If index matches model data, swap columns in view
+    //         if (desiredHeader_[i].first == runDataModel_.headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
+    //         {
+    //             ui_.RunDataTable->horizontalHeader()->swapSections(j, i);
+    //         }
+    //     }
+    // }
     ui_.RunDataTable->resizeColumnsToContents();
     updateSearch(searchString_);
     ui_.RunFilterEdit->clear();

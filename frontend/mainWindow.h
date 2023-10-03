@@ -77,7 +77,7 @@ class MainWindow : public QMainWindow
     QMap<QString, QString> headersMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
-    JsonTableModel::Header header_, groupedTableHeaders_;
+    Instrument::RunDataColumns header_, groupedTableHeaders_;
     std::vector<std::pair<QString, QString>> desiredHeader_;
 
     private:
