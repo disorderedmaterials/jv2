@@ -93,6 +93,9 @@ void Instrument::getDefaultColumns()
     }
 }
 
+// Return whether the instrument has a custom column definition
+bool Instrument::hasCustomColumns() const { return !customColumns_.empty(); }
+
 // Get run data columns to use for this instrument
 const Instrument::RunDataColumns &Instrument::runDataColumns() const
 {

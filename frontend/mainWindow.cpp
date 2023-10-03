@@ -37,19 +37,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui_.RunDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
     ui_.RunDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
 
-    // Sets instrument to last used
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    QString recentInstrument = settings.value("recentInstrument").toString();
-    bool found = false;
-    for (auto i = 0; i < instrumentsMenu_->actions().count(); i++)
-        if (instrumentsMenu_->actions()[i]->text() == recentInstrument)
-        {
-            instrumentsMenu_->actions()[i]->trigger();
-            found = true;
-        }
-    if (!found)
-        instrumentsMenu_->actions()[instrumentsMenu_->actions().count() - 1]->trigger();
-
     // Disables closing data tab + handles tab closing
     ui_.MainTabs->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
     connect(ui_.MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
@@ -62,26 +49,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Connect exit action
     connect(ui_.action_Quit, SIGNAL(triggered()), this, SLOT(close()));
 
-    // Tests and assigns local sources from memory
-    QString localSource = settings.value("localSource").toString();
-    QString url_str;
-    validSource_ = true;
-    if (!localSource.isEmpty())
-        url_str = "http://127.0.0.1:5000/clearLocalSource";
-    else
-        url_str = "http://127.0.0.1:5000/setLocalSource/" + localSource.replace("/", ";");
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    worker->execute(input);
-
-    QString mountPoint = settings.value("mountPoint").toString();
-    if (!mountPoint.isEmpty())
-    {
-        url_str = "http://127.0.0.1:5000/setRoot/" + mountPoint;
-        HttpRequestInput input2(url_str);
-        auto *worker2 = new HttpRequestWorker(this);
-        worker2->execute(input2);
-    }
+    // Get user settings
+    loadSettings();
 
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });

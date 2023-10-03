@@ -13,167 +13,46 @@
  * Private Functions
  */
 
-void MainWindow::savePref()
+// Save current user settings
+void MainWindow::saveSettings() const
 {
-    auto dom = getConfig();
-
-    auto rootelem = dom.documentElement();
-    auto nodelist = rootelem.elementsByTagName("inst");
-    // Get current table fields
-    QString currentFields;
-    int realIndex;
-    for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
-    {
-        realIndex = ui_.RunDataTable->horizontalHeader()->logicalIndex(i);
-        if (!ui_.RunDataTable->isColumnHidden(realIndex))
-        {
-            currentFields += runDataModel_.headerData(realIndex, Qt::Horizontal, Qt::UserRole).toString();
-            currentFields += ",";
-            currentFields += runDataModel_.headerData(realIndex, Qt::Horizontal).toString();
-            currentFields += ",;";
-        }
-    }
-    currentFields.chop(1);
-
-    // Add preferences to xml file
-    QDomNode node;
-    QDomElement elem;
-    QDomElement columns;
-    for (auto i = 0; i < nodelist.count(); i++)
-    {
-        node = nodelist.item(i);
-        elem = node.toElement();
-        if (elem.attribute("name") == currentInstrument_->get().name())
-        {
-            auto oldColumns = elem.elementsByTagName("Columns");
-            if (!oldColumns.isEmpty())
-                elem.removeChild(elem.elementsByTagName("Columns").item(0));
-            columns = dom.createElement("Columns");
-            for (QString field : currentFields.split(";"))
-            {
-                auto preferredFieldsElem = dom.createElement("Column");
-                auto preferredFieldsDataElem = dom.createElement("Data");
-                preferredFieldsElem.setAttribute("name", field.split(",")[1]);
-                preferredFieldsDataElem.appendChild(dom.createTextNode(field.split(",")[0]));
-                preferredFieldsElem.appendChild(preferredFieldsDataElem);
-                columns.appendChild(preferredFieldsElem);
-            }
-            elem.appendChild(columns);
-        }
-    }
-    if (!dom.toByteArray().isEmpty())
-    {
-        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-        settings.setValue("tableConfig", dom.toByteArray());
-    }
-}
-
-void MainWindow::clearPref()
-{
-    auto dom = getConfig();
-
-    auto rootelem = dom.documentElement();
-    auto nodelist = rootelem.elementsByTagName("inst");
-
-    // // Clear preferences from xml file
-    // QDomNode node;
-    // QDomElement elem;
-    // QDomElement columns;
-    // for (auto i = 0; i < nodelist.count(); i++)
-    // {
-    //     node = nodelist.item(i);
-    //     elem = node.toElement();
-    //     if (elem.attribute("name") == instName_)
-    //     {
-    //         auto oldColumns = elem.elementsByTagName("Columns");
-    //         if (!oldColumns.isEmpty())
-    //             elem.removeChild(elem.elementsByTagName("Columns").item(0));
-    //     }
-    // }
-    // if (!dom.toByteArray().isEmpty())
-    // {
-    //     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    //     settings.setValue("tableConfig", dom.toByteArray());
-    // }
-}
-
-QDomDocument MainWindow::getConfig()
-{
-    QDomDocument dom;
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (!settings.contains("tableConfig"))
+
+    // Save customised column views
+    QDomDocument customColumns;
+    for (const auto &inst : instruments_)
     {
-        QFile file(":/data/tableConfig.xml");
-        file.open(QIODevice::ReadOnly);
-        dom.setContent(&file);
-        file.close();
+        if (!inst.hasCustomColumns())
+            continue;
     }
-    else
-        dom.setContent(settings.value("tableConfig", "fail").toString());
-    return dom;
 }
 
-// Get the desired fields and their titles
-std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrument, QString instType)
+// Retrieve user settings
+void MainWindow::loadSettings()
 {
-    std::vector<std::pair<QString, QString>> desiredInstFields;
-    QDomNodeList desiredInstrumentFields;
-    auto dom = getConfig();
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 
-    std::pair<QString, QString> column;
+    // Local source?
+    auto localSource = settings.value("localSource").toString();
+    QString url_str;
+    validSource_ = true;
+    if (!localSource.isEmpty())
+    {
+        auto *worker = new HttpRequestWorker(this);
+        worker->execute({"http://127.0.0.1:5000/setLocalSource/" + localSource.replace("/", ";")});
+    }
 
-    auto rootelem = dom.documentElement();
-    auto instList = rootelem.elementsByTagName("inst");
+    // Mount point?
+    auto mountPoint = settings.value("mountPoint").toString();
+    if (!mountPoint.isEmpty())
+    {
+        auto *worker = new HttpRequestWorker(this);
+        worker->execute({"http://127.0.0.1:5000/setRoot/" + mountPoint});
+    }
 
-    for (auto i = 0; i < instList.count(); i++)
-    {
-        if (instList.item(i).toElement().attribute("name").toLower() == instrument)
-        {
-            desiredInstrumentFields = instList.item(i).toElement().elementsByTagName("Column");
-            break;
-        }
-    }
-    // If inst preferences blank
-    if (desiredInstrumentFields.isEmpty())
-    {
-        auto configDefault = rootelem.elementsByTagName(instType).item(0).toElement();
-        auto configDefaultFields = configDefault.elementsByTagName("Column");
-        // If config preferences blank
-        if (configDefaultFields.isEmpty())
-        {
-            QFile file(":/data/instruments.xml");
-            file.open(QIODevice::ReadOnly);
-            dom.setContent(&file);
-            file.close();
-            auto rootelem = dom.documentElement();
-            auto defaultColumns = rootelem.elementsByTagName(instType).item(0).toElement().elementsByTagName("Column");
-            // Get config preferences
-            for (int i = 0; i < defaultColumns.count(); i++)
-            {
-                // Get column index and title from xml
-                column.first = defaultColumns.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
-                column.second = defaultColumns.item(i).toElement().attribute("name");
-                desiredInstFields.push_back(column);
-            }
-            return desiredInstFields;
-        }
-        // Get config default
-        for (int i = 0; i < configDefaultFields.count(); i++)
-        {
-            column.first = configDefaultFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
-            column.second = configDefaultFields.item(i).toElement().attribute("name");
-            desiredInstFields.push_back(column);
-        }
-        return desiredInstFields;
-    }
-    // Get instrument preferences
-    for (int i = 0; i < desiredInstrumentFields.count(); i++)
-    {
-        column.first = desiredInstrumentFields.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
-        column.second = desiredInstrumentFields.item(i).toElement().attribute("name");
-        desiredInstFields.push_back(column);
-    }
-    return desiredInstFields;
+    // Last used instrument?
+    auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
+    setCurrentInstrument(recentInstrument);
 }
 
 /*
