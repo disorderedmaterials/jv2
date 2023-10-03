@@ -108,6 +108,7 @@ class MainWindow : public QMainWindow
      * Settings
      */
     private:
+    // Load
     QDomDocument getConfig();
     // Get Fields from config file
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType);

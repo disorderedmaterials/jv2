@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QString>
+#include <map>
 
 // Instrument Definition
 class Instrument
@@ -43,6 +44,21 @@ class Instrument
     InstrumentType type() const;
     // Return whether this instrument is user-defined
     bool userDefined() const;
+
+    /*
+     * Run Data Columns
+     */
+    private:
+    // Default columns for instrument types
+    static std::map<InstrumentType, std::map<QString, QString>> defaultColumns_;
+    // Custom columns for this instrument
+    std::map<QString, QString> customColumns_;
+
+    public:
+    // Get default instrument columns
+    static void getDefaultColumns();
+    // Get run data columns to use for this instrument
+    const std::map<QString, QString> &runDataColumns() const;
 
     /*
      * Additional Information

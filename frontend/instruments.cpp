@@ -25,7 +25,8 @@ bool MainWindow::parseInstruments(const QDomDocument &source)
 
         // Get instrument type
         auto typeElements = instElement.elementsByTagName("type");
-        auto instrumentType = Instrument::instrumentType(typeElements.count() == 1 ? typeElements.at(0).toElement().text() : "Neutron");
+        auto instrumentType =
+            Instrument::instrumentType(typeElements.count() == 1 ? typeElements.at(0).toElement().text() : "Neutron");
 
         auto &inst = instruments_.emplace_back(instrumentName, instrumentType);
 

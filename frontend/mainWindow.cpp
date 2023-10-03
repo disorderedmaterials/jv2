@@ -10,7 +10,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui_.setupUi(this);
 
-    // Get available instruments
+    // Get default instrument run data columns
+    Instrument::getDefaultColumns();
+
+    // Get available instrument data
     getDefaultInstruments();
     fillInstruments();
 

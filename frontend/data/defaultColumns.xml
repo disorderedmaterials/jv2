@@ -1,50 +1,20 @@
 <xml>
-<defaultcolumns>
-	<columns name="Neutron">
-		<column name="Run No">
-		    <data>run_number</data>
-		</column>
-		<column name="Title">
-			<data>title</data>
-		</column>
-		<column name="UAmps">
-			<data>proton_charge</data>
-		</column>
-		<column name="Start Time">
-			<data>start_time</data>
-		</column>
-		<column name="Duration">
-			<data>duration</data>
-		</column>
-		<column name="User Name">
-			<data>user_name</data>
-		</column>
-		<column name="RB No.">
-			<data>experiment_identifier</data>
-		</column>
-	</columns>
-	<columns name="Muon">
-		<column name="Run No">
-			<data>run_number</data>
-		</column>
-		<column name="Title">
-			<data>title</data>
-		</column>
-		<column name="Mev">
-			<data>total_mevents</data>
-		</column>
-		<column name="Start Time">
-			<data>start_time</data>
-		</column>
-		<column name="Duration">
-			<data>duration</data>
-		</column>
-		<column name="User Name">
-			<data>user_name</data>
-		</column>
-		<column name="RB No.">
-			<data>experiment_identifier</data>
-		</column>
-	</columns>
+<defaultColumns type="Neutron">
+	<column name="Run No" data="run_number"/>
+	<column name="Title" data="title"/>
+	<column name="UAmps" data="proton_charge"/>
+	<column name="Start Time" data="start_time"/>
+	<column name="Duration" data="duration"/>
+	<column name="User Name" data="user_name"/>
+	<column name="RB No." data="experiment_identifier"/>
+</defaultColumns>
+<defaultColumns type="Muon">
+	<column name="Run No" data="run_number"/>
+	<column name="Title" data="title"/>
+	<column name="Mev" data="total_mevents"/>
+	<column name="Start Time" data="start_time"/>
+	<column name="Duration" data="duration"/>
+	<column name="User Name" data="user_name"/>
+	<column name="RB No." data="experiment_identifier"/>
 </defaultcolumns>
 </xml>

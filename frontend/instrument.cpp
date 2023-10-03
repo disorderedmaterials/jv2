@@ -2,6 +2,12 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "instrument.h"
+#include <QDomDocument>
+#include <QFile>
+
+// Static Singleton
+// -- Default columns for instrument types
+std::map<Instrument::InstrumentType, std::map<QString, QString>> Instrument::defaultColumns_;
 
 // Return text string for specified instrument type
 QString Instrument::instrumentType(Instrument::InstrumentType type)
@@ -48,6 +54,51 @@ Instrument::InstrumentType Instrument::type() const { return type_; }
 
 // Return whether this instrument is user-defined
 bool Instrument::userDefined() const { return userDefined_; }
+
+/*
+ * Run Data Columns
+ */
+
+// Get default instrument columns
+void Instrument::getDefaultColumns()
+{
+    QFile file(":/data/defaultColumns.xml");
+    if (!file.exists())
+        throw(std::runtime_error("Internal default columns data not found.\n"));
+
+    file.open(QIODevice::ReadOnly);
+    QDomDocument dom;
+    dom.setContent(&file);
+    file.close();
+
+    auto docRoot = dom.documentElement();
+    auto dcNodes = docRoot.elementsByTagName("defaultColumns");
+
+    // Loop over sets of default columns
+    for (auto i = 0; i < dcNodes.count(); ++i)
+    {
+        auto columnsElement = dcNodes.item(i).toElement();
+
+        // Get instrument type to which the columns apply
+        auto instType = Instrument::instrumentType(columnsElement.attribute("type"));
+        auto &columnMap = defaultColumns_[instType];
+
+        // Get columns
+        auto columns = columnsElement.elementsByTagName("defaultColumns");
+        for (auto c = 0; c < columns.count(); ++c)
+        {
+            auto colElement = columns.item(c).toElement();
+            columnMap[colElement.attribute("name")] = colElement.attribute("data");
+        }
+    }
+}
+
+// Get run data columns to use for this instrument
+const std::map<QString, QString> &Instrument::runDataColumns() const
+{
+    // If there are no defined custom columns, return the defaults instead
+    return customColumns_.empty() ? defaultColumns_[type_] : customColumns_;
+}
 
 /*
  * Additional Information
