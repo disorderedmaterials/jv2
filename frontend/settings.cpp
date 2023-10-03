@@ -100,9 +100,9 @@ void MainWindow::clearPref()
 // Get instrument data from config file
 QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
 {
-    QFile file(":/data/instrumentData.xml");
+    QFile file(":/data/instruments.xml");
     if (!file.exists())
-        return {};
+        throw(std::runtime_error("Internal instrument data not found.\n"));
 
     file.open(QIODevice::ReadOnly);
     QDomDocument dom;
@@ -181,7 +181,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
         // If config preferences blank
         if (configDefaultFields.isEmpty())
         {
-            QFile file(":/data/instrumentData.xml");
+            QFile file(":/data/instruments.xml");
             file.open(QIODevice::ReadOnly);
             dom.setContent(&file);
             file.close();
