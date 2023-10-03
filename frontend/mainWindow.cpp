@@ -16,18 +16,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Define initial variable states
     init_ = true;
     searchString_ = "";
+    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Title"}, {"index", "title"}}));
+    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Total Duration"}, {"index", "duration"}}));
+    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Run Numbers"}, {"index", "run_number"}}));
 
     // View menu for column toggles
     viewMenu_ = ui_.menubar->addMenu("View");
 
     // Set up the main data table
     runDataFilterProxy_.setSourceModel(&runDataModel_);
+    ui_.RunDataTable->setModel(&runDataFilterProxy_);
     // -- Allow re-arranging of table columns
-    ui_.runDataTable->horizontalHeader()->setSectionsMovable(true);
-    ui_.runDataTable->horizontalHeader()->setDragEnabled(true);
-    ui_.runDataTable->setAlternatingRowColors(true);
-    ui_.runDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
-    ui_.runDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    ui_.RunDataTable->horizontalHeader()->setSectionsMovable(true);
+    ui_.RunDataTable->horizontalHeader()->setDragEnabled(true);
+    ui_.RunDataTable->setAlternatingRowColors(true);
+    ui_.RunDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
+    ui_.RunDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
 
     // Sets instrument to last used
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
@@ -47,8 +51,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(ui_.MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
 
     // Context menu stuff
-    ui_.runDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui_.runDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+    ui_.RunDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui_.RunDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     contextMenu_ = new QMenu("Context");
 
     // Connect exit action
@@ -112,10 +116,10 @@ void MainWindow::columnHider(int state)
             switch (state)
             {
                 case Qt::Unchecked:
-                    ui_.runDataTable->setColumnHidden(i, true);
+                    ui_.RunDataTable->setColumnHidden(i, true);
                     break;
                 case Qt::Checked:
-                    ui_.runDataTable->setColumnHidden(i, false);
+                    ui_.RunDataTable->setColumnHidden(i, false);
                     break;
                 default:
                     action->setCheckState(Qt::Checked);

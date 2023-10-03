@@ -37,6 +37,8 @@ find_package(
 qt6_add_executable(
   jv2
   MACOSX_BUNDLE
+  # Base Classes
+  optionalRef.h
   # Backend
   backend.cpp
   # Main Window

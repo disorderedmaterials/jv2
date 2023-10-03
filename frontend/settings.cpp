@@ -22,10 +22,10 @@ void MainWindow::savePref()
     // Get current table fields
     QString currentFields;
     int realIndex;
-    for (auto i = 0; i < ui_.runDataTable->horizontalHeader()->count(); ++i)
+    for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
     {
-        realIndex = ui_.runDataTable->horizontalHeader()->logicalIndex(i);
-        if (!ui_.runDataTable->isColumnHidden(realIndex))
+        realIndex = ui_.RunDataTable->horizontalHeader()->logicalIndex(i);
+        if (!ui_.RunDataTable->isColumnHidden(realIndex))
         {
             currentFields += runDataModel_.headerData(realIndex, Qt::Horizontal, Qt::UserRole).toString();
             currentFields += ",";

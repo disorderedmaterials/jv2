@@ -263,7 +263,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QTableView" name="runDataTable">
+           <widget class="QTableView" name="RunDataTable">
             <property name="selectionBehavior">
              <enum>QAbstractItemView::SelectRows</enum>
             </property>

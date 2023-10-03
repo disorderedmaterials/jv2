@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "optionalRef.h"
 #include <QAbstractTableModel>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -21,19 +22,19 @@ class JsonTableModel : public QAbstractTableModel
     typedef QVector<Heading> Header;
 
     private:
-    Header tableHeader_;
-    Header tableHoldHeader_;
-    Header tableGroupedHeader_;
-    QJsonArray tableJsonData_;
-    QJsonArray tableHoldJsonData_;
+    // Data source for the model
+    OptionalReferenceWrapper<const QJsonArray> jsonData_;
+    OptionalReferenceWrapper<const Header> horizontalHeaders_;
+
+    private:
+    // Get Json data at index specified
+    QJsonObject getData(const QModelIndex &index) const;
 
     public:
-    bool setJson(const QJsonArray &array);
-    bool setHeader(const Header &array);
-    QJsonObject getJsonObject(const QModelIndex &index) const; // get row data
-    void groupData();
-    void unGroupData();
-    void setColumnTitle(int section, QString title);
+    // Set the source data for the model
+    void setData(const QJsonArray &array);
+    // Set the table column (horizontal) headers
+    void setHorizontalHeaders(const Header &array);
 
     /*
      * QAbstractTableModel Overrides
@@ -43,5 +44,4 @@ class JsonTableModel : public QAbstractTableModel
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 };
