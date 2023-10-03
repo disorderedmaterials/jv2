@@ -217,14 +217,15 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
         viewMenu_->addAction(checkableAction);
         connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
 
-        // Filter table based on desired headers
-        auto it =
-            std::find_if(desiredHeader_.begin(), desiredHeader_.end(), [key](const auto &data) { return data.first == key; });
-        // If match found
-        if (it != desiredHeader_.end())
-            checkBox->setCheckState(Qt::Checked);
-        else
-            checkBox->setCheckState(Qt::Unchecked);
+        // // Filter table based on desired headers
+        // auto it =
+        //     std::find_if(desiredHeader_.begin(), desiredHeader_.end(), [key](const auto &data) { return data.first == key;
+        //     });
+        // // If match found
+        // if (it != desiredHeader_.end())
+        //     checkBox->setCheckState(Qt::Checked);
+        // else
+        //     checkBox->setCheckState(Qt::Unchecked);
     }
     // int logIndex;
     // for (auto i = 0; i < desiredHeader_.size(); ++i)

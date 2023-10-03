@@ -78,7 +78,6 @@ class MainWindow : public QMainWindow
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns header_, groupedTableHeaders_;
-    std::vector<std::pair<QString, QString>> desiredHeader_;
 
     private:
     // Generate grouped run data from current run data
