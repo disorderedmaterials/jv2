@@ -87,7 +87,7 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
         for (auto i = 0; i < cyclesMenu_->actions().count(); i++)
         {
             if (cyclesMap_[cyclesMenu_->actions()[i]->text()] == worker->response)
-                changeCycle(cyclesMenu_->actions()[i]->text());
+                setCurrentCycle(cyclesMenu_->actions()[i]->text());
         }
     }
     else

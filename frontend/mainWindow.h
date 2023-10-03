@@ -93,10 +93,12 @@ class MainWindow : public QMainWindow
     void handleRunData(HttpRequestWorker *worker);
     // Handle returned cycle information for an instrument
     void handleGetCycles(HttpRequestWorker *worker);
-    void handle_result_cycles(HttpRequestWorker *worker);
+    // Handle run data returned for a whole cycle
+    void handleCycleRunData(HttpRequestWorker *worker);
 
     private slots:
-    void changeCycle(QString value);
+    // Set current cycle being displayed
+    void setCurrentCycle(QString cycleName);
     void recentCycle();
 
     signals:

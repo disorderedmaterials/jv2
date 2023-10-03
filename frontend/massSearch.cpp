@@ -110,7 +110,7 @@ void MainWindow::massSearch(QString name, QString value)
     cachedMassSearch_.append(std::make_tuple(worker, text));
 
     auto *action = new QAction("[" + text + "]", this);
-    connect(action, &QAction::triggered, [=]() { changeCycle("[" + text + "]"); });
+    connect(action, &QAction::triggered, [=]() { setCurrentCycle("[" + text + "]"); });
     cyclesMenu_->addAction(action);
     ui_.cycleButton->setText("[" + text + "]");
     setLoadScreen(true);
