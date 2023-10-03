@@ -14,15 +14,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Set the window title
     setWindowTitle(QString("JournalViewer 2 (v%1)").arg(JV2VERSION));
 
-    auto instruments = getInstruments();
-    fillInstruments(instruments);
+    // Get default instrument run data columns
+    Instrument::getDefaultColumns();
+
+    // Get available instrument data
+    getDefaultInstruments();
+    fillInstruments();
 
     // Define initial variable states
     init_ = true;
     searchString_ = "";
-    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Title"}, {"index", "title"}}));
-    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Total Duration"}, {"index", "duration"}}));
-    groupedTableHeaders_.push_back(JsonTableModel::Heading({{"title", "Run Numbers"}, {"index", "run_number"}}));
+    groupedRunDataColumns_.emplace_back("Run Numbers", "run_number");
+    groupedRunDataColumns_.emplace_back("Title", "title");
+    groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
     // View menu for column toggles
     viewMenu_ = ui_.menubar->addMenu("View");
@@ -141,8 +145,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.setValue("recentInstrument", instDisplayName_);
-    settings.setValue("recentCycle", ui_.cycleButton->text());
+    if (currentInstrument_)
+    {
+        auto &inst = currentInstrument_->get();
+        settings.setValue("recentInstrument", inst.name());
+        settings.setValue("recentCycle", ui_.cycleButton->text());
+    }
 
     // Close server
     QString url_str = "http://127.0.0.1:5000/shutdown";

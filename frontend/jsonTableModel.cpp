@@ -35,10 +35,10 @@ void JsonTableModel::setData(const QJsonArray &array)
 }
 
 // Set the table column (horizontal) headers
-void JsonTableModel::setHorizontalHeaders(const Header &array)
+void JsonTableModel::setHorizontalHeaders(const Instrument::RunDataColumns &headers)
 {
     beginResetModel();
-    horizontalHeaders_ = array;
+    horizontalHeaders_ = headers;
     endResetModel();
 }
 
@@ -61,21 +61,25 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole)
         return {};
 
-    auto headers = horizontalHeaders_->get();
+    const auto &headers = horizontalHeaders_->get();
+    auto &[columnTitle, targetData] = headers[index.column()];
 
+    // Get target data object
     QJsonObject obj = getData(index);
-    const QString &key = headers[index.column()]["index"];
-    if (!obj.contains(key))
-        return {};
-    QJsonValue v = obj[key];
 
+    // Search to see if the target data specified by the column exists in the object
+    if (!obj.contains(targetData))
+        return {};
+    QJsonValue v = obj[targetData];
+
+    // Format the value
     if (v.isDouble())
         return QString::number(v.toDouble());
     if (!v.isString())
         return {};
 
     // if title = Run Numbers then format (for grouped data)
-    if (headers[index.column()]["title"] == "Run Numbers")
+    if (columnTitle == "Run Numbers")
     {
         // Format grouped runs display
         auto runArr = v.toString().split(";");
@@ -106,21 +110,17 @@ QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, in
     if (!horizontalHeaders_)
         return {};
 
-    auto headers = horizontalHeaders_->get();
-
-    if (role == Qt::UserRole)
-        return headers[section]["index"]; // Index == database name
-
-    if (role != Qt::DisplayRole)
+    if (orientation != Qt::Horizontal)
         return {};
 
-    switch (orientation)
+    const auto &headers = horizontalHeaders_->get();
+
+    switch (role)
     {
-        case Qt::Horizontal:
-            return headers[section]["title"]; // Title == desired display name
-        case Qt::Vertical:
-            // return section + 1;
-            return {};
+        case (Qt::UserRole):
+            return headers[section].second;
+        case (Qt::DisplayRole):
+            return headers[section].first;
         default:
             return {};
     }

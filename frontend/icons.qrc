@@ -6,7 +6,8 @@
     <file alias="icon">icons/JournalViewer2.png</file>
   </qresource>
   <qresource prefix="data">
-    <file alias="instrumentData.xml">data/instrumentData.xml</file>
+    <file alias="instruments.xml">data/instruments.xml</file>
     <file alias="tableConfig.xml">data/tableConfig.xml</file>
+    <file alias="defaultColumns.xml">data/defaultColumns.xml</file>
   </qresource>
 </RCC>

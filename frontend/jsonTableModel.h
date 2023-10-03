@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "instrument.h"
 #include "optionalRef.h"
 #include <QAbstractTableModel>
 #include <QJsonArray>
@@ -17,14 +18,10 @@ class JsonTableModel : public QAbstractTableModel
     public:
     JsonTableModel();
 
-    // Assigning custom data types for table headings
-    typedef QMap<QString, QString> Heading;
-    typedef QVector<Heading> Header;
-
     private:
     // Data source for the model
     OptionalReferenceWrapper<const QJsonArray> jsonData_;
-    OptionalReferenceWrapper<const Header> horizontalHeaders_;
+    OptionalReferenceWrapper<const Instrument::RunDataColumns> horizontalHeaders_;
 
     private:
     // Get Json data at index specified
@@ -34,7 +31,7 @@ class JsonTableModel : public QAbstractTableModel
     // Set the source data for the model
     void setData(const QJsonArray &array);
     // Set the table column (horizontal) headers
-    void setHorizontalHeaders(const Header &array);
+    void setHorizontalHeaders(const Instrument::RunDataColumns &headers);
 
     /*
      * QAbstractTableModel Overrides
