@@ -3,12 +3,16 @@
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
+#include "version.h"
 #include <QSettings>
 #include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui_.setupUi(this);
+
+    // Set the window title
+    setWindowTitle(QString("JournalViewer 2 (v%1)").arg(JV2VERSION));
 
     // Get default instrument run data columns
     Instrument::getDefaultColumns();
