@@ -188,8 +188,6 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
         QMessageBox::warning(this, "Invalid Journal Source", "The journal could not be retrieved.");
         return;
     }
-    else
-        validSource_ = true;
 
     // Error handling
     if (ui_.GroupRunsButton->isChecked())

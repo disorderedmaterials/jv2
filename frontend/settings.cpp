@@ -34,8 +34,6 @@ void MainWindow::loadSettings()
 
     // Local source?
     auto localSource = settings.value("localSource").toString();
-    QString url_str;
-    validSource_ = true;
     if (!localSource.isEmpty())
     {
         auto *worker = new HttpRequestWorker(this);

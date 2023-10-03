@@ -33,7 +33,6 @@ class MainWindow : public QMainWindow
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;
-    bool validSource_;
     QPoint pos_;
 
     private slots:

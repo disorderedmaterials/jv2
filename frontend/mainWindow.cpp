@@ -112,23 +112,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     if (currentInstrument_)
     {
-        auto &inst = currentInstrument_->get();
-        settings.setValue("recentInstrument", inst.name());
+        settings.setValue("recentInstrument", currentInstrument().name());
         settings.setValue("recentCycle", ui_.cycleButton->text());
     }
 
-    // Close server
-    QString url_str = "http://127.0.0.1:5000/shutdown";
-    HttpRequestInput input(url_str);
+    // Shut down backend
     auto *worker = new HttpRequestWorker(this);
-    worker->execute(input);
-    if (!validSource_)
-    {
-        url_str = "http://127.0.0.1:5000/clearLocalSource";
-        HttpRequestInput input2(url_str);
-        auto *worker2 = new HttpRequestWorker(this);
-        worker2->execute(input2);
-    }
+    worker->execute({"http://127.0.0.1:5000/shutdown"});
+
     event->accept();
 }
 
