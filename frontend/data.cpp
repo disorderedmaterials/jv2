@@ -203,8 +203,8 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
 
     // Fills viewMenu_ with all columns
     viewMenu_->clear();
-    viewMenu_->addAction("Save column state", this, SLOT(savePref()));
-    viewMenu_->addAction("Reset column state to default", this, SLOT(clearPref()));
+    // viewMenu_->addAction("Save column state", this, SLOT(savePref()));
+    // viewMenu_->addAction("Reset column state to default", this, SLOT(clearPref()));
     viewMenu_->addSeparator();
     auto jsonObject = runData_.at(0).toObject();
     foreach (const QString &key, jsonObject.keys())
