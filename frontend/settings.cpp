@@ -13,8 +13,8 @@
  * Private Functions
  */
 
-// Save current user settings
-void MainWindow::saveSettings() const
+// Save custom column settings
+void MainWindow::saveCustomColumnSettings() const
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 

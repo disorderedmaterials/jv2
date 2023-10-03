@@ -106,8 +106,8 @@ class MainWindow : public QMainWindow
      * Settings
      */
     private:
-    // Save current user settings
-    void saveSettings() const;
+    // Save custom column settings
+    void saveCustomColumnSettings() const;
     // Retrieve user settings
     void loadSettings();
 
