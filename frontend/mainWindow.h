@@ -77,7 +77,7 @@ class MainWindow : public QMainWindow
     QMap<QString, QString> headersMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
-    Instrument::RunDataColumns header_, groupedTableHeaders_;
+    Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:
     // Generate grouped run data from current run data

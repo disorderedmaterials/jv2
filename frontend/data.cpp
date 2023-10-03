@@ -168,7 +168,7 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
     setLoadScreen(false);
 
     runData_ = QJsonArray();
-    header_.clear();
+    runDataColumns_.clear();
 
     // Network error
     if (worker->errorType != QNetworkReply::NoError)
@@ -194,11 +194,11 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
         ui_.GroupRunsButton->setChecked(false);
 
     // Get desired fields and titles from config files
-    header_ = currentInstrument().runDataColumns();
+    runDataColumns_ = currentInstrument().runDataColumns();
     runData_ = worker->jsonArray;
 
     // Set table data
-    runDataModel_.setHorizontalHeaders(header_);
+    runDataModel_.setHorizontalHeaders(runDataColumns_);
     runDataModel_.setData(runData_);
 
     // Fills viewMenu_ with all columns

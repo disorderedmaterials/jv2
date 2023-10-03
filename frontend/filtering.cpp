@@ -29,14 +29,14 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
         generateGroupedData();
 
         runDataModel_.setData(groupedRunData_);
-        runDataModel_.setHorizontalHeaders(groupedTableHeaders_);
+        runDataModel_.setHorizontalHeaders(groupedRunDataColumns_);
 
         ui_.RunDataTable->resizeColumnsToContents();
     }
     else
     {
         runDataModel_.setData(runData_);
-        runDataModel_.setHorizontalHeaders(header_);
+        runDataModel_.setHorizontalHeaders(runDataColumns_);
 
         ui_.RunDataTable->resizeColumnsToContents();
     }

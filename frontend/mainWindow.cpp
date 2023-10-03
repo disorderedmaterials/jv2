@@ -20,9 +20,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Define initial variable states
     init_ = true;
     searchString_ = "";
-    groupedTableHeaders_.emplace_back("Run Numbers", "run_number");
-    groupedTableHeaders_.emplace_back("Title", "title");
-    groupedTableHeaders_.emplace_back("Total Duration", "duration");
+    groupedRunDataColumns_.emplace_back("Run Numbers", "run_number");
+    groupedRunDataColumns_.emplace_back("Title", "title");
+    groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
     // View menu for column toggles
     viewMenu_ = ui_.menubar->addMenu("View");
