@@ -43,7 +43,7 @@ void MainWindow::savePref()
     {
         node = nodelist.item(i);
         elem = node.toElement();
-        if (elem.attribute("name") == instName_)
+        if (elem.attribute("name") == currentInstrument_->get().name())
         {
             auto oldColumns = elem.elementsByTagName("Columns");
             if (!oldColumns.isEmpty())
@@ -75,66 +75,26 @@ void MainWindow::clearPref()
     auto rootelem = dom.documentElement();
     auto nodelist = rootelem.elementsByTagName("inst");
 
-    // Clear preferences from xml file
-    QDomNode node;
-    QDomElement elem;
-    QDomElement columns;
-    for (auto i = 0; i < nodelist.count(); i++)
-    {
-        node = nodelist.item(i);
-        elem = node.toElement();
-        if (elem.attribute("name") == instName_)
-        {
-            auto oldColumns = elem.elementsByTagName("Columns");
-            if (!oldColumns.isEmpty())
-                elem.removeChild(elem.elementsByTagName("Columns").item(0));
-        }
-    }
-    if (!dom.toByteArray().isEmpty())
-    {
-        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-        settings.setValue("tableConfig", dom.toByteArray());
-    }
-}
-
-// Get instrument data from config file
-QList<std::tuple<QString, QString, QString>> MainWindow::getInstruments()
-{
-    QFile file(":/data/instrumentData.xml");
-    if (!file.exists())
-        return {};
-
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
-    auto rootelem = dom.documentElement();
-    auto nodelist = rootelem.elementsByTagName("inst");
-    auto headersList = rootelem.elementsByTagName("header");
-    headersMap_.clear();
-    QString header;
-    QString data;
-    for (auto i = 0; i < headersList.count(); i++)
-    {
-        header = headersList.item(i).toElement().attribute("name");
-        data = headersList.item(i).toElement().elementsByTagName("Data").item(0).toElement().text();
-        headersMap_[data] = header;
-    }
-
-    QList<std::tuple<QString, QString, QString>> instruments;
-    std::tuple<QString, QString, QString> instrument;
-    QDomNode node;
-    QDomElement elem;
-    for (auto i = 0; i < nodelist.count(); i++)
-    {
-        node = nodelist.item(i);
-        elem = node.toElement();
-        auto instrumentDisplayName = elem.elementsByTagName("displayName").item(0).toElement().text();
-        auto instrumentType = elem.elementsByTagName("type").item(0).toElement().text();
-        auto instrumentName = elem.attribute("name");
-        instruments.append(std::make_tuple(instrumentName, instrumentType, instrumentDisplayName));
-    }
-    return instruments;
+    // // Clear preferences from xml file
+    // QDomNode node;
+    // QDomElement elem;
+    // QDomElement columns;
+    // for (auto i = 0; i < nodelist.count(); i++)
+    // {
+    //     node = nodelist.item(i);
+    //     elem = node.toElement();
+    //     if (elem.attribute("name") == instName_)
+    //     {
+    //         auto oldColumns = elem.elementsByTagName("Columns");
+    //         if (!oldColumns.isEmpty())
+    //             elem.removeChild(elem.elementsByTagName("Columns").item(0));
+    //     }
+    // }
+    // if (!dom.toByteArray().isEmpty())
+    // {
+    //     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    //     settings.setValue("tableConfig", dom.toByteArray());
+    // }
 }
 
 QDomDocument MainWindow::getConfig()
@@ -181,7 +141,7 @@ std::vector<std::pair<QString, QString>> MainWindow::getFields(QString instrumen
         // If config preferences blank
         if (configDefaultFields.isEmpty())
         {
-            QFile file(":/data/instrumentData.xml");
+            QFile file(":/data/instruments.xml");
             file.open(QIODevice::ReadOnly);
             dom.setContent(&file);
             file.close();
@@ -261,9 +221,10 @@ void MainWindow::on_actionSetLocalSource_triggered()
 
     QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput.replace("/", ";");
     HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
-    worker->execute(input);
+    // TODO
+    // auto *worker = new HttpRequestWorker(this);
+    // connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
+    // worker->execute(input);
 }
 
 void MainWindow::on_actionClearLocalSource_triggered()
@@ -273,7 +234,8 @@ void MainWindow::on_actionClearLocalSource_triggered()
 
     QString url_str = "http://127.0.0.1:5000/clearLocalSource";
     HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
-    worker->execute(input);
+    // TODO
+    // auto *worker = new HttpRequestWorker(this);
+    // connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
+    // worker->execute(input);
 }

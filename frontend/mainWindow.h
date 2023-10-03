@@ -4,6 +4,7 @@
 #pragma once
 
 #include "httpRequestWorker.h"
+#include "instrument.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
 #include "ui_mainWindow.h"
@@ -45,43 +46,59 @@ class MainWindow : public QMainWindow
     void keyPressEvent(QKeyEvent *event);
 
     /*
+     * Instrument Sources
+     */
+    private:
+    // Available instruments
+    std::vector<Instrument> instruments_;
+    // Currently selected instrument (if any)
+    OptionalReferenceWrapper<Instrument> currentInstrument_;
+
+    private:
+    // Parse instruments from specified source
+    bool parseInstruments(const QDomDocument &source);
+    // Get default instrument complement
+    void getDefaultInstruments();
+    // Fill instrument list
+    void fillInstruments();
+
+    private slots:
+    // Set current instrument
+    void setCurrentInstrument(QString name);
+    // Return current instrument
+    const Instrument &currentInstrument() const;
+
+    /*
      * Main Data
      */
     private:
-    QString instType_;
-    QString instName_;
-    QString instDisplayName_;
     QJsonArray runData_, groupedRunData_;
     QMap<QString, QString> cyclesMap_;
     QMap<QString, QString> headersMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
-    JsonTableModel::Header header_, groupedTableHeaders_;
-    std::vector<std::pair<QString, QString>> desiredHeader_;
+    Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:
-    // Fill instrument list
-    void fillInstruments(QList<std::tuple<QString, QString, QString>> instruments);
     // Generate grouped run data from current run data
     void generateGroupedData();
     QString getRunNos();
     void checkForUpdates();
 
     private slots:
+    // Handle cycle update result
+    void handleCycleUpdate(QString response);
     // Handle JSON run data returned from workers
     void handleRunData(HttpRequestWorker *worker);
-    void handle_result_instruments(HttpRequestWorker *worker);
-    void handle_result_cycles(HttpRequestWorker *worker);
+    // Handle returned cycle information for an instrument
+    void handleGetCycles(HttpRequestWorker *worker);
+    // Handle run data returned for a whole cycle
+    void handleCycleRunData(HttpRequestWorker *worker);
 
     private slots:
-    void currentInstrumentChanged(const QString &arg1);
-    void changeCycle(QString value);
+    // Set current cycle being displayed
+    void setCurrentCycle(QString cycleName);
     void recentCycle();
-    void changeInst(std::tuple<QString, QString, QString> instrument);
-
-    void refresh(QString Status);
-
-    void refreshTable();
 
     signals:
     void tableFilled();
@@ -90,8 +107,7 @@ class MainWindow : public QMainWindow
      * Settings
      */
     private:
-    // Get available instruments from config file
-    QList<std::tuple<QString, QString, QString>> getInstruments();
+    // Load
     QDomDocument getConfig();
     // Get Fields from config file
     std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType);
