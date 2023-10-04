@@ -168,26 +168,26 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
     setLoadScreen(false);
 
     runData_ = QJsonArray();
-    runDataColumns_.clear();
+    runDataModel_.setData(runData_);
 
-    // Network error
+    // Network error?
     if (worker->errorType != QNetworkReply::NoError)
     {
-        // an error occurred
-        auto msg = "Error2: " + worker->errorString;
-        QMessageBox::information(this, "", msg);
+        statusBar()->showMessage("Network error!");
+        QMessageBox::warning(
+            this, "Network Error",
+            "A network error was encountered while trying to retrieve run data for the cycle\nThe error returned was: " +
+                worker->errorString);
         return;
     }
 
     // Source error?
-    if (worker->response == "\"invalid source\"\n")
+    if (worker->response.contains("invalid source"))
     {
-        statusBar()->showMessage("invalid source");
-        validSource_ = false;
+        statusBar()->showMessage("Invalid journal source!");
+        QMessageBox::warning(this, "Invalid Journal Source", "The journal could not be retrieved.");
         return;
     }
-    else
-        validSource_ = true;
 
     // Error handling
     if (ui_.GroupRunsButton->isChecked())
@@ -203,8 +203,8 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
 
     // Fills viewMenu_ with all columns
     viewMenu_->clear();
-    viewMenu_->addAction("Save column state", this, SLOT(savePref()));
-    viewMenu_->addAction("Reset column state to default", this, SLOT(clearPref()));
+    // viewMenu_->addAction("Save column state", this, SLOT(savePref()));
+    // viewMenu_->addAction("Reset column state to default", this, SLOT(clearPref()));
     viewMenu_->addSeparator();
     auto jsonObject = runData_.at(0).toObject();
     foreach (const QString &key, jsonObject.keys())

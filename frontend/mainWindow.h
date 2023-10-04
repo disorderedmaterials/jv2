@@ -33,7 +33,6 @@ class MainWindow : public QMainWindow
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;
-    bool validSource_;
     QPoint pos_;
 
     private slots:
@@ -107,14 +106,12 @@ class MainWindow : public QMainWindow
      * Settings
      */
     private:
-    // Load
-    QDomDocument getConfig();
-    // Get Fields from config file
-    std::vector<std::pair<QString, QString>> getFields(QString instrument, QString instType);
+    // Save custom column settings
+    void saveCustomColumnSettings() const;
+    // Retrieve user settings
+    void loadSettings();
 
     private slots:
-    void savePref();
-    void clearPref();
     void on_actionMountPoint_triggered();
     void on_actionClearMountPoint_triggered();
     void on_actionSetLocalSource_triggered();

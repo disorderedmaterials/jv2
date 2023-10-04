@@ -61,6 +61,8 @@ class Instrument
     public:
     // Get default instrument columns
     static void getDefaultColumns();
+    // Return whether the instrument has a custom column definition
+    bool hasCustomColumns() const;
     // Get run data columns to use for this instrument
     const std::vector<RunDataColumn> &runDataColumns() const;
 
