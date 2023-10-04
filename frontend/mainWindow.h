@@ -66,7 +66,7 @@ class MainWindow : public QMainWindow
     const Instrument &currentInstrument() const;
 
     /*
-     * Main Data
+     * Run Data
      */
     private:
     QJsonArray runData_, groupedRunData_;
@@ -80,6 +80,8 @@ class MainWindow : public QMainWindow
     // Generate grouped run data from current run data
     void generateGroupedData();
     QString getRunNos();
+    // Return the run data model index under the mouse, accounting for the effects of the filter proxys
+    const QModelIndex runDataIndexAtPos(const QPoint pos) const;
     void checkForUpdates();
 
     private slots:

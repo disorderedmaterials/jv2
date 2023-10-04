@@ -56,64 +56,6 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
     }
 }
 
-// Returns run and cycle values for selected runs
-QString MainWindow::getRunNos()
-{
-    // Gathers all selected runs
-    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
-
-    // Finds run number location in table
-    int runNoColumn;
-    int cycleColumn;
-    for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
-            runNoColumn = i;
-        else if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "isis_cycle")
-            cycleColumn = i;
-    }
-
-    // Gets all selected run numbers and fills graphing toggles
-    QString runNos = "";
-    QString runNo;
-    QString cycles = "";
-    QString cycle;
-
-    // Concats runs
-    for (auto run : selectedRuns)
-    {
-        runNo = runDataFilterProxy_.index(run.row(), runNoColumn).data().toString();
-        cycle = runDataFilterProxy_.index(run.row(), cycleColumn).data().toString();
-        if (runNo.contains("-") || runNo.contains(","))
-        {
-            QString groupedRuns;
-            auto runArr = runNo.split(",");
-            foreach (const auto &string, runArr)
-            {
-                if (string.contains("-"))
-                {
-                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
-                        groupedRuns += QString::number(i) + ";";
-                }
-                else
-                    groupedRuns += string + ";";
-            }
-            groupedRuns.chop(1);
-            runNos.append(groupedRuns + ";");
-        }
-        else
-        {
-            runNos.append(runNo + ";");
-            cycles.append("cycle_" + cycle + ";");
-        }
-    }
-
-    // Removes final ";"
-    runNos.chop(1);
-    cycles.chop(1);
-    return runNos + "-" + cycles;
-}
-
 void MainWindow::contextGraph()
 {
     // Gets signal object

@@ -53,6 +53,71 @@ void MainWindow::generateGroupedData()
     }
 }
 
+// Returns run and cycle values for selected runs
+QString MainWindow::getRunNos()
+{
+    // Gathers all selected runs
+    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
+
+    // Finds run number location in table
+    int runNoColumn;
+    int cycleColumn;
+    for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
+    {
+        if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
+            runNoColumn = i;
+        else if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "isis_cycle")
+            cycleColumn = i;
+    }
+
+    // Gets all selected run numbers and fills graphing toggles
+    QString runNos = "";
+    QString runNo;
+    QString cycles = "";
+    QString cycle;
+
+    // Concats runs
+    for (auto run : selectedRuns)
+    {
+        runNo = runDataFilterProxy_.index(run.row(), runNoColumn).data().toString();
+        cycle = runDataFilterProxy_.index(run.row(), cycleColumn).data().toString();
+        if (runNo.contains("-") || runNo.contains(","))
+        {
+            QString groupedRuns;
+            auto runArr = runNo.split(",");
+            foreach (const auto &string, runArr)
+            {
+                if (string.contains("-"))
+                {
+                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
+                        groupedRuns += QString::number(i) + ";";
+                }
+                else
+                    groupedRuns += string + ";";
+            }
+            groupedRuns.chop(1);
+            runNos.append(groupedRuns + ";");
+        }
+        else
+        {
+            runNos.append(runNo + ";");
+            cycles.append("cycle_" + cycle + ";");
+        }
+    }
+
+    // Removes final ";"
+    runNos.chop(1);
+    cycles.chop(1);
+    return runNos + "-" + cycles;
+}
+
+// Return the run data model index under the mouse, accounting for the effects of the filter proxy
+const QModelIndex MainWindow::runDataIndexAtPos(const QPoint pos) const
+{
+    auto index = ui_.RunDataTable->indexAt(pos);
+    return index.isValid() ? runDataFilterProxy_.mapToSource(index) : QModelIndex();
+}
+
 void MainWindow::checkForUpdates()
 {
     QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().lowerCaseName();
@@ -303,10 +368,6 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
 {
     QMenu contextMenu;
 
-    auto *testAction = contextMenu.addAction("NAME");
-    auto index = ui_.RunDataTable->indexAt(pos);
-    testAction->setText(runDataModel_.getData("title", runDataFilterProxy_.mapToSource(index)));
-
     // Selection
     auto *selectSameTitle = contextMenu.addAction("Select identical titles");
     contextMenu.addSeparator();
@@ -329,16 +390,23 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     //     cycles.chop(1);
     // }
 
-    auto *selectedAction = contextMenu.exec(mapToGlobal(pos));
+    auto *selectedAction = contextMenu.exec(ui_.RunDataTable->mapToGlobal(pos));
 
     if (selectedAction == selectSameTitle)
     {
-        for (auto i = 0; i < runDataModel_.rowCount(); i++)
+        auto title = runDataModel_.getData("title", runDataIndexAtPos(pos));
+
+        // Iterate over displayed rows (i.e. via filter proxy)
+        for (auto i = 0; i < runDataFilterProxy_.rowCount(); ++i)
         {
-            if (runDataFilterProxy_.index(i, 0).data().toString() == "BOB")
+            if (runDataModel_.getData("title", runDataFilterProxy_.mapToSource(runDataFilterProxy_.index(i, 0))) == title)
                 ui_.RunDataTable->selectionModel()->setCurrentIndex(runDataFilterProxy_.index(i, 0),
                                                                     QItemSelectionModel::Select | QItemSelectionModel::Rows);
         }
+
+        statusBar()->showMessage(QString("Selected %1 runs titled \"%2\".")
+                                     .arg(ui_.RunDataTable->selectionModel()->selectedRows().count())
+                                     .arg(title));
     }
     else if (selectedAction == plotSELog)
     {
