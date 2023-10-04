@@ -40,15 +40,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui_.RunDataTable->setAlternatingRowColors(true);
     ui_.RunDataTable->setStyleSheet("alternate-background-color: #e7e7e6;");
     ui_.RunDataTable->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
+    // -- Context menu
+    ui_.RunDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui_.RunDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(runDataContextMenuRequested(QPoint)));
 
     // Disables closing data tab + handles tab closing
     ui_.MainTabs->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
     connect(ui_.MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
-
-    // Context menu stuff
-    ui_.RunDataTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui_.RunDataTable, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
-    contextMenu_ = new QMenu("Context");
 
     // Connect exit action
     connect(ui_.action_Quit, SIGNAL(triggered()), this, SLOT(close()));

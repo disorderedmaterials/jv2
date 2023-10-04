@@ -297,3 +297,66 @@ void MainWindow::recentCycle()
     }
     cyclesMenu_->actions()[0]->trigger();
 }
+
+// Run data context menu requested
+void MainWindow::runDataContextMenuRequested(QPoint pos)
+{
+    QMenu contextMenu;
+
+    auto *testAction = contextMenu.addAction("NAME");
+    auto index = ui_.RunDataTable->indexAt(pos);
+    testAction->setText(runDataModel_.getData("title", runDataFilterProxy_.mapToSource(index)));
+
+    // Selection
+    auto *selectSameTitle = contextMenu.addAction("Select identical titles");
+    contextMenu.addSeparator();
+
+    // SE log plotting options
+    auto *plotSELog = contextMenu.addAction("Plot SE log values...");
+    contextMenu.addSeparator();
+
+    // Spectrum plotting
+    auto *plotDetector = contextMenu.addAction("Plot detector...");
+    auto *plotMonitor = contextMenu.addAction("Plot monitor...");
+
+    // auto index = ui_.RunDataTable->indexAt(pos);
+    // auto runNos = getRunNos().split("-")[0];
+    // auto cycles = getRunNos().split("-")[1];
+    // if (cycles == "")
+    // {
+    //     for (auto run : runNos.split(";"))
+    //         cycles.append(" ;");
+    //     cycles.chop(1);
+    // }
+
+    auto *selectedAction = contextMenu.exec(mapToGlobal(pos));
+
+    if (selectedAction == selectSameTitle)
+    {
+        for (auto i = 0; i < runDataModel_.rowCount(); i++)
+        {
+            if (runDataFilterProxy_.index(i, 0).data().toString() == "BOB")
+                ui_.RunDataTable->selectionModel()->setCurrentIndex(runDataFilterProxy_.index(i, 0),
+                                                                    QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        }
+    }
+    else if (selectedAction == plotSELog)
+    {
+        QString url_str = "http://127.0.0.1:5000/getNexusFields/";
+        url_str += currentInstrument().dataDirectory() + "/" + "CYCLEFIXME" + "/" + "RUNNOSFIXME";
+
+        HttpRequestInput input(url_str);
+        auto *worker = new HttpRequestWorker(this);
+        connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+                SLOT(handle_result_contextMenu(HttpRequestWorker *)));
+        worker->execute(input);
+    }
+    else if (selectedAction == plotDetector)
+    {
+        getSpectrumCount();
+    }
+    else if (selectedAction == plotMonitor)
+    {
+        getMonitorCount();
+    }
+}

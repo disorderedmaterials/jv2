@@ -42,6 +42,13 @@ void JsonTableModel::setHorizontalHeaders(const Instrument::RunDataColumns &head
     endResetModel();
 }
 
+// Get data for specified index
+QString JsonTableModel::getData(const QString &targetData, const QModelIndex &index) const
+{
+    auto data = getData(index);
+    return data.contains(targetData) ? data[targetData].toString() : QString();
+}
+
 /*
  * QAbstractTableModel Overrides
  */

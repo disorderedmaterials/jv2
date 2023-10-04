@@ -4,7 +4,6 @@
 #include "chartView.h"
 #include "graphWidget.h"
 #include "mainWindow.h"
-#include "ui_mainWindow.h"
 #include <QAction>
 #include <QCategoryAxis>
 #include <QChartView>
@@ -18,36 +17,9 @@
 #include <QValueAxis>
 #include <algorithm>
 
-// Collect plot options and display menu
-void MainWindow::customMenuRequested(QPoint pos)
-{
-    pos_ = pos;
-    auto index = ui_.RunDataTable->indexAt(pos);
-    auto runNos = getRunNos().split("-")[0];
-    auto cycles = getRunNos().split("-")[1];
-    if (cycles == "")
-    {
-        for (auto run : runNos.split(";"))
-            cycles.append(" ;");
-        cycles.chop(1);
-    }
-
-    QString url_str = "http://127.0.0.1:5000/getNexusFields/";
-    url_str += currentInstrument().dataDirectory() + "/" + cycles + "/" + runNos;
-
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-            SLOT(handle_result_contextMenu(HttpRequestWorker *)));
-    contextMenu_->popup(ui_.RunDataTable->viewport()->mapToGlobal(pos_));
-    worker->execute(input);
-}
-
 // Fills field menu
 void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
 {
-    contextMenu_->clear();
-
     // Network error?
     if (worker->errorType != QNetworkReply::NoError)
     {
@@ -65,8 +37,8 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
         auto formattedName = name.append("og");
         auto *subMenu = new QMenu("Plot from " + formattedName);
         logArray.removeFirst();
-        if (logArray.size() > 0)
-            contextMenu_->addMenu(subMenu);
+        // if (logArray.size() > 0)
+        // contextMenu_->addMenu(subMenu);
 
         auto logArrayVar = logArray.toVariantList();
         std::sort(logArrayVar.begin(), logArrayVar.end(),
@@ -82,19 +54,6 @@ void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
             subMenu->addAction(action);
         }
     }
-
-    // Additional context options
-    auto *action = new QAction("Select runs with same title", this);
-    connect(action, SIGNAL(triggered()), this, SLOT(selectSimilar()));
-    contextMenu_->addAction(action);
-
-    auto *action2 = new QAction("Plot detector spectrum", this);
-    connect(action2, SIGNAL(triggered()), this, SLOT(getSpectrumCount()));
-    contextMenu_->addAction(action2);
-
-    auto *action3 = new QAction("Plot monitor spectrum", this);
-    connect(action3, SIGNAL(triggered()), this, SLOT(getMonitorCount()));
-    contextMenu_->addAction(action3);
 }
 
 // Returns run and cycle values for selected runs

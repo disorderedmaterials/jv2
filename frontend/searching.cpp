@@ -93,26 +93,6 @@ void MainWindow::selectIndex(QString runNumber)
     disconnect(this, &MainWindow::tableFilled, nullptr, nullptr);
 }
 
-void MainWindow::selectSimilar()
-{
-    int TitleColumn;
-    for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "title")
-        {
-            TitleColumn = i;
-            break;
-        }
-    }
-    QString title = runDataFilterProxy_.index(ui_.RunDataTable->rowAt(pos_.y()), TitleColumn).data().toString();
-    for (auto i = 0; i < runDataModel_.rowCount(); i++)
-    {
-        if (runDataFilterProxy_.index(i, TitleColumn).data().toString() == title)
-            ui_.RunDataTable->selectionModel()->setCurrentIndex(runDataFilterProxy_.index(i, TitleColumn),
-                                                                QItemSelectionModel::Select | QItemSelectionModel::Rows);
-    }
-}
-
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
 {
     ui_.RunDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);

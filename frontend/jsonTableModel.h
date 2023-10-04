@@ -32,6 +32,8 @@ class JsonTableModel : public QAbstractTableModel
     void setData(const QJsonArray &array);
     // Set the table column (horizontal) headers
     void setHorizontalHeaders(const Instrument::RunDataColumns &headers);
+    // Get named data for specified index
+    QString getData(const QString &targetData, const QModelIndex &index) const;
 
     /*
      * QAbstractTableModel Overrides

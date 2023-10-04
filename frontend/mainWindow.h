@@ -29,11 +29,9 @@ class MainWindow : public QMainWindow
     Ui::MainWindow ui_;
     QMenu *viewMenu_;
     QMenu *findMenu_;
-    QMenu *contextMenu_;
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;
-    QPoint pos_;
 
     private slots:
     void setLoadScreen(bool state);
@@ -98,6 +96,8 @@ class MainWindow : public QMainWindow
     // Set current cycle being displayed
     void setCurrentCycle(QString cycleName);
     void recentCycle();
+    // Run data context menu requested
+    void runDataContextMenuRequested(QPoint pos);
 
     signals:
     void tableFilled();
@@ -131,7 +131,6 @@ class MainWindow : public QMainWindow
     void findDown();
     void selectAllSearches();
     void selectIndex(QString runNumber);
-    void selectSimilar();
     void goToCurrentFoundIndex(QModelIndex index);
 
     private slots:
@@ -176,7 +175,6 @@ class MainWindow : public QMainWindow
      * Visualisation
      */
     private slots:
-    void customMenuRequested(QPoint pos);
     void handle_result_contextGraph(HttpRequestWorker *worker);
     void contextGraph();
     void handle_result_contextMenu(HttpRequestWorker *worker);
