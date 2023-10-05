@@ -108,6 +108,7 @@ def getCycles(instrument):
     global lastModified_
     url = dataLocation
     url += instrument+'/journal_main.xml'
+    print(url)
     try:
         response = urlopen(url)
     except Exception:

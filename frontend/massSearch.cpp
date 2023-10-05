@@ -100,7 +100,7 @@ void MainWindow::massSearch(QString name, QString value)
     sensitivityText.append(caseSensitivity ? "true" : "false");
     searchOptions.append(sensitivityText);
     QString url_str =
-        "http://127.0.0.1:5000/getAllJournals/" + inst.lowerCaseName() + "/" + value + "/" + textInput + "/" + searchOptions;
+        "http://127.0.0.1:5000/getAllJournals/" + inst.journalDirectory() + "/" + value + "/" + textInput + "/" + searchOptions;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));

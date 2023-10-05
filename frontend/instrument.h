@@ -38,8 +38,6 @@ class Instrument
     public:
     // Return name (used for display)
     const QString &name() const;
-    // Return lower cased name
-    const QString lowerCaseName() const;
     // Return type
     InstrumentType type() const;
     // Return whether this instrument is user-defined
@@ -72,16 +70,16 @@ class Instrument
     private:
     // XML journal directory
     QString journalDirectory_;
-    // Archive data directory
-    QString archiveDirectory_;
+    // Run data directory
+    QString dataDirectory_;
 
     public:
     // Set journal directory
     void setJournalDirectory(QString journalDir);
     // Return journal directory
     const QString &journalDirectory() const;
-    // Set archive directory
-    void setArchiveDirectory(QString archiveDir);
-    // Return archive directory
-    const QString &archiveDirectory() const;
+    // Set data directory
+    void setDataDirectory(QString dataDir);
+    // Return data directory
+    const QString &dataDirectory() const;
 };

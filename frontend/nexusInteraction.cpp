@@ -38,7 +38,7 @@ void MainWindow::contextGraph()
     QString url_str = "http://127.0.0.1:5000/getNexusData/";
 
     QString field = contextAction->data().toString().replace("/", ":");
-    url_str += currentInstrument().lowerCaseName() + "/" + cycles + "/" + runNos + "/" + field;
+    url_str += currentInstrument().dataDirectory() + "/" + cycles + "/" + runNos + "/" + field;
 
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -345,7 +345,7 @@ void MainWindow::getField()
 
     QString field = action->data().toString().replace("/", ":");
     url_str +=
-        currentInstrument().lowerCaseName() + "/" + cycle + "/" + runNos + "/" + action->data().toString().replace("/", ":");
+        currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + action->data().toString().replace("/", ":");
 
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -431,7 +431,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         cycle.replace(0, 7, "cycle").replace(".xml", "");
 
         QString url_str = "http://127.0.0.1:5000/getDetectorAnalysis/";
-        url_str += currentInstrument().lowerCaseName() + "/" + cycle + "/" + runs;
+        url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runs;
         HttpRequestInput input(url_str);
         auto *worker = new HttpRequestWorker(this);
         connect(worker, &HttpRequestWorker::on_execution_finished,
@@ -521,7 +521,7 @@ void MainWindow::getSpectrumCount()
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getSpectrumRange/";
-    url_str += currentInstrument().lowerCaseName() + "/" + cycle + "/" + runNos;
+    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(plotSpectra(HttpRequestWorker *)));
@@ -540,7 +540,7 @@ void MainWindow::getMonitorCount()
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getMonitorRange/";
-    url_str += currentInstrument().lowerCaseName() + "/" + cycle + "/" + runNos;
+    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(plotMonSpectra(HttpRequestWorker *)));
@@ -567,7 +567,7 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getSpectrum/";
-    url_str += currentInstrument().lowerCaseName() + "/" + cycle + "/" + runNos + "/" + QString::number(spectrumNumber);
+    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + QString::number(spectrumNumber);
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleSpectraCharting(HttpRequestWorker *)));
@@ -593,7 +593,7 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     QString url_str = "http://127.0.0.1:5000/getMonSpectrum/";
-    url_str += currentInstrument().lowerCaseName() + "/" + cycle + "/" + runNos + "/" + QString::number(monNumber);
+    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + QString::number(monNumber);
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
@@ -605,7 +605,7 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
 {
     auto *window = qobject_cast<GraphWidget *>(sender());
     QString modifier = "/muAmps";
-    QString url_str = "http://127.0.0.1:5000/getTotalMuAmps/" + currentInstrument().lowerCaseName() + "/" +
+    QString url_str = "http://127.0.0.1:5000/getTotalMuAmps/" + currentInstrument().dataDirectory() + "/" +
                       cyclesMap_[ui_.cycleButton->text()] + "/" + runs;
     auto yAxisTitle = window->getChartView()->chart()->axes(Qt::Vertical)[0]->titleText();
 
@@ -640,7 +640,7 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
 
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-    QString url_str = "http://127.0.0.1:5000/getSpectrum/" + currentInstrument().lowerCaseName() + "/" + cycle + "/" + run +
+    QString url_str = "http://127.0.0.1:5000/getSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" + run +
                       "/" + currentDetector;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
@@ -665,7 +665,7 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
 
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-    QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + currentInstrument().lowerCaseName() + "/" + cycle + "/" +
+    QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" +
                       currentRun + "/" + mon;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);

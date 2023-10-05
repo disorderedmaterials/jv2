@@ -24,14 +24,13 @@ bool MainWindow::parseInstruments(const QDomDocument &source)
         auto instrumentName = instElement.attribute("name");
 
         // Get instrument type
-        auto instrumentType =
-            Instrument::instrumentType(instElement.attribute("type", "Neutron"));
+        auto instrumentType = Instrument::instrumentType(instElement.attribute("type", "Neutron"));
 
         auto &inst = instruments_.emplace_back(instrumentName, instrumentType);
 
         // Data locations
         inst.setJournalDirectory(instElement.attribute("journalDirectory"));
-        inst.setArchiveDirectory(instElement.attribute("archiveDirectory"));
+        inst.setDataDirectory(instElement.attribute("dataDirectory"));
 
         // If display columns are defined parse them now, otherwise assign defaults based on instrument
         auto columns = instElement.elementsByTagName("columns");
@@ -96,7 +95,7 @@ void MainWindow::setCurrentInstrument(QString name)
     cachedMassSearch_.clear();
 
     // Configure api call
-    QString url_str = "http://127.0.0.1:5000/getCycles/" + currentInstrument().lowerCaseName();
+    QString url_str = "http://127.0.0.1:5000/getCycles/" + currentInstrument().journalDirectory();
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
 

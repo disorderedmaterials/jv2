@@ -46,9 +46,6 @@ Instrument::Instrument(QString name, InstrumentType type, bool userDefined)
 // Return name (used for display)
 const QString &Instrument::name() const { return name_; }
 
-// Return lower cased name
-const QString Instrument::lowerCaseName() const { return name_.toLower(); }
-
 // Return type
 Instrument::InstrumentType Instrument::type() const { return type_; }
 
@@ -113,8 +110,8 @@ void Instrument::setJournalDirectory(QString journalDir) { journalDirectory_ = j
 // Return journal directory
 const QString &Instrument::journalDirectory() const { return journalDirectory_; }
 
-// Set archive directory
-void Instrument::setArchiveDirectory(QString archiveDir) { archiveDirectory_ = archiveDir; }
+// Set data directory
+void Instrument::setDataDirectory(QString dataDir) { dataDirectory_ = dataDir; }
 
-// Return archive directory
-const QString &Instrument::archiveDirectory() const { return archiveDirectory_; }
+// Return data directory
+const QString &Instrument::dataDirectory() const { return dataDirectory_; }

@@ -120,7 +120,7 @@ const QModelIndex MainWindow::runDataIndexAtPos(const QPoint pos) const
 
 void MainWindow::checkForUpdates()
 {
-    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().lowerCaseName();
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory();
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, &HttpRequestWorker::on_execution_finished,
@@ -151,7 +151,7 @@ void MainWindow::handleCycleUpdate(QString response)
         }
         else if (cyclesMap_[ui_.cycleButton->text()] == response) // if current opened cycle changed
         {
-            QString url_str = "http://127.0.0.1:5000/updateJournal/" + currentInstrument().lowerCaseName() + "/" + response +
+            QString url_str = "http://127.0.0.1:5000/updateJournal/" + currentInstrument().journalDirectory() + "/" + response +
                               "/" + runData_.last().toObject()["run_number"].toString();
             HttpRequestInput input(url_str);
             auto *worker = new HttpRequestWorker(this);
@@ -182,15 +182,25 @@ void MainWindow::handleGetCycles(HttpRequestWorker *worker)
     cyclesMenu_->clear();
     cyclesMap_.clear();
 
+    // Network error?
     if (worker->errorType != QNetworkReply::NoError)
     {
-        // an error occurred
-        QString msg = "Error1: " + worker->errorString;
-        QMessageBox::information(this, "", msg);
+        statusBar()->showMessage("Network error!");
+        QMessageBox::warning(
+            this, "Network Error",
+            "A network error was encountered while trying to retrieve run data for the cycle\nThe error returned was: " +
+                worker->errorString);
         return;
     }
 
+    // Other error?
     auto response = worker->response;
+    if (response.contains("Error"))
+    {
+        statusBar()->showMessage("Network error!");
+        QMessageBox::warning(this, "An Error Occurred", response);
+        return;
+    }
 
     QJsonValue value;
     for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
@@ -215,6 +225,7 @@ void MainWindow::handleGetCycles(HttpRequestWorker *worker)
         init_ = false;
         return;
     }
+
     // Keep cycle over instruments
     for (QAction *action : cyclesMenu_->actions())
     {
@@ -333,7 +344,8 @@ void MainWindow::setCurrentCycle(QString cycleName)
     }
     ui_.cycleButton->setText(cycleName);
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + currentInstrument().lowerCaseName() + "/" + cyclesMap_[cycleName];
+    QString url_str =
+        "http://127.0.0.1:5000/getJournal/" + currentInstrument().journalDirectory() + "/" + cyclesMap_[cycleName];
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
 
@@ -414,7 +426,7 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
         auto *worker = new HttpRequestWorker(this);
         connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
                 SLOT(handlePlotSELogValue(HttpRequestWorker *)));
-        worker->execute({"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().archiveDirectory() + "/" + "CYCLEFIXME" +
+        worker->execute({"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + "CYCLEFIXME" +
                          "/" + "RUNNOSFIXME"});
     }
     else if (selectedAction == plotDetector)
