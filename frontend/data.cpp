@@ -414,7 +414,7 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
         auto *worker = new HttpRequestWorker(this);
         connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
                 SLOT(handlePlotSELogValue(HttpRequestWorker *)));
-        worker->execute({"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + "CYCLEFIXME" +
+        worker->execute({"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().archiveDirectory() + "/" + "CYCLEFIXME" +
                          "/" + "RUNNOSFIXME"});
     }
     else if (selectedAction == plotDetector)

@@ -67,15 +67,21 @@ class Instrument
     const std::vector<RunDataColumn> &runDataColumns() const;
 
     /*
-     * Additional Information
+     * Data Locations
      */
     private:
-    // Run data directory
-    QString dataDirectory_;
+    // XML journal directory
+    QString journalDirectory_;
+    // Archive data directory
+    QString archiveDirectory_;
 
     public:
-    // Set run data directory
-    void setDataDirectory(QString dataDir);
-    // Return run data directory
-    const QString &dataDirectory() const;
+    // Set journal directory
+    void setJournalDirectory(QString journalDir);
+    // Return journal directory
+    const QString &journalDirectory() const;
+    // Set archive directory
+    void setArchiveDirectory(QString archiveDir);
+    // Return archive directory
+    const QString &archiveDirectory() const;
 };

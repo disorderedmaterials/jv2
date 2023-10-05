@@ -107,8 +107,14 @@ const Instrument::RunDataColumns &Instrument::runDataColumns() const
  * Additional Information
  */
 
-// Set run data directory
-void Instrument::setDataDirectory(QString dataDir) { dataDirectory_ = dataDir; }
+// Set journal directory
+void Instrument::setJournalDirectory(QString journalDir) { journalDirectory_ = journalDir; }
 
-// Return run data directory
-const QString &Instrument::dataDirectory() const { return dataDirectory_; }
+// Return journal directory
+const QString &Instrument::journalDirectory() const { return journalDirectory_; }
+
+// Set archive directory
+void Instrument::setArchiveDirectory(QString archiveDir) { archiveDirectory_ = archiveDir; }
+
+// Return archive directory
+const QString &Instrument::archiveDirectory() const { return archiveDirectory_; }

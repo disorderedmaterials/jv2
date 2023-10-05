@@ -24,11 +24,14 @@ bool MainWindow::parseInstruments(const QDomDocument &source)
         auto instrumentName = instElement.attribute("name");
 
         // Get instrument type
-        auto typeElements = instElement.elementsByTagName("type");
         auto instrumentType =
-            Instrument::instrumentType(typeElements.count() == 1 ? typeElements.at(0).toElement().text() : "Neutron");
+            Instrument::instrumentType(instElement.attribute("type", "Neutron"));
 
         auto &inst = instruments_.emplace_back(instrumentName, instrumentType);
+
+        // Data locations
+        inst.setJournalDirectory(instElement.attribute("journalDirectory"));
+        inst.setArchiveDirectory(instElement.attribute("archiveDirectory"));
 
         // If display columns are defined parse them now, otherwise assign defaults based on instrument
         auto columns = instElement.elementsByTagName("columns");
