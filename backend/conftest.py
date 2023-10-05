@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
+
 # """Provide common test fixtures for pytest"""
 from typing import Callable
 from pathlib import Path

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
+
 from pathlib import Path
 from jv2backend.io.isis.filelocator import (
     DAaaSDataCacheFileLocator,

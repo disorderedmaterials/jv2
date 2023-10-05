@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
+
 """Define a interface for finding Run data files"""
 from abc import ABC, abstractmethod
 from pathlib import Path

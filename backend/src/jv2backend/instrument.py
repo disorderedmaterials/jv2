@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
+
 """Encapsulate an Instrument description"""
 
 from dataclasses import dataclass

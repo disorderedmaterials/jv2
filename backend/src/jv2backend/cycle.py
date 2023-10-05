@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
+
 """Provides a Cycle class to capture details of single user cycle"""
 
 from dataclasses import dataclass

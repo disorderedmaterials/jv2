@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
+
 """Defines the Flask endpoints that only access journal information"""
 from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
