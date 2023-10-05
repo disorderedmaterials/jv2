@@ -224,6 +224,9 @@
                     <iconset resource="icons.qrc">
                      <normaloff>:/icons/group.svg</normaloff>:/icons/group.svg</iconset>
                    </property>
+                   <property name="shortcut">
+                    <string>Ctrl+G</string>
+                   </property>
                    <property name="checkable">
                     <bool>true</bool>
                    </property>
