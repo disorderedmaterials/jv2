@@ -53,69 +53,37 @@ void MainWindow::generateGroupedData()
     }
 }
 
-// Returns run and cycle values for selected runs
-QString MainWindow::getRunNos()
-{
-    // Gathers all selected runs
-    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
-
-    // Finds run number location in table
-    int runNoColumn;
-    int cycleColumn;
-    for (auto i = 0; i < ui_.RunDataTable->horizontalHeader()->count(); ++i)
-    {
-        if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "run_number")
-            runNoColumn = i;
-        else if (runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString() == "isis_cycle")
-            cycleColumn = i;
-    }
-
-    // Gets all selected run numbers and fills graphing toggles
-    QString runNos = "";
-    QString runNo;
-    QString cycles = "";
-    QString cycle;
-
-    // Concats runs
-    for (auto run : selectedRuns)
-    {
-        runNo = runDataFilterProxy_.index(run.row(), runNoColumn).data().toString();
-        cycle = runDataFilterProxy_.index(run.row(), cycleColumn).data().toString();
-        if (runNo.contains("-") || runNo.contains(","))
-        {
-            QString groupedRuns;
-            auto runArr = runNo.split(",");
-            foreach (const auto &string, runArr)
-            {
-                if (string.contains("-"))
-                {
-                    for (auto i = string.split("-")[0].toInt(); i <= string.split("-")[1].toInt(); i++)
-                        groupedRuns += QString::number(i) + ";";
-                }
-                else
-                    groupedRuns += string + ";";
-            }
-            groupedRuns.chop(1);
-            runNos.append(groupedRuns + ";");
-        }
-        else
-        {
-            runNos.append(runNo + ";");
-            cycles.append("cycle_" + cycle + ";");
-        }
-    }
-
-    // Removes final ";"
-    runNos.chop(1);
-    cycles.chop(1);
-    return runNos + "-" + cycles;
-}
-
 // Return the run data model index under the mouse, accounting for the effects of the filter proxy
 const QModelIndex MainWindow::runDataIndexAtPos(const QPoint pos) const
 {
     auto index = ui_.RunDataTable->indexAt(pos);
     return index.isValid() ? runDataFilterProxy_.mapToSource(index) : QModelIndex();
+}
+
+// Get selected run / cycle information [LEGACY, TO FIX]
+std::pair<QString, QString> MainWindow::selectedRunNumbersAndCycles() const
+{
+    // Get selected run numbers / cycles
+    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
+    QString runNos, cycles;
+
+    // Concats runs
+    for (const auto &runIndex : selectedRuns)
+    {
+        auto runNo = runDataFilterProxy_.getData("run_number", runIndex);
+        auto cycle = runDataFilterProxy_.getData("isis_cycle", runIndex);
+
+        // Account for grouped run information
+        auto runNoArray = runNo.split(",");
+        for (auto n : runNoArray)
+        {
+            runNos.append(runNos.isEmpty() ? runNo : (";" + runNo));
+            cycles.append((cycles.isEmpty() ? "cycle_" : ";cycle_") + cycle);
+        }
+    }
+    qDebug() << runNos;
+    qDebug() << cycles;
+    return {runNos, cycles};
 }
 
 void MainWindow::checkForUpdates()
@@ -392,17 +360,10 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     auto *plotDetector = contextMenu.addAction("Plot detector...");
     auto *plotMonitor = contextMenu.addAction("Plot monitor...");
 
-    // auto index = ui_.RunDataTable->indexAt(pos);
-    // auto runNos = getRunNos().split("-")[0];
-    // auto cycles = getRunNos().split("-")[1];
-    // if (cycles == "")
-    // {
-    //     for (auto run : runNos.split(";"))
-    //         cycles.append(" ;");
-    //     cycles.chop(1);
-    // }
-
     auto *selectedAction = contextMenu.exec(ui_.RunDataTable->mapToGlobal(pos));
+
+    // Get selected run numbers / cycles
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
 
     if (selectedAction == selectSameTitle)
     {
@@ -426,8 +387,8 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
         auto *worker = new HttpRequestWorker(this);
         connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
                 SLOT(handlePlotSELogValue(HttpRequestWorker *)));
-        worker->execute({"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + "CYCLEFIXME" +
-                         "/" + "RUNNOSFIXME"});
+        worker->execute(
+            {"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + cycles + "/" + runNos});
     }
     else if (selectedAction == plotDetector)
     {

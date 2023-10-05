@@ -79,9 +79,10 @@ class MainWindow : public QMainWindow
     private:
     // Generate grouped run data from current run data
     void generateGroupedData();
-    QString getRunNos();
     // Return the run data model index under the mouse, accounting for the effects of the filter proxys
     const QModelIndex runDataIndexAtPos(const QPoint pos) const;
+    // Get selected run / cycle information [LEGACY, TO FIX]
+    std::pair<QString, QString> selectedRunNumbersAndCycles() const;
     void checkForUpdates();
 
     private slots:

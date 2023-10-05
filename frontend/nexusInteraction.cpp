@@ -22,8 +22,7 @@ void MainWindow::contextGraph()
     // Gets signal object
     auto *contextAction = qobject_cast<QAction *>(sender());
 
-    auto runNos = getRunNos().split("-")[0];
-    auto cycles = getRunNos().split("-")[1];
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
 
     if (cycles == "") // Handle unavailable cycle data
     {
@@ -331,8 +330,8 @@ void MainWindow::getField()
     auto *graphParent = ui_.MainTabs->currentWidget();
     auto tabCharts = graphParent->findChildren<QChartView *>();
 
-    auto runNos = getRunNos().split("-")[0];
-    auto cycles = getRunNos().split("-")[1];
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
+
     if (cycles == "")
     {
         for (auto run : runNos.split(";"))
@@ -512,7 +511,8 @@ void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
 
 void MainWindow::getSpectrumCount()
 {
-    auto runNos = getRunNos().split("-")[0];
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
+
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -531,7 +531,8 @@ void MainWindow::getSpectrumCount()
 
 void MainWindow::getMonitorCount()
 {
-    auto runNos = getRunNos().split("-")[0];
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
+
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -558,7 +559,7 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
                                                count->response.toInt() - 1, 1, &valid);
     if (!valid)
         return;
-    auto runNos = getRunNos().split("-")[0];
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
     // Error handling
     if (runNos.size() == 0)
         return;
@@ -584,7 +585,7 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
                              0, count->response.toInt() - 1, 1, &valid);
     if (!valid)
         return;
-    auto runNos = getRunNos().split("-")[0];
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
     // Error handling
     if (runNos.size() == 0)
         return;
