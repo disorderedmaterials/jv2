@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProx
     loadSettings();
 
     QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });
+    connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
     timer->start(30000);
 }
 

@@ -319,6 +319,8 @@
      <addaction name="actionMassSearchRunRange"/>
      <addaction name="actionMassSearchDateRange"/>
     </widget>
+    <addaction name="actionRefresh"/>
+    <addaction name="separator"/>
     <addaction name="actionFind"/>
     <addaction name="actionFindNext"/>
     <addaction name="actionFindPrevious"/>
@@ -434,6 +436,14 @@
   <action name="actionJumpTo">
    <property name="text">
     <string>&amp;Jump To...</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="text">
+    <string>&amp;Refresh</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
    </property>
   </action>
  </widget>

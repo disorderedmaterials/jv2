@@ -82,7 +82,6 @@ class MainWindow : public QMainWindow
     const QModelIndex runDataIndexAtPos(const QPoint pos) const;
     // Get selected run / cycle information [LEGACY, TO FIX]
     std::pair<QString, QString> selectedRunNumbersAndCycles() const;
-    void checkForUpdates();
 
     private slots:
     // Handle cycle update result
@@ -95,6 +94,7 @@ class MainWindow : public QMainWindow
     void handleCycleRunData(HttpRequestWorker *worker);
 
     private slots:
+    void on_actionRefresh_triggered();
     // Set current cycle being displayed
     void setCurrentCycle(QString cycleName);
     void recentCycle();

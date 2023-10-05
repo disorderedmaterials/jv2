@@ -86,16 +86,6 @@ std::pair<QString, QString> MainWindow::selectedRunNumbersAndCycles() const
     return {runNos, cycles};
 }
 
-void MainWindow::checkForUpdates()
-{
-    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory();
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });
-    worker->execute(input);
-}
-
 /*
  * HTTP Worker Handling
  */
@@ -293,6 +283,16 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
 /*
  * UI
  */
+
+void MainWindow::on_actionRefresh_triggered()
+{
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory();
+    HttpRequestInput input(url_str);
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });
+    worker->execute(input);
+}
 
 // Set current cycle being displayed
 void MainWindow::setCurrentCycle(QString cycleName)
