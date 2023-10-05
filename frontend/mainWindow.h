@@ -186,7 +186,6 @@ class MainWindow : public QMainWindow
      */
     private slots:
     void handle_result_contextGraph(HttpRequestWorker *worker);
-    void contextGraph();
     void toggleAxis(int state);
     void getField();
     void showStatus(qreal x, qreal y, QString title);

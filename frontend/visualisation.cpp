@@ -51,6 +51,20 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     // Create the dialog
     SELogChooserDialog chooserDialog(this, rootItem);
 
-    auto result = chooserDialog.getValues();
+    auto result = chooserDialog.getValue();
     qDebug() << result;
+    if (result.isEmpty())
+        return;
+
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
+    if (runNos.size() == 0)
+        return;
+
+    // Request the log value data - need to reformat it and replace '/' with ':' so it doesn't interfere with our route
+    auto *dataWorker = new HttpRequestWorker(this);
+    connect(dataWorker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+            SLOT(handle_result_contextGraph(HttpRequestWorker *)));
+    setLoadScreen(true);
+    dataWorker->execute("http://127.0.0.1:5000/getNexusData/" + currentInstrument().dataDirectory() + "/" + cycles + "/" +
+                        runNos + "/" + result.replace("/", ":"));
 }

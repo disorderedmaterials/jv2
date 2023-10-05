@@ -17,36 +17,6 @@
 #include <QValueAxis>
 #include <algorithm>
 
-void MainWindow::contextGraph()
-{
-    // Gets signal object
-    auto *contextAction = qobject_cast<QAction *>(sender());
-
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-
-    if (cycles == "") // Handle unavailable cycle data
-    {
-        for (auto run : runNos.split(";"))
-            cycles.append(" ;");
-        cycles.chop(1);
-    }
-
-    // Error handling
-    if (runNos.size() == 0)
-        return;
-    QString url_str = "http://127.0.0.1:5000/getNexusData/";
-
-    QString field = contextAction->data().toString().replace("/", ":");
-    url_str += currentInstrument().dataDirectory() + "/" + cycles + "/" + runNos + "/" + field;
-
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-            SLOT(handle_result_contextGraph(HttpRequestWorker *)));
-    setLoadScreen(true);
-    worker->execute(input);
-}
-
 // Configure and populate graphing window
 void MainWindow::handle_result_contextGraph(HttpRequestWorker *worker)
 {

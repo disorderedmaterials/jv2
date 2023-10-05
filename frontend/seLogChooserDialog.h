@@ -79,5 +79,6 @@ class SELogChooserDialog : public QDialog
 
     public:
     // Perform selection
+    QString getValue();
     QStringList getValues();
 };
