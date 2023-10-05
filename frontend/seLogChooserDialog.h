@@ -16,19 +16,19 @@ class SELogTreeItem
     explicit SELogTreeItem(const QList<QVariant> &data, SELogTreeItem *parentItem = nullptr);
     ~SELogTreeItem();
 
-    void appendChild(SELogTreeItem *child);
+    private:
+    QList<SELogTreeItem *> children_;
+    QList<QVariant> data_;
+    SELogTreeItem *parent_;
 
+    public:
+    void appendChild(SELogTreeItem *child);
     SELogTreeItem *child(int row);
     int childCount() const;
     int columnCount() const;
     QVariant data(int column) const;
     int row() const;
     SELogTreeItem *parentItem();
-
-    private:
-    QList<SELogTreeItem *> m_childItems;
-    QList<QVariant> m_itemData;
-    SELogTreeItem *m_parentItem;
 };
 
 class SELogTreeModel : public QAbstractItemModel
@@ -39,14 +39,6 @@ class SELogTreeModel : public QAbstractItemModel
     explicit SELogTreeModel(QObject *parent = nullptr);
     ~SELogTreeModel();
 
-    QVariant data(const QModelIndex &index, int role) const override;
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
     private:
     // Root item for the model
     SELogTreeItem *rootItem_{nullptr};
@@ -54,6 +46,13 @@ class SELogTreeModel : public QAbstractItemModel
     public:
     // Set root item for the model
     void setRootItem(SELogTreeItem *rootItem);
+    QVariant data(const QModelIndex &index, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 };
 
 class SELogChooserDialog : public QDialog

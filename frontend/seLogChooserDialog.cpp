@@ -7,36 +7,36 @@
  * SELogTreeItem
  */
 
-SELogTreeItem::SELogTreeItem(const QList<QVariant> &data, SELogTreeItem *parent) : m_itemData(data), m_parentItem(parent) {}
+SELogTreeItem::SELogTreeItem(const QList<QVariant> &data, SELogTreeItem *parent) : data_(data), parent_(parent) {}
 
-SELogTreeItem::~SELogTreeItem() { qDeleteAll(m_childItems); }
-void SELogTreeItem::appendChild(SELogTreeItem *item) { m_childItems.append(item); }
+SELogTreeItem::~SELogTreeItem() { qDeleteAll(children_); }
+void SELogTreeItem::appendChild(SELogTreeItem *item) { children_.append(item); }
 
 SELogTreeItem *SELogTreeItem::child(int row)
 {
-    if (row < 0 || row >= m_childItems.size())
+    if (row < 0 || row >= children_.size())
         return nullptr;
-    return m_childItems.at(row);
+    return children_.at(row);
 }
 
-int SELogTreeItem::childCount() const { return m_childItems.count(); }
+int SELogTreeItem::childCount() const { return children_.count(); }
 int SELogTreeItem::row() const
 {
-    if (m_parentItem)
-        return m_parentItem->m_childItems.indexOf(const_cast<SELogTreeItem *>(this));
+    if (parent_)
+        return parent_->children_.indexOf(const_cast<SELogTreeItem *>(this));
 
     return 0;
 }
 
-int SELogTreeItem::columnCount() const { return m_itemData.count(); }
+int SELogTreeItem::columnCount() const { return data_.count(); }
 
 QVariant SELogTreeItem::data(int column) const
 {
-    if (column < 0 || column >= m_itemData.size())
+    if (column < 0 || column >= data_.size())
         return QVariant();
-    return m_itemData.at(column);
+    return data_.at(column);
 }
-SELogTreeItem *SELogTreeItem::parentItem() { return m_parentItem; }
+SELogTreeItem *SELogTreeItem::parentItem() { return parent_; }
 
 /*
  * Model
@@ -98,6 +98,9 @@ int SELogTreeModel::rowCount(const QModelIndex &parent) const
 
 int SELogTreeModel::columnCount(const QModelIndex &parent) const
 {
+    if (!rootItem_)
+        return 0;
+
     if (parent.isValid())
         return static_cast<SELogTreeItem *>(parent.internalPointer())->columnCount();
     return rootItem_->columnCount();
