@@ -123,21 +123,3 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     event->accept();
 }
-
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
-    {
-        bool checked = ui_.GroupRunsButton->isChecked();
-        ui_.GroupRunsButton->setChecked(!checked);
-        on_GroupRunsButton_clicked(!checked);
-    }
-    if (event->key() == Qt::Key_R && event->modifiers() == Qt::ControlModifier)
-        checkForUpdates();
-    if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
-    {
-        searchString_ = "";
-        updateSearch(searchString_);
-        return;
-    }
-}
