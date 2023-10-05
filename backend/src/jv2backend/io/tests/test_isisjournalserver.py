@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2022 Team JournalViewer and contributors
+# Copyright (c) 2023 Team JournalViewer and contributors
 from jv2backend.journal import Journal
 from jv2backend.journalfilelist import JournalFileList
 from jv2backend.io.isis.isisjournalserver import ISISJournalServer
