@@ -7,7 +7,7 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProxy_(runDataModel_)
 {
     ui_.setupUi(this);
 
@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     viewMenu_ = ui_.menubar->addMenu("View");
 
     // Set up the main data table
-    runDataFilterProxy_.setSourceModel(&runDataModel_);
     ui_.RunDataTable->setModel(&runDataFilterProxy_);
     // -- Allow re-arranging of table columns
     ui_.RunDataTable->horizontalHeader()->setSectionsMovable(true);
