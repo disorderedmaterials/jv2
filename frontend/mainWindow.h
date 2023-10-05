@@ -137,10 +137,10 @@ class MainWindow : public QMainWindow
     void goToCurrentFoundIndex(QModelIndex index);
 
     private slots:
-    void on_actionSearch_triggered();
-    void on_actionSelectNext_triggered();
-    void on_actionSelectPrevious_triggered();
-    void on_actionSelectAll_triggered();
+    void on_actionFind_triggered();
+    void on_actionFindNext_triggered();
+    void on_actionFindPrevious_triggered();
+    void on_actionSelectAllFound_triggered();
 
     /*
      * Filtering
@@ -166,13 +166,13 @@ class MainWindow : public QMainWindow
     void massSearch(QString name, QString value);
 
     private slots:
-    void on_actionMassSearchRB_No_triggered();
+    void on_actionMassSearchRBNo_triggered();
     void on_actionMassSearchTitle_triggered();
     void on_actionMassSearchUser_triggered();
     void on_actionMassSearchRunRange_triggered();
     void on_actionMassSearchDateRange_triggered();
-    void on_actionClear_cached_searches_triggered();
-    void on_actionRun_Number_triggered();
+    void on_actionClearCachedSearches_triggered();
+    void on_actionJumpTo_triggered();
 
     /*
      * Visualisation

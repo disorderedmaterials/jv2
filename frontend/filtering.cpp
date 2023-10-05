@@ -80,7 +80,7 @@ void MainWindow::goTo(HttpRequestWorker *worker, QString runNumber)
 }
 
 // Go-To run number
-void MainWindow::on_actionRun_Number_triggered()
+void MainWindow::on_actionJumpTo_triggered()
 {
     if (!currentInstrument_)
         return;

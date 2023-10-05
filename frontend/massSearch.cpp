@@ -120,7 +120,7 @@ void MainWindow::massSearch(QString name, QString value)
  * UI
  */
 
-void MainWindow::on_actionMassSearchRB_No_triggered() { massSearch("RB No.", "experiment_identifier"); }
+void MainWindow::on_actionMassSearchRBNo_triggered() { massSearch("RB No.", "experiment_identifier"); }
 
 void MainWindow::on_actionMassSearchTitle_triggered() { massSearch("Title", "title"); }
 
@@ -130,7 +130,7 @@ void MainWindow::on_actionMassSearchRunRange_triggered() { massSearch("Run Range
 
 void MainWindow::on_actionMassSearchDateRange_triggered() { massSearch("Date Range", "start_date"); }
 
-void MainWindow::on_actionClear_cached_searches_triggered()
+void MainWindow::on_actionClearCachedSearches_triggered()
 {
     cachedMassSearch_.clear();
     for (auto i = cyclesMenu_->actions().count() - 1; i >= 0; i--)

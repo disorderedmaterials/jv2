@@ -297,51 +297,51 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuRunData">
+    <property name="title">
+     <string>&amp;Run Data</string>
+    </property>
+    <widget class="QMenu" name="menuSearch_across_cycles">
+     <property name="title">
+      <string>Search Across Cycles</string>
+     </property>
+     <addaction name="actionMassSearchRBNo"/>
+     <addaction name="actionMassSearchTitle"/>
+     <addaction name="actionMassSearchUser"/>
+     <addaction name="actionMassSearchRunRange"/>
+     <addaction name="actionMassSearchDateRange"/>
+    </widget>
+    <addaction name="actionFind"/>
+    <addaction name="actionFindNext"/>
+    <addaction name="actionFindPrevious"/>
+    <addaction name="actionSelectAllFound"/>
+    <addaction name="separator"/>
+    <addaction name="menuSearch_across_cycles"/>
+    <addaction name="actionClearCachedSearches"/>
+    <addaction name="separator"/>
+    <addaction name="actionJumpTo"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>&amp;Settings</string>
     </property>
     <addaction name="actionSetLocalSource"/>
     <addaction name="actionClearLocalSource"/>
     <addaction name="separator"/>
     <addaction name="actionMountPoint"/>
     <addaction name="actionClearMountPoint"/>
-    <addaction name="separator"/>
-    <addaction name="action_Quit"/>
-   </widget>
-   <widget class="QMenu" name="menuFind">
-    <property name="title">
-     <string>Search</string>
-    </property>
-    <widget class="QMenu" name="menuSearch_across_cycles">
-     <property name="title">
-      <string>Search across cycles</string>
-     </property>
-     <addaction name="actionMassSearchRB_No"/>
-     <addaction name="actionMassSearchTitle"/>
-     <addaction name="actionMassSearchUser"/>
-     <addaction name="actionMassSearchRunRange"/>
-     <addaction name="actionMassSearchDateRange"/>
-    </widget>
-    <widget class="QMenu" name="menuGo_to_specific_run_number">
-     <property name="title">
-      <string>Go to specific value</string>
-     </property>
-     <addaction name="actionRun_Number"/>
-    </widget>
-    <addaction name="actionSearch"/>
-    <addaction name="actionSelectNext"/>
-    <addaction name="actionSelectPrevious"/>
-    <addaction name="actionSelectAll"/>
-    <addaction name="separator"/>
-    <addaction name="menuSearch_across_cycles"/>
-    <addaction name="actionClear_cached_searches"/>
-    <addaction name="separator"/>
-    <addaction name="menuGo_to_specific_run_number"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuFind"/>
+   <addaction name="menuRunData"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionMassSearchRB_No">
+  <action name="actionMassSearchRBNo">
    <property name="text">
     <string>RB No.</string>
    </property>
@@ -366,71 +366,71 @@
     <string>Date Range</string>
    </property>
   </action>
-  <action name="actionClear_cached_searches">
+  <action name="actionClearCachedSearches">
    <property name="text">
-    <string>Clear cached searches</string>
+    <string>Clear Cached Searches</string>
    </property>
   </action>
-  <action name="action_Quit">
+  <action name="actionQuit">
    <property name="text">
     <string>&amp;Quit</string>
    </property>
   </action>
-  <action name="actionSearch">
+  <action name="actionFind">
    <property name="text">
-    <string>&amp;Find</string>
+    <string>&amp;Find...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
   </action>
-  <action name="actionSelectNext">
+  <action name="actionFindNext">
    <property name="text">
-    <string>Find Next</string>
+    <string>Find &amp;Next</string>
    </property>
    <property name="shortcut">
     <string>F3</string>
    </property>
   </action>
-  <action name="actionSelectPrevious">
+  <action name="actionFindPrevious">
    <property name="text">
-    <string>Find Previous</string>
+    <string>Find &amp;Previous</string>
    </property>
    <property name="shortcut">
     <string>Shift+F3</string>
    </property>
   </action>
-  <action name="actionSelectAll">
+  <action name="actionSelectAllFound">
    <property name="text">
-    <string>Select All Occurrences</string>
+    <string>Select &amp;All Occurrences</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F3</string>
    </property>
   </action>
-  <action name="actionRun_Number">
-   <property name="text">
-    <string>Run Number</string>
-   </property>
-  </action>
   <action name="actionClearLocalSource">
    <property name="text">
-    <string>Clear local journal source</string>
+    <string>Clear Local Journal Source</string>
    </property>
   </action>
   <action name="actionSetLocalSource">
    <property name="text">
-    <string>Set local journal source</string>
+    <string>Set Local Journal Source</string>
    </property>
   </action>
   <action name="actionMountPoint">
    <property name="text">
-    <string>Set nexus archive location</string>
+    <string>Set NeXus Archive Location</string>
    </property>
   </action>
   <action name="actionClearMountPoint">
    <property name="text">
-    <string>Clear nexus archive location</string>
+    <string>Clear NeXus Archive Location</string>
+   </property>
+  </action>
+  <action name="actionJumpTo">
+   <property name="text">
+    <string>&amp;Jump To...</string>
    </property>
   </action>
  </widget>

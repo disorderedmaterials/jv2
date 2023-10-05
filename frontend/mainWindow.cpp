@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProx
     connect(ui_.MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
 
     // Connect exit action
-    connect(ui_.action_Quit, SIGNAL(triggered()), this, SLOT(close()));
+    connect(ui_.actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 
     // Get user settings
     loadSettings();

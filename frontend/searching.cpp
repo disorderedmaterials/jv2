@@ -102,7 +102,7 @@ void MainWindow::goToCurrentFoundIndex(QModelIndex index)
  * UI
  */
 
-void MainWindow::on_actionSearch_triggered()
+void MainWindow::on_actionFind_triggered()
 {
     QString textInput =
         QInputDialog::getText(this, tr("Find"), tr("Find in current run data (RB, user, title,...):"), QLineEdit::Normal);
@@ -138,6 +138,6 @@ void MainWindow::on_actionSearch_triggered()
     }
 }
 
-void MainWindow::on_actionSelectNext_triggered() { findDown(); }
-void MainWindow::on_actionSelectPrevious_triggered() { findUp(); }
-void MainWindow::on_actionSelectAll_triggered() { selectAllSearches(); }
+void MainWindow::on_actionFindNext_triggered() { findDown(); }
+void MainWindow::on_actionFindPrevious_triggered() { findUp(); }
+void MainWindow::on_actionSelectAllFound_triggered() { selectAllSearches(); }
