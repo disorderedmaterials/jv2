@@ -13,22 +13,24 @@
 class SELogTreeItem
 {
     public:
-    explicit SELogTreeItem(const QList<QVariant> &data, SELogTreeItem *parentItem = nullptr);
+    explicit SELogTreeItem(const QList<QVariant> &data);
     ~SELogTreeItem();
 
     private:
     QList<SELogTreeItem *> children_;
     QList<QVariant> data_;
-    SELogTreeItem *parent_;
+    SELogTreeItem *parent_{nullptr};
 
     public:
     void appendChild(SELogTreeItem *child);
+    SELogTreeItem *appendChild(const QList<QVariant> &data);
     SELogTreeItem *child(int row);
     int childCount() const;
     int columnCount() const;
     QVariant data(int column) const;
     int row() const;
-    SELogTreeItem *parentItem();
+    void setParent(SELogTreeItem *parent);
+    SELogTreeItem *parent();
 };
 
 class SELogTreeModel : public QAbstractItemModel
@@ -60,7 +62,7 @@ class SELogChooserDialog : public QDialog
     Q_OBJECT
 
     public:
-    SELogChooserDialog(QWidget *parent = nullptr);
+    SELogChooserDialog(QWidget *parent, SELogTreeItem *rootItem);
     ~SELogChooserDialog() = default;
 
     /*
@@ -70,11 +72,12 @@ class SELogChooserDialog : public QDialog
     Ui::SELogChooserDialog ui_;
     SELogTreeModel treeModel_;
 
-    public:
-    // Set root data item for model
-    void setRootItem(SELogTreeItem *rootItem);
-
     private slots:
+    void onTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void on_CancelButton_clicked(bool checked);
+    void on_SelectButton_clicked(bool checked);
 
-    protected:
+    public:
+    // Perform selection
+    QStringList getValues();
 };

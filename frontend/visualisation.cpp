@@ -27,40 +27,30 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     }
 
     // Iterate over logs extracted from the target run data and construct our mapped values
-    auto *rootItem = new SELogTreeItem(QList<QVariant>({"Mr Header"}));
-
+    auto *rootItem = new SELogTreeItem({"Log Value", "Full Path"});
     foreach (const auto &log, worker->jsonArray)
     {
         auto logArray = log.toArray();
-        auto name = logArray.first().toString().toUpper();
-        name.chop(2);
-        auto formattedName = name.append("og");
-        // auto *subMenu = new QMenu("Plot from " + formattedName);
-        // logArray.removeFirst();
-        // if (logArray.size() > 0)
-        // contextMenu_->addMenu(subMenu);
-        auto *sectionItem = new SELogTreeItem({{formattedName}}, rootItem);
-        rootItem->appendChild(sectionItem);
+        if (logArray.size() < 2)
+            continue;
+
+        // First item in the array is the name of the log value set / section
+        auto *sectionItem = rootItem->appendChild({logArray.first().toString(), ""});
+
+        // Remove the name item and proceed to iterate over log values
+        logArray.removeFirst();
 
         auto logArrayVar = logArray.toVariantList();
         std::sort(logArrayVar.begin(), logArrayVar.end(),
                   [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
 
         foreach (const auto &block, logArrayVar)
-        {
-            sectionItem->appendChild(new SELogTreeItem({{block.toString()}}, sectionItem));
-            // seValues[formattedName].push_back(block.toString());
-            // Fills contextMenu with all columns
-            // QString path = block.toString();
-            // auto *action = new QAction(path.right(path.size() - path.lastIndexOf("/") - 1), this);
-            // action->setData(path);
-            // connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
-            // subMenu->addAction(action);
-        }
+            sectionItem->appendChild({block.toString().split("/").last(), block.toString()});
     }
 
-    SELogChooserDialog chooserDialog(this);
+    // Create the dialog
+    SELogChooserDialog chooserDialog(this, rootItem);
 
-    chooserDialog.setRootItem(rootItem);
-    chooserDialog.exec();
+    auto result = chooserDialog.getValues();
+    qDebug() << result;
 }

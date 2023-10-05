@@ -7,10 +7,23 @@
  * SELogTreeItem
  */
 
-SELogTreeItem::SELogTreeItem(const QList<QVariant> &data, SELogTreeItem *parent) : data_(data), parent_(parent) {}
+SELogTreeItem::SELogTreeItem(const QList<QVariant> &data) : data_(data) {}
 
 SELogTreeItem::~SELogTreeItem() { qDeleteAll(children_); }
-void SELogTreeItem::appendChild(SELogTreeItem *item) { children_.append(item); }
+
+void SELogTreeItem::appendChild(SELogTreeItem *item)
+{
+    children_.append(item);
+    item->setParent(this);
+}
+
+SELogTreeItem *SELogTreeItem::appendChild(const QList<QVariant> &data)
+{
+    auto *item = new SELogTreeItem(data);
+    item->setParent(this);
+    children_.append(item);
+    return item;
+}
 
 SELogTreeItem *SELogTreeItem::child(int row)
 {
@@ -20,6 +33,7 @@ SELogTreeItem *SELogTreeItem::child(int row)
 }
 
 int SELogTreeItem::childCount() const { return children_.count(); }
+
 int SELogTreeItem::row() const
 {
     if (parent_)
@@ -32,11 +46,14 @@ int SELogTreeItem::columnCount() const { return data_.count(); }
 
 QVariant SELogTreeItem::data(int column) const
 {
-    if (column < 0 || column >= data_.size())
+    if (column < 0 || column >= data_.count())
         return QVariant();
     return data_.at(column);
 }
-SELogTreeItem *SELogTreeItem::parentItem() { return parent_; }
+
+void SELogTreeItem::setParent(SELogTreeItem *parent) { parent_ = parent; }
+
+SELogTreeItem *SELogTreeItem::parent() { return parent_; }
 
 /*
  * Model
@@ -74,7 +91,7 @@ QModelIndex SELogTreeModel::parent(const QModelIndex &index) const
         return QModelIndex();
 
     SELogTreeItem *childItem = static_cast<SELogTreeItem *>(index.internalPointer());
-    SELogTreeItem *parentItem = childItem->parentItem();
+    SELogTreeItem *parentItem = childItem->parent();
 
     if (parentItem == rootItem_)
         return QModelIndex();
@@ -84,16 +101,12 @@ QModelIndex SELogTreeModel::parent(const QModelIndex &index) const
 
 int SELogTreeModel::rowCount(const QModelIndex &parent) const
 {
-    SELogTreeItem *parentItem;
-    if (!rootItem_ || parent.column() > 0)
+    if (!rootItem_)
         return 0;
 
-    if (!parent.isValid())
-        parentItem = rootItem_;
-    else
-        parentItem = static_cast<SELogTreeItem *>(parent.internalPointer());
+    auto *queryItem = parent.isValid() ? static_cast<SELogTreeItem *>(parent.internalPointer()) : rootItem_;
 
-    return parentItem->childCount();
+    return queryItem->childCount();
 }
 
 int SELogTreeModel::columnCount(const QModelIndex &parent) const
@@ -103,6 +116,7 @@ int SELogTreeModel::columnCount(const QModelIndex &parent) const
 
     if (parent.isValid())
         return static_cast<SELogTreeItem *>(parent.internalPointer())->columnCount();
+
     return rootItem_->columnCount();
 }
 
@@ -150,14 +164,42 @@ void SELogTreeModel::setRootItem(SELogTreeItem *rootItem)
  * Dialog
  */
 
-SELogChooserDialog::SELogChooserDialog(QWidget *parent) : QDialog(parent)
+SELogChooserDialog::SELogChooserDialog(QWidget *parent, SELogTreeItem *rootItem) : QDialog(parent)
 {
     ui_.setupUi(this);
 
+    treeModel_.setRootItem(rootItem);
     ui_.SELogTree->setModel(&treeModel_);
+    ui_.SELogTree->expandAll();
+    ui_.SELogTree->resizeColumnToContents(0);
+    ui_.SELogTree->resizeColumnToContents(1);
 
-    show();
+    connect(ui_.SELogTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
+            SLOT(onTreeSelectionChanged(const QItemSelection &, const QItemSelection &)));
+    ui_.SelectButton->setDisabled(true);
 }
 
-// Set root data item for model
-void SELogChooserDialog::setRootItem(SELogTreeItem *rootItem) { treeModel_.setRootItem(rootItem); }
+void SELogChooserDialog::onTreeSelectionChanged(const QItemSelection &selected, const QItemSelection &previous)
+{
+    ui_.SelectButton->setDisabled(selected.isEmpty());
+}
+
+void SELogChooserDialog::on_CancelButton_clicked(bool checked) { reject(); }
+
+void SELogChooserDialog::on_SelectButton_clicked(bool checked) { accept(); }
+
+// Perform selection
+QStringList SELogChooserDialog::getValues()
+{
+    QStringList result;
+
+    if (exec() == QDialog::Accepted)
+    {
+        auto selection = ui_.SELogTree->selectionModel()->selectedIndexes();
+        for (const auto &index : selection)
+            if (index.column() == 1)
+                result << treeModel_.data(index, Qt::DisplayRole).toString();
+    }
+
+    return result;
+}
