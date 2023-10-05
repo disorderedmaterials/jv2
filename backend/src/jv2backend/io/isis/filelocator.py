@@ -105,7 +105,7 @@ class LegacyArchiveFileLocator(PrefixPathFileLocator):
         logging.debug(f"Locate: instrument={instrument}, isis_cycle={cycle_id}")
         filepath = (
             self._prefix
-            / f"ndx{instrument.lower()}"
+            / f"{instrument.lower()}"
             / "Instrument"
             / "data"
             / f"cycle_{cycle_id}"

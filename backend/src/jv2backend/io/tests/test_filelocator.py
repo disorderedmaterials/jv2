@@ -35,7 +35,7 @@ def archive_faker(fs, sample_run):
             "cycle_21_1",
         )
         fs.create_file(
-            f"{prefix}/ndx{instrument.lower()}/Instrument/data/{cycle_name}/{sample_run['name']}.nxs"
+            f"{prefix}/{instrument.lower()}/Instrument/data/{cycle_name}/{sample_run['name']}.nxs"
         )
 
     return _impl
