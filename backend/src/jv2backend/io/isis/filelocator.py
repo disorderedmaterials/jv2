@@ -31,7 +31,7 @@ class PrefixPathFileLocator(RunDataFileLocator):
 
 
 class DAaaSDataCacheFileLocator(PrefixPathFileLocator):
-    """Implments file searching based on the ISIS
+    """Implements file searching based on the ISIS
     IDAaaS data cache layout. The files can be found on the following path
     <prefix>/<instrument_name>/<YYYY>/RB<experiment_identifier>-<part_number>/<name>.nxs
     """
