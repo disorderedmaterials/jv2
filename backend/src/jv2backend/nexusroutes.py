@@ -215,6 +215,9 @@ def _locate_run_files(
     :param cycles: A semi-colon separated list of cycle names in the format YY_N
     :param runs: A semi-colon separated list of run numbers. Length should match cycles.
     :return: A list of Path|None to the found data files. None indicates the files could not be found
+
+    The instrument_name entries in the returned dicts are set to the input instrument name in order
+    to pass the correct name (e.g. 'ndxabc') to the run locator.
     """
     logging.debug(f"Locating runs: '{cycles_str}'/'{runs_str}'")
     cycles, runs = split(cycles_str, ";"), split(runs_str, ";")
@@ -231,6 +234,7 @@ def _locate_run_files(
             filepaths.append(None)
             continue
         logging.debug(f"Found metadata for run {run}")
+        run["instrument_name"] = instrument
         filepaths.append(run_locator.locate(run))
 
     return filepaths
