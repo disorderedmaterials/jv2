@@ -160,7 +160,7 @@ class ISISJournalServer(JournalServer):
         :param instrument_name: _description_
         :return: The URL to the directory of the journals
         """
-        return self._root_url + f"/ndx{instrument_name.lower()}"
+        return self._root_url + f"/{instrument_name.lower()}"
 
     def _store_last_modified_time(
         self, instrument_name: str, last_modified_ts: str

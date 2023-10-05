@@ -1,152 +1,41 @@
 <xml>
-<insts>
-	<inst name="ALF">
-		<dataDirectory>ndxalf</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="ARGUS">
-		<dataDirectory>ndxargus</dataDirectory>
-		<type>Muon</type>
-	</inst>
-	<inst name="ChipIr">
-		<dataDirectory>ndxchipir</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="CHRONUS">
-		<dataDirectory>ndxchronus</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="CRISP">
-		<dataDirectory>ndxcrisp</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="EMMA">
-		<dataDirectory>ndxemma</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="EMU">
-		<dataDirectory>ndxemu</dataDirectory>
-		<type>Muon</type>
-	</inst>
-	<inst name="ENGINX">
-		<dataDirectory>ndxenginx</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="GEM">
-		<dataDirectory>ndxgem</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="HET">
-		<dataDirectory>ndxenginx</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="HIFI">
-		<dataDirectory>ndxhifi</dataDirectory>
-		<type>Muon</type>
-	</inst>
-	<inst name="HRPD">
-		<dataDirectory>ndxhrpd</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="IMAT">
-		<dataDirectory>ndximat</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="INES">
-		<dataDirectory>ndxines</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="INTER">
-		<dataDirectory>ndxinter</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="IRIS">
-		<dataDirectory>ndxiris</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="LET">
-		<dataDirectory>ndxlet</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="LARMOR">
-		<dataDirectory>ndxlarmor</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="LOQ">
-		<dataDirectory>ndxloq</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="MAPS">
-		<dataDirectory>ndxmaps</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="MARI">
-		<dataDirectory>ndxmari</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="MERLIN">
-		<dataDirectory>ndxmerlin</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="MUSR">
-		<dataDirectory>ndxmusr</dataDirectory>
-		<type>Muon</type>
-	</inst>
-	<inst name="NIMROD">
-		<dataDirectory>ndxnimrod</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="OFFSPEC">
-		<dataDirectory>ndxoffspec</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="OSIRIS">
-		<dataDirectory>ndxosiris</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="PEARL">
-		<dataDirectory>ndxpearl</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="POLARIS">
-		<dataDirectory>ndxpolaris</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="POLREF">
-		<dataDirectory>ndxpolref</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="SANDALS">
-		<dataDirectory>ndxsandals</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="SANS2d">
-		<dataDirectory>ndxsans2d</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="SURF">
-		<dataDirectory>ndxsurf</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="SXD">
-		<dataDirectory>ndxsxd</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="TOSCA">
-		<dataDirectory>ndxtosca</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="VESUVIO">
-		<dataDirectory>ndxevs</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="WISH">
-		<dataDirectory>ndxwish</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-	<inst name="ZOOM">
-		<dataDirectory>ndxzoom</dataDirectory>
-		<type>Neutron</type>
-	</inst>
-</insts>
+	<insts>
+		<inst name="ALF" journalDirectory="ndxalf" dataDirectory="NDXALF" type="Neutron" />
+		<inst name="ARGUS" journalDirectory="ndxargus" dataDirectory="NDXARGUS" type="Muon" />
+		<inst name="ChipIr" journalDirectory="ndxchipir" dataDirectory="NDXCHIPIR" type="Neutron" />
+		<inst name="CHRONUS" journalDirectory="ndxchronus" dataDirectory="NDXCHRONUS" type="Neutron" />
+		<inst name="CRISP" journalDirectory="ndxcrisp" dataDirectory="NDXCRISP" type="Neutron" />
+		<inst name="EMMA" journalDirectory="ndxemma" dataDirectory="NDXEMMA" type="Neutron" />
+		<inst name="EMU" journalDirectory="ndxemu" dataDirectory="NDXEMU" type="Muon" />
+		<inst name="ENGINX" journalDirectory="ndxenginx" dataDirectory="NDXENGINX" type="Neutron" />
+		<inst name="GEM" journalDirectory="ndxgem" dataDirectory="NDXGEM" type="Neutron" />
+		<inst name="HET" journalDirectory="ndxenginx" dataDirectory="NDXENGINX" type="Neutron" />
+		<inst name="HIFI" journalDirectory="ndxhifi" dataDirectory="NDXHIFI" type="Muon" />
+		<inst name="HRPD" journalDirectory="ndxhrpd" dataDirectory="NDXHRPD" type="Neutron" />
+		<inst name="IMAT" journalDirectory="ndximat" dataDirectory="NDXIMAT" type="Neutron" />
+		<inst name="INES" journalDirectory="ndxines" dataDirectory="NDXINES" type="Neutron" />
+		<inst name="INTER" journalDirectory="ndxinter" dataDirectory="NDXINTER" type="Neutron" />
+		<inst name="IRIS" journalDirectory="ndxiris" dataDirectory="NDXIRIS" type="Neutron" />
+		<inst name="LET" journalDirectory="ndxlet" dataDirectory="NDXLET" type="Neutron" />
+		<inst name="LARMOR" journalDirectory="ndxlarmor" dataDirectory="NDXLARMOR" type="Neutron" />
+		<inst name="LOQ" journalDirectory="ndxloq" dataDirectory="NDXLOQ" type="Neutron" />
+		<inst name="MAPS" journalDirectory="ndxmaps" dataDirectory="NDXMAPS" type="Neutron" />
+		<inst name="MARI" journalDirectory="ndxmari" dataDirectory="NDXMARI" type="Neutron" />
+		<inst name="MERLIN" journalDirectory="ndxmerlin" dataDirectory="NDXMERLIN" type="Neutron" />
+		<inst name="MUSR" journalDirectory="ndxmusr" dataDirectory="NDXMUSR" type="Muon" />
+		<inst name="NIMROD" journalDirectory="ndxnimrod" dataDirectory="NDXNIMROD" type="Neutron" />
+		<inst name="OFFSPEC" journalDirectory="ndxoffspec" dataDirectory="NDXOFFSPEC" type="Neutron" />
+		<inst name="OSIRIS" journalDirectory="ndxosiris" dataDirectory="NDXOSIRIS" type="Neutron" />
+		<inst name="PEARL" journalDirectory="ndxpearl" dataDirectory="NDXPEARL" type="Neutron" />
+		<inst name="POLARIS" journalDirectory="ndxpolaris" dataDirectory="NDXPOLARIS" type="Neutron" />
+		<inst name="POLREF" journalDirectory="ndxpolref" dataDirectory="NDXPOLREF" type="Neutron" />
+		<inst name="SANDALS" journalDirectory="ndxsandals" dataDirectory="NDXSANDALS" type="Neutron" />
+		<inst name="SANS2d" journalDirectory="ndxsans2d" dataDirectory="NDXSANS2D" type="Neutron" />
+		<inst name="SURF" journalDirectory="ndxsurf" dataDirectory="NDXSURF" type="Neutron" />
+		<inst name="SXD" journalDirectory="ndxsxd" dataDirectory="NDXSXD" type="Neutron" />
+		<inst name="TOSCA" journalDirectory="ndxtosca" dataDirectory="NDXTOSCA" type="Neutron" />
+		<inst name="VESUVIO" journalDirectory="ndxevs" dataDirectory="NDXEVS" type="Neutron" />
+		<inst name="WISH" journalDirectory="ndxwish" dataDirectory="NDXWISH" type="Neutron" />
+		<inst name="ZOOM" journalDirectory="ndxzoom" dataDirectory="NDXZOOM" type="Neutron" />
+	</insts>
 </xml>

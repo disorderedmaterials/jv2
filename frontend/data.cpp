@@ -53,9 +53,42 @@ void MainWindow::generateGroupedData()
     }
 }
 
+// Return the run data model index under the mouse, accounting for the effects of the filter proxy
+const QModelIndex MainWindow::runDataIndexAtPos(const QPoint pos) const
+{
+    auto index = ui_.RunDataTable->indexAt(pos);
+    return index.isValid() ? runDataFilterProxy_.mapToSource(index) : QModelIndex();
+}
+
+// Get selected run / cycle information [LEGACY, TO FIX]
+std::pair<QString, QString> MainWindow::selectedRunNumbersAndCycles() const
+{
+    // Get selected run numbers / cycles
+    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
+    QString runNos, cycles;
+
+    // Concats runs
+    for (const auto &runIndex : selectedRuns)
+    {
+        auto runNo = runDataFilterProxy_.getData("run_number", runIndex);
+        auto cycle = runDataFilterProxy_.getData("isis_cycle", runIndex);
+
+        // Account for grouped run information
+        auto runNoArray = runNo.split(",");
+        for (auto n : runNoArray)
+        {
+            runNos.append(runNos.isEmpty() ? runNo : (";" + runNo));
+            cycles.append((cycles.isEmpty() ? "cycle_" : ";cycle_") + cycle);
+        }
+    }
+    qDebug() << runNos;
+    qDebug() << cycles;
+    return {runNos, cycles};
+}
+
 void MainWindow::checkForUpdates()
 {
-    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().lowerCaseName();
+    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory();
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, &HttpRequestWorker::on_execution_finished,
@@ -86,7 +119,7 @@ void MainWindow::handleCycleUpdate(QString response)
         }
         else if (cyclesMap_[ui_.cycleButton->text()] == response) // if current opened cycle changed
         {
-            QString url_str = "http://127.0.0.1:5000/updateJournal/" + currentInstrument().lowerCaseName() + "/" + response +
+            QString url_str = "http://127.0.0.1:5000/updateJournal/" + currentInstrument().journalDirectory() + "/" + response +
                               "/" + runData_.last().toObject()["run_number"].toString();
             HttpRequestInput input(url_str);
             auto *worker = new HttpRequestWorker(this);
@@ -117,15 +150,25 @@ void MainWindow::handleGetCycles(HttpRequestWorker *worker)
     cyclesMenu_->clear();
     cyclesMap_.clear();
 
+    // Network error?
     if (worker->errorType != QNetworkReply::NoError)
     {
-        // an error occurred
-        QString msg = "Error1: " + worker->errorString;
-        QMessageBox::information(this, "", msg);
+        statusBar()->showMessage("Network error!");
+        QMessageBox::warning(
+            this, "Network Error",
+            "A network error was encountered while trying to retrieve run data for the cycle\nThe error returned was: " +
+                worker->errorString);
         return;
     }
 
+    // Other error?
     auto response = worker->response;
+    if (response.contains("Error"))
+    {
+        statusBar()->showMessage("Network error!");
+        QMessageBox::warning(this, "An Error Occurred", response);
+        return;
+    }
 
     QJsonValue value;
     for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
@@ -150,6 +193,7 @@ void MainWindow::handleGetCycles(HttpRequestWorker *worker)
         init_ = false;
         return;
     }
+
     // Keep cycle over instruments
     for (QAction *action : cyclesMenu_->actions())
     {
@@ -268,7 +312,8 @@ void MainWindow::setCurrentCycle(QString cycleName)
     }
     ui_.cycleButton->setText(cycleName);
 
-    QString url_str = "http://127.0.0.1:5000/getJournal/" + currentInstrument().lowerCaseName() + "/" + cyclesMap_[cycleName];
+    QString url_str =
+        "http://127.0.0.1:5000/getJournal/" + currentInstrument().journalDirectory() + "/" + cyclesMap_[cycleName];
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
 
@@ -296,4 +341,61 @@ void MainWindow::recentCycle()
         }
     }
     cyclesMenu_->actions()[0]->trigger();
+}
+
+// Run data context menu requested
+void MainWindow::runDataContextMenuRequested(QPoint pos)
+{
+    QMenu contextMenu;
+
+    // Selection
+    auto *selectSameTitle = contextMenu.addAction("Select identical titles");
+    contextMenu.addSeparator();
+
+    // SE log plotting options
+    auto *plotSELog = contextMenu.addAction("Plot SE log values...");
+    contextMenu.addSeparator();
+
+    // Spectrum plotting
+    auto *plotDetector = contextMenu.addAction("Plot detector...");
+    auto *plotMonitor = contextMenu.addAction("Plot monitor...");
+
+    auto *selectedAction = contextMenu.exec(ui_.RunDataTable->mapToGlobal(pos));
+
+    // Get selected run numbers / cycles
+    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
+
+    if (selectedAction == selectSameTitle)
+    {
+        auto title = runDataModel_.getData("title", runDataIndexAtPos(pos));
+
+        // Iterate over displayed rows (i.e. via filter proxy)
+        for (auto i = 0; i < runDataFilterProxy_.rowCount(); ++i)
+        {
+            if (runDataModel_.getData("title", runDataFilterProxy_.mapToSource(runDataFilterProxy_.index(i, 0))) == title)
+                ui_.RunDataTable->selectionModel()->setCurrentIndex(runDataFilterProxy_.index(i, 0),
+                                                                    QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        }
+
+        statusBar()->showMessage(QString("Selected %1 runs titled \"%2\".")
+                                     .arg(ui_.RunDataTable->selectionModel()->selectedRows().count())
+                                     .arg(title));
+    }
+    else if (selectedAction == plotSELog)
+    {
+
+        auto *worker = new HttpRequestWorker(this);
+        connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
+                SLOT(handlePlotSELogValue(HttpRequestWorker *)));
+        worker->execute(
+            {"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + cycles + "/" + runNos});
+    }
+    else if (selectedAction == plotDetector)
+    {
+        getSpectrumCount();
+    }
+    else if (selectedAction == plotMonitor)
+    {
+        getMonitorCount();
+    }
 }

@@ -25,7 +25,7 @@ def add_routes(
         try:
             return jsonify(journal_server.journal_filenames(instrument_name=instrument))
         except Exception as exc:
-            return jsonify(f"Unable to fetch cycles for {instrument}: {str(exc)}")
+            return jsonify(f"Error: Unable to fetch cycles for {instrument}: {str(exc)}")
 
     @app.route("/getJournal/<instrument>/<filename>")
     def getJournal(instrument: str, filename: str) -> FlaskResponse:
@@ -41,7 +41,7 @@ def add_routes(
             )
         except Exception as exc:
             return jsonify(
-                f"Unable to fetch journal for {instrument}, cycle {filename}: {str(exc)}"
+                f"Error: Unable to fetch journal for {instrument}, cycle {filename}: {str(exc)}"
             )
 
     @app.route("/getAllJournals/<instrument>/<field>/<search>/<options>")
@@ -67,7 +67,7 @@ def add_routes(
                 journal_server.search(instrument, field, search, case_sensitive)
             )
         except Exception as exc:
-            return jsonify(f"Unable to complete search '{search}': {str(exc)}")
+            return jsonify(f"Error: Unable to complete search '{search}': {str(exc)}")
 
     @app.route("/pingCycle/<instrument>")
     def pingCycle(instrument):
@@ -93,7 +93,7 @@ def add_routes(
             return json_response(all_cycle_runs.search("run_number", f">{last_run}"))
         except Exception as exc:
             return jsonify(
-                f"Unable to fetch new runs for {instrument}, cycle {filename}: {str(exc)}"
+                f"Error: Unable to fetch new runs for {instrument}, cycle {filename}: {str(exc)}"
             )
 
     @app.route("/getTotalMuAmps/<instrument>/<cycle>/<runs>")
@@ -109,11 +109,11 @@ def add_routes(
             journal = journal_server.journal(instrument_name=instrument, filename=cycle)
         except Exception as exc:
             return jsonify(
-                f"Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
+                f"Error: Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
             )
         run_info = [journal.run(run) for run in split(runs, ";")]
         if not all(run_info):
-            return jsonify(f"Unable to find all run information: {runs}")
+            return jsonify(f"Error: Unable to find all run information: {runs}")
 
         return ";".join([info["proton_charge"] for info in run_info])  # type: ignore
 

@@ -31,7 +31,7 @@ class PrefixPathFileLocator(RunDataFileLocator):
 
 
 class DAaaSDataCacheFileLocator(PrefixPathFileLocator):
-    """Implments file searching based on the ISIS
+    """Implements file searching based on the ISIS
     IDAaaS data cache layout. The files can be found on the following path
     <prefix>/<instrument_name>/<YYYY>/RB<experiment_identifier>-<part_number>/<name>.nxs
     """
@@ -80,7 +80,7 @@ class LegacyArchiveFileLocator(PrefixPathFileLocator):
     archive layout. Files can be found by constructing
     the following path
 
-    <prefix>/ndx<instrument_name.lower()>/Instrument/data/cycle_YY_N/<name>.nxs
+    <prefix>/<instrument_name.lower()>/Instrument/data/cycle_YY_N/<name>.nxs
     """
 
     EXTENSION = ".nxs"
@@ -105,7 +105,7 @@ class LegacyArchiveFileLocator(PrefixPathFileLocator):
         logging.debug(f"Locate: instrument={instrument}, isis_cycle={cycle_id}")
         filepath = (
             self._prefix
-            / f"ndx{instrument.lower()}"
+            / f"{instrument.lower()}"
             / "Instrument"
             / "data"
             / f"cycle_{cycle_id}"

@@ -2,8 +2,14 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "jsonTableFilterProxy.h"
+#include "jsonTableModel.h"
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
+
+JsonTableFilterProxy::JsonTableFilterProxy(JsonTableModel &jsonTableModel) : jsonTableModel_(jsonTableModel)
+{
+    setSourceModel(&jsonTableModel_);
+}
 
 // Set text string to filter by
 void JsonTableFilterProxy::setFilterString(QString filterString)
@@ -43,4 +49,10 @@ bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &so
     }
 
     return false;
+}
+
+// Get named data for specified proxy index from underlying model
+QString JsonTableFilterProxy::getData(const QString &targetData, const QModelIndex &index) const
+{
+    return jsonTableModel_.getData(targetData, mapToSource(index));
 }

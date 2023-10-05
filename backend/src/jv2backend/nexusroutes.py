@@ -45,7 +45,7 @@ def add_routes(
         logpaths = []
         for filepath, run in zip(filepaths, runs):
             if filepath is None:
-                return jsonify(f"Unable to find run file for run '{run}'")
+                return jsonify(f"Error: Unable to find run file for run '{run}'")
             logpaths.extend(nxs.logpaths_from_path(filepath))
 
         return json_response(logpaths)
@@ -72,7 +72,7 @@ def add_routes(
         all_field_data = []
         for filepath, run in zip(filepaths, runs):
             if filepath is None:
-                return jsonify(f"Unable to find run file for run '{run}'")
+                return jsonify(f"Error: Unable to find run file for run '{run}'")
 
             nxsfile, first_group = nxs.open_at(filepath, 0)
             run_data = [nxs.timerange(first_group)]
@@ -108,7 +108,7 @@ def add_routes(
             journal_server, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
-            return jsonify(f"Unable to find run {run}")
+            return jsonify(f"Error: Unable to find run {run}")
 
         return str(nxs.spectra_count(filepaths[0]))  # type: ignore
 
@@ -130,7 +130,7 @@ def add_routes(
             journal_server, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
-            return jsonify(f"Unable to find run {runs}")
+            return jsonify(f"Error: Unable to find run {runs}")
 
         return str(nxs.monitor_count(filepaths[0]))  # type: ignore
 
@@ -148,7 +148,7 @@ def add_routes(
             journal_server, run_locator, instrument, cycle, runs
         )
         if not any(filepaths):
-            return jsonify(f"Unable to find run {runs}")
+            return jsonify(f"Error: Unable to find run {runs}")
 
         # first entry matches expectation of the frontend with sending back the parameters
         data = [[runs, spectrum, "detector"]]
@@ -169,7 +169,7 @@ def add_routes(
             journal_server, run_locator, instrument, cycle, runs
         )
         if not any(filepaths):
-            return jsonify(f"Unable to find run {runs}")
+            return jsonify(f"Error: Unable to find run {runs}")
 
         # first entry matches expectation of the frontend with sending back the parameters
         data = [[runs, monitor, "monitor"]]
@@ -189,7 +189,7 @@ def add_routes(
             journal_server, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
-            return jsonify(f"Unable to find run {run}")
+            return jsonify(f"Error: Unable to find run {run}")
 
         return nxs.nonzero_spectra_ratio(filepaths[0])  # type: ignore
 
@@ -215,6 +215,9 @@ def _locate_run_files(
     :param cycles: A semi-colon separated list of cycle names in the format YY_N
     :param runs: A semi-colon separated list of run numbers. Length should match cycles.
     :return: A list of Path|None to the found data files. None indicates the files could not be found
+
+    The instrument_name entries in the returned dicts are set to the input instrument name in order
+    to pass the correct name (e.g. 'ndxabc') to the run locator.
     """
     logging.debug(f"Locating runs: '{cycles_str}'/'{runs_str}'")
     cycles, runs = split(cycles_str, ";"), split(runs_str, ";")
@@ -231,6 +234,7 @@ def _locate_run_files(
             filepaths.append(None)
             continue
         logging.debug(f"Found metadata for run {run}")
+        run["instrument_name"] = instrument
         filepaths.append(run_locator.locate(run))
 
     return filepaths

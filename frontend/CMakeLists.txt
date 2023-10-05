@@ -57,18 +57,22 @@ qt6_add_executable(
   nexusInteraction.cpp
   searching.cpp
   settings.cpp
+  visualisation.cpp
+  version.h
   # Models
   jsonTableModel.cpp
   jsonTableModel.h
   jsonTableFilterProxy.cpp
   jsonTableFilterProxy.h
-  # Graphing
+  # Widgets
   chartView.cpp
   chartView.h
   graphWidget.cpp
   graphWidget.h
   graphWidget.ui
-  version.h
+  seLogChooserDialog.cpp
+  seLogChooserDialog.h
+  seLogChooserDialog.ui
   # Resources
   icons.qrc
   # Main

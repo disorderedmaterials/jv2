@@ -29,11 +29,9 @@ class MainWindow : public QMainWindow
     Ui::MainWindow ui_;
     QMenu *viewMenu_;
     QMenu *findMenu_;
-    QMenu *contextMenu_;
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;
-    QPoint pos_;
 
     private slots:
     void setLoadScreen(bool state);
@@ -68,7 +66,7 @@ class MainWindow : public QMainWindow
     const Instrument &currentInstrument() const;
 
     /*
-     * Main Data
+     * Run Data
      */
     private:
     QJsonArray runData_, groupedRunData_;
@@ -81,7 +79,10 @@ class MainWindow : public QMainWindow
     private:
     // Generate grouped run data from current run data
     void generateGroupedData();
-    QString getRunNos();
+    // Return the run data model index under the mouse, accounting for the effects of the filter proxys
+    const QModelIndex runDataIndexAtPos(const QPoint pos) const;
+    // Get selected run / cycle information [LEGACY, TO FIX]
+    std::pair<QString, QString> selectedRunNumbersAndCycles() const;
     void checkForUpdates();
 
     private slots:
@@ -98,6 +99,8 @@ class MainWindow : public QMainWindow
     // Set current cycle being displayed
     void setCurrentCycle(QString cycleName);
     void recentCycle();
+    // Run data context menu requested
+    void runDataContextMenuRequested(QPoint pos);
 
     signals:
     void tableFilled();
@@ -131,7 +134,6 @@ class MainWindow : public QMainWindow
     void findDown();
     void selectAllSearches();
     void selectIndex(QString runNumber);
-    void selectSimilar();
     void goToCurrentFoundIndex(QModelIndex index);
 
     private slots:
@@ -176,10 +178,14 @@ class MainWindow : public QMainWindow
      * Visualisation
      */
     private slots:
-    void customMenuRequested(QPoint pos);
+    // Handle extracted SE log values for plotting
+    void handlePlotSELogValue(HttpRequestWorker *worker);
+
+    /*
+     * Nexus Interaction Stuff To Be Organised
+     */
+    private slots:
     void handle_result_contextGraph(HttpRequestWorker *worker);
-    void contextGraph();
-    void handle_result_contextMenu(HttpRequestWorker *worker);
     void toggleAxis(int state);
     void getField();
     void showStatus(qreal x, qreal y, QString title);

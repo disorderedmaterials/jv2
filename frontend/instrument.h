@@ -38,8 +38,6 @@ class Instrument
     public:
     // Return name (used for display)
     const QString &name() const;
-    // Return lower cased name
-    const QString lowerCaseName() const;
     // Return type
     InstrumentType type() const;
     // Return whether this instrument is user-defined
@@ -67,15 +65,21 @@ class Instrument
     const std::vector<RunDataColumn> &runDataColumns() const;
 
     /*
-     * Additional Information
+     * Data Locations
      */
     private:
+    // XML journal directory
+    QString journalDirectory_;
     // Run data directory
     QString dataDirectory_;
 
     public:
-    // Set run data directory
+    // Set journal directory
+    void setJournalDirectory(QString journalDir);
+    // Return journal directory
+    const QString &journalDirectory() const;
+    // Set data directory
     void setDataDirectory(QString dataDir);
-    // Return run data directory
+    // Return data directory
     const QString &dataDirectory() const;
 };

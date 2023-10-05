@@ -178,8 +178,8 @@ def test_search_by_run_number_search_across_all_journals(server_faker):
 
 # private
 def _fake_instrument_journallist_url(instrument_name: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/ndx{instrument_name.lower()}/journal_main.xml"
+    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/journal_main.xml"
 
 
 def _fake_instrument_journal_url(instrument_name: str, journal_filename: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/ndx{instrument_name.lower()}/{journal_filename}"
+    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/{journal_filename}"

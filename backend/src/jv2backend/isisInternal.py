@@ -106,8 +106,9 @@ def getNexusData(instrument, cycles, runs, fields):
 @app.route('/getCycles/<instrument>')
 def getCycles(instrument):
     global lastModified_
-    url = dataLocation + 'ndx'
+    url = dataLocation
     url += instrument+'/journal_main.xml'
+    print(url)
     try:
         response = urlopen(url)
     except Exception:
@@ -132,13 +133,13 @@ def getCycles(instrument):
 def getJournal(instrument, cycle):
     global localSource
     try:
-        with open(localSource + 'ndx' + instrument+'/'+cycle, "r") as file:
+        with open(localSource + instrument+'/'+cycle, "r") as file:
             root = fromstring(file.read())
             print("data from file")
     except Exception:
         if localSource != "":
             return jsonify("invalid source")
-        url = dataLocation + 'ndx' + instrument+'/'+cycle
+        url = dataLocation + instrument+'/'+cycle
         print(f"url={url}")
         try:
             response = urlopen(url)
@@ -200,11 +201,11 @@ def getAllJournals(instrument, search):
     for cycle in (cycles):
         print(instrument, " ", cycle)
         try:
-            fileString = localSource + 'ndx' + instrument+'/'+str(cycle)
+            fileString = localSource + instrument+'/'+str(cycle)
             with open(fileString, "r") as file:
                 root = ET.fromstring(file.read())
         except Exception:
-            url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
+            url = dataLocation + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
             except Exception:
@@ -280,11 +281,11 @@ def getAllFieldJournals(instrument, field, search, options):
 
     for cycle in (cycles):
         try:
-            fileString = localSource + 'ndx' + instrument+'/'+str(cycle)
+            fileString = localSource + instrument+'/'+str(cycle)
             with open(fileString, "r") as file:
                 root = ET.fromstring(file.read())
         except Exception:
-            url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
+            url = dataLocation + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
             except Exception:
@@ -370,11 +371,11 @@ def getGoToCycle(instrument, search):
         print(instrument, " ", cycle)
 
         try:
-            fileString = localSource + 'ndx' + instrument+'/'+str(cycle)
+            fileString = localSource + instrument+'/'+str(cycle)
             with open(fileString, "r") as file:
                 root = ET.fromstring(file.read())
         except Exception:
-            url = dataLocation + 'ndx' + instrument+'/'+str(cycle)
+            url = dataLocation + instrument+'/'+str(cycle)
             try:
                 response = urlopen(url)
             except Exception:
@@ -446,10 +447,10 @@ def getDetectorAnalysis(instrument, cycle, run):
 def getTotalMuAmps(instrument, cycle, runs):
     global localSource
     try:
-        with open(localSource + 'ndx' + instrument+'/'+cycle, "r") as file:
+        with open(localSource + instrument+'/'+cycle, "r") as file:
             root = fromstring(file.read())
     except Exception:
-        url = dataLocation + 'ndx' + instrument+'/'+cycle
+        url = dataLocation + instrument+'/'+cycle
         try:
             response = urlopen(url)
         except Exception:
@@ -472,8 +473,7 @@ def getTotalMuAmps(instrument, cycle, runs):
 @app.route('/pingCycle/<instrument>')
 def pingCycle(instrument):
     global lastModified_
-    url = dataLocation + 'ndx'
-    url += instrument+'/journal_main.xml'
+    url = dataLocation + instrument+'/journal_main.xml'
     lastModified = requests.head(url).headers['Last-Modified']
     lastModified = datetime.strptime(lastModified, "%a, %d %b %Y %H:%M:%S %Z")
     print(lastModified)
@@ -489,8 +489,7 @@ def pingCycle(instrument):
 
 @app.route('/updateJournal/<instrument>/<cycle>/<run>')
 def updateJournal(instrument, cycle):
-    url = dataLocation + 'ndx'
-    url += instrument+'/' + cycle
+    url = dataLocation + instrument+'/' + cycle
     try:
         response = urlopen(url)
     except Exception:

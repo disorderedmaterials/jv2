@@ -90,7 +90,7 @@ void MainWindow::on_actionRun_Number_triggered()
     if (textInput.isEmpty())
         return;
 
-    QString url_str = "http://127.0.0.1:5000/getGoToCycle/" + inst.lowerCaseName() + "/" + textInput;
+    QString url_str = "http://127.0.0.1:5000/getGoToCycle/" + inst.journalDirectory() + "/" + textInput;
     HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, &HttpRequestWorker::on_execution_finished,

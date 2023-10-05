@@ -272,8 +272,8 @@ def test_getDetectorAnalysis_for_run_returns_correct_number_of_nonzero_spectra(c
 
 
 def _fake_instrument_journal_url(instrument_name: str, journal_filename: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/ndx{instrument_name.lower()}/{journal_filename}"
+    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/{journal_filename}"
 
 
 def _fake_instrument_journallist_url(instrument_name: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/ndx{instrument_name.lower()}/journal_main.xml"
+    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/journal_main.xml"
