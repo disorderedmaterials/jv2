@@ -27,7 +27,7 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     }
 
     // Iterate over logs extracted from the target run data and construct our mapped values
-    auto *rootItem = new SELogTreeItem({"Log Value", "Full Path"});
+    auto *rootItem = new GenericTreeItem({"Log Value", "Full Path"});
     foreach (const auto &log, worker->jsonArray)
     {
         auto logArray = log.toArray();
