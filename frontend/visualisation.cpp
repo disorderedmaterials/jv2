@@ -17,6 +17,15 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
         return;
     }
 
+    // Other error?
+    auto response = worker->response;
+    if (response.contains("Error"))
+    {
+        statusBar()->showMessage("Network error!");
+        QMessageBox::warning(this, "An Error Occurred", response);
+        return;
+    }
+
     // Iterate over logs extracted from the target run data and construct our mapped values
     auto *rootItem = new SELogTreeItem(QList<QVariant>({"Mr Header"}));
 
