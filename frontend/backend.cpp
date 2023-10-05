@@ -63,14 +63,16 @@ void Backend::configureProcessArgs(const QCommandLineParser &args)
 {
     process_.setProgram("gunicorn");
     QStringList backendArgs;
-    // clang-format off
-    backendArgs << "--bind" << Backend::bind_address()
-         << "--graceful-timeout" << "120"
-         << "--timeout" << "120";
-    if(args.isSet(Args::LogLevel))
-         backendArgs << "--log-level" << "debug";
+
+    backendArgs << "--bind" << Backend::bind_address() << "--graceful-timeout"
+                << "120"
+                << "--timeout"
+                << "120";
+    if (!args.isSet(Args::LogLevel))
+        backendArgs << "--log-level"
+                    << "debug";
     backendArgs << "jv2backend.app:create_app()";
-    // clang-format on
+
     process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
 }
