@@ -177,9 +177,15 @@ class MainWindow : public QMainWindow
      * Visualisation
      */
     private slots:
+    // Handle extracted SE log values for plotting
+    void handlePlotSELogValue(HttpRequestWorker *worker);
+
+    /*
+     * Nexus Interaction Stuff To Be Organised
+     */
+    private slots:
     void handle_result_contextGraph(HttpRequestWorker *worker);
     void contextGraph();
-    void handle_result_contextMenu(HttpRequestWorker *worker);
     void toggleAxis(int state);
     void getField();
     void showStatus(qreal x, qreal y, QString title);

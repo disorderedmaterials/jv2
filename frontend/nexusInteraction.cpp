@@ -17,45 +17,6 @@
 #include <QValueAxis>
 #include <algorithm>
 
-// Fills field menu
-void MainWindow::handle_result_contextMenu(HttpRequestWorker *worker)
-{
-    // Network error?
-    if (worker->errorType != QNetworkReply::NoError)
-    {
-        QMessageBox::information(this, "Network Error",
-                                 "A network error occurred while retrieving the run information.\nThe reported error was: " +
-                                     worker->errorString);
-        return;
-    }
-
-    foreach (const auto &log, worker->jsonArray)
-    {
-        auto logArray = log.toArray();
-        auto name = logArray.first().toString().toUpper();
-        name.chop(2);
-        auto formattedName = name.append("og");
-        auto *subMenu = new QMenu("Plot from " + formattedName);
-        logArray.removeFirst();
-        // if (logArray.size() > 0)
-        // contextMenu_->addMenu(subMenu);
-
-        auto logArrayVar = logArray.toVariantList();
-        std::sort(logArrayVar.begin(), logArrayVar.end(),
-                  [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
-
-        foreach (const auto &block, logArrayVar)
-        {
-            // Fills contextMenu with all columns
-            QString path = block.toString();
-            auto *action = new QAction(path.right(path.size() - path.lastIndexOf("/") - 1), this);
-            action->setData(path);
-            connect(action, SIGNAL(triggered()), this, SLOT(contextGraph()));
-            subMenu->addAction(action);
-        }
-    }
-}
-
 void MainWindow::contextGraph()
 {
     // Gets signal object

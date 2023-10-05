@@ -410,14 +410,12 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotSELog)
     {
-        QString url_str = "http://127.0.0.1:5000/getNexusFields/";
-        url_str += currentInstrument().dataDirectory() + "/" + "CYCLEFIXME" + "/" + "RUNNOSFIXME";
 
-        HttpRequestInput input(url_str);
         auto *worker = new HttpRequestWorker(this);
         connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-                SLOT(handle_result_contextMenu(HttpRequestWorker *)));
-        worker->execute(input);
+                SLOT(handlePlotSELogValue(HttpRequestWorker *)));
+        worker->execute({"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + "CYCLEFIXME" +
+                         "/" + "RUNNOSFIXME"});
     }
     else if (selectedAction == plotDetector)
     {
