@@ -145,10 +145,6 @@ def add_routes(
     def clearLocalSource():
         return json_response("")
 
-    @app.route("/shutdown")
-    def shutdown():
-        return json_response("")
-
     # ------------------------ End Routes -------------------------
 
     return app

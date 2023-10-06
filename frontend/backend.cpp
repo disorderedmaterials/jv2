@@ -84,10 +84,12 @@ void Backend::start()
     if (process_.waitForStarted())
     {
         qDebug() << "Backend process started with pid " << process_.processId();
+        emit(started("OK"));
     }
     else
     {
         qDebug() << "Error starting backend " << process_.errorString();
+        emit(started(process_.errorString()));
     }
 }
 

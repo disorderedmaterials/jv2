@@ -33,21 +33,6 @@ def create_app():
     return app
 
 
-def shutdown_server():
-    """Shutdown a local flask server if it is in use.
-    If an external WSGI server is used this raises a warning in the
-    WSGI server will log
-    """
-    serverShutdownFunction = request.environ.get('werkzeug.server.shutdown')
-    if serverShutdownFunction is None:
-        app.logger.info('Local development server not active. '
-                        'Shutdown request ignored. '
-                        'You most likely need to kill the external '
-                        'WSGI process.')
-    else:
-        serverShutdownFunction()
-
-
 # Global Flask application instance
 app = create_app()
 
@@ -469,13 +454,6 @@ def updateJournal(instrument, cycle):
                     runData[dataId] = dataValue
         fields.append(runData)
     return jsonify(fields)
-
-
-# Close local server
-@app.route('/shutdown', methods=['GET'])
-def shutdown():
-    shutdown_server()
-    return jsonify({"response": "Server shut down"})
 
 
 def main():

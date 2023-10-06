@@ -9,9 +9,7 @@
 // Forward-declarations
 class QCommandLineParser;
 
-/**
- * Control the backend process that communicates with the Journal server
- */
+// Backend Process
 class Backend : public QObject
 {
     Q_OBJECT
@@ -36,4 +34,7 @@ class Backend : public QObject
     void start();
     // Stop the backend processs
     void stop();
+
+    signals:
+    void started(const QString &);
 };

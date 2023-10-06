@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "backend.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
 #include "jsonTableFilterProxy.h"
@@ -19,7 +20,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QCommandLineParser &cliParser);
     ~MainWindow() = default;
 
     /*
@@ -30,10 +31,14 @@ class MainWindow : public QMainWindow
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;
+    // Main backend class
+    Backend backend_;
 
     private slots:
     void setLoadScreen(bool state);
     void removeTab(int index);
+    // Notification point for backend startup having completed
+    void backendStarted(const QString &result);
 
     protected:
     void closeEvent(QCloseEvent *event);
