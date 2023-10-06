@@ -17,18 +17,23 @@ class Backend : public QObject
     Q_OBJECT
 
     public:
-    static QString bind_address() { return "127.0.0.1:5000"; };
-
     Backend(const QCommandLineParser &args);
 
-    public slots:
-
-    void start();
-    void stop();
+    private:
+    // Main backend process
+    QProcess process_;
 
     private:
+    // Return the backend bind address
+    QString bindAddress() const;
+    // Configure backend process arguments
     void configureProcessArgs(const QCommandLineParser &args);
+    // Configure backend process environment
     void configureEnvironment(const QCommandLineParser &args);
 
-    QProcess process_;
+    public slots:
+    // Start the backend process
+    void start();
+    // Stop the backend processs
+    void stop();
 };

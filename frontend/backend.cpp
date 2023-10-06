@@ -18,18 +18,62 @@ constexpr auto ENVIRON_NAME_PREFIX = "JV2_";
 QString argToEnvironName(QString argName) { return ENVIRON_NAME_PREFIX + argName.replace("-", "_").toUpper(); }
 } // namespace
 
-/**
- * Configure process for start to be called
- */
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
     configureProcessArgs(args);
     configureEnvironment(args);
 }
 
-/**
- * Start the backend process and hold the process open
+/*
+ * Private Functions
  */
+
+// Return the backend bind address
+QString Backend::bindAddress() const { return "127.0.0.1:5000"; };
+
+// Configure backend process arguments
+void Backend::configureProcessArgs(const QCommandLineParser &args)
+{
+    process_.setProgram("gunicorn");
+    QStringList backendArgs;
+
+    backendArgs << "--bind" << Backend::bindAddress() << "--graceful-timeout"
+                << "120"
+                << "--timeout"
+                << "120";
+    if (!args.isSet(Args::LogLevel))
+        backendArgs << "--log-level"
+                    << "debug";
+    backendArgs << "jv2backend.app:create_app()";
+
+    process_.setArguments(backendArgs);
+    process_.setProcessChannelMode(QProcess::ForwardedChannels);
+}
+
+// Configure backend process environments
+void Backend::configureEnvironment(const QCommandLineParser &args)
+{
+    QProcessEnvironment env;
+    if (args.isSet(Args::RunLocatorClass))
+        env.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
+    if (args.isSet(Args::RunLocatorPrefix))
+        env.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
+
+    if (env.isEmpty())
+    {
+        qDebug() << "Configured additional environment variables for backend:";
+        for (const auto &keyValue : env.toStringList())
+            qDebug() << keyValue;
+    }
+    env.insert(QProcessEnvironment::systemEnvironment());
+    process_.setProcessEnvironment(env);
+}
+
+/*
+ * Public Slots
+ */
+
+// Start the backend process
 void Backend::start()
 {
     qDebug() << "Starting backend process " << process_.program() << " with arguments ";
@@ -47,50 +91,10 @@ void Backend::start()
     }
 }
 
-/**
- * Stop the process
- */
+// Stop the backend process
 void Backend::stop()
 {
     qDebug() << "Stopping backend process with pid " << process_.processId();
     process_.terminate();
     process_.waitForFinished();
-}
-
-// Private
-
-void Backend::configureProcessArgs(const QCommandLineParser &args)
-{
-    process_.setProgram("gunicorn");
-    QStringList backendArgs;
-
-    backendArgs << "--bind" << Backend::bind_address() << "--graceful-timeout"
-                << "120"
-                << "--timeout"
-                << "120";
-    if (!args.isSet(Args::LogLevel))
-        backendArgs << "--log-level"
-                    << "debug";
-    backendArgs << "jv2backend.app:create_app()";
-
-    process_.setArguments(backendArgs);
-    process_.setProcessChannelMode(QProcess::ForwardedChannels);
-}
-
-void Backend::configureEnvironment(const QCommandLineParser &args)
-{
-    QProcessEnvironment env;
-    if (args.isSet(Args::RunLocatorClass))
-        env.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
-    if (args.isSet(Args::RunLocatorPrefix))
-        env.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
-
-    if (env.isEmpty())
-    {
-        qDebug() << "Configured additional environment variables for backend:";
-        for (const auto &keyValue : env.toStringList())
-            qDebug() << keyValue;
-    }
-    env.insert(QProcessEnvironment::systemEnvironment());
-    process_.setProcessEnvironment(env);
 }
