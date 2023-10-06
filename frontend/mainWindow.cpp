@@ -28,9 +28,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProx
     groupedRunDataColumns_.emplace_back("Title", "title");
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
-    // View menu for column toggles
-    viewMenu_ = ui_.menubar->addMenu("View");
-
     // Set up the main data table
     ui_.RunDataTable->setModel(&runDataFilterProxy_);
     // -- Allow re-arranging of table columns

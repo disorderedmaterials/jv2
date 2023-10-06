@@ -27,8 +27,6 @@ class MainWindow : public QMainWindow
      */
     private:
     Ui::MainWindow ui_;
-    QMenu *viewMenu_;
-    QMenu *findMenu_;
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;

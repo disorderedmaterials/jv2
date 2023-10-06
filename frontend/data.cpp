@@ -264,45 +264,6 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
     runDataModel_.setHorizontalHeaders(runDataColumns_);
     runDataModel_.setData(runData_);
 
-    // Fills viewMenu_ with all columns
-    viewMenu_->clear();
-    // viewMenu_->addAction("Save column state", this, SLOT(savePref()));
-    // viewMenu_->addAction("Reset column state to default", this, SLOT(clearPref()));
-    viewMenu_->addSeparator();
-    auto jsonObject = runData_.at(0).toObject();
-    foreach (const QString &key, jsonObject.keys())
-    {
-        auto *checkBox = new QCheckBox(viewMenu_);
-        auto *checkableAction = new QWidgetAction(viewMenu_);
-        checkableAction->setDefaultWidget(checkBox);
-        checkBox->setText(key);
-        checkBox->setCheckState(Qt::PartiallyChecked);
-        viewMenu_->addAction(checkableAction);
-        connect(checkBox, SIGNAL(stateChanged(int)), this, SLOT(columnHider(int)));
-
-        // // Filter table based on desired headers
-        // auto it =
-        //     std::find_if(desiredHeader_.begin(), desiredHeader_.end(), [key](const auto &data) { return data.first == key;
-        //     });
-        // // If match found
-        // if (it != desiredHeader_.end())
-        //     checkBox->setCheckState(Qt::Checked);
-        // else
-        //     checkBox->setCheckState(Qt::Unchecked);
-    }
-    // int logIndex;
-    // for (auto i = 0; i < desiredHeader_.size(); ++i)
-    // {
-    //     for (auto j = 0; j < ui_.RunDataTable->horizontalHeader()->count(); ++j)
-    //     {
-    //         logIndex = ui_.RunDataTable->horizontalHeader()->logicalIndex(j);
-    //         // If index matches model data, swap columns in view
-    //         if (desiredHeader_[i].first == runDataModel_.headerData(logIndex, Qt::Horizontal, Qt::UserRole).toString())
-    //         {
-    //             ui_.RunDataTable->horizontalHeader()->swapSections(j, i);
-    //         }
-    //     }
-    // }
     ui_.RunDataTable->resizeColumnsToContents();
     updateSearch(searchString_);
     ui_.RunFilterEdit->clear();
