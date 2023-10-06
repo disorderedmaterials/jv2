@@ -67,7 +67,6 @@ class MainWindow : public QMainWindow
     private:
     QJsonArray runData_, groupedRunData_;
     QMap<QString, QString> cyclesMap_;
-    QMap<QString, QString> headersMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
