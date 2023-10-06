@@ -98,7 +98,7 @@ class MainWindow : public QMainWindow
     /*
      * Network Handling
      */
-    private:
+    private slots:
     // Handle cycle update result
     void handleCycleUpdate(QString response);
     // Handle JSON run data returned from workers
