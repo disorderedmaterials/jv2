@@ -24,6 +24,8 @@ class JsonTableModel : public QAbstractTableModel
     OptionalReferenceWrapper<const Instrument::RunDataColumns> horizontalHeaders_;
 
     private:
+    // Get Json data at row specified
+    QJsonObject getData(int row) const;
     // Get Json data at index specified
     QJsonObject getData(const QModelIndex &index) const;
 
@@ -32,6 +34,8 @@ class JsonTableModel : public QAbstractTableModel
     void setData(const QJsonArray &array);
     // Set the table column (horizontal) headers
     void setHorizontalHeaders(const Instrument::RunDataColumns &headers);
+    // Get named data for specified row
+    QString getData(const QString &targetData, int row) const;
     // Get named data for specified index
     QString getData(const QString &targetData, const QModelIndex &index) const;
 

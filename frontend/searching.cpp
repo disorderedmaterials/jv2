@@ -84,15 +84,6 @@ void MainWindow::selectAllSearches()
     statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) + " Results");
 }
 
-void MainWindow::selectIndex(QString runNumber)
-{
-    ui_.RunDataTable->selectionModel()->clearSelection();
-
-    updateSearch(runNumber);
-    statusBar()->showMessage("Found run " + runNumber + " in " + ui_.cycleButton->text(), 5000);
-    disconnect(this, &MainWindow::tableFilled, nullptr, nullptr);
-}
-
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
 {
     ui_.RunDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
@@ -102,7 +93,7 @@ void MainWindow::goToCurrentFoundIndex(QModelIndex index)
  * UI
  */
 
-void MainWindow::on_actionSearch_triggered()
+void MainWindow::on_actionFind_triggered()
 {
     QString textInput =
         QInputDialog::getText(this, tr("Find"), tr("Find in current run data (RB, user, title,...):"), QLineEdit::Normal);
@@ -138,6 +129,6 @@ void MainWindow::on_actionSearch_triggered()
     }
 }
 
-void MainWindow::on_actionSelectNext_triggered() { findDown(); }
-void MainWindow::on_actionSelectPrevious_triggered() { findUp(); }
-void MainWindow::on_actionSelectAll_triggered() { selectAllSearches(); }
+void MainWindow::on_actionFindNext_triggered() { findDown(); }
+void MainWindow::on_actionFindPrevious_triggered() { findUp(); }
+void MainWindow::on_actionSelectAllFound_triggered() { selectAllSearches(); }

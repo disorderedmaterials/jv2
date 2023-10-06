@@ -48,13 +48,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProx
     connect(ui_.MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
 
     // Connect exit action
-    connect(ui_.action_Quit, SIGNAL(triggered()), this, SLOT(close()));
+    connect(ui_.actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 
     // Get user settings
     loadSettings();
 
     QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, [=]() { checkForUpdates(); });
+    connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
     timer->start(30000);
 }
 
@@ -122,22 +122,4 @@ void MainWindow::closeEvent(QCloseEvent *event)
     worker->execute({"http://127.0.0.1:5000/shutdown"});
 
     event->accept();
-}
-
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_G && event->modifiers() == Qt::ControlModifier)
-    {
-        bool checked = ui_.GroupRunsButton->isChecked();
-        ui_.GroupRunsButton->setChecked(!checked);
-        on_GroupRunsButton_clicked(!checked);
-    }
-    if (event->key() == Qt::Key_R && event->modifiers() == Qt::ControlModifier)
-        checkForUpdates();
-    if (event->key() == Qt::Key_F && event->modifiers() & Qt::ControlModifier && Qt::ShiftModifier)
-    {
-        searchString_ = "";
-        updateSearch(searchString_);
-        return;
-    }
 }
