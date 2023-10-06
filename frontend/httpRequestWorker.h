@@ -6,16 +6,27 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QMap>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QObject>
 #include <QString>
+
+// Forward Declarations
+class QNetworkAccessManager;
+class QNetworkReply;
 
 // Object for handling an http request
 class HttpRequestWorker : public QObject
 {
     Q_OBJECT
+
+    friend class Backend;
+    
+    protected:
+    explicit HttpRequestWorker(QNetworkAccessManager &manager);
+
+    private:
+    // Parent network manager
+    QNetworkAccessManager &manager_;
 
     public:
     QString response;
@@ -24,16 +35,10 @@ class HttpRequestWorker : public QObject
     QJsonDocument jsonResponse;
     QJsonArray jsonArray;
 
-    explicit HttpRequestWorker(QObject *parent = 0);
-
-
     void execute(const QString &url);
 
     signals:
     void on_execution_finished(HttpRequestWorker *worker);
-
-    private:
-    QNetworkAccessManager *manager_;
 
     private slots:
     void on_manager_finished(QNetworkReply *reply);

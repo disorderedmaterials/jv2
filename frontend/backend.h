@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QNetworkAccessManager>
 #include <QProcess>
 #include <QString>
 
@@ -49,9 +50,19 @@ class Backend : public QObject
     /*
      * Endpoint Access
      */
+    private:
+    // Network manager
+    QNetworkAccessManager manager_;
+
     public:
     // Typedef for worker handling function
     using WorkerHandlingFunction = std::function<void(HttpRequestWorker *)>;
+
+    private:
+    // Create a request
+    HttpRequestWorker *createRequest(const QString &url, WorkerHandlingFunction handler = {});
+
+    public:
     // Ping backend to see if it's alive
     void ping(WorkerHandlingFunction handler = {});
 };

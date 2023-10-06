@@ -6,10 +6,9 @@
 #include <QJsonDocument>
 #include <QUrl>
 
-HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager_(nullptr)
+HttpRequestWorker::HttpRequestWorker(QNetworkAccessManager &manager) : QObject(), manager_(manager)
 {
-    manager_ = new QNetworkAccessManager(this);
-    connect(manager_, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_manager_finished(QNetworkReply *)));
+    connect(&manager_, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_manager_finished(QNetworkReply *)));
 }
 
 // Execute request
@@ -23,7 +22,7 @@ void HttpRequestWorker::execute(const QString &url)
     // execute connection
     QNetworkRequest request = QNetworkRequest(url);
     request.setRawHeader("User-Agent", "Agent name goes here");
-    manager_->get(request);
+    manager_.get(request);
 }
 
 // Process request

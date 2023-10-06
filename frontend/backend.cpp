@@ -106,12 +106,21 @@ void Backend::stop()
  * Endpoint Access
  */
 
-// Ping backend to see if its alive
-void Backend::ping(WorkerHandlingFunction handler)
+// Create a request
+HttpRequestWorker *Backend::createRequest(const QString &url, WorkerHandlingFunction handler)
 {
-    auto *worker = new HttpRequestWorker(this);
-    if (handler)
+    auto *worker = new HttpRequestWorker(manager_);
+
+     if (handler)
         connect(worker, &HttpRequestWorker::on_execution_finished,
                 [=](HttpRequestWorker *workerProxy) { handler(workerProxy); });
     worker->execute(createRoute("ping"));
+
+    return worker;
+}
+
+// Ping backend to see if its alive
+void Backend::ping(WorkerHandlingFunction handler)
+{
+    createRequest(createRoute("ping"), handler);
 }
