@@ -82,6 +82,18 @@ class MainWindow : public QMainWindow
     bool highlightRunNumber(int runNumber);
 
     private slots:
+    void on_actionRefresh_triggered();
+    void on_actionJumpTo_triggered();
+    // Set current cycle being displayed
+    void setCurrentCycle(QString cycleName);
+    void recentCycle();
+    // Run data context menu requested
+    void runDataContextMenuRequested(QPoint pos);
+
+    /*
+     * Network Handling
+     */
+    private:
     // Handle cycle update result
     void handleCycleUpdate(QString response);
     // Handle JSON run data returned from workers
@@ -92,15 +104,6 @@ class MainWindow : public QMainWindow
     void handleCycleRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number
     void handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber);
-
-    private slots:
-    void on_actionRefresh_triggered();
-    void on_actionJumpTo_triggered();
-    // Set current cycle being displayed
-    void setCurrentCycle(QString cycleName);
-    void recentCycle();
-    // Run data context menu requested
-    void runDataContextMenuRequested(QPoint pos);
 
     /*
      * Settings
