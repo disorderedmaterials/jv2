@@ -106,9 +106,6 @@ class MainWindow : public QMainWindow
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
 
-    signals:
-    void tableFilled();
-
     /*
      * Settings
      */

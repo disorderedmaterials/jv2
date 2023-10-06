@@ -306,7 +306,6 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
     ui_.RunDataTable->resizeColumnsToContents();
     updateSearch(searchString_);
     ui_.RunFilterEdit->clear();
-    emit tableFilled();
 }
 
 // Handle jump to specified run numbers
