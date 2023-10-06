@@ -34,7 +34,6 @@ class MainWindow : public QMainWindow
     private slots:
     void setLoadScreen(bool state);
     void removeTab(int index);
-    void columnHider(int state);
 
     protected:
     void closeEvent(QCloseEvent *event);
