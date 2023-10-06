@@ -99,12 +99,11 @@ void MainWindow::massSearch(QString name, QString value)
     QString sensitivityText = "caseSensitivity=";
     sensitivityText.append(caseSensitivity ? "true" : "false");
     searchOptions.append(sensitivityText);
-    QString url_str =
-        "http://127.0.0.1:5000/getAllJournals/" + inst.journalDirectory() + "/" + value + "/" + textInput + "/" + searchOptions;
-    HttpRequestInput input(url_str);
+
     auto *worker = new HttpRequestWorker(this);
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
-    worker->execute(input);
+    worker->execute("http://127.0.0.1:5000/getAllJournals/" + inst.journalDirectory() + "/" + value + "/" + textInput + "/" +
+                    searchOptions);
 
     // configure caching
     cachedMassSearch_.append(std::make_tuple(worker, text));

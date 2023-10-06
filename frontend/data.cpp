@@ -121,12 +121,10 @@ bool MainWindow::highlightRunNumber(int runNumber)
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    QString url_str = "http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory();
-    HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
     connect(worker, &HttpRequestWorker::on_execution_finished,
             [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });
-    worker->execute(input);
+    worker->execute("http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory());
 }
 
 // Jump to run number
@@ -166,15 +164,12 @@ void MainWindow::setCurrentCycle(QString cycleName)
     }
     ui_.cycleButton->setText(cycleName);
 
-    QString url_str =
-        "http://127.0.0.1:5000/getJournal/" + currentInstrument().journalDirectory() + "/" + cyclesMap_[cycleName];
-    HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
 
     // Call result handler when request completed
     connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleCycleRunData(HttpRequestWorker *)));
     setLoadScreen(true);
-    worker->execute(input);
+    worker->execute("http://127.0.0.1:5000/getJournal/" + currentInstrument().journalDirectory() + "/" + cyclesMap_[cycleName]);
 }
 
 // Sets cycle to most recently viewed

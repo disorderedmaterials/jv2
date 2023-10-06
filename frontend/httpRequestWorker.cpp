@@ -6,9 +6,6 @@
 #include <QJsonDocument>
 #include <QUrl>
 
-// Object for request URL
-HttpRequestInput::HttpRequestInput(QString v_url_str) { url_str = v_url_str; }
-
 HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager_(nullptr)
 {
     manager_ = new QNetworkAccessManager(this);
@@ -16,7 +13,7 @@ HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager
 }
 
 // Execute request
-void HttpRequestWorker::execute(HttpRequestInput input)
+void HttpRequestWorker::execute(const QString &url)
 {
     // reset variables
     response = "";
@@ -24,7 +21,7 @@ void HttpRequestWorker::execute(HttpRequestInput input)
     errorString = "";
 
     // execute connection
-    QNetworkRequest request = QNetworkRequest(QUrl(input.url_str));
+    QNetworkRequest request = QNetworkRequest(url);
     request.setRawHeader("User-Agent", "Agent name goes here");
     manager_->get(request);
 }

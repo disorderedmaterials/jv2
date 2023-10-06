@@ -12,17 +12,7 @@
 #include <QObject>
 #include <QString>
 
-// Object for request URL
-class HttpRequestInput
-{
-
-    public:
-    QString url_str;
-
-    HttpRequestInput(QString v_url_str);
-};
-
-// Object for handling http request
+// Object for handling an http request
 class HttpRequestWorker : public QObject
 {
     Q_OBJECT
@@ -36,7 +26,8 @@ class HttpRequestWorker : public QObject
 
     explicit HttpRequestWorker(QObject *parent = 0);
 
-    void execute(HttpRequestInput input);
+
+    void execute(const QString &url);
 
     signals:
     void on_execution_finished(HttpRequestWorker *worker);

@@ -54,11 +54,8 @@ void MainWindow::on_actionMountPoint_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("mountPoint", textInput);
 
-    QString url_str = "http://127.0.0.1:5000/setRoot/";
-    url_str += textInput;
-    HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
-    worker->execute(input);
+    worker->execute("http://127.0.0.1:5000/setRoot/");
 }
 
 void MainWindow::on_actionClearMountPoint_triggered()
@@ -66,8 +63,6 @@ void MainWindow::on_actionClearMountPoint_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("mountPoint", "");
 
-    QString url_str = "http://127.0.0.1:5000/setRoot/Default";
-    HttpRequestInput input(url_str);
     auto *worker = new HttpRequestWorker(this);
-    worker->execute(input);
+    worker->execute("http://127.0.0.1:5000/setRoot/Default");
 }
