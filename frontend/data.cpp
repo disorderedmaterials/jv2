@@ -2,6 +2,7 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "mainWindow.h"
+#include <QInputDialog>
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QNetworkReply>
@@ -84,6 +85,34 @@ std::pair<QString, QString> MainWindow::selectedRunNumbersAndCycles() const
     qDebug() << runNos;
     qDebug() << cycles;
     return {runNos, cycles};
+}
+
+// Select and show specified run number in table (if it exists)
+bool MainWindow::highlightRunNumber(int runNumber)
+{
+    // ui_.RunDataTable->selectionModel()->clearSelection();
+
+    // searchString_ = "";
+    // updateSearch(searchString_);
+
+    // Find the run number in the current run data
+    for (auto row = 0; row < runDataModel_.rowCount(); ++row)
+        if (runDataModel_.getData("run_number", row).toInt() == runNumber)
+        {
+            // If grouping is enabled, turn it off
+            if (ui_.GroupRunsButton->isChecked())
+                ui_.GroupRunsButton->click();
+
+            ui_.RunDataTable->selectionModel()->setCurrentIndex(
+                runDataModel_.index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+
+            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + ui_.cycleButton->text(), 5000);
+            return true;
+        }
+
+    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + ui_.cycleButton->text(), 5000);
+
+    return false;
 }
 
 /*
@@ -280,6 +309,43 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
     emit tableFilled();
 }
 
+// Handle jump to specified run numbers
+void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber)
+{
+    setLoadScreen(false);
+    QString msg;
+
+    if (worker->errorType == QNetworkReply::NoError)
+    {
+        if (worker->response == "Not Found")
+        {
+            statusBar()->showMessage("Search query not found", 5000);
+            return;
+        }
+        if (cyclesMap_[ui_.cycleButton->text()] == worker->response)
+        {
+            printf("HERE\n");
+            highlightRunNumber(runNumber);
+            return;
+        }
+
+        for (auto i = 0; i < cyclesMenu_->actions().count(); i++)
+        {
+            if (cyclesMap_[cyclesMenu_->actions()[i]->text()] == worker->response)
+            {
+                setCurrentCycle(cyclesMenu_->actions()[i]->text());
+                highlightRunNumber(runNumber);
+            }
+        }
+    }
+    else
+    {
+        // an error occurred
+        msg = "Error1: " + worker->errorString;
+        QMessageBox::information(this, "", msg);
+    }
+}
+
 /*
  * UI
  */
@@ -292,6 +358,25 @@ void MainWindow::on_actionRefresh_triggered()
     connect(worker, &HttpRequestWorker::on_execution_finished,
             [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });
     worker->execute(input);
+}
+
+// Jump to run number
+void MainWindow::on_actionJumpTo_triggered()
+{
+    if (!currentInstrument_)
+        return;
+    auto &inst = currentInstrument_->get();
+
+    auto ok = false;
+    int runNo = QInputDialog::getInt(this, tr("Jump To"), tr("Run number to jump to:"), 0, 1, 2147483647, 1, &ok);
+    if (!ok)
+        return;
+
+    auto *worker = new HttpRequestWorker(this);
+    connect(worker, &HttpRequestWorker::on_execution_finished,
+            [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
+    worker->execute("http://127.0.0.1:5000/getGoToCycle/" + inst.journalDirectory() + "/" + QString::number(runNo));
+    setLoadScreen(true);
 }
 
 // Set current cycle being displayed

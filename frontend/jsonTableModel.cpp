@@ -13,14 +13,17 @@ JsonTableModel::JsonTableModel() : QAbstractTableModel() {}
  * Private Functions
  */
 
-// Get Json data at index specified
-QJsonObject JsonTableModel::getData(const QModelIndex &index) const
+// Get Json data at row specified
+QJsonObject JsonTableModel::getData(int row) const
 {
     if (!jsonData_)
         return {};
 
-    return jsonData_->get()[index.row()].toObject();
+    return jsonData_->get()[row].toObject();
 }
+
+// Get Json data at index specified
+QJsonObject JsonTableModel::getData(const QModelIndex &index) const { return getData(index.row()); }
 
 /*
  * Public Functions
@@ -42,11 +45,17 @@ void JsonTableModel::setHorizontalHeaders(const Instrument::RunDataColumns &head
     endResetModel();
 }
 
+// Get named data for specified row
+QString JsonTableModel::getData(const QString &targetData, int row) const
+{
+    auto data = getData(row);
+    return data.contains(targetData) ? data[targetData].toString() : QString();
+}
+
 // Get data for specified index
 QString JsonTableModel::getData(const QString &targetData, const QModelIndex &index) const
 {
-    auto data = getData(index);
-    return data.contains(targetData) ? data[targetData].toString() : QString();
+    return getData(targetData, index.row());
 }
 
 /*

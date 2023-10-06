@@ -437,6 +437,9 @@
    <property name="text">
     <string>&amp;Jump To...</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
+   </property>
   </action>
   <action name="actionRefresh">
    <property name="text">

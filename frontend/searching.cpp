@@ -84,15 +84,6 @@ void MainWindow::selectAllSearches()
     statusBar()->showMessage("Find \"" + searchString_ + "\": Selecting " + QString::number(foundIndices_.size()) + " Results");
 }
 
-void MainWindow::selectIndex(QString runNumber)
-{
-    ui_.RunDataTable->selectionModel()->clearSelection();
-
-    updateSearch(runNumber);
-    statusBar()->showMessage("Found run " + runNumber + " in " + ui_.cycleButton->text(), 5000);
-    disconnect(this, &MainWindow::tableFilled, nullptr, nullptr);
-}
-
 void MainWindow::goToCurrentFoundIndex(QModelIndex index)
 {
     ui_.RunDataTable->selectionModel()->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
