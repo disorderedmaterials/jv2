@@ -16,6 +16,12 @@ def add_routes(
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
+    @app.route("/ping")
+    def ping() -> FlaskResponse:
+        """Return that we are ready
+        """
+        return jsonify('READY')
+
     @app.route("/getCycles/<instrument>")
     def getCycles(instrument: str) -> FlaskResponse:
         """Return the list of cycle files for the given instrument

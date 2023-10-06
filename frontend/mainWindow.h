@@ -37,8 +37,10 @@ class MainWindow : public QMainWindow
     private slots:
     void setLoadScreen(bool state);
     void removeTab(int index);
-    // Notification point for backend startup having completed
+    // Notification point for backend startup
     void backendStarted(const QString &result);
+    // Ping backend to see if it's ready
+    void waitForBackend();
 
     protected:
     void closeEvent(QCloseEvent *event);
@@ -99,6 +101,8 @@ class MainWindow : public QMainWindow
      * Network Handling
      */
     private slots:
+    // Handle backend ping result
+    void handleBackendPingResult(HttpRequestWorker *worker);
     // Handle cycle update result
     void handleCycleUpdate(QString response);
     // Handle JSON run data returned from workers

@@ -5,6 +5,32 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QNetworkReply>
+#include <QSettings>
+#include <QTimer>
+
+// Handle backend ping result
+void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
+{
+    if (worker->response.contains("READY"))
+    {
+        // Connect up an update timer
+        QTimer *timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
+        timer->start(30000);
+
+        // Update the GUI
+        fillInstruments();
+
+        // Last used instrument?
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+        auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
+        setCurrentInstrument(recentInstrument);
+
+        setLoadScreen(false);
+    }
+    else
+        waitForBackend();
+}
 
 // Handle cycle update result
 void MainWindow::handleCycleUpdate(QString response)

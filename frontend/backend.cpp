@@ -3,6 +3,7 @@
 
 #include "backend.h"
 #include "args.h"
+#include "httpRequestWorker.h"
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
@@ -99,4 +100,18 @@ void Backend::stop()
     qDebug() << "Stopping backend process with pid " << process_.processId();
     process_.terminate();
     process_.waitForFinished();
+}
+
+/*
+ * Endpoint Access
+ */
+
+// Ping backend to see if its alive
+void Backend::ping(WorkerHandlingFunction handler)
+{
+    auto *worker = new HttpRequestWorker(this);
+    if (handler)
+        connect(worker, &HttpRequestWorker::on_execution_finished,
+                [=](HttpRequestWorker *workerProxy) { handler(workerProxy); });
+    worker->execute(createRoute("ping"));
 }

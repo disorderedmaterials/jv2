@@ -18,7 +18,6 @@ HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager
 // Execute request
 void HttpRequestWorker::execute(HttpRequestInput input)
 {
-
     // reset variables
     response = "";
     errorType = QNetworkReply::NoError;

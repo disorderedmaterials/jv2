@@ -39,10 +39,6 @@ void MainWindow::loadSettings()
         auto *worker = new HttpRequestWorker(this);
         worker->execute({"http://127.0.0.1:5000/setRoot/" + mountPoint});
     }
-
-    // Last used instrument?
-    auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
-    setCurrentInstrument(recentInstrument);
 }
 
 /*
