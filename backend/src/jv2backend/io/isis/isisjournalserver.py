@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2022 Team JournalViewer and contributors
+# Copyright (c) 2023 Team JournalViewer and contributors
+
 from datetime import datetime
 from typing import MutableMapping, Optional
 import requests

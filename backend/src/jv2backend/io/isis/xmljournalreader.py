@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2022 Team JournalViewer and contributors
+# Copyright (c) 2023 Team JournalViewer and contributors
+
 """Defines a reader class to read an ISIS Journal file"""
 from io import BytesIO
 import pandas as pd

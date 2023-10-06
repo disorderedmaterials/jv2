@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2022 Team JournalViewer and contributors
+# Copyright (c) 2023 Team JournalViewer and contributors
+
 """Defines a Journal class to encapsulate a collection of Runs on an instrument"""
 from __future__ import annotations
 import datetime as dt
