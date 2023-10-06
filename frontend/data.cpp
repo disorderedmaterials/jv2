@@ -252,7 +252,7 @@ void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
         return;
     }
 
-    // Error handling
+    // Turn off grouping
     if (ui_.GroupRunsButton->isChecked())
         ui_.GroupRunsButton->setChecked(false);
 
