@@ -27,8 +27,6 @@ class MainWindow : public QMainWindow
      */
     private:
     Ui::MainWindow ui_;
-    QMenu *viewMenu_;
-    QMenu *findMenu_;
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;
@@ -36,7 +34,6 @@ class MainWindow : public QMainWindow
     private slots:
     void setLoadScreen(bool state);
     void removeTab(int index);
-    void columnHider(int state);
 
     protected:
     void closeEvent(QCloseEvent *event);
@@ -70,7 +67,6 @@ class MainWindow : public QMainWindow
     private:
     QJsonArray runData_, groupedRunData_;
     QMap<QString, QString> cyclesMap_;
-    QMap<QString, QString> headersMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
@@ -105,9 +101,6 @@ class MainWindow : public QMainWindow
     void recentCycle();
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
-
-    signals:
-    void tableFilled();
 
     /*
      * Settings

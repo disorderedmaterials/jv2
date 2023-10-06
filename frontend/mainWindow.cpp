@@ -28,9 +28,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProx
     groupedRunDataColumns_.emplace_back("Title", "title");
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
-    // View menu for column toggles
-    viewMenu_ = ui_.menubar->addMenu("View");
-
     // Set up the main data table
     ui_.RunDataTable->setModel(&runDataFilterProxy_);
     // -- Allow re-arranging of table columns
@@ -77,31 +74,6 @@ void MainWindow::setLoadScreen(bool state)
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
-
-// Hide column on view menu change
-void MainWindow::columnHider(int state)
-{
-    auto *action = qobject_cast<QCheckBox *>(sender());
-
-    for (auto i = 0; i < runDataModel_.columnCount(); ++i)
-    {
-        if (action->text() == headersMap_[runDataModel_.headerData(i, Qt::Horizontal, Qt::UserRole).toString()])
-        {
-            switch (state)
-            {
-                case Qt::Unchecked:
-                    ui_.RunDataTable->setColumnHidden(i, true);
-                    break;
-                case Qt::Checked:
-                    ui_.RunDataTable->setColumnHidden(i, false);
-                    break;
-                default:
-                    action->setCheckState(Qt::Checked);
-            }
-            break;
-        }
-    }
-}
 
 /*
  * Window
