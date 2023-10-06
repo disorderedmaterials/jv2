@@ -136,15 +136,6 @@ def add_routes(
         else:
             return "Not Found"
 
-    # -------------- No op routes for backwards compatability -----------
-    @app.route("/setLocalSource/<source>")
-    def setLocalSource(source=""):
-        return json_response("")
-
-    @app.route("/clearLocalSource")
-    def clearLocalSource():
-        return json_response("")
-
     # ------------------------ End Routes -------------------------
 
     return app

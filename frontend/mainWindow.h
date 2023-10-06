@@ -122,8 +122,6 @@ class MainWindow : public QMainWindow
     private slots:
     void on_actionMountPoint_triggered();
     void on_actionClearMountPoint_triggered();
-    void on_actionSetLocalSource_triggered();
-    void on_actionClearLocalSource_triggered();
 
     /*
      * Searching
