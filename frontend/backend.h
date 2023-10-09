@@ -109,7 +109,4 @@ class Backend : public QObject
     // [FIXME - Different argument order (cycle/runs) to others]
     void getNexusDetectorAnalysis(const QString &dataDirectory, const QString &cycle, const QString &runNos,
                                   HttpRequestWorker::HttpRequestHandler handler = {});
-
-    // TEST Transitional Function
-    HttpRequestWorker *TESTCreateHttpRequestWorker(QObject *parent);
 };

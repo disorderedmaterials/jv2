@@ -54,12 +54,6 @@ void MainWindow::handleCycleUpdate(QString response)
             backend_.updateJournal(currentInstrument().journalDirectory(), response,
                                    runData_.last().toObject()["run_number"].toString(),
                                    [this](HttpRequestWorker *worker) { handleBackendPingResult(worker); });
-            auto *worker = backend_.TESTCreateHttpRequestWorker(this);
-            // connect(worker, &HttpRequestWorker::requestFinished,
-            //         [=](HttpRequestWorker *workerProxy) { handleRunData(workerProxy); });
-            // worker->execute("http://127.0.0.1:5000/updateJournal/" + currentInstrument().journalDirectory() + "/" + response
-            // +
-            //                 "/" + runData_.last().toObject()["run_number"].toString());
         }
     }
     else

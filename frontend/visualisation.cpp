@@ -64,10 +64,5 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     backend_.getNexusLogValueData(currentInstrument().dataDirectory(), cycles, runNos, result,
                                   [=](HttpRequestWorker *worker) { handle_result_contextGraph(worker); });
 
-    auto *dataWorker = backend_.TESTCreateHttpRequestWorker(this);
-    // connect(dataWorker, SIGNAL(requestFinished(HttpRequestWorker *)), this,
-    // SLOT(handle_result_contextGraph(HttpRequestWorker *)));
     setLoadScreen(true);
-    // dataWorker->execute("http://127.0.0.1:5000/getNexusData/" + currentInstrument().dataDirectory() + "/" + cycles + "/" +
-    // runNos + "/" + result.replace("/", ":"));
 }
