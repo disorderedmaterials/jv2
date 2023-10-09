@@ -121,8 +121,8 @@ bool MainWindow::highlightRunNumber(int runNumber)
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    backend_.pingCycle(currentInstrument().journalDirectory(),
-                       [=](HttpRequestWorker *worker) { handleCycleUpdate(worker->response); });
+    backend_.pingJournals(currentInstrument().journalDirectory(),
+                          [=](HttpRequestWorker *worker) { handleCycleUpdate(worker->response); });
     auto *worker = backend_.TESTCreateHttpRequestWorker(this);
     // connect(worker, &HttpRequestWorker::requestFinished,
     // [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });

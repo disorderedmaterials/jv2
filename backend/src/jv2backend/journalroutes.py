@@ -76,8 +76,8 @@ def add_routes(
         except Exception as exc:
             return jsonify(f"Error: Unable to complete search '{search}': {str(exc)}")
 
-    @app.route("/pingCycle/<instrument>")
-    def pingCycle(instrument):
+    @app.route("/pingJournals/<instrument>")
+    def pingJournals(instrument):
         """Check if a new journal has been added for the instrument
 
         :param instrument: Instrument name

@@ -73,7 +73,7 @@ class Backend : public QObject
     void updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
                        HttpRequestWorker::HttpRequestHandler handler = {});
     // Ping for any updates in the specified journal directory
-    void pingCycle(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
+    void pingJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
     void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log values present in specified run files

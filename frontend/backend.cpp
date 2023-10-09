@@ -143,9 +143,9 @@ void Backend::updateJournal(const QString &journalDirectory, const QString &cycl
 }
 
 // Ping for any updates in the specified journal directory
-void Backend::pingCycle(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::pingJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("pingCycle", journalDirectory), handler);
+    createRequest(createRoute("pingJournals", journalDirectory), handler);
 }
 
 // Go to cycle containing specified run number
