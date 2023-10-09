@@ -102,13 +102,9 @@ void MainWindow::massSearch(QString name, QString value)
 
     backend_.findRuns(inst.journalDirectory(), value, textInput, searchOptions,
                       [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
-    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
-    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
-    // worker->execute("http://127.0.0.1:5000/getAllJournals/" + inst.journalDirectory() + "/" + value + "/" + textInput + "/" +
-    // searchOptions);
 
-    // configure caching
-    cachedMassSearch_.append(std::make_tuple(worker, text));
+    // configure caching [FIXME]
+    cachedMassSearch_.append(std::make_tuple(nullptr, text));
 
     auto *action = new QAction("[" + text + "]", this);
     connect(action, &QAction::triggered, [=]() { setCurrentCycle("[" + text + "]"); });

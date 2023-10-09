@@ -35,11 +35,7 @@ void MainWindow::loadSettings()
     // Mount point?
     auto mountPoint = settings.value("mountPoint").toString();
     if (!mountPoint.isEmpty())
-    {
         backend_.setRunDataRoot(mountPoint);
-        auto *worker = backend_.TESTCreateHttpRequestWorker(this);
-        // worker->execute({"http://127.0.0.1:5000/setRoot/" + mountPoint});
-    }
 }
 
 /*
@@ -56,8 +52,6 @@ void MainWindow::on_actionMountPoint_triggered()
     settings.setValue("mountPoint", textInput);
 
     backend_.setRunDataRoot(textInput);
-    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
-    // worker->execute("http://127.0.0.1:5000/setRoot/");
 }
 
 void MainWindow::on_actionClearMountPoint_triggered()
@@ -66,6 +60,4 @@ void MainWindow::on_actionClearMountPoint_triggered()
     settings.setValue("mountPoint", "");
 
     backend_.setRunDataRoot("Default");
-    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
-    // worker->execute("http://127.0.0.1:5000/setRoot/Default");
 }

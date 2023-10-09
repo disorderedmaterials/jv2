@@ -94,14 +94,9 @@ void MainWindow::setCurrentInstrument(QString name)
     // Clear any mass search results since they're instrument-specific
     cachedMassSearch_.clear();
 
-    // Configure api call
-    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
-
     backend_.listJournals(currentInstrument().journalDirectory(), [=](HttpRequestWorker *worker) { handleListCycles(worker); });
-    // Call result handler when request completed
-    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handleGetCycles(HttpRequestWorker *)));
+
     setLoadScreen(true);
-    // worker->execute("http://127.0.0.1:5000/getCycles/" + currentInstrument().journalDirectory());
 }
 
 // Return current instrument

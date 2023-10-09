@@ -227,6 +227,3 @@ void Backend::getNexusDetectorAnalysis(const QString &dataDirectory, const QStri
 {
     createRequest(createRoute("runData/nexus/getDetectorAnalysis", dataDirectory, runNos, cycle), handler);
 }
-
-// TEST Transitional Function
-HttpRequestWorker *Backend::TESTCreateHttpRequestWorker(QObject *parent) { return new HttpRequestWorker(manager_, "TEST"); }
