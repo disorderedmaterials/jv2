@@ -22,6 +22,8 @@ class Backend : public QObject
     private:
     // Main backend process
     QProcess process_;
+    // Network manager
+    QNetworkAccessManager manager_;
 
     private:
     // Return the backend bind address
@@ -33,6 +35,8 @@ class Backend : public QObject
         ([&] { result += "/" + QString("%1").arg(routeParts); }(), ...);
         return result;
     }
+    // Create a request
+    HttpRequestWorker *createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler = {});
     // Configure backend process arguments
     void configureProcessArgs(const QCommandLineParser &args);
     // Configure backend process environment
@@ -50,14 +54,6 @@ class Backend : public QObject
     /*
      * Endpoint Access
      */
-    private:
-    // Network manager
-    QNetworkAccessManager manager_;
-
-    private:
-    // Create a request
-    HttpRequestWorker *createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler = {});
-
     public:
     // Ping backend to see if it's alive
     void ping(HttpRequestWorker::HttpRequestHandler handler = {});

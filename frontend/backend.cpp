@@ -32,6 +32,12 @@ Backend::Backend(const QCommandLineParser &args) : process_()
 // Return the backend bind address
 QString Backend::bindAddress() const { return "127.0.0.1:5000"; };
 
+// Create a request
+HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler)
+{
+    return new HttpRequestWorker(manager_, url, handler);
+}
+
 // Configure backend process arguments
 void Backend::configureProcessArgs(const QCommandLineParser &args)
 {
@@ -105,12 +111,6 @@ void Backend::stop()
 /*
  * Endpoint Access
  */
-
-// Create a request
-HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler)
-{
-    return new HttpRequestWorker(manager_, url, handler);
-}
 
 // Ping backend to see if its alive
 void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createRequest(createRoute("ping"), handler); }
