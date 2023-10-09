@@ -16,9 +16,9 @@ def add_routes(
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
-    @app.route("/getCycles/<instrument>")
-    def getCycles(instrument: str) -> FlaskResponse:
-        """Return the list of cycle files for the given instrument
+    @app.route("/journals/list/<instrument>")
+    def listJournals(instrument: str) -> FlaskResponse:
+        """Return the list of journal files in the given instrument directory
 
         :param instrument: The name of an instrument
         :return: A JSON reponse
@@ -28,7 +28,7 @@ def add_routes(
         except Exception as exc:
             return jsonify(f"Error: Unable to fetch cycles for {instrument}: {str(exc)}")
 
-    @app.route("/getJournal/<instrument>/<filename>")
+    @app.route("/journals/get/<instrument>/<filename>")
     def getJournal(instrument: str, filename: str) -> FlaskResponse:
         """Return a single journal of Runs for the instrument and cycle
 
@@ -45,11 +45,11 @@ def add_routes(
                 f"Error: Unable to fetch journal for {instrument}, cycle {filename}: {str(exc)}"
             )
 
-    @app.route("/getAllJournals/<instrument>/<field>/<search>/<options>")
-    def getAllJournals(
+    @app.route("/journals/findRuns/<instrument>/<field>/<search>/<options>")
+    def findRuns(
         instrument: str, field: str, search: str, options: str
     ) -> FlaskResponse:
-        """_summary_
+        """Search over all available journals for any runs matching the specified search parameters
 
         :param instrument: The instrument name
         :param field: The field to search
@@ -70,8 +70,8 @@ def add_routes(
         except Exception as exc:
             return jsonify(f"Error: Unable to complete search '{search}': {str(exc)}")
 
-    @app.route("/pingCycle/<instrument>")
-    def pingCycle(instrument):
+    @app.route("/journals/ping/<instrument>")
+    def pingJournals(instrument):
         """Check if a new journal has been added for the instrument
 
         :param instrument: Instrument name
@@ -80,7 +80,7 @@ def add_routes(
         result = journal_server.check_for_journal_filenames_update(instrument)
         return result if result is not None else ""
 
-    @app.route("/updateJournal/<instrument>/<filename>/<last_run>")
+    @app.route("/journals/update/<instrument>/<filename>/<last_run>")
     def updateJournal(instrument, filename, last_run):
         """Return runs after the last given run for the instrument and cycle
 
@@ -97,7 +97,7 @@ def add_routes(
                 f"Error: Unable to fetch new runs for {instrument}, cycle {filename}: {str(exc)}"
             )
 
-    @app.route("/getTotalMuAmps/<instrument>/<cycle>/<runs>")
+    @app.route("/journals/getTotalMuAmps/<instrument>/<cycle>/<runs>")
     def getTotalMuAmps(instrument, cycle, runs):
         """Return the total current values for each run
 
@@ -118,7 +118,7 @@ def add_routes(
 
         return ";".join([info["proton_charge"] for info in run_info])  # type: ignore
 
-    @app.route("/getGoToCycle/<instrument>/<run>")
+    @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):
         """Find the cycle containing the run.
 
@@ -135,19 +135,6 @@ def add_routes(
             return result
         else:
             return "Not Found"
-
-    # -------------- No op routes for backwards compatability -----------
-    @app.route("/setLocalSource/<source>")
-    def setLocalSource(source=""):
-        return json_response("")
-
-    @app.route("/clearLocalSource")
-    def clearLocalSource():
-        return json_response("")
-
-    @app.route("/shutdown")
-    def shutdown():
-        return json_response("")
 
     # ------------------------ End Routes -------------------------
 

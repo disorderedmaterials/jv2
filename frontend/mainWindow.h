@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "backend.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
 #include "jsonTableFilterProxy.h"
@@ -19,7 +20,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
     public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QCommandLineParser &cliParser);
     ~MainWindow() = default;
 
     /*
@@ -30,10 +31,16 @@ class MainWindow : public QMainWindow
     QMenu *instrumentsMenu_;
     QMenu *cyclesMenu_;
     bool init_;
+    // Main backend class
+    Backend backend_;
 
     private slots:
     void setLoadScreen(bool state);
     void removeTab(int index);
+    // Notification point for backend startup
+    void backendStarted(const QString &result);
+    // Ping backend to see if it's ready
+    void waitForBackend();
 
     protected:
     void closeEvent(QCloseEvent *event);
@@ -82,18 +89,6 @@ class MainWindow : public QMainWindow
     bool highlightRunNumber(int runNumber);
 
     private slots:
-    // Handle cycle update result
-    void handleCycleUpdate(QString response);
-    // Handle JSON run data returned from workers
-    void handleRunData(HttpRequestWorker *worker);
-    // Handle returned cycle information for an instrument
-    void handleGetCycles(HttpRequestWorker *worker);
-    // Handle run data returned for a whole cycle
-    void handleCycleRunData(HttpRequestWorker *worker);
-    // Handle jump to specified run number
-    void handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber);
-
-    private slots:
     void on_actionRefresh_triggered();
     void on_actionJumpTo_triggered();
     // Set current cycle being displayed
@@ -101,6 +96,23 @@ class MainWindow : public QMainWindow
     void recentCycle();
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
+
+    /*
+     * Network Handling
+     */
+    private slots:
+    // Handle backend ping result
+    void handleBackendPingResult(HttpRequestWorker *worker);
+    // Handle cycle update result
+    void handleCycleUpdate(QString response);
+    // Handle JSON run data returned from workers
+    void handleRunData(HttpRequestWorker *worker);
+    // Handle returned cycle information for an instrument
+    void handleListCycles(HttpRequestWorker *worker);
+    // Handle run data returned for a whole cycle
+    void handleCycleRunData(HttpRequestWorker *worker);
+    // Handle jump to specified run number
+    void handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber);
 
     /*
      * Settings
@@ -114,8 +126,6 @@ class MainWindow : public QMainWindow
     private slots:
     void on_actionMountPoint_triggered();
     void on_actionClearMountPoint_triggered();
-    void on_actionSetLocalSource_triggered();
-    void on_actionClearLocalSource_triggered();
 
     /*
      * Searching

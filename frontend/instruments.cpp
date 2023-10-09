@@ -95,14 +95,13 @@ void MainWindow::setCurrentInstrument(QString name)
     cachedMassSearch_.clear();
 
     // Configure api call
-    QString url_str = "http://127.0.0.1:5000/getCycles/" + currentInstrument().journalDirectory();
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
 
+    backend_.listJournals(currentInstrument().journalDirectory(), [=](HttpRequestWorker *worker) { handleListCycles(worker); });
     // Call result handler when request completed
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleGetCycles(HttpRequestWorker *)));
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handleGetCycles(HttpRequestWorker *)));
     setLoadScreen(true);
-    worker->execute(input);
+    // worker->execute("http://127.0.0.1:5000/getCycles/" + currentInstrument().journalDirectory());
 }
 
 // Return current instrument

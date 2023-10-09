@@ -54,6 +54,7 @@ qt6_add_executable(
   mainWindow.cpp
   mainWindow.h
   mainWindow.ui
+  networkHandling.cpp
   nexusInteraction.cpp
   searching.cpp
   settings.cpp

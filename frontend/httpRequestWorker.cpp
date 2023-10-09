@@ -6,44 +6,34 @@
 #include <QJsonDocument>
 #include <QUrl>
 
-// Object for request URL
-HttpRequestInput::HttpRequestInput(QString v_url_str) { url_str = v_url_str; }
-
-HttpRequestWorker::HttpRequestWorker(QObject *parent) : QObject(parent), manager_(nullptr)
+HttpRequestWorker::HttpRequestWorker(QNetworkAccessManager &manager, const QString &url, HttpRequestHandler handler) : QObject()
 {
-    manager_ = new QNetworkAccessManager(this);
-    connect(manager_, SIGNAL(finished(QNetworkReply *)), this, SLOT(on_manager_finished(QNetworkReply *)));
-}
+    // Set up the request
+    request_.setUrl(url);
+    request_.setRawHeader("User-Agent", "JournalViewer 2");
 
-// Execute request
-void HttpRequestWorker::execute(HttpRequestInput input)
-{
+    if (handler)
+        connect(this, &HttpRequestWorker::requestFinished, [=](HttpRequestWorker *workerProxy) { handler(workerProxy); });
 
-    // reset variables
-    response = "";
-    errorType = QNetworkReply::NoError;
-    errorString = "";
-
-    // execute connection
-    QNetworkRequest request = QNetworkRequest(QUrl(input.url_str));
-    request.setRawHeader("User-Agent", "Agent name goes here");
-    manager_->get(request);
+    // Execute the request and connect the reply
+    reply_ = manager.get(request_);
+    connect(reply_, &QNetworkReply::finished, this, &HttpRequestWorker::requestComplete);
 }
 
 // Process request
-void HttpRequestWorker::on_manager_finished(QNetworkReply *reply)
+void HttpRequestWorker::requestComplete()
 {
-    errorType = reply->error();
+    errorType = reply_->error();
     if (errorType == QNetworkReply::NoError)
     {
-        response = reply->readAll();
+        response = reply_->readAll();
         jsonResponse = QJsonDocument::fromJson(response.toUtf8());
         jsonArray = jsonResponse.array();
     }
     else
-        errorString = reply->errorString();
+        errorString = reply_->errorString();
 
-    reply->deleteLater();
+    reply_->deleteLater();
 
-    emit on_execution_finished(this);
+    emit requestFinished(this);
 }

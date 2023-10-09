@@ -45,16 +45,7 @@ int main(int argc, char *argv[])
             break;
     }
 
-    // Start backend as soon as we can
-    Backend backend(parser);
-    backend.start();
-    // A sleep is not ideal but the mainwindow needs the backend fully started
-    // before it can start
-    QThread::sleep(1);
-
-    // Start frontend and hook up kill backend on quit
-    QObject::connect(&application, &QApplication::aboutToQuit, &backend, &Backend::stop);
-    MainWindow window;
+    MainWindow window(parser);
     window.show();
     return application.exec();
 }

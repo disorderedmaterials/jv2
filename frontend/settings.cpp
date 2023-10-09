@@ -32,25 +32,14 @@ void MainWindow::loadSettings()
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 
-    // Local source?
-    auto localSource = settings.value("localSource").toString();
-    if (!localSource.isEmpty())
-    {
-        auto *worker = new HttpRequestWorker(this);
-        worker->execute({"http://127.0.0.1:5000/setLocalSource/" + localSource.replace("/", ";")});
-    }
-
     // Mount point?
     auto mountPoint = settings.value("mountPoint").toString();
     if (!mountPoint.isEmpty())
     {
-        auto *worker = new HttpRequestWorker(this);
-        worker->execute({"http://127.0.0.1:5000/setRoot/" + mountPoint});
+        backend_.setRunDataRoot(mountPoint);
+        auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+        // worker->execute({"http://127.0.0.1:5000/setRoot/" + mountPoint});
     }
-
-    // Last used instrument?
-    auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
-    setCurrentInstrument(recentInstrument);
 }
 
 /*
@@ -66,11 +55,9 @@ void MainWindow::on_actionMountPoint_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("mountPoint", textInput);
 
-    QString url_str = "http://127.0.0.1:5000/setRoot/";
-    url_str += textInput;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    worker->execute(input);
+    backend_.setRunDataRoot(textInput);
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    // worker->execute("http://127.0.0.1:5000/setRoot/");
 }
 
 void MainWindow::on_actionClearMountPoint_triggered()
@@ -78,41 +65,7 @@ void MainWindow::on_actionClearMountPoint_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("mountPoint", "");
 
-    QString url_str = "http://127.0.0.1:5000/setRoot/Default";
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    worker->execute(input);
-}
-
-void MainWindow::on_actionSetLocalSource_triggered()
-{
-    QString textInput = QInputDialog::getText(this, tr("Set local source"), tr("source:"), QLineEdit::Normal);
-    if (textInput.isEmpty())
-        return;
-
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.setValue("localSource", textInput);
-
-    QString msg = "If table fails to load, the local source cannot be found";
-    QMessageBox::information(this, "", msg);
-
-    QString url_str = "http://127.0.0.1:5000/setLocalSource/" + textInput.replace("/", ";");
-    HttpRequestInput input(url_str);
-    // TODO
-    // auto *worker = new HttpRequestWorker(this);
-    // connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
-    // worker->execute(input);
-}
-
-void MainWindow::on_actionClearLocalSource_triggered()
-{
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.setValue("localSource", "");
-
-    QString url_str = "http://127.0.0.1:5000/clearLocalSource";
-    HttpRequestInput input(url_str);
-    // TODO
-    // auto *worker = new HttpRequestWorker(this);
-    // connect(worker, &HttpRequestWorker::on_execution_finished, [=]() { refreshTable(); });
-    // worker->execute(input);
+    backend_.setRunDataRoot("Default");
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    // worker->execute("http://127.0.0.1:5000/setRoot/Default");
 }

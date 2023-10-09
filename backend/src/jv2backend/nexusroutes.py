@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-"""Defines the Flask endpoints supported by the server"""
+"""Defines the Flask endpoints that only access NeXuS information"""
 import logging
 from pathlib import Path
 from typing import Optional, Sequence
@@ -20,7 +20,7 @@ def add_routes(
 ) -> Flask:
     """Add routes to the given Flask application."""
 
-    @app.route("/setRoot/<prefix>")
+    @app.route("/runData/setRoot/<prefix>")
     def setRoot(prefix):
         """Set the prefix to use by the RunDataFileLocator"""
         if prefix == "Default":
@@ -29,8 +29,8 @@ def add_routes(
 
         return jsonify("success")
 
-    @app.route("/getNexusFields/<instrument>/<cycles>/<runs>")
-    def getNexusFields(instrument, cycles, runs):
+    @app.route("/runData/nexus/getLogValues/<instrument>/<cycles>/<runs>")
+    def getLogValues(instrument, cycles, runs):
         """Return a list of the log fields within the run
 
         :param instrument: Instrument name
@@ -42,7 +42,7 @@ def add_routes(
         filepaths = _locate_run_files(
             journal_server, run_locator, instrument, cycles, runs
         )
-        app.logger.debug(f"/getNexusFields: Located files: {filepaths}")
+        app.logger.debug(f"/runData/nexus/getFields: Located files: {filepaths}")
         logpaths = []
         for filepath, run in zip(filepaths, runs):
             if filepath is None:
@@ -51,8 +51,8 @@ def add_routes(
 
         return json_response(logpaths)
 
-    @app.route("/getNexusData/<instrument>/<cycles>/<runs>/<fields>")
-    def getNexusData(instrument, cycles, runs, fields):
+    @app.route("/runData/nexus/getLogValueData/<instrument>/<cycles>/<runs>/<fields>")
+    def getLogValueData(instrument, cycles, runs, fields):
         """Return a list of the log fields within the run.
 
         :param instrument: Instrument name
@@ -91,7 +91,7 @@ def add_routes(
 
         return json_response(all_field_data)
 
-    @app.route("/getSpectrumRange/<instrument>/<cycle>/<runs>")
+    @app.route("/runData/nexus/getSpectrumRange/<instrument>/<cycle>/<runs>")
     def getSpectrumRange(instrument, cycle, runs):
         """Return the number of spectra for the first run. The old
         api simply ignored anything past the first run
@@ -113,7 +113,7 @@ def add_routes(
 
         return str(nxs.spectra_count(filepaths[0]))  # type: ignore
 
-    @app.route("/getMonitorRange/<instrument>/<cycle>/<runs>")
+    @app.route("/runData/nexus/getMonitorRange/<instrument>/<cycle>/<runs>")
     def getMonitorRange(instrument, cycle, runs):
         """Return the number of monitors for the first run. The old
         api simply ignored anything past the first run
@@ -135,7 +135,7 @@ def add_routes(
 
         return str(nxs.monitor_count(filepaths[0]))  # type: ignore
 
-    @app.route("/getSpectrum/<instrument>/<cycle>/<runs>/<spectrum>")
+    @app.route("/runData/nexus/getSpectrum/<instrument>/<cycle>/<runs>/<spectrum>")
     def getSpectrum(instrument, cycle, runs, spectrum):
         """Return a spectrum from a given set of runs
 
@@ -156,8 +156,8 @@ def add_routes(
         data.extend([nxs.spectrum(filepath, int(spectrum)) for filepath in filepaths])  # type: ignore
         return json_response(data)
 
-    @app.route("/getMonSpectrum/<instrument>/<cycle>/<runs>/<monitor>")
-    def getMonSpectrum(instrument, cycle, runs, monitor):
+    @app.route("/runData/nexus/getMonitorSpectrum/<instrument>/<cycle>/<runs>/<monitor>")
+    def getMonitorSpectrum(instrument, cycle, runs, monitor):
         """Return a spectrum from a monitor for a given set of runs
 
         :param instrument: The name of the instrument
@@ -177,7 +177,7 @@ def add_routes(
         data.extend([nxs.spectrum(filepath, int(monitor)) for filepath in filepaths])  # type: ignore
         return json_response(data)
 
-    @app.route("/getDetectorAnalysis/<instrument>/<cycle>/<run>")
+    @app.route("/runData/nexus/getDetectorAnalysis/<instrument>/<cycle>/<run>")
     def getDetectorAnalysis(instrument, cycle, run):
         """Determine the number of spectra with non-zero signal values
 

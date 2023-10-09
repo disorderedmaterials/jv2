@@ -4,10 +4,11 @@
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 #include "version.h"
+#include <QMessageBox>
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProxy_(runDataModel_)
+MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(cliParser), runDataFilterProxy_(runDataModel_)
 {
     ui_.setupUi(this);
 
@@ -19,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProx
 
     // Get available instrument data
     getDefaultInstruments();
-    fillInstruments();
 
     // Define initial variable states
     init_ = true;
@@ -50,9 +50,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), runDataFilterProx
     // Get user settings
     loadSettings();
 
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
-    timer->start(30000);
+    // Set the loading screen
+    setLoadScreen(true);
+
+    // Start the backend - this will notify backendStarted when complete, but we still need to wait for the server to come up
+    connect(&backend_, SIGNAL(started(const QString &)), this, SLOT(backendStarted(const QString &)));
+    backend_.start();
 }
 
 /*
@@ -90,8 +93,40 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     // Shut down backend
-    auto *worker = new HttpRequestWorker(this);
-    worker->execute({"http://127.0.0.1:5000/shutdown"});
+    backend_.stop();
 
     event->accept();
+}
+
+// Notification point for backend startup having completed
+void MainWindow::backendStarted(const QString &result)
+{
+    if (result == "OK")
+        waitForBackend();
+    else
+        QMessageBox::warning(this, "Error Starting Backend",
+                             "The backend failed to start.\nThe error message received was: " + result);
+}
+
+// Ping backend to see if it's ready
+void MainWindow::waitForBackend()
+{
+    // Set max number of pings to attempt
+    static int pingsRemaining = 5;
+
+    --pingsRemaining;
+
+    if (pingsRemaining < 0)
+    {
+        QMessageBox::warning(this, "Backend Error", "Can't connect to the backend - giving up!");
+        return;
+    }
+
+    // Create a timer to ping the backend after 1000 ms
+    auto *pingTimer = new QTimer;
+    pingTimer->setSingleShot(true);
+    pingTimer->setInterval(1000);
+    connect(pingTimer, &QTimer::timeout,
+            [=]() { backend_.ping([this](HttpRequestWorker *worker) { handleBackendPingResult(worker); }); });
+    pingTimer->start();
 }

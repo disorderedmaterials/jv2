@@ -335,9 +335,6 @@
     <property name="title">
      <string>&amp;Settings</string>
     </property>
-    <addaction name="actionSetLocalSource"/>
-    <addaction name="actionClearLocalSource"/>
-    <addaction name="separator"/>
     <addaction name="actionMountPoint"/>
     <addaction name="actionClearMountPoint"/>
    </widget>
@@ -411,16 +408,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F3</string>
-   </property>
-  </action>
-  <action name="actionClearLocalSource">
-   <property name="text">
-    <string>Clear Local Journal Source</string>
-   </property>
-  </action>
-  <action name="actionSetLocalSource">
-   <property name="text">
-    <string>Set Local Journal Source</string>
    </property>
   </action>
   <action name="actionMountPoint">
