@@ -36,7 +36,7 @@ void MainWindow::loadSettings()
     auto mountPoint = settings.value("mountPoint").toString();
     if (!mountPoint.isEmpty())
     {
-        backend_.setRoot(mountPoint);
+        backend_.setRunDataRoot(mountPoint);
         auto *worker = backend_.TESTCreateHttpRequestWorker(this);
         // worker->execute({"http://127.0.0.1:5000/setRoot/" + mountPoint});
     }
@@ -55,7 +55,7 @@ void MainWindow::on_actionMountPoint_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("mountPoint", textInput);
 
-    backend_.setRoot(textInput);
+    backend_.setRunDataRoot(textInput);
     auto *worker = backend_.TESTCreateHttpRequestWorker(this);
     // worker->execute("http://127.0.0.1:5000/setRoot/");
 }
@@ -65,7 +65,7 @@ void MainWindow::on_actionClearMountPoint_triggered()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     settings.setValue("mountPoint", "");
 
-    backend_.setRoot("Default");
+    backend_.setRunDataRoot("Default");
     auto *worker = backend_.TESTCreateHttpRequestWorker(this);
     // worker->execute("http://127.0.0.1:5000/setRoot/Default");
 }

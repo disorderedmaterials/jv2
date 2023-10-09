@@ -61,8 +61,8 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
         return;
 
     // Request the log value data
-    backend_.getNexusData(currentInstrument().dataDirectory(), cycles, runNos, result,
-                          [=](HttpRequestWorker *worker) { handle_result_contextGraph(worker); });
+    backend_.getNexusLogValueData(currentInstrument().dataDirectory(), cycles, runNos, result,
+                                  [=](HttpRequestWorker *worker) { handle_result_contextGraph(worker); });
 
     auto *dataWorker = backend_.TESTCreateHttpRequestWorker(this);
     // connect(dataWorker, SIGNAL(requestFinished(HttpRequestWorker *)), this,

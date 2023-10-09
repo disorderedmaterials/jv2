@@ -317,12 +317,12 @@ void MainWindow::getField()
     // currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + action->data().toString().replace("/", ":");
 
     auto *worker = backend_.TESTCreateHttpRequestWorker(this);
-    backend_.getNexusData(currentInstrument().dataDirectory(), cycles, runNos, action->data().toString(),
-                          [=](HttpRequestWorker *worker)
-                          {
-                              dynamic_cast<ChartView *>(tabCharts[0])->addSeries(worker);
-                              dynamic_cast<ChartView *>(tabCharts[1])->addSeries(worker);
-                          });
+    backend_.getNexusLogValueData(currentInstrument().dataDirectory(), cycles, runNos, action->data().toString(),
+                                  [=](HttpRequestWorker *worker)
+                                  {
+                                      dynamic_cast<ChartView *>(tabCharts[0])->addSeries(worker);
+                                      dynamic_cast<ChartView *>(tabCharts[1])->addSeries(worker);
+                                  });
     // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), tabCharts[0], SLOT(addSeries(HttpRequestWorker *)));
     // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), tabCharts[1], SLOT(addSeries(HttpRequestWorker *)));
     // worker->execute(url_str);

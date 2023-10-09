@@ -52,11 +52,16 @@ class Backend : public QObject
     void started(const QString &);
 
     /*
-     * Endpoint Access
+     * Server Endpoints
      */
     public:
     // Ping backend to see if it's alive
     void ping(HttpRequestWorker::HttpRequestHandler handler = {});
+
+    /*
+     * Journal Endpoints
+     */
+    public:
     // List available journals in the specified directory
     void listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get journal file from the specified directory
@@ -75,12 +80,19 @@ class Backend : public QObject
                            HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
     void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+
+    /*
+     * NeXuS Endpoints
+     */
+    public:
+    // Set data mountpoint
+    void setRunDataRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log values present in specified run files
     void getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
                         HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log value data for specified run files
-    void getNexusData(const QString &dataDirectory, const QString &runNos, const QString &cycles, const QString &logValue,
-                      HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusLogValueData(const QString &dataDirectory, const QString &runNos, const QString &cycles,
+                              const QString &logValue, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor range for specified run numbers in the given cycle
     void getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
                               HttpRequestWorker::HttpRequestHandler handler = {});
@@ -97,8 +109,6 @@ class Backend : public QObject
     // [FIXME - Different argument order (cycle/runs) to others]
     void getNexusDetectorAnalysis(const QString &dataDirectory, const QString &cycle, const QString &runNos,
                                   HttpRequestWorker::HttpRequestHandler handler = {});
-    // Set data mountpoint
-    void setRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler = {});
 
     // TEST Transitional Function
     HttpRequestWorker *TESTCreateHttpRequestWorker(QObject *parent);
