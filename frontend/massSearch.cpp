@@ -100,8 +100,8 @@ void MainWindow::massSearch(QString name, QString value)
     sensitivityText.append(caseSensitivity ? "true" : "false");
     searchOptions.append(sensitivityText);
 
-    backend_.getAllJournals(inst.journalDirectory(), value, textInput, searchOptions,
-                            [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
+    backend_.findRuns(inst.journalDirectory(), value, textInput, searchOptions,
+                      [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
     auto *worker = backend_.TESTCreateHttpRequestWorker(this);
     // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
     // worker->execute("http://127.0.0.1:5000/getAllJournals/" + inst.journalDirectory() + "/" + value + "/" + textInput + "/" +

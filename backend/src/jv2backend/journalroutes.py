@@ -51,11 +51,11 @@ def add_routes(
                 f"Error: Unable to fetch journal for {instrument}, cycle {filename}: {str(exc)}"
             )
 
-    @app.route("/getAllJournals/<instrument>/<field>/<search>/<options>")
-    def getAllJournals(
+    @app.route("/findRuns/<instrument>/<field>/<search>/<options>")
+    def findRuns(
         instrument: str, field: str, search: str, options: str
     ) -> FlaskResponse:
-        """_summary_
+        """Search over all available journals for any runs matching the specified search parameters
 
         :param instrument: The instrument name
         :param field: The field to search

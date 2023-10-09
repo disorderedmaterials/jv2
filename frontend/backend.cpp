@@ -128,11 +128,11 @@ void Backend::getJournal(const QString &journalDirectory, const QString &journal
     createRequest(createRoute("getJournal", journalDirectory, journalFilename), handler);
 }
 
-// Get all journals [FIXME, REALLY BAD NAME]
-void Backend::getAllJournals(const QString &journalDirectory, const QString &value, const QString &textInput,
-                             const QString options, HttpRequestWorker::HttpRequestHandler handler)
+// Search all journals for matching runs
+void Backend::findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
+                       HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("getAllJournals", journalDirectory, value, textInput, options), handler);
+    createRequest(createRoute("findRuns", journalDirectory, value, textInput, options), handler);
 }
 
 // Get updated journal data [FIXME, COULD DO WITH A BETTER NAME]

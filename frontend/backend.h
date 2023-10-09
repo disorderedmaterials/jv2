@@ -66,9 +66,9 @@ class Backend : public QObject
     // Get journal file from the specified directory
     void getJournal(const QString &journalDirectory, const QString &journalFilename,
                     HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get all journals [FIXME, REALLY BAD NAME]
-    void getAllJournals(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
-                        HttpRequestWorker::HttpRequestHandler handler = {});
+    // Search all journals for matching runs
+    void findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
+                  HttpRequestWorker::HttpRequestHandler handler = {});
     // Get updated journal data
     void updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
                        HttpRequestWorker::HttpRequestHandler handler = {});
