@@ -8,6 +8,33 @@
 #include <QSettings>
 #include <QTimer>
 
+// Perform error check on http result
+bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription)
+{
+    // Network error?
+    if (worker->errorType != QNetworkReply::NoError)
+    {
+        statusBar()->showMessage("Network Error");
+        QMessageBox::warning(this, "Network Error",
+                             QString("A network error was encountered while %1.\nThe error returned was: %2")
+                                 .arg(taskDescription, worker->errorString));
+        return true;
+    }
+
+    // Response error?
+    auto response = worker->response;
+    if (response.contains("Error"))
+    {
+        statusBar()->showMessage("Response Error");
+        QMessageBox::warning(
+            this, "Respose Error",
+            QString("The backend failed while %1.\nThe response returned was: %2").arg(taskDescription, response));
+        return true;
+    }
+
+    return false;
+}
+
 // Handle backend ping result
 void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
 {
@@ -70,25 +97,9 @@ void MainWindow::handleListCycles(HttpRequestWorker *worker)
     journalsMenu_->clear();
     journals_.clear();
 
-    // Network error?
-    if (worker->errorType != QNetworkReply::NoError)
-    {
-        statusBar()->showMessage("Network error!");
-        QMessageBox::warning(
-            this, "Network Error",
-            "A network error was encountered while trying to retrieve run data for the cycle\nThe error returned was: " +
-                worker->errorString);
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to list journals"))
         return;
-    }
-
-    // Other error?
-    auto response = worker->response;
-    if (response.contains("Error"))
-    {
-        statusBar()->showMessage("Network error!");
-        QMessageBox::warning(this, "An Error Occurred", response);
-        return;
-    }
 
     QJsonValue value;
     for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
@@ -124,24 +135,9 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
     runData_ = QJsonArray();
     runDataModel_.setData(runData_);
 
-    // Network error?
-    if (worker->errorType != QNetworkReply::NoError)
-    {
-        statusBar()->showMessage("Network error!");
-        QMessageBox::warning(
-            this, "Network Error",
-            "A network error was encountered while trying to retrieve run data for the cycle\nThe error returned was: " +
-                worker->errorString);
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to retrieve run data for the journal"))
         return;
-    }
-
-    // Source error?
-    if (worker->response.contains("invalid source"))
-    {
-        statusBar()->showMessage("Invalid journal source!");
-        QMessageBox::warning(this, "Invalid Journal Source", "The journal could not be retrieved.");
-        return;
-    }
 
     // Turn off grouping
     if (ui_.GroupRunsButton->isChecked())
@@ -164,34 +160,28 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
 void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber)
 {
     setLoadScreen(false);
-    QString msg;
 
-    if (worker->errorType == QNetworkReply::NoError)
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to select run number within journal"))
+        return;
+
+    if (worker->response == "Not Found")
     {
-        if (worker->response == "Not Found")
-        {
-            statusBar()->showMessage("Search query not found", 5000);
-            return;
-        }
+        statusBar()->showMessage("Search query not found", 5000);
+        return;
+    }
+    if (currentJournal_ && currentJournal_->get().name() == worker->response)
+    {
+        highlightRunNumber(runNumber);
+        return;
+    }
+
+    for (auto i = 0; i < journalsMenu_->actions().count(); i++)
+    {
         if (currentJournal_ && currentJournal_->get().name() == worker->response)
         {
+            setCurrentJournal(journalsMenu_->actions()[i]->text());
             highlightRunNumber(runNumber);
-            return;
         }
-
-        for (auto i = 0; i < journalsMenu_->actions().count(); i++)
-        {
-            if (currentJournal_ && currentJournal_->get().name() == worker->response)
-            {
-                setCurrentJournal(journalsMenu_->actions()[i]->text());
-                highlightRunNumber(runNumber);
-            }
-        }
-    }
-    else
-    {
-        // an error occurred
-        msg = "Error1: " + worker->errorString;
-        QMessageBox::information(this, "", msg);
     }
 }
