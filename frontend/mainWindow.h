@@ -118,7 +118,7 @@ class MainWindow : public QMainWindow
     /*
      * Network Handling
      */
-    private slots:
+    private:
     // Handle backend ping result
     void handleBackendPingResult(HttpRequestWorker *worker);
     // Handle journal ping result
