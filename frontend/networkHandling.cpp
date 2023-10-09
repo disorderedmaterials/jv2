@@ -123,8 +123,8 @@ void MainWindow::handleListCycles(HttpRequestWorker *worker)
     }
 }
 
-// Handle run data returned for a whole cycle
-void MainWindow::handleCycleRunData(HttpRequestWorker *worker)
+// Handle run data returned for a whole journal
+void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
 {
     setLoadScreen(false);
 

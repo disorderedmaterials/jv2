@@ -45,7 +45,7 @@ void MainWindow::setCurrentJournal(QString name)
         {
             ui_.cycleButton->setText(name);
             setLoadScreen(true);
-            handleCycleRunData(std::get<0>(*it));
+            handleCompleteJournalRunData(std::get<0>(*it));
         }
         return;
     }
@@ -65,7 +65,7 @@ void MainWindow::setCurrentJournal(Journal &journal)
     ui_.cycleButton->setText(journal.name());
 
     backend_.getJournal(currentInstrument().journalDirectory(), journal.locationURL(),
-                        [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
+                        [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 
     setLoadScreen(true);
 }

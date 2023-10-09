@@ -127,8 +127,8 @@ class MainWindow : public QMainWindow
     void handleRunData(HttpRequestWorker *worker);
     // Handle returned cycle information for an instrument
     void handleListCycles(HttpRequestWorker *worker);
-    // Handle run data returned for a whole cycle
-    void handleCycleRunData(HttpRequestWorker *worker);
+    // Handle run data returned for a whole journal
+    void handleCompleteJournalRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number
     void handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber);
 

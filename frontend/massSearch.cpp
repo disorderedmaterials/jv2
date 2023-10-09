@@ -101,7 +101,7 @@ void MainWindow::massSearch(QString name, QString value)
     searchOptions.append(sensitivityText);
 
     backend_.findRuns(inst.journalDirectory(), value, textInput, searchOptions,
-                      [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
+                      [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 
     // configure caching [FIXME]
     cachedMassSearch_.append(std::make_tuple(nullptr, text));
