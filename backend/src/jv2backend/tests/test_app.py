@@ -59,7 +59,7 @@ def client(app):
 
 
 def test_request_cycles_returns_expected_json_for_existing_instrument(client):
-    response = client.get(f"/getCycles/{TESTDATA_INSTRUMENT_NAME}")
+    response = client.get(f"/journals/list/{TESTDATA_INSTRUMENT_NAME}")
 
     response_payload = json.loads(response.data)
     assert len(response_payload) == 2
@@ -75,14 +75,14 @@ def test_request_cycles_returns_expected_error_for_nonexistent_instrument(
         content=b"Not Found",
         status_code=404,
     )
-    response = client.get(f"/getCycles/{TESTDATA_INSTRUMENT_NAME}")
+    response = client.get(f"/journals/list/{TESTDATA_INSTRUMENT_NAME}")
 
     response_payload = json.loads(response.data)
     assert "404" in response_payload
 
 
 def test_request_journal_returns_expected_json_for_existing_journal(client):
-    response = client.get(f"/getJournal/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml")
+    response = client.get(f"/journals/get/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml")
 
     response_payload = json.loads(response.data)
     assert len(response_payload) == 3
@@ -97,7 +97,7 @@ def test_request_journal_returns_error_for_nonexisting_journal(client, requests_
         status_code=404,
     )
 
-    response = client.get(f"/getJournal/{TESTDATA_INSTRUMENT_NAME}/{journal_filename}")
+    response = client.get(f"/journals/get/{TESTDATA_INSTRUMENT_NAME}/{journal_filename}")
 
     response_payload = json.loads(response.data)
     assert "404" in response_payload
@@ -109,7 +109,7 @@ def test_search_user_name_respects_case_options(case_sensitive, client):
         "caseSensitivity=true" if case_sensitive else "caseSensitivity=false"
     )
     response = client.get(
-        f"/getAllJournals/{TESTDATA_INSTRUMENT_NAME}/user_name/username/{search_options}"
+        f"/journals/findRuns/{TESTDATA_INSTRUMENT_NAME}/user_name/username/{search_options}"
     )
 
     response_payload = json.loads(response.data)
@@ -121,7 +121,7 @@ def test_search_user_name_respects_case_options(case_sensitive, client):
 
 def test_search_run_number_returns_expected_json(client):
     response = client.get(
-        f"/getAllJournals/{TESTDATA_INSTRUMENT_NAME}/run_number/83898-85424/caseSensitivity=true"
+        f"/journals/findRuns/{TESTDATA_INSTRUMENT_NAME}/run_number/83898-85424/caseSensitivity=true"
     )
 
     response_payload = json.loads(response.data)
@@ -131,7 +131,7 @@ def test_search_run_number_returns_expected_json(client):
 @pytest.mark.parametrize("field", ["start_date", "start_time"])
 def test_search_start_time_returns_expected_json(field, client):
     response = client.get(
-        f"/getAllJournals/{TESTDATA_INSTRUMENT_NAME}/{field}/2021;05;01-2021;05;02/caseSensitivity=true"
+        f"/journals/findRuns/{TESTDATA_INSTRUMENT_NAME}/{field}/2021;05;01-2021;05;02/caseSensitivity=true"
     )
 
     response_payload = json.loads(response.data)
@@ -146,7 +146,7 @@ def test_pingcycle_returns_empty_str_when_no_change_since_last_request(
         headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
     )
 
-    response = client.get(f"/pingCycle/{TESTDATA_INSTRUMENT_NAME}")
+    response = client.get(f"/journals/ping/{TESTDATA_INSTRUMENT_NAME}")
 
     assert response.data == b""
 
@@ -154,19 +154,19 @@ def test_pingcycle_returns_empty_str_when_no_change_since_last_request(
 def test_pingcycle_returns_final_journal_name_when_changed_since_last_request(
     client, requests_mock
 ):
-    client.get(f"/getCycles/{TESTDATA_INSTRUMENT_NAME}")
+    client.get(f"/journals/list/{TESTDATA_INSTRUMENT_NAME}")
     requests_mock.head(
         _fake_instrument_journallist_url(TESTDATA_INSTRUMENT_NAME),
         headers={"Last-Modified": "Fri, 11 Nov 2022 10:34:44 GMT"},
     )
-    response = client.get(f"/pingCycle/{TESTDATA_INSTRUMENT_NAME}")
+    response = client.get(f"/journals/ping/{TESTDATA_INSTRUMENT_NAME}")
 
     assert response.data == b"journal_20_2.xml"
 
 
 def test_updatejournal_returns_runs_later_than_last_given(client):
     response = client.get(
-        f"/updateJournal/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml/85422"
+        f"/journals/update/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml/85422"
     )
 
     runs = json.loads(response.data)
@@ -176,7 +176,7 @@ def test_updatejournal_returns_runs_later_than_last_given(client):
 
 
 def test_getGoToCycle_returns_expected_journal_filename(client):
-    response = client.get(f"/getGoToCycle/{TESTDATA_INSTRUMENT_NAME}/85422")
+    response = client.get(f"/journals/goToCycle/{TESTDATA_INSTRUMENT_NAME}/85422")
 
     assert response.data == b"journal_21_1.xml"
 
@@ -185,7 +185,7 @@ def test_getGoToCycle_returns_expected_journal_filename(client):
 
 
 def test_getNexusFields_returns_all_expected_log_data_fields_paths(client):
-    response = client.get(f"/getNexusFields/{TESTDATA_INSTRUMENT_NAME}/21_1;/85423;")
+    response = client.get(f"/runData/nexus/getLogValues/{TESTDATA_INSTRUMENT_NAME}/21_1;/85423;")
 
     fields = json.loads(response.data)
     assert len(fields) == 3
@@ -196,7 +196,7 @@ def test_getNexusFields_returns_all_expected_log_data_fields_paths(client):
 def test_getNexusData_returns_all_expected_log_data_fields(client):
     fields = f":raw_data_1:selog:Z;:raw_data_1:runlog:dae_beam_current"
     response = client.get(
-        f"/getNexusData/{TESTDATA_INSTRUMENT_NAME}/21_1;/85423;/{fields}"
+        f"/runData/nexus/getLogValueData/{TESTDATA_INSTRUMENT_NAME}/21_1;/85423;/{fields}"
     )
 
     data = json.loads(response.data)
@@ -222,7 +222,7 @@ def test_getNexusData_returns_all_expected_log_data_fields(client):
 
 
 def test_getSpectrumRange_returns_spectrum_count(client):
-    response = client.get(f"/getSpectrumRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423")
+    response = client.get(f"/runData/nexus/getSpectrumRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423")
 
     data = json.loads(response.data)
     assert data == 2368
@@ -230,7 +230,7 @@ def test_getSpectrumRange_returns_spectrum_count(client):
 
 def test_getMonitorRange_returns_monitor_count(client):
     response = client.get(
-        f"/getMonitorRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423;85423"
+        f"/runData/nexus/getMonitorRange/{TESTDATA_INSTRUMENT_NAME}/21_1/85423;85423"
     )
 
     data = json.loads(response.data)
@@ -238,7 +238,7 @@ def test_getMonitorRange_returns_monitor_count(client):
 
 
 def test_getSpectrum_returns_spectrum_data(client):
-    response = client.get(f"/getSpectrum/{TESTDATA_INSTRUMENT_NAME}/21_1/85423/15")
+    response = client.get(f"/runData/nexus/getSpectrum/{TESTDATA_INSTRUMENT_NAME}/21_1/85423/15")
 
     data = json.loads(response.data)
     assert len(data) == 2
@@ -247,7 +247,7 @@ def test_getSpectrum_returns_spectrum_data(client):
 
 
 def test_getMonitor_returns_monitor_data(client):
-    response = client.get(f"/getMonSpectrum/{TESTDATA_INSTRUMENT_NAME}/21_1/85423/2")
+    response = client.get(f"/runData/nexus/getMonitorSpectrum/{TESTDATA_INSTRUMENT_NAME}/21_1/85423/2")
 
     data = json.loads(response.data)
     assert len(data) == 2
@@ -257,14 +257,14 @@ def test_getMonitor_returns_monitor_data(client):
 
 def test_getTotalMuAmps_for_runs(client):
     response = client.get(
-        f"/getTotalMuAmps/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml/85423;85423"
+        f"/journals/getTotalMuAmps/{TESTDATA_INSTRUMENT_NAME}/journal_21_1.xml/85423;85423"
     )
 
     assert response.data == b"0.9252;0.9252"
 
 
 def test_getDetectorAnalysis_for_run_returns_correct_number_of_nonzero_spectra(client):
-    response = client.get(f"/getDetectorAnalysis/{TESTDATA_INSTRUMENT_NAME}/21_1/85423")
+    response = client.get(f"/runData/nexus/getDetectorAnalysis/{TESTDATA_INSTRUMENT_NAME}/21_1/85423")
 
     assert response.data == b"974/2368"
 

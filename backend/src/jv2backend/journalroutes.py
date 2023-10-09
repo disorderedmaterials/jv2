@@ -118,7 +118,7 @@ def add_routes(
 
         return ";".join([info["proton_charge"] for info in run_info])  # type: ignore
 
-    @app.route("/journals/GoToCycle/<instrument>/<run>")
+    @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):
         """Find the cycle containing the run.
 
