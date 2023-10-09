@@ -62,19 +62,12 @@ void MainWindow::handlePingJournals(QString response)
     }
 }
 
-// Handle JSON run data returned from workers
-void MainWindow::handleRunData(HttpRequestWorker *worker)
-{
-    runData_ = worker->jsonArray;
-    runDataModel_.setData(runData_);
-}
-
 // Handle returned cycle information for an instrument
 void MainWindow::handleListCycles(HttpRequestWorker *worker)
 {
     setLoadScreen(false);
 
-    cyclesMenu_->clear();
+    journalsMenu_->clear();
     journals_.clear();
 
     // Network error?
@@ -186,11 +179,11 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
             return;
         }
 
-        for (auto i = 0; i < cyclesMenu_->actions().count(); i++)
+        for (auto i = 0; i < journalsMenu_->actions().count(); i++)
         {
             if (currentJournal_ && currentJournal_->get().name() == worker->response)
             {
-                setCurrentJournal(cyclesMenu_->actions()[i]->text());
+                setCurrentJournal(journalsMenu_->actions()[i]->text());
                 highlightRunNumber(runNumber);
             }
         }

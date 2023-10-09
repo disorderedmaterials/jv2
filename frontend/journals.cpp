@@ -17,7 +17,7 @@ Journal &MainWindow::addJournal(const QString &name, Journal::JournalLocation lo
 
     auto *action = new QAction(name, this);
     connect(action, &QAction::triggered, [=]() { setCurrentJournal(name); });
-    cyclesMenu_->addAction(action);
+    journalsMenu_->addAction(action);
 
     return journal;
 }
@@ -43,7 +43,7 @@ void MainWindow::setCurrentJournal(QString name)
                                [name](const auto &tuple) { return std::get<1>(tuple) == name.mid(1, name.length() - 2); });
         if (it != cachedMassSearch_.end())
         {
-            ui_.cycleButton->setText(name);
+            ui_.journalButton->setText(name);
             setLoadScreen(true);
             handleCompleteJournalRunData(std::get<0>(*it));
         }
@@ -62,7 +62,7 @@ void MainWindow::setCurrentJournal(Journal &journal)
 {
     currentJournal_ = journal;
 
-    ui_.cycleButton->setText(journal.name());
+    ui_.journalButton->setText(journal.name());
 
     backend_.getJournal(currentInstrument().journalDirectory(), journal.locationURL(),
                         [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });

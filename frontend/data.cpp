@@ -106,11 +106,11 @@ bool MainWindow::highlightRunNumber(int runNumber)
             ui_.RunDataTable->selectionModel()->setCurrentIndex(
                 runDataModel_.index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 
-            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + ui_.cycleButton->text(), 5000);
+            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + ui_.journalButton->text(), 5000);
             return true;
         }
 
-    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + ui_.cycleButton->text(), 5000);
+    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + ui_.journalButton->text(), 5000);
 
     return false;
 }

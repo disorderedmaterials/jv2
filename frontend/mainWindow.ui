@@ -106,12 +106,12 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="cycleButton">
+                <widget class="QPushButton" name="journalButtonon">
                  <property name="contextMenuPolicy">
                   <enum>Qt::CustomContextMenu</enum>
                  </property>
                  <property name="text">
-                  <string>&lt;CYCLE&gt;</string>
+                  <string>&lt;JOURNAL&gt;</string>
                  </property>
                 </widget>
                </item>

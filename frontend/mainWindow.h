@@ -30,7 +30,7 @@ class MainWindow : public QMainWindow
     private:
     Ui::MainWindow ui_;
     QMenu *instrumentsMenu_;
-    QMenu *cyclesMenu_;
+    QMenu *journalsMenu_;
     bool init_;
     // Main backend class
     Backend backend_;
@@ -123,8 +123,6 @@ class MainWindow : public QMainWindow
     void handleBackendPingResult(HttpRequestWorker *worker);
     // Handle journal ping result
     void handlePingJournals(QString response);
-    // Handle JSON run data returned from workers
-    void handleRunData(HttpRequestWorker *worker);
     // Handle returned cycle information for an instrument
     void handleListCycles(HttpRequestWorker *worker);
     // Handle run data returned for a whole journal
