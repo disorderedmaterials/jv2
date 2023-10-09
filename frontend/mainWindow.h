@@ -119,6 +119,8 @@ class MainWindow : public QMainWindow
      * Network Handling
      */
     private:
+    // Perform error check on http result
+    bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
     // Handle backend ping result
     void handleBackendPingResult(HttpRequestWorker *worker);
     // Handle journal ping result
