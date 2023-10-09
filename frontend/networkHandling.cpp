@@ -89,8 +89,8 @@ void MainWindow::handlePingJournals(QString response)
     }
 }
 
-// Handle returned cycle information for an instrument
-void MainWindow::handleListCycles(HttpRequestWorker *worker)
+// Handle returned journal information for an instrument
+void MainWindow::handleListJournals(HttpRequestWorker *worker)
 {
     setLoadScreen(false);
 
