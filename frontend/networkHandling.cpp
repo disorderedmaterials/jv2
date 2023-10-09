@@ -32,24 +32,23 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
         waitForBackend();
 }
 
-// Handle cycle update result
-void MainWindow::handleCycleUpdate(QString response)
+// Handle journal ping result
+void MainWindow::handlePingJournals(QString response)
 {
-    // TODO
-    if (response != "")
-    {
-        qDebug() << "Update";
-        // currentInstrumentChanged(currentInstrument().name());
-        if (cyclesMap_[cyclesMenu_->actions()[0]->text()] != response) // if new cycle found
-        {
-            auto displayName = "Cycle " + response.split("_")[1] + "/" + response.split("_")[2].remove(".xml");
-            cyclesMap_[displayName] = response;
+    // A null response indicates no change
+    if (response == "")
+        return;
 
-            auto *action = new QAction(displayName, this);
-            connect(action, &QAction::triggered, [=]() { setCurrentJournal(displayName); });
-            cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
-        }
-        else if (cyclesMap_[ui_.cycleButton->text()] == response) // if current opened cycle changed
+    qDebug() << response;
+    qDebug() << currentJournal_->get().name();
+
+    // The response contains the updated / most recent journal name
+    if (response == journals_.front().name())
+    {
+        qDebug() << "Journals up to date, but runs are not\n";
+        // The most recent journal has been updated, probably with new run data.
+        // If we're currently displaying that journal, update with the new run data
+        if (currentJournal_ && currentJournal_->get().name() == response)
         {
             backend_.updateJournal(currentInstrument().journalDirectory(), response,
                                    runData_.last().toObject()["run_number"].toString(),
@@ -58,8 +57,8 @@ void MainWindow::handleCycleUpdate(QString response)
     }
     else
     {
-        qDebug() << "no change";
-        return;
+        auto nameParts = response.split("_");
+        addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer, response);
     }
 }
 
@@ -102,37 +101,26 @@ void MainWindow::handleListCycles(HttpRequestWorker *worker)
     for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
     {
         value = worker->jsonArray[i];
-        // removes header_ file
-        if (value.toString() != "journal.xml")
-        {
-            auto displayName = "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
-            auto &journal = journals_.emplace_back(displayName);
-            journal.setFileLocation(Journal::JournalLocation::ISISServer, value.toString());
 
-            auto *action = new QAction(displayName, this);
-            connect(action, &QAction::triggered, [=]() { setCurrentJournal(displayName); });
-            cyclesMenu_->addAction(action);
-        }
+        // Ignore the main index file
+        if (value.toString() == "journal.xml")
+            continue;
+
+        auto nameParts = value.toString().split("_");
+        addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer,
+                   value.toString());
     }
 
-    if (init_)
+    // If there is no current journal, set one
+    if (!currentJournal_)
     {
-        // Sets cycle to most recently viewed
-        recentCycle();
-        init_ = false;
-        return;
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+        auto optJournal = findJournal(settings.value("recentJournal").toString());
+        if (optJournal)
+            setCurrentJournal(*optJournal);
+        else
+            setCurrentJournal(journals_.front());
     }
-
-    // Keep cycle over instruments
-    for (QAction *action : cyclesMenu_->actions())
-    {
-        if (action->text() == ui_.cycleButton->text())
-        {
-            action->trigger();
-            return;
-        }
-    }
-    cyclesMenu_->actions()[0]->trigger();
 }
 
 // Handle run data returned for a whole cycle

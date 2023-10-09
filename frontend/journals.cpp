@@ -9,50 +9,63 @@
 #include <QSettings>
 #include <QWidgetAction>
 
-/*
- * UI
- */
+// Add new journal
+Journal &MainWindow::addJournal(const QString &name, Journal::JournalLocation location, const QString &locationURL)
+{
+    auto &journal = journals_.emplace_back(name);
+    journal.setFileLocation(location, locationURL);
+
+    auto *action = new QAction(name, this);
+    connect(action, &QAction::triggered, [=]() { setCurrentJournal(name); });
+    cyclesMenu_->addAction(action);
+
+    return journal;
+}
+
+// Find named journal
+OptionalReferenceWrapper<Journal> MainWindow::findJournal(const QString &name)
+{
+    auto journalIt =
+        std::find_if(journals_.begin(), journals_.end(), [name](const auto &journal) { return journal.name() == name; });
+
+    if (journalIt == journals_.end())
+        return std::nullopt;
+
+    return *journalIt;
+}
 
 // Set current journal being displayed
 void MainWindow::setCurrentJournal(QString name)
 {
-    if (cycleName[0] == '[')
+    if (name[0] == '[')
     {
         auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
-                               [cycleName](const auto &tuple)
-                               { return std::get<1>(tuple) == cycleName.mid(1, cycleName.length() - 2); });
+                               [name](const auto &tuple) { return std::get<1>(tuple) == name.mid(1, name.length() - 2); });
         if (it != cachedMassSearch_.end())
         {
-            ui_.cycleButton->setText(cycleName);
+            ui_.cycleButton->setText(name);
             setLoadScreen(true);
             handleCycleRunData(std::get<0>(*it));
         }
         return;
     }
-    ui_.cycleButton->setText(cycleName);
 
-    backend_.getJournal(currentInstrument().journalDirectory(), cyclesMap_[cycleName],
+    // Find the journal specified
+    auto optJournal = findJournal(name);
+    if (!optJournal)
+        throw(std::runtime_error("Selected journal does not exist!\n"));
+
+    setCurrentJournal(*optJournal);
+}
+
+void MainWindow::setCurrentJournal(Journal &journal)
+{
+    currentJournal_ = journal;
+
+    ui_.cycleButton->setText(journal.name());
+
+    backend_.getJournal(currentInstrument().journalDirectory(), journal.locationURL(),
                         [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
 
     setLoadScreen(true);
-}
-
-// Sets cycle to most recently viewed
-void MainWindow::recentCycle()
-{
-    // Disable selections if api fails
-    if (cyclesMenu_->actions().count() == 0)
-        QWidget::setEnabled(false);
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    QString recentCycle = settings.value("recentCycle").toString();
-    // Sets cycle to last used/ most recent if unavailable
-    for (QAction *action : cyclesMenu_->actions())
-    {
-        if (action->text() == recentCycle)
-        {
-            action->trigger();
-            return;
-        }
-    }
-    cyclesMenu_->actions()[0]->trigger();
 }

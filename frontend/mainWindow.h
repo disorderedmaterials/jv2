@@ -73,15 +73,21 @@ class MainWindow : public QMainWindow
      * Journals
      */
     private:
+    // Current journal source
+    Journal::JournalLocation journalSource_{Journal::JournalLocation::ISISServer};
     // Available journals
     std::vector<Journal> journals_;
     // Currently selected journal (if any)
     OptionalReferenceWrapper<Journal> currentJournal_;
 
-    public:
+    private:
+    // Add new journal
+    Journal &addJournal(const QString &name, Journal::JournalLocation location, const QString &locationURL);
+    // Find named journal
+    OptionalReferenceWrapper<Journal> findJournal(const QString &name);
     // Set current journal being displayed
     void setCurrentJournal(QString name);
-    void recentJournal();
+    void setCurrentJournal(Journal &journal);
 
     /*
      * Run Data
@@ -115,8 +121,8 @@ class MainWindow : public QMainWindow
     private slots:
     // Handle backend ping result
     void handleBackendPingResult(HttpRequestWorker *worker);
-    // Handle cycle update result
-    void handleCycleUpdate(QString response);
+    // Handle journal ping result
+    void handlePingJournals(QString response);
     // Handle JSON run data returned from workers
     void handleRunData(HttpRequestWorker *worker);
     // Handle returned cycle information for an instrument
