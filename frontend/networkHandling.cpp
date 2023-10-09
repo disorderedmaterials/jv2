@@ -46,7 +46,7 @@ void MainWindow::handleCycleUpdate(QString response)
             cyclesMap_[displayName] = response;
 
             auto *action = new QAction(displayName, this);
-            connect(action, &QAction::triggered, [=]() { setCurrentCycle(displayName); });
+            connect(action, &QAction::triggered, [=]() { setCurrentJournal(displayName); });
             cyclesMenu_->insertAction(cyclesMenu_->actions()[0], action);
         }
         else if (cyclesMap_[ui_.cycleButton->text()] == response) // if current opened cycle changed
@@ -76,7 +76,7 @@ void MainWindow::handleListCycles(HttpRequestWorker *worker)
     setLoadScreen(false);
 
     cyclesMenu_->clear();
-    cyclesMap_.clear();
+    journals_.clear();
 
     // Network error?
     if (worker->errorType != QNetworkReply::NoError)
@@ -106,10 +106,11 @@ void MainWindow::handleListCycles(HttpRequestWorker *worker)
         if (value.toString() != "journal.xml")
         {
             auto displayName = "Cycle " + value.toString().split("_")[1] + "/" + value.toString().split("_")[2].remove(".xml");
-            cyclesMap_[displayName] = value.toString();
+            auto &journal = journals_.emplace_back(displayName);
+            journal.setFileLocation(Journal::JournalLocation::ISISServer, value.toString());
 
             auto *action = new QAction(displayName, this);
-            connect(action, &QAction::triggered, [=]() { setCurrentCycle(displayName); });
+            connect(action, &QAction::triggered, [=]() { setCurrentJournal(displayName); });
             cyclesMenu_->addAction(action);
         }
     }
@@ -191,18 +192,17 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
             statusBar()->showMessage("Search query not found", 5000);
             return;
         }
-        if (cyclesMap_[ui_.cycleButton->text()] == worker->response)
+        if (currentJournal_ && currentJournal_->get().name() == worker->response)
         {
-            printf("HERE\n");
             highlightRunNumber(runNumber);
             return;
         }
 
         for (auto i = 0; i < cyclesMenu_->actions().count(); i++)
         {
-            if (cyclesMap_[cyclesMenu_->actions()[i]->text()] == worker->response)
+            if (currentJournal_ && currentJournal_->get().name() == worker->response)
             {
-                setCurrentCycle(cyclesMenu_->actions()[i]->text());
+                setCurrentJournal(cyclesMenu_->actions()[i]->text());
                 highlightRunNumber(runNumber);
             }
         }

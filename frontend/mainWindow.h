@@ -6,6 +6,7 @@
 #include "backend.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
+#include "journal.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
 #include "ui_mainWindow.h"
@@ -69,11 +70,24 @@ class MainWindow : public QMainWindow
     const Instrument &currentInstrument() const;
 
     /*
+     * Journals
+     */
+    private:
+    // Available journals
+    std::vector<Journal> journals_;
+    // Currently selected journal (if any)
+    OptionalReferenceWrapper<Journal> currentJournal_;
+
+    public:
+    // Set current journal being displayed
+    void setCurrentJournal(QString name);
+    void recentJournal();
+
+    /*
      * Run Data
      */
     private:
     QJsonArray runData_, groupedRunData_;
-    QMap<QString, QString> cyclesMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
@@ -91,9 +105,7 @@ class MainWindow : public QMainWindow
     private slots:
     void on_actionRefresh_triggered();
     void on_actionJumpTo_triggered();
-    // Set current cycle being displayed
-    void setCurrentCycle(QString cycleName);
-    void recentCycle();
+
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
 

@@ -40,6 +40,8 @@ qt6_add_executable(
   # Base Classes
   instrument.cpp
   instrument.h
+  journal.cpp
+  journal.h
   optionalRef.h
   # Backend
   backend.cpp
