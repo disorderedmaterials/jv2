@@ -148,6 +148,13 @@ void Backend::pingJournals(const QString &journalDirectory, HttpRequestWorker::H
     createRequest(createRoute("pingJournals", journalDirectory), handler);
 }
 
+// Get total uAmps for run numbers in the given cycle
+void Backend::getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                                HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getTotalMuAmps", dataDirectory, cycle, runNos), handler);
+}
+
 // Go to cycle containing specified run number
 void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
@@ -206,13 +213,6 @@ void Backend::getNexusDetectorAnalysis(const QString &dataDirectory, const QStri
                                        HttpRequestWorker::HttpRequestHandler handler)
 {
     createRequest(createRoute("getDetectorAnalysis", dataDirectory, runNos, cycle), handler);
-}
-
-// Get total uAmps for run numbers in the given cycle
-void Backend::getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("getTotalMuAmps", dataDirectory, cycle, runNos), handler);
 }
 
 // Set data mountpoint

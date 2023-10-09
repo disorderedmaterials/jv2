@@ -74,6 +74,9 @@ class Backend : public QObject
                        HttpRequestWorker::HttpRequestHandler handler = {});
     // Ping for any updates in the specified journal directory
     void pingJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get total uAmps for run numbers in the given cycle
+    void getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
     void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log values present in specified run files
@@ -88,7 +91,6 @@ class Backend : public QObject
     // Get NeXuS monitor spectrum for specified run numbers in the given cycle
     void getNexusMonitor(const QString &dataDirectory, const QString &runNos, const QString &cycle, const QString &spectrumID,
                          HttpRequestWorker::HttpRequestHandler handler = {});
-
     // Get NeXuS spectrum range for specified run numbers in the given cycle
     void getNexusSpectrumRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
                                HttpRequestWorker::HttpRequestHandler handler = {});
@@ -99,10 +101,6 @@ class Backend : public QObject
     // [FIXME - Different argument order (cycle/runs) to others]
     void getNexusDetectorAnalysis(const QString &dataDirectory, const QString &cycle, const QString &runNos,
                                   HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get total uAmps for run numbers in the given cycle
-    void getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                           HttpRequestWorker::HttpRequestHandler handler = {});
-
     // Set data mountpoint
     void setRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler = {});
 
