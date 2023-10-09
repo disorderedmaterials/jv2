@@ -107,20 +107,119 @@ void Backend::stop()
  */
 
 // Create a request
-HttpRequestWorker *Backend::createRequest(const QString &url, WorkerHandlingFunction handler)
+HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler)
 {
-    auto *worker = new HttpRequestWorker(manager_);
-
-     if (handler)
-        connect(worker, &HttpRequestWorker::on_execution_finished,
-                [=](HttpRequestWorker *workerProxy) { handler(workerProxy); });
-    worker->execute(createRoute("ping"));
-
-    return worker;
+    return new HttpRequestWorker(manager_, url, handler);
 }
 
 // Ping backend to see if its alive
-void Backend::ping(WorkerHandlingFunction handler)
+void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createRequest(createRoute("ping"), handler); }
+
+// Get journal data
+void Backend::getJournal(const QString &journalDirectory, const QString &cycleString,
+                         HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("ping"), handler);
+    createRequest(createRoute("getJournal", journalDirectory, cycleString), handler);
 }
+
+// Get all journals [FIXME, REALLY BAD NAME]
+void Backend::getAllJournals(const QString &journalDirectory, const QString &value, const QString &textInput,
+                             const QString options, HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getAllJournals", journalDirectory, value, textInput, options), handler);
+}
+
+// Get updated journal data [FIXME, COULD DO WITH A BETTER NAME]
+void Backend::updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
+                            HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("updateJournal", journalDirectory, cycleString, lastKnownRunNo), handler);
+}
+
+// List available journals in the specified directory
+void Backend::listCycles(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getCycles", journalDirectory), handler);
+}
+
+// Ping for any updates in the specified journal directory
+void Backend::pingCycle(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("pingCycle", journalDirectory), handler);
+}
+
+// Go to cycle containing specified run number
+void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("goToCycle", journalDirectory, runNo), handler);
+}
+
+// Get NeXuS log values present in specified run files
+void Backend::getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
+                             HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getNexusFields", dataDirectory, cycles, runNos), handler);
+}
+
+// Get NeXuS log value data for specified run files
+void Backend::getNexusData(const QString &dataDirectory, const QString &cycles, const QString &runNos, const QString &logValue,
+                           HttpRequestWorker::HttpRequestHandler handler)
+{
+    // Log values typically contain '/' in their name as they are paths, so swap with ':' so we can handle it properly
+    // [FIXME Can we escape this, or use %2F, or encode it in some other way]
+    auto cleanedLogValue = logValue;
+    cleanedLogValue.replace("/", ":");
+    createRequest(createRoute("getNexusData", dataDirectory, cycles, runNos, cleanedLogValue), handler);
+}
+
+// Get NeXuS monitor range for specified run numbers in the given cycle
+void Backend::getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                                   HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getMonitorRange", dataDirectory, cycle, runNos), handler);
+}
+
+// Get NeXuS monitor spectrum for specified run numbers in the given cycle
+void Backend::getNexusMonitor(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                              const QString &spectrumID, HttpRequestWorker::HttpRequestHandler handler)
+{
+    // [FIXME - Rename this / these in the backend for clarity]
+    createRequest(createRoute("getMonSpectrum", dataDirectory, cycle, runNos, spectrumID), handler);
+}
+
+// Get NeXuS spectrum range for specified run numbers in the given cycle
+void Backend::getNexusSpectrumRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                                    HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getSpectrumRange", dataDirectory, cycle, runNos), handler);
+}
+
+// Get NeXuS detector spectra for specified run numbers in the given cycle
+void Backend::getNexusDetector(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                               const QString &spectrumID, HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getSpectrum", dataDirectory, cycle, runNos, spectrumID), handler);
+}
+
+// Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
+void Backend::getNexusDetectorAnalysis(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                                       HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getDetectorAnalysis", dataDirectory, runNos, cycle), handler);
+}
+
+// Get total uAmps for run numbers in the given cycle
+void Backend::getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                                HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("getTotalMuAmps", dataDirectory, cycle, runNos), handler);
+}
+
+// Set data mountpoint
+void Backend::setRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("setRoot", directory), handler);
+}
+
+// TEST Transitional Function
+HttpRequestWorker *Backend::TESTCreateHttpRequestWorker(QObject *parent) { return new HttpRequestWorker(manager_, "TEST"); }

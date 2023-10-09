@@ -309,18 +309,23 @@ void MainWindow::getField()
         cycles.chop(1);
     }
 
-    QString url_str = "http://127.0.0.1:5000/getNexusData/";
-    QString cycle = cycles.split(";")[0];
+    // QString url_str = "http://127.0.0.1:5000/getNexusData/";
+    // QString cycle = cycles.split(";")[0];
 
-    QString field = action->data().toString().replace("/", ":");
-    url_str +=
-        currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + action->data().toString().replace("/", ":");
+    // QString field = action->data().toString().replace("/", ":");
+    // url_str +=
+    // currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + action->data().toString().replace("/", ":");
 
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), tabCharts[0], SLOT(addSeries(HttpRequestWorker *)));
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), tabCharts[1], SLOT(addSeries(HttpRequestWorker *)));
-    worker->execute(input);
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    backend_.getNexusData(currentInstrument().dataDirectory(), cycles, runNos, action->data().toString(),
+                          [=](HttpRequestWorker *worker)
+                          {
+                              dynamic_cast<ChartView *>(tabCharts[0])->addSeries(worker);
+                              dynamic_cast<ChartView *>(tabCharts[1])->addSeries(worker);
+                          });
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), tabCharts[0], SLOT(addSeries(HttpRequestWorker *)));
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), tabCharts[1], SLOT(addSeries(HttpRequestWorker *)));
+    // worker->execute(url_str);
 }
 
 void MainWindow::showStatus(qreal x, qreal y, QString title)
@@ -399,13 +404,13 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
         QString cycle = cyclesMap_[ui_.cycleButton->text()];
         cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-        QString url_str = "http://127.0.0.1:5000/getDetectorAnalysis/";
-        url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runs;
-        HttpRequestInput input(url_str);
-        auto *worker = new HttpRequestWorker(this);
-        connect(worker, &HttpRequestWorker::on_execution_finished,
-                [=](HttpRequestWorker *detectorCount) { window->setLabel(detectorCount->response); });
-        worker->execute(input);
+        auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+        backend_.getNexusDetectorAnalysis(currentInstrument().dataDirectory(), cycle, runs,
+                                          [=](HttpRequestWorker *worker) { window->setLabel(worker->response); });
+        // connect(worker, &HttpRequestWorker::requestFinished,
+        // [=](HttpRequestWorker *detectorCount) { window->setLabel(detectorCount->response); });
+        // worker->execute("http://127.0.0.1:5000/getDetectorAnalysis/" + currentInstrument().dataDirectory() + "/" + cycle +
+        // "/" + runs);
     }
     else
     {
@@ -490,13 +495,13 @@ void MainWindow::getSpectrumCount()
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    QString url_str = "http://127.0.0.1:5000/getSpectrumRange/";
-    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(plotSpectra(HttpRequestWorker *)));
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    backend_.getNexusSpectrumRange(currentInstrument().dataDirectory(), cycle, runNos,
+                                   [=](HttpRequestWorker *worker) { plotSpectra(worker); });
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(plotSpectra(HttpRequestWorker *)));
     setLoadScreen(true);
-    worker->execute(input);
+    // worker->execute("http://127.0.0.1:5000/getSpectrumRange/" + currentInstrument().dataDirectory() + "/" + cycle + "/" +
+    // runNos);
 }
 
 void MainWindow::getMonitorCount()
@@ -510,13 +515,13 @@ void MainWindow::getMonitorCount()
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    QString url_str = "http://127.0.0.1:5000/getMonitorRange/";
-    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(plotMonSpectra(HttpRequestWorker *)));
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    backend_.getNexusMonitorRange(currentInstrument().dataDirectory(), cycle, runNos,
+                                  [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(plotMonSpectra(HttpRequestWorker *)));
     setLoadScreen(true);
-    worker->execute(input);
+    // worker->execute("http://127.0.0.1:5000/getMonitorRange/" + currentInstrument().dataDirectory() + "/" + cycle + "/" +
+    // runNos);
 }
 
 void MainWindow::plotSpectra(HttpRequestWorker *count)
@@ -537,12 +542,12 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    QString url_str = "http://127.0.0.1:5000/getSpectrum/";
-    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + QString::number(spectrumNumber);
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleSpectraCharting(HttpRequestWorker *)));
-    worker->execute(input);
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    backend_.getNexusDetector(currentInstrument().dataDirectory(), cycle, runNos, QString::number(spectrumNumber),
+                              [=](HttpRequestWorker *worker) { handleSpectraCharting(worker); });
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handleSpectraCharting(HttpRequestWorker *)));
+    // worker->execute("http://127.0.0.1:5000/getSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos +
+    // "/" + QString::number(spectrumNumber));
 }
 
 void MainWindow::plotMonSpectra(HttpRequestWorker *count)
@@ -563,38 +568,39 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    QString url_str = "http://127.0.0.1:5000/getMonSpectrum/";
-    url_str += currentInstrument().dataDirectory() + "/" + cycle + "/" + runNos + "/" + QString::number(monNumber);
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-            SLOT(handleMonSpectraCharting(HttpRequestWorker *)));
-    worker->execute(input);
+    backend_.getNexusMonitor(currentInstrument().dataDirectory(), cycle, runNos, QString::number(monNumber),
+                             [=](HttpRequestWorker *worker) { handleMonSpectraCharting(worker); });
+
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handleMonSpectraCharting(HttpRequestWorker *)));
+    // worker->execute("http://127.0.0.1:5000/getMonSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" +
+    // runNos +
+    // "/" + QString::number(monNumber));
 }
 
 void MainWindow::muAmps(QString runs, bool checked, QString modified)
 {
     auto *window = qobject_cast<GraphWidget *>(sender());
     QString modifier = "/muAmps";
-    QString url_str = "http://127.0.0.1:5000/getTotalMuAmps/" + currentInstrument().dataDirectory() + "/" +
-                      cyclesMap_[ui_.cycleButton->text()] + "/" + runs;
     auto yAxisTitle = window->getChartView()->chart()->axes(Qt::Vertical)[0]->titleText();
 
-    if (modified != "-1")
-        url_str += ";" + modified;
+    // if (modified != "-1")
+    // url_str += ";" + modified;
 
     if (checked)
         yAxisTitle.append(modifier);
     else
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
+
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    backend_.getRunTotalMuAmps(currentInstrument().dataDirectory(), cyclesMap_[ui_.cycleButton->text()], runs,
+                               [=](HttpRequestWorker *worker) { window->modifyAgainstString(worker->response, checked); });
 
     // Call result handler when request completed
-    connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstString(workerProxy->response, checked); });
-    worker->execute(input);
+    // connect(worker, &HttpRequestWorker::requestFinished,
+    // [=](HttpRequestWorker *workerProxy) { window->modifyAgainstString(workerProxy->response, checked); });
+    // worker->execute(url_str);
 }
 
 void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
@@ -611,15 +617,16 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
 
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-    QString url_str = "http://127.0.0.1:5000/getSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" + run +
-                      "/" + currentDetector;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
+
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
 
     // Call result handler when request completed
-    connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
-    worker->execute(input);
+    backend_.getNexusDetector(currentInstrument().dataDirectory(), cycle, run, currentDetector,
+                              [=](HttpRequestWorker *worker) { window->modifyAgainstWorker(worker, checked); });
+    // connect(worker, &HttpRequestWorker::requestFinished,
+    // [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
+    // worker->execute("http://127.0.0.1:5000/getSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" + run +
+    // "/" + currentDetector);
 }
 
 void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
@@ -636,13 +643,15 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
 
     QString cycle = cyclesMap_[ui_.cycleButton->text()];
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-    QString url_str = "http://127.0.0.1:5000/getMonSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" +
-                      currentRun + "/" + mon;
-    HttpRequestInput input(url_str);
-    auto *worker = new HttpRequestWorker(this);
+
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+
+    backend_.getNexusMonitor(currentInstrument().dataDirectory(), cycle, currentRun, mon,
+                             [=](HttpRequestWorker *worker) { window->modifyAgainstWorker(worker, checked); });
 
     // Call result handler when request completed
-    connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
-    worker->execute(input);
+    // connect(worker, &HttpRequestWorker::requestFinished,
+    // [=](HttpRequestWorker *workerProxy) { window->modifyAgainstWorker(workerProxy, checked); });
+    // worker->execute("http://127.0.0.1:5000/getMonSpectrum/" + currentInstrument().dataDirectory() + "/" + cycle + "/" +
+    // currentRun + "/" + mon);
 }

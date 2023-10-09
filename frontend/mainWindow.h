@@ -108,7 +108,7 @@ class MainWindow : public QMainWindow
     // Handle JSON run data returned from workers
     void handleRunData(HttpRequestWorker *worker);
     // Handle returned cycle information for an instrument
-    void handleGetCycles(HttpRequestWorker *worker);
+    void handleListCycles(HttpRequestWorker *worker);
     // Handle run data returned for a whole cycle
     void handleCycleRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number

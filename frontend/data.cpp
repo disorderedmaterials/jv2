@@ -121,10 +121,12 @@ bool MainWindow::highlightRunNumber(int runNumber)
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });
-    worker->execute("http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory());
+    backend_.pingCycle(currentInstrument().journalDirectory(),
+                       [=](HttpRequestWorker *worker) { handleCycleUpdate(worker->response); });
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    // connect(worker, &HttpRequestWorker::requestFinished,
+    // [=](HttpRequestWorker *workerProxy) { handleCycleUpdate(workerProxy->response); });
+    // worker->execute("http://127.0.0.1:5000/pingCycle/" + currentInstrument().journalDirectory());
 }
 
 // Jump to run number
@@ -139,10 +141,12 @@ void MainWindow::on_actionJumpTo_triggered()
     if (!ok)
         return;
 
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, &HttpRequestWorker::on_execution_finished,
-            [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
-    worker->execute("http://127.0.0.1:5000/getGoToCycle/" + inst.journalDirectory() + "/" + QString::number(runNo));
+    backend_.goToCycle(inst.journalDirectory(), QString::number(runNo),
+                       [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    // connect(worker, &HttpRequestWorker::requestFinished,
+    // [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
+    // worker->execute("http://127.0.0.1:5000/getGoToCycle/" + inst.journalDirectory() + "/" + QString::number(runNo));
     setLoadScreen(true);
 }
 
@@ -164,12 +168,15 @@ void MainWindow::setCurrentCycle(QString cycleName)
     }
     ui_.cycleButton->setText(cycleName);
 
-    auto *worker = new HttpRequestWorker(this);
+    backend_.getJournal(currentInstrument().journalDirectory(), cyclesMap_[cycleName],
+                        [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
 
     // Call result handler when request completed
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handleCycleRunData(HttpRequestWorker *)));
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handleCycleRunData(HttpRequestWorker *)));
     setLoadScreen(true);
-    worker->execute("http://127.0.0.1:5000/getJournal/" + currentInstrument().journalDirectory() + "/" + cyclesMap_[cycleName]);
+    // worker->execute("http://127.0.0.1:5000/getJournal/" + currentInstrument().journalDirectory() + "/" +
+    // cyclesMap_[cycleName]);
 }
 
 // Sets cycle to most recently viewed
@@ -232,12 +239,13 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotSELog)
     {
-
-        auto *worker = new HttpRequestWorker(this);
-        connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-                SLOT(handlePlotSELogValue(HttpRequestWorker *)));
-        worker->execute(
-            {"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + cycles + "/" + runNos});
+        backend_.getNexusFields(currentInstrument().dataDirectory(), cycles, runNos,
+                                [=](HttpRequestWorker *worker) { handlePlotSELogValue(worker); });
+        auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+        // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this,
+        // SLOT(handlePlotSELogValue(HttpRequestWorker *)));
+        // worker->execute(
+        // {"http://127.0.0.1:5000/getNexusFields/" + currentInstrument().dataDirectory() + "/" + cycles + "/" + runNos});
     }
     else if (selectedAction == plotDetector)
     {

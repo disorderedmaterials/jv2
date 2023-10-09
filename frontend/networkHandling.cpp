@@ -51,13 +51,15 @@ void MainWindow::handleCycleUpdate(QString response)
         }
         else if (cyclesMap_[ui_.cycleButton->text()] == response) // if current opened cycle changed
         {
-            QString url_str = "http://127.0.0.1:5000/updateJournal/" + currentInstrument().journalDirectory() + "/" + response +
-                              "/" + runData_.last().toObject()["run_number"].toString();
-            HttpRequestInput input(url_str);
-            auto *worker = new HttpRequestWorker(this);
-            connect(worker, &HttpRequestWorker::on_execution_finished,
-                    [=](HttpRequestWorker *workerProxy) { handleRunData(workerProxy); });
-            worker->execute(input);
+            backend_.updateJournal(currentInstrument().journalDirectory(), response,
+                                   runData_.last().toObject()["run_number"].toString(),
+                                   [this](HttpRequestWorker *worker) { handleBackendPingResult(worker); });
+            auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+            // connect(worker, &HttpRequestWorker::requestFinished,
+            //         [=](HttpRequestWorker *workerProxy) { handleRunData(workerProxy); });
+            // worker->execute("http://127.0.0.1:5000/updateJournal/" + currentInstrument().journalDirectory() + "/" + response
+            // +
+            //                 "/" + runData_.last().toObject()["run_number"].toString());
         }
     }
     else
@@ -75,7 +77,7 @@ void MainWindow::handleRunData(HttpRequestWorker *worker)
 }
 
 // Handle returned cycle information for an instrument
-void MainWindow::handleGetCycles(HttpRequestWorker *worker)
+void MainWindow::handleListCycles(HttpRequestWorker *worker)
 {
     setLoadScreen(false);
 

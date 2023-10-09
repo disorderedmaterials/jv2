@@ -100,10 +100,12 @@ void MainWindow::massSearch(QString name, QString value)
     sensitivityText.append(caseSensitivity ? "true" : "false");
     searchOptions.append(sensitivityText);
 
-    auto *worker = new HttpRequestWorker(this);
-    connect(worker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
-    worker->execute("http://127.0.0.1:5000/getAllJournals/" + inst.journalDirectory() + "/" + value + "/" + textInput + "/" +
-                    searchOptions);
+    backend_.getAllJournals(inst.journalDirectory(), value, textInput, searchOptions,
+                            [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
+    auto *worker = backend_.TESTCreateHttpRequestWorker(this);
+    // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handle_result_cycles(HttpRequestWorker *)));
+    // worker->execute("http://127.0.0.1:5000/getAllJournals/" + inst.journalDirectory() + "/" + value + "/" + textInput + "/" +
+    // searchOptions);
 
     // configure caching
     cachedMassSearch_.append(std::make_tuple(worker, text));

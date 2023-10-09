@@ -20,26 +20,31 @@ class HttpRequestWorker : public QObject
     Q_OBJECT
 
     friend class Backend;
-    
+
+    public:
+    // Typedef for worker handling function
+    using HttpRequestHandler = std::function<void(HttpRequestWorker *)>;
+
     protected:
-    explicit HttpRequestWorker(QNetworkAccessManager &manager);
+    HttpRequestWorker(QNetworkAccessManager &manager, const QString &url, HttpRequestHandler handler = {});
 
     private:
-    // Parent network manager
-    QNetworkAccessManager &manager_;
+    // Network request object
+    QNetworkRequest request_;
+    // Network reply
+    QNetworkReply *reply_{nullptr};
 
     public:
     QString response;
-    QNetworkReply::NetworkError errorType;
+    QNetworkReply::NetworkError errorType{QNetworkReply::NoError};
     QString errorString;
     QJsonDocument jsonResponse;
     QJsonArray jsonArray;
 
-    void execute(const QString &url);
-
     signals:
-    void on_execution_finished(HttpRequestWorker *worker);
+    void requestFinished(HttpRequestWorker *worker);
 
     private slots:
-    void on_manager_finished(QNetworkReply *reply);
+    // Process request once its complete
+    void requestComplete();
 };

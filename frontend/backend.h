@@ -3,12 +3,12 @@
 
 #pragma once
 
+#include "httpRequestWorker.h"
 #include <QNetworkAccessManager>
 #include <QProcess>
 #include <QString>
 
 // Forward-declarations
-class HttpRequestWorker;
 class QCommandLineParser;
 
 // Backend Process
@@ -54,15 +54,58 @@ class Backend : public QObject
     // Network manager
     QNetworkAccessManager manager_;
 
-    public:
-    // Typedef for worker handling function
-    using WorkerHandlingFunction = std::function<void(HttpRequestWorker *)>;
-
     private:
     // Create a request
-    HttpRequestWorker *createRequest(const QString &url, WorkerHandlingFunction handler = {});
+    HttpRequestWorker *createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler = {});
 
     public:
     // Ping backend to see if it's alive
-    void ping(WorkerHandlingFunction handler = {});
+    void ping(HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get journal data
+    void getJournal(const QString &journalDirectory, const QString &cycleString,
+                    HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get all journals [FIXME, REALLY BAD NAME]
+    void getAllJournals(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
+                        HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get updated journal data
+    void updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
+                       HttpRequestWorker::HttpRequestHandler handler = {});
+    // List available journals in the specified directory
+    void listCycles(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Ping for any updates in the specified journal directory
+    void pingCycle(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Go to cycle containing specified run number
+    void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS log values present in specified run files
+    void getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
+                        HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS log value data for specified run files
+    void getNexusData(const QString &dataDirectory, const QString &runNos, const QString &cycles, const QString &logValue,
+                      HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS monitor range for specified run numbers in the given cycle
+    void getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                              HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS monitor spectrum for specified run numbers in the given cycle
+    void getNexusMonitor(const QString &dataDirectory, const QString &runNos, const QString &cycle, const QString &spectrumID,
+                         HttpRequestWorker::HttpRequestHandler handler = {});
+
+    // Get NeXuS spectrum range for specified run numbers in the given cycle
+    void getNexusSpectrumRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                               HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS detector spectra for specified run numbers in the given cycle
+    void getNexusDetector(const QString &dataDirectory, const QString &runNos, const QString &cycle, const QString &spectrumID,
+                          HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
+    // [FIXME - Different argument order (cycle/runs) to others]
+    void getNexusDetectorAnalysis(const QString &dataDirectory, const QString &cycle, const QString &runNos,
+                                  HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get total uAmps for run numbers in the given cycle
+    void getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+                           HttpRequestWorker::HttpRequestHandler handler = {});
+
+    // Set data mountpoint
+    void setRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler = {});
+
+    // TEST Transitional Function
+    HttpRequestWorker *TESTCreateHttpRequestWorker(QObject *parent);
 };

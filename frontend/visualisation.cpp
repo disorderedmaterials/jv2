@@ -60,11 +60,14 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     if (runNos.size() == 0)
         return;
 
-    // Request the log value data - need to reformat it and replace '/' with ':' so it doesn't interfere with our route
-    auto *dataWorker = new HttpRequestWorker(this);
-    connect(dataWorker, SIGNAL(on_execution_finished(HttpRequestWorker *)), this,
-            SLOT(handle_result_contextGraph(HttpRequestWorker *)));
+    // Request the log value data
+    backend_.getNexusData(currentInstrument().dataDirectory(), cycles, runNos, result,
+                          [=](HttpRequestWorker *worker) { handle_result_contextGraph(worker); });
+
+    auto *dataWorker = backend_.TESTCreateHttpRequestWorker(this);
+    // connect(dataWorker, SIGNAL(requestFinished(HttpRequestWorker *)), this,
+    // SLOT(handle_result_contextGraph(HttpRequestWorker *)));
     setLoadScreen(true);
-    dataWorker->execute("http://127.0.0.1:5000/getNexusData/" + currentInstrument().dataDirectory() + "/" + cycles + "/" +
-                        runNos + "/" + result.replace("/", ":"));
+    // dataWorker->execute("http://127.0.0.1:5000/getNexusData/" + currentInstrument().dataDirectory() + "/" + cycles + "/" +
+    // runNos + "/" + result.replace("/", ":"));
 }
