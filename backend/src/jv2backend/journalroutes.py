@@ -16,12 +16,6 @@ def add_routes(
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
-    @app.route("/ping")
-    def ping() -> FlaskResponse:
-        """Return that we are ready
-        """
-        return jsonify('READY')
-
     @app.route("/listJournals/<instrument>")
     def listJournals(instrument: str) -> FlaskResponse:
         """Return the list of journal files in the given instrument directory

@@ -9,6 +9,7 @@ from flask import Flask
 from jv2backend import config
 from jv2backend import journalroutes
 from jv2backend import nexusroutes
+from jv2backend import serverroutes
 
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
@@ -29,6 +30,7 @@ def create_app(indside_gunicorn: bool = True) -> Flask:
     journal_server = ISISJournalServer(config.get("journal_server_url"))
     run_locator = _create_runfilelocator()
 
+    serverroutes.add_routes(app)
     journalroutes.add_routes(app, journal_server)
     nexusroutes.add_routes(app, journal_server, run_locator)
     return app
