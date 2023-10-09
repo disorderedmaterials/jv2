@@ -125,8 +125,8 @@ class MainWindow : public QMainWindow
     void handleBackendPingResult(HttpRequestWorker *worker);
     // Handle journal ping result
     void handlePingJournals(QString response);
-    // Handle returned cycle information for an instrument
-    void handleListCycles(HttpRequestWorker *worker);
+    // Handle returned journal information for an instrument
+    void handleListJournals(HttpRequestWorker *worker);
     // Handle run data returned for a whole journal
     void handleCompleteJournalRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number
