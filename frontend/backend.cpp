@@ -137,9 +137,9 @@ void Backend::updateJournal(const QString &journalDirectory, const QString &cycl
 }
 
 // List available journals in the specified directory
-void Backend::listCycles(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("getCycles", journalDirectory), handler);
+    createRequest(createRoute("listJournals", journalDirectory), handler);
 }
 
 // Ping for any updates in the specified journal directory

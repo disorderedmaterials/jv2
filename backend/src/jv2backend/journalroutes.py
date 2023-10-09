@@ -22,9 +22,9 @@ def add_routes(
         """
         return jsonify('READY')
 
-    @app.route("/getCycles/<instrument>")
-    def getCycles(instrument: str) -> FlaskResponse:
-        """Return the list of cycle files for the given instrument
+    @app.route("/listJournals/<instrument>")
+    def listJournals(instrument: str) -> FlaskResponse:
+        """Return the list of journal files in the given instrument directory
 
         :param instrument: The name of an instrument
         :return: A JSON reponse

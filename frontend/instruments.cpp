@@ -97,7 +97,7 @@ void MainWindow::setCurrentInstrument(QString name)
     // Configure api call
     auto *worker = backend_.TESTCreateHttpRequestWorker(this);
 
-    backend_.listCycles(currentInstrument().journalDirectory(), [=](HttpRequestWorker *worker) { handleListCycles(worker); });
+    backend_.listJournals(currentInstrument().journalDirectory(), [=](HttpRequestWorker *worker) { handleListCycles(worker); });
     // Call result handler when request completed
     // connect(worker, SIGNAL(requestFinished(HttpRequestWorker *)), this, SLOT(handleGetCycles(HttpRequestWorker *)));
     setLoadScreen(true);

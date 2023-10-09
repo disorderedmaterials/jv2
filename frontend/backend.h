@@ -71,7 +71,7 @@ class Backend : public QObject
     void updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
                        HttpRequestWorker::HttpRequestHandler handler = {});
     // List available journals in the specified directory
-    void listCycles(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
+    void listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Ping for any updates in the specified journal directory
     void pingCycle(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
