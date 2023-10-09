@@ -8,23 +8,9 @@
 // Handle extracted SE log values for plotting
 void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
 {
-    // Network error?
-    if (worker->errorType != QNetworkReply::NoError)
-    {
-        QMessageBox::information(this, "Network Error",
-                                 "A network error occurred while retrieving the run information.\nThe reported error was: " +
-                                     worker->errorString);
+    // Check network reply
+    if (networkRequestHasError(worker, "retrieving log values from run"))
         return;
-    }
-
-    // Other error?
-    auto response = worker->response;
-    if (response.contains("Error"))
-    {
-        statusBar()->showMessage("Network error!");
-        QMessageBox::warning(this, "An Error Occurred", response);
-        return;
-    }
 
     // Iterate over logs extracted from the target run data and construct our mapped values
     auto *rootItem = new GenericTreeItem({"Log Value", "Full Path"});
