@@ -115,11 +115,17 @@ HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker:
 // Ping backend to see if its alive
 void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createRequest(createRoute("ping"), handler); }
 
-// Get journal data
-void Backend::getJournal(const QString &journalDirectory, const QString &cycleString,
+// List available journals in the specified directory
+void Backend::listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("listJournals", journalDirectory), handler);
+}
+
+// Get journal file from the specified directory
+void Backend::getJournal(const QString &journalDirectory, const QString &journalFilename,
                          HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("getJournal", journalDirectory, cycleString), handler);
+    createRequest(createRoute("getJournal", journalDirectory, journalFilename), handler);
 }
 
 // Get all journals [FIXME, REALLY BAD NAME]
@@ -134,12 +140,6 @@ void Backend::updateJournal(const QString &journalDirectory, const QString &cycl
                             HttpRequestWorker::HttpRequestHandler handler)
 {
     createRequest(createRoute("updateJournal", journalDirectory, cycleString, lastKnownRunNo), handler);
-}
-
-// List available journals in the specified directory
-void Backend::listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("listJournals", journalDirectory), handler);
 }
 
 // Ping for any updates in the specified journal directory

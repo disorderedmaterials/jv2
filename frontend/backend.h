@@ -61,8 +61,10 @@ class Backend : public QObject
     public:
     // Ping backend to see if it's alive
     void ping(HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get journal data
-    void getJournal(const QString &journalDirectory, const QString &cycleString,
+    // List available journals in the specified directory
+    void listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get journal file from the specified directory
+    void getJournal(const QString &journalDirectory, const QString &journalFilename,
                     HttpRequestWorker::HttpRequestHandler handler = {});
     // Get all journals [FIXME, REALLY BAD NAME]
     void getAllJournals(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
@@ -70,8 +72,6 @@ class Backend : public QObject
     // Get updated journal data
     void updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
                        HttpRequestWorker::HttpRequestHandler handler = {});
-    // List available journals in the specified directory
-    void listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Ping for any updates in the specified journal directory
     void pingCycle(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
