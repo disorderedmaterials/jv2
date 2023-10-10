@@ -5,13 +5,13 @@
 from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
 
-from jv2backend.io.journalServer import JournalServer
+from jv2backend.io.journals.locator import JournalLocator
 from jv2backend.utils import json_response, split
 
 
 def add_routes(
     app: Flask,
-    journal_server: JournalServer,
+    journal_locator: JournalLocator,
 ) -> Flask:
     """Add routes to the given Flask application."""
 
@@ -24,7 +24,7 @@ def add_routes(
         :return: A JSON reponse
         """
         try:
-            return jsonify(journal_server.journal_filenames(instrument_name=instrument))
+            return jsonify(journal_locator.journal_filenames(instrument_name=instrument))
         except Exception as exc:
             return jsonify(f"Error: Unable to fetch cycles for {instrument}: {str(exc)}")
 
@@ -38,7 +38,7 @@ def add_routes(
         """
         try:
             return json_response(
-                journal_server.journal(instrument_name=instrument, filename=filename)
+                journal_locator.journal(instrument_name=instrument, filename=filename)
             )
         except Exception as exc:
             return jsonify(
@@ -65,7 +65,7 @@ def add_routes(
             field = "start_time" if field.endswith("date") else field
         try:
             return json_response(
-                journal_server.search(instrument, field, search, case_sensitive)
+                journal_locator.search(instrument, field, search, case_sensitive)
             )
         except Exception as exc:
             return jsonify(f"Error: Unable to complete search '{search}': {str(exc)}")
@@ -77,7 +77,7 @@ def add_routes(
         :param instrument: Instrument name
         :return: Json string containing the name of the new journal
         """
-        result = journal_server.check_for_journal_filenames_update(instrument)
+        result = journal_locator.check_for_journal_filenames_update(instrument)
         return result if result is not None else ""
 
     @app.route("/journals/update/<instrument>/<filename>/<last_run>")
@@ -90,7 +90,7 @@ def add_routes(
         :return: A JSON-formatted list of Run data for runs newer than last_run
         """
         try:
-            all_cycle_runs = journal_server.journal(instrument, filename=filename)
+            all_cycle_runs = journal_locator.journal(instrument, filename=filename)
             return json_response(all_cycle_runs.search("run_number", f">{last_run}"))
         except Exception as exc:
             return jsonify(
@@ -107,7 +107,7 @@ def add_routes(
         :return: The total current in microamps, for each run as a ';' separate string
         """
         try:
-            journal = journal_server.journal(instrument_name=instrument, filename=cycle)
+            journal = journal_locator.journal(instrument_name=instrument, filename=cycle)
         except Exception as exc:
             return jsonify(
                 f"Error: Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
@@ -127,7 +127,7 @@ def add_routes(
         :return: The journal filename containing the run or "Not Found" if no run is found
         """
         try:
-            result = journal_server.filename_for_run(instrument, run)
+            result = journal_locator.filename_for_run(instrument, run)
         except Exception as exc:
             return jsonify(f"Error finding {run} for {instrument}: {exc}")
 

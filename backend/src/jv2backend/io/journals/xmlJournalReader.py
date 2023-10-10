@@ -5,13 +5,12 @@
 from io import BytesIO
 import pandas as pd
 
-from jv2backend.io.journalReader import JournalReader
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal
 from jv2backend.journalFileList import JournalFileList
 
 
-class ISISXMLJournalReader(JournalReader):
+class ISISXMLJournalReader:
     """A concrete type to read an XML-formatted Journal file"""
 
     def __init__(self, instrument: Instrument) -> None:

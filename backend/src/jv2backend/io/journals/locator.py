@@ -8,13 +8,11 @@ import requests
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal, concatenate
 from jv2backend.journalFileList import JournalFileList
-from jv2backend.io.journalServer import JournalServer
-from jv2backend.io.isis.xmlJournalReader import ISISXMLJournalReader
+from jv2backend.io.journals.xmlJournalReader import ISISXMLJournalReader
 
 
-class ISISJournalServer(JournalServer):
-    """Interface to the ISIS journal server to retrieve
-    information."""
+class JournalLocator:
+    """Journal file locator"""
 
     JOURNAL_FILELIST_FILENAME = "journal_main.xml"
     JOURNAL_FILENAME_TEMPLATE = "journal_{}.xml"
