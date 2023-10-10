@@ -16,7 +16,7 @@ class FakeRunLocator:
     SAMPLE_FILEPATH = None
 
     def __init__(self, _):
-        # Unused init to satisfy expectations app.py:_create_runfilelocator
+        # Unused init to satisfy expectations app.py:_create_runfileLocator
         pass
 
     def locate(self, _):

@@ -5,7 +5,7 @@
 from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
 
-from jv2backend.io.journalserver import JournalServer
+from jv2backend.io.journalServer import JournalServer
 from jv2backend.utils import json_response, split
 
 

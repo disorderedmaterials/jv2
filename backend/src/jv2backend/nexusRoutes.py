@@ -9,8 +9,8 @@ from typing import Optional, Sequence
 from flask import Flask, jsonify
 
 import jv2backend.config as config
-from jv2backend.io.journalserver import JournalServer
-from jv2backend.io.rundatafilelocator import RunDataFileLocator
+from jv2backend.io.journalServer import JournalServer
+from jv2backend.io.runDataFileLocator import RunDataFileLocator
 from jv2backend.utils import json_response, split
 import jv2backend.io.nexus as nxs
 

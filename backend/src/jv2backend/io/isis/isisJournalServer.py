@@ -7,9 +7,9 @@ import requests
 
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal, concatenate
-from jv2backend.journalfilelist import JournalFileList
-from jv2backend.io.journalserver import JournalServer
-from jv2backend.io.isis.xmljournalreader import ISISXMLJournalReader
+from jv2backend.journalFileList import JournalFileList
+from jv2backend.io.journalServer import JournalServer
+from jv2backend.io.isis.xmlJournalReader import ISISXMLJournalReader
 
 
 class ISISJournalServer(JournalServer):

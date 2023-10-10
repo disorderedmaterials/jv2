@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from jv2backend.io.rundatafilelocator import RunDataFileLocator
+from jv2backend.io.runDataFileLocator import RunDataFileLocator
 
 
 class PrefixPathFileLocator(RunDataFileLocator):

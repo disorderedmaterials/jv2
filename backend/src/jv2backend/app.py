@@ -7,14 +7,14 @@ import logging
 from flask import Flask
 
 from jv2backend import config
-from jv2backend import journalroutes
-from jv2backend import nexusroutes
-from jv2backend import serverroutes
+from jv2backend import journalRoutes
+from jv2backend import nexusRoutes
+from jv2backend import serverRoutes
 
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
-from jv2backend.io.isis.isisjournalserver import ISISJournalServer
-from jv2backend.io.isis.filelocator import (
+from jv2backend.io.isis.isisJournalServer import ISISJournalServer
+from jv2backend.io.isis.fileLocator import (
     RunDataFileLocator,
 )
 
@@ -28,11 +28,11 @@ def create_app(indside_gunicorn: bool = True) -> Flask:
     app = Flask(__name__)
     _configure_logging(app, indside_gunicorn)
     journal_server = ISISJournalServer(config.get("journal_server_url"))
-    run_locator = _create_runfilelocator()
+    run_locator = _create_runfileLocator()
 
-    serverroutes.add_routes(app)
-    journalroutes.add_routes(app, journal_server)
-    nexusroutes.add_routes(app, journal_server, run_locator)
+    serverRoutes.add_routes(app)
+    journalRoutes.add_routes(app, journal_server)
+    nexusRoutes.add_routes(app, journal_server, run_locator)
     return app
 
 def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
@@ -61,7 +61,7 @@ def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
     return app
 
 
-def _create_runfilelocator() -> RunDataFileLocator:
+def _create_runfileLocator() -> RunDataFileLocator:
     """Create the run locator from the configuration values
 
     :raises: RuntimeError if the class cannot be found.

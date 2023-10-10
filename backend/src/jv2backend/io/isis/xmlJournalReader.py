@@ -5,10 +5,10 @@
 from io import BytesIO
 import pandas as pd
 
-from jv2backend.io.journalreader import JournalReader
+from jv2backend.io.journalReader import JournalReader
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal
-from jv2backend.journalfilelist import JournalFileList
+from jv2backend.journalFileList import JournalFileList
 
 
 class ISISXMLJournalReader(JournalReader):

@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from pathlib import Path
-from jv2backend.io.isis.filelocator import (
+from jv2backend.io.isis.fileLocator import (
     DAaaSDataCacheFileLocator,
     LegacyArchiveFileLocator,
 )

@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Optional
 
 from jv2backend.journal import Journal
-from jv2backend.journalfilelist import JournalFileList
+from jv2backend.journalFileList import JournalFileList
 
 
 class JournalServer(metaclass=ABCMeta):

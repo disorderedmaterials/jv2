@@ -5,7 +5,7 @@ import json
 
 from jv2backend.cycle import Cycle
 from jv2backend.instrument import Instrument
-from jv2backend.io.isis.xmljournalreader import ISISXMLJournalReader
+from jv2backend.io.isis.xmlJournalReader import ISISXMLJournalReader
 
 import pytest
 
