@@ -10,7 +10,7 @@ from jv2backend.journalfilelist import JournalFileList
 
 class JournalServer(metaclass=ABCMeta):
     """Interface for server application interfacing with server
-    holding Journal data. Concrete implmentations should read data provided by the
+    holding Journal data. Concrete implementations should read data provided by the
     server and translates it to backend data types."""
 
     @abstractmethod

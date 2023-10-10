@@ -40,6 +40,8 @@ qt6_add_executable(
   # Base Classes
   instrument.cpp
   instrument.h
+  journal.cpp
+  journal.h
   optionalRef.h
   # Backend
   backend.cpp
@@ -49,6 +51,7 @@ qt6_add_executable(
   httpRequestWorker.cpp
   httpRequestWorker.h
   instruments.cpp
+  journals.cpp
   massSearch.cpp
   mainWindow.cpp
   mainWindow.cpp

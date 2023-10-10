@@ -84,7 +84,7 @@ void MainWindow::massSearch(QString name, QString value)
     {
         if (std::get<1>(tuple) == text)
         {
-            for (QAction *action : cyclesMenu_->actions())
+            for (QAction *action : journalsMenu_->actions())
             {
                 if (action->text() == "[" + std::get<1>(tuple) + "]")
                     action->trigger();
@@ -101,15 +101,15 @@ void MainWindow::massSearch(QString name, QString value)
     searchOptions.append(sensitivityText);
 
     backend_.findRuns(inst.journalDirectory(), value, textInput, searchOptions,
-                      [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
+                      [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 
     // configure caching [FIXME]
     cachedMassSearch_.append(std::make_tuple(nullptr, text));
 
     auto *action = new QAction("[" + text + "]", this);
-    connect(action, &QAction::triggered, [=]() { setCurrentCycle("[" + text + "]"); });
-    cyclesMenu_->addAction(action);
-    ui_.cycleButton->setText("[" + text + "]");
+    // connect(action, &QAction::triggered, [=]() { setCurrentCycle("[" + text + "]"); });  [FIXME]!
+    journalsMenu_->addAction(action);
+    ui_.journalButton->setText("[" + text + "]");
     setLoadScreen(true);
 }
 
@@ -130,13 +130,13 @@ void MainWindow::on_actionMassSearchDateRange_triggered() { massSearch("Date Ran
 void MainWindow::on_actionClearCachedSearches_triggered()
 {
     cachedMassSearch_.clear();
-    for (auto i = cyclesMenu_->actions().count() - 1; i >= 0; i--)
+    for (auto i = journalsMenu_->actions().count() - 1; i >= 0; i--)
     {
-        if (cyclesMenu_->actions()[i]->text()[0] == '[')
+        if (journalsMenu_->actions()[i]->text()[0] == '[')
         {
-            cyclesMenu_->removeAction(cyclesMenu_->actions()[i]);
+            journalsMenu_->removeAction(journalsMenu_->actions()[i]);
         }
     }
-    if (ui_.cycleButton->text()[0] == '[')
-        cyclesMenu_->actions()[0]->trigger();
+    if (ui_.journalButton->text()[0] == '[')
+        journalsMenu_->actions()[0]->trigger();
 }

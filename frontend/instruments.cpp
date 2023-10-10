@@ -60,12 +60,12 @@ void MainWindow::fillInstruments()
 {
     // Only allow calls after initial population
     instrumentsMenu_ = new QMenu("instrumentsMenu");
-    cyclesMenu_ = new QMenu("cyclesMenu");
+    journalsMenu_ = new QMenu("cyclesMenu");
 
     connect(ui_.instrumentButton, &QPushButton::clicked,
             [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
-    connect(ui_.cycleButton, &QPushButton::clicked,
-            [=]() { cyclesMenu_->exec(ui_.cycleButton->mapToGlobal(QPoint(0, ui_.cycleButton->height()))); });
+    connect(ui_.journalButton, &QPushButton::clicked,
+            [=]() { journalsMenu_->exec(ui_.journalButton->mapToGlobal(QPoint(0, ui_.journalButton->height()))); });
     for (auto &inst : instruments_)
     {
         auto *action = new QAction(inst.name(), this);

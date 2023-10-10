@@ -106,11 +106,11 @@ bool MainWindow::highlightRunNumber(int runNumber)
             ui_.RunDataTable->selectionModel()->setCurrentIndex(
                 runDataModel_.index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 
-            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + ui_.cycleButton->text(), 5000);
+            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + ui_.journalButton->text(), 5000);
             return true;
         }
 
-    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + ui_.cycleButton->text(), 5000);
+    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + ui_.journalButton->text(), 5000);
 
     return false;
 }
@@ -121,8 +121,11 @@ bool MainWindow::highlightRunNumber(int runNumber)
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    backend_.pingJournals(currentInstrument().journalDirectory(),
-                          [=](HttpRequestWorker *worker) { handleCycleUpdate(worker->response); });
+    if (journalSource_ == Journal::JournalLocation::ISISServer)
+    {
+        backend_.pingJournals(currentInstrument().journalDirectory(),
+                              [=](HttpRequestWorker *worker) { handlePingJournals(worker->response); });
+    }
 }
 
 // Jump to run number
@@ -141,50 +144,6 @@ void MainWindow::on_actionJumpTo_triggered()
                        [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
 
     setLoadScreen(true);
-}
-
-// Set current cycle being displayed
-void MainWindow::setCurrentCycle(QString cycleName)
-{
-    if (cycleName[0] == '[')
-    {
-        auto it = std::find_if(cachedMassSearch_.begin(), cachedMassSearch_.end(),
-                               [cycleName](const auto &tuple)
-                               { return std::get<1>(tuple) == cycleName.mid(1, cycleName.length() - 2); });
-        if (it != cachedMassSearch_.end())
-        {
-            ui_.cycleButton->setText(cycleName);
-            setLoadScreen(true);
-            handleCycleRunData(std::get<0>(*it));
-        }
-        return;
-    }
-    ui_.cycleButton->setText(cycleName);
-
-    backend_.getJournal(currentInstrument().journalDirectory(), cyclesMap_[cycleName],
-                        [=](HttpRequestWorker *worker) { handleCycleRunData(worker); });
-
-    setLoadScreen(true);
-}
-
-// Sets cycle to most recently viewed
-void MainWindow::recentCycle()
-{
-    // Disable selections if api fails
-    if (cyclesMenu_->actions().count() == 0)
-        QWidget::setEnabled(false);
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    QString recentCycle = settings.value("recentCycle").toString();
-    // Sets cycle to last used/ most recent if unavailable
-    for (QAction *action : cyclesMenu_->actions())
-    {
-        if (action->text() == recentCycle)
-        {
-            action->trigger();
-            return;
-        }
-    }
-    cyclesMenu_->actions()[0]->trigger();
 }
 
 // Run data context menu requested

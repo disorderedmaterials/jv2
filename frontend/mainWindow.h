@@ -6,6 +6,7 @@
 #include "backend.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
+#include "journal.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
 #include "ui_mainWindow.h"
@@ -29,7 +30,7 @@ class MainWindow : public QMainWindow
     private:
     Ui::MainWindow ui_;
     QMenu *instrumentsMenu_;
-    QMenu *cyclesMenu_;
+    QMenu *journalsMenu_;
     bool init_;
     // Main backend class
     Backend backend_;
@@ -69,11 +70,30 @@ class MainWindow : public QMainWindow
     const Instrument &currentInstrument() const;
 
     /*
+     * Journals
+     */
+    private:
+    // Current journal source
+    Journal::JournalLocation journalSource_{Journal::JournalLocation::ISISServer};
+    // Available journals
+    std::vector<Journal> journals_;
+    // Currently selected journal (if any)
+    OptionalReferenceWrapper<Journal> currentJournal_;
+
+    private:
+    // Add new journal
+    Journal &addJournal(const QString &name, Journal::JournalLocation location, const QString &locationURL);
+    // Find named journal
+    OptionalReferenceWrapper<Journal> findJournal(const QString &name);
+    // Set current journal being displayed
+    void setCurrentJournal(QString name);
+    void setCurrentJournal(Journal &journal);
+
+    /*
      * Run Data
      */
     private:
     QJsonArray runData_, groupedRunData_;
-    QMap<QString, QString> cyclesMap_;
     JsonTableModel runDataModel_;
     JsonTableFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
@@ -91,9 +111,7 @@ class MainWindow : public QMainWindow
     private slots:
     void on_actionRefresh_triggered();
     void on_actionJumpTo_triggered();
-    // Set current cycle being displayed
-    void setCurrentCycle(QString cycleName);
-    void recentCycle();
+
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
 
@@ -103,14 +121,12 @@ class MainWindow : public QMainWindow
     private slots:
     // Handle backend ping result
     void handleBackendPingResult(HttpRequestWorker *worker);
-    // Handle cycle update result
-    void handleCycleUpdate(QString response);
-    // Handle JSON run data returned from workers
-    void handleRunData(HttpRequestWorker *worker);
+    // Handle journal ping result
+    void handlePingJournals(QString response);
     // Handle returned cycle information for an instrument
     void handleListCycles(HttpRequestWorker *worker);
-    // Handle run data returned for a whole cycle
-    void handleCycleRunData(HttpRequestWorker *worker);
+    // Handle run data returned for a whole journal
+    void handleCompleteJournalRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number
     void handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber);
 

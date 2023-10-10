@@ -89,7 +89,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (currentInstrument_)
     {
         settings.setValue("recentInstrument", currentInstrument().name());
-        settings.setValue("recentCycle", ui_.cycleButton->text());
+        settings.setValue("recentJournal", ui_.journalButton->text());
     }
 
     // Shut down backend
