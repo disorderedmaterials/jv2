@@ -14,9 +14,7 @@ from jv2backend import serverRoutes
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
 from jv2backend.io.isis.isisJournalServer import ISISJournalServer
-from jv2backend.io.isis.fileLocator import (
-    RunDataFileLocator,
-)
+from jv2backend.io.runDataFileLocator import RunDataFileLocator
 
 
 def create_app(indside_gunicorn: bool = True) -> Flask:
@@ -28,7 +26,7 @@ def create_app(indside_gunicorn: bool = True) -> Flask:
     app = Flask(__name__)
     _configure_logging(app, indside_gunicorn)
     journal_server = ISISJournalServer(config.get("journal_server_url"))
-    run_locator = _create_runfileLocator()
+    run_locator = RunDataFileLocator(config.get("run_locator_prefix"))
 
     serverRoutes.add_routes(app)
     journalRoutes.add_routes(app, journal_server)
@@ -60,23 +58,6 @@ def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
 
     return app
 
-
-def _create_runfileLocator() -> RunDataFileLocator:
-    """Create the run locator from the configuration values
-
-    :raises: RuntimeError if the class cannot be found.
-    """
-    try:
-        full_cls_name = config.get("run_locator_class")
-        last_period_index = full_cls_name.rfind(".")
-        module_name, class_name = full_cls_name[:last_period_index], full_cls_name[last_period_index + 1:]
-        module = importlib.import_module(module_name)
-        cls = getattr(module, class_name)
-        prefix = config.get("run_locator_prefix")
-    except Exception as exc:
-        raise RuntimeError(str(exc)) from exc
-
-    return cls(prefix)
 
 # In future add any command-line arguments here
 def main():  # pragma: no cover
