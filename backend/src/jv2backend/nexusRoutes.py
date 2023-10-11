@@ -9,14 +9,14 @@ from typing import Optional, Sequence
 from flask import Flask, jsonify
 
 import jv2backend.config as config
-from jv2backend.io.journals.locator import JournalLocator
+from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.io.runDataFileLocator import RunDataFileLocator
 from jv2backend.utils import json_response, split
 import jv2backend.io.nexus as nxs
 
 
 def add_routes(
-    app: Flask, journal_locator: JournalLocator, run_locator: RunDataFileLocator
+    app: Flask, networkJournalLocator: NetworkJournalLocator, run_locator: RunDataFileLocator
 ) -> Flask:
     """Add routes to the given Flask application."""
 
@@ -40,7 +40,7 @@ def add_routes(
         where the first entry is the group name followed by the full path to each available log entry
         """
         filepaths = _locate_run_files(
-            journal_locator, run_locator, instrument, cycles, runs
+            networkJournalLocator, run_locator, instrument, cycles, runs
         )
         app.logger.debug(f"/runData/nexus/getFields: Located files: {filepaths}")
         logpaths = []
@@ -62,7 +62,7 @@ def add_routes(
         :return: A list of the log data
         """
         filepaths = _locate_run_files(
-            journal_locator, run_locator, instrument, cycles, runs
+            networkJournalLocator, run_locator, instrument, cycles, runs
         )
 
         # The front end expects a list where the first entry is a list of all available fields.
@@ -106,7 +106,7 @@ def add_routes(
         if ";" in runs:
             run = runs[: runs.index(";")]
         filepaths = _locate_run_files(
-            journal_locator, run_locator, instrument, cycle, run
+            networkJournalLocator, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
             return jsonify(f"Error: Unable to find run {run}")
@@ -128,7 +128,7 @@ def add_routes(
         if ";" in runs:
             run = runs[: runs.index(";")]
         filepaths = _locate_run_files(
-            journal_locator, run_locator, instrument, cycle, run
+            networkJournalLocator, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
             return jsonify(f"Error: Unable to find run {runs}")
@@ -146,7 +146,7 @@ def add_routes(
         :return:
         """
         filepaths = _locate_run_files(
-            journal_locator, run_locator, instrument, cycle, runs
+            networkJournalLocator, run_locator, instrument, cycle, runs
         )
         if not any(filepaths):
             return jsonify(f"Error: Unable to find run {runs}")
@@ -167,7 +167,7 @@ def add_routes(
         :return:
         """
         filepaths = _locate_run_files(
-            journal_locator, run_locator, instrument, cycle, runs
+            networkJournalLocator, run_locator, instrument, cycle, runs
         )
         if not any(filepaths):
             return jsonify(f"Error: Unable to find run {runs}")
@@ -187,7 +187,7 @@ def add_routes(
         :return: A string of the form "count(non_zero)/count(all_spectra)"
         """
         filepaths = _locate_run_files(
-            journal_locator, run_locator, instrument, cycle, run
+            networkJournalLocator, run_locator, instrument, cycle, run
         )
         if not any(filepaths):
             return jsonify(f"Error: Unable to find run {run}")
@@ -203,7 +203,7 @@ def add_routes(
 
 
 def _locate_run_files(
-    journal_locator: JournalLocator,
+    networkJournalLocator: NetworkJournalLocator,
     run_locator: RunDataFileLocator,
     instrument: str,
     cycles_str: str,
@@ -229,7 +229,7 @@ def _locate_run_files(
     filepaths = []
     for cycle, run in zip(cycles, runs):
         logging.debug(f"Fetching journal for {instrument}, cycle={cycle}")
-        journal = journal_locator.journal(instrument, cyclename=cycle)
+        journal = networkJournalLocator.journal(instrument, cyclename=cycle)
         run = journal.run(run_number=run)
         if run is None:
             filepaths.append(None)

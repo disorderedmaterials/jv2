@@ -3,6 +3,9 @@
 
 from datetime import datetime
 from typing import MutableMapping, Optional
+from io import BytesIO
+from functools import reduce
+import pandas as pd
 import requests
 
 from jv2backend.instrument import Instrument
@@ -10,8 +13,7 @@ from jv2backend.journal import Journal, concatenate
 from jv2backend.journalFileList import JournalFileList
 from jv2backend.io.journals.xmlJournalReader import ISISXMLJournalReader
 
-
-class JournalLocator:
+class NetworkJournalLocator:
     """Journal file locator"""
 
     JOURNAL_FILELIST_FILENAME = "journal_main.xml"
@@ -35,19 +37,31 @@ class JournalLocator:
         # Store the last modified times of the _main journal files against the instrument names
         self._last_modified: MutableMapping[str, datetime] = dict()
 
-    def journal_filenames(self, instrument_name: str) -> JournalFileList:
-        """
-        :param instrument_name: The instrument name
+    def get_index(self, server_root: str, journal_directory: str, index_file: str) -> JournalFileList:
+        """Retrive an index file containing journal information
+
+        :param root_url: Root server URL to make request to
+        :param journal_directory: Directory containing journal index file
+        :param index_file: Name of index file containing all available journals
         :return: The list of journal filenames as strings or an Exception object
         """
-        response = requests.get(self._mainfile_url(instrument_name))
+        url = self._url_join(server_root, journal_directory, index_file)
+        print(server_root)
+        print(journal_directory)
+        print(index_file)
+        print(url)
+        response = requests.get(url)
         response.raise_for_status()
         self._store_last_modified_time(
-            instrument_name, response.headers["Last-Modified"]
+            url, response.headers["Last-Modified"]
         )
 
-        reader = ISISXMLJournalReader(Instrument(instrument_name))
-        return reader.read_indexfile(response.content)
+        data = pd.read_xml(BytesIO(response.content), dtype=str)
+        journals = JournalFileList()
+        for name in data["name"]:
+            journals.append(name)
+
+        return journals
 
     def journal(
         self,
@@ -136,6 +150,12 @@ class JournalLocator:
         return concatenate(results)
 
     # private
+    def _join_slash(self, a: str, b: str):
+        return a.rstrip('/') + '/' + b.lstrip('/')
+
+    def _url_join(self, *args):
+        return reduce(self._join_slash, args) if args else ''
+
     def _mainfile_url(self, instrument_name: str) -> str:
         """Return the URL for the _main index journal file
 

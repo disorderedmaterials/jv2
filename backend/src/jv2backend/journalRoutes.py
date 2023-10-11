@@ -2,32 +2,47 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 """Defines the Flask endpoints that only access journal information"""
-from flask import Flask, jsonify
+import logging
+from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
-from jv2backend.io.journals.locator import JournalLocator
+from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.utils import json_response, split
 
 
 def add_routes(
     app: Flask,
-    journal_locator: JournalLocator,
+    networkJournalLocator: NetworkJournalLocator,
 ) -> Flask:
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
-    @app.route("/journals/list/<instrument>")
-    def listJournals(instrument: str) -> FlaskResponse:
-        """Return the list of journal files in the given instrument directory
+    @app.post("/journals/list")
+    def listJournals() -> FlaskResponse:
+        """Return the list of journal files in a specified location
 
-        :param instrument: The name of an instrument
-        :return: A JSON reponse
+        The POST data should contain:
+               rootUrl: The root network or disk location for the journals
+             directory: The directory in rootUrl to probe for journals
+            index_file: Name of the index file in the directory, if known
+
+        :return: JSON response containing an array of available journals in the form of a JournalFileList, or an error
         """
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        logging.debug("Listing journals for: " + rootUrl + ", " + directory)
         try:
-            return jsonify(journal_locator.journal_filenames(instrument_name=instrument))
+            if (rootUrl.startswith("http")):
+                if "indexFile" in data:
+                    return jsonify(networkJournalLocator.get_index(server_root=rootUrl, journal_directory=directory, index_file=data['indexFile']))
+                else:
+                    return jsonify(f"Error: Index file name must be provided for a network source ({rootUrl}/{directory}).")
         except Exception as exc:
-            return jsonify(f"Error: Unable to fetch cycles for {instrument}: {str(exc)}")
+            return jsonify(f"Error: Unable to list journals for {directory} from {rootUrl}: {str(exc)}")
 
+
+    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
     @app.route("/journals/get/<instrument>/<filename>")
     def getJournal(instrument: str, filename: str) -> FlaskResponse:
         """Return a single journal of Runs for the instrument and cycle
@@ -38,7 +53,7 @@ def add_routes(
         """
         try:
             return json_response(
-                journal_locator.journal(instrument_name=instrument, filename=filename)
+                networkJournalLocator.journal(instrument_name=instrument, filename=filename)
             )
         except Exception as exc:
             return jsonify(
@@ -65,7 +80,7 @@ def add_routes(
             field = "start_time" if field.endswith("date") else field
         try:
             return json_response(
-                journal_locator.search(instrument, field, search, case_sensitive)
+                networkJournalLocator.search(instrument, field, search, case_sensitive)
             )
         except Exception as exc:
             return jsonify(f"Error: Unable to complete search '{search}': {str(exc)}")
@@ -77,7 +92,7 @@ def add_routes(
         :param instrument: Instrument name
         :return: Json string containing the name of the new journal
         """
-        result = journal_locator.check_for_journal_filenames_update(instrument)
+        result = networkJournalLocator.check_for_journal_filenames_update(instrument)
         return result if result is not None else ""
 
     @app.route("/journals/update/<instrument>/<filename>/<last_run>")
@@ -90,7 +105,7 @@ def add_routes(
         :return: A JSON-formatted list of Run data for runs newer than last_run
         """
         try:
-            all_cycle_runs = journal_locator.journal(instrument, filename=filename)
+            all_cycle_runs = networkJournalLocator.journal(instrument, filename=filename)
             return json_response(all_cycle_runs.search("run_number", f">{last_run}"))
         except Exception as exc:
             return jsonify(
@@ -107,7 +122,7 @@ def add_routes(
         :return: The total current in microamps, for each run as a ';' separate string
         """
         try:
-            journal = journal_locator.journal(instrument_name=instrument, filename=cycle)
+            journal = networkJournalLocator.journal(instrument_name=instrument, filename=cycle)
         except Exception as exc:
             return jsonify(
                 f"Error: Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
@@ -127,7 +142,7 @@ def add_routes(
         :return: The journal filename containing the run or "Not Found" if no run is found
         """
         try:
-            result = journal_locator.filename_for_run(instrument, run)
+            result = networkJournalLocator.filename_for_run(instrument, run)
         except Exception as exc:
             return jsonify(f"Error finding {run} for {instrument}: {exc}")
 
