@@ -9,6 +9,7 @@
 #include <QString>
 
 // Forward-declarations
+class DataSource;
 class QCommandLineParser;
 
 // Backend Process
@@ -64,8 +65,9 @@ class Backend : public QObject
      * Journal Endpoints
      */
     public:
-    // List available journals in the specified directory
-    void listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
+    // List available journals in the specified source and directory
+    void listJournals(const DataSource &source, const QString &journalDirectory,
+                      HttpRequestWorker::HttpRequestHandler handler = {});
     // Get journal file from the specified directory
     void getJournal(const QString &journalDirectory, const QString &journalFilename,
                     HttpRequestWorker::HttpRequestHandler handler = {});

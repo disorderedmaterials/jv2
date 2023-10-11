@@ -94,7 +94,7 @@ void MainWindow::setCurrentInstrument(QString name)
     // Clear any mass search results since they're instrument-specific
     cachedMassSearch_.clear();
 
-    backend_.listJournals(currentInstrument().journalDirectory(),
+    backend_.listJournals(currentDataSource(), currentInstrument().journalDirectory(),
                           [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 
     setLoadScreen(true);

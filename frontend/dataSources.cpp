@@ -27,12 +27,14 @@ bool MainWindow::parseDataSources(const QDomDocument &source)
         auto sourceType = DataSource::dataSourceType(sourceElement.attribute("type", "Disk"));
 
         // Get source root URL
-        auto sourceRootURL = sourceElement.attribute("rootURL");
+        auto sourceRootURL = sourceElement.attribute("rootUrl");
 
-        // Get source data directory (if type == Network)
-        auto sourceDataDirectory = sourceType == DataSource::DataSourceType::Network ? sourceElement.attribute("rootURL") : "";
+        // Optional attributes
+        auto sourceDataDirectory = sourceElement.attribute("dataDirectory");
+        auto sourceIndexFile = sourceElement.attribute("indexFile");
 
-        auto &dataSource = dataSources_.emplace_back(sourceName, sourceType, sourceRootURL, sourceDataDirectory);
+        auto &dataSource =
+            dataSources_.emplace_back(sourceName, sourceType, sourceRootURL, sourceDataDirectory, sourceIndexFile);
     }
 
     return true;

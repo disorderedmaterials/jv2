@@ -18,6 +18,9 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Get default data sources
     getDefaultDataSources();
 
+    // Set default data source [FIXME temporary until we have refactored everything else]
+    setCurrentDataSource("ISIS Archive");
+
     // Get default instrument run data columns
     Instrument::getDefaultColumns();
 

@@ -21,7 +21,7 @@ class DataSource
     static DataSourceType dataSourceType(QString typeString);
 
     public:
-    DataSource(QString name, DataSourceType type, QString rootUrl, QString networkDataDirectory = {});
+    DataSource(QString name, DataSourceType type, QString rootUrl, QString networkDataDirectory = {}, QString indexFile = {});
 
     /*
      * Basic Data
@@ -33,10 +33,12 @@ class DataSource
     DataSourceType type_;
     // Root URL for the data source
     QString rootUrl_;
+    // Whether this source is organised by ISIS instrument
+    bool organisedByInstrument_{true};
     // Data directory for network sources
     QString networkDataDirectory_;
-    // Whether the data is organised by ISIS instrument
-    bool organisedByInstrument_{true};
+    // Name of the index file in the main directories, if known
+    QString indexFile_;
 
     public:
     // Return name (used for display)
@@ -45,8 +47,10 @@ class DataSource
     DataSourceType type() const;
     // Return root URL for the source
     const QString &rootUrl() const;
+    // Return whether this source is organised by ISIS instrument
+    bool organisedByInstrument() const;
     // Return data directory for network sources
     const QString &networkDataDirectory() const;
-    // Return whether the data is organised by ISIS instrument
-    bool organisedByInstrument() const;
+    // Return name of the index file in the main directories, if known
+    const QString &indexFile() const;
 };

@@ -28,8 +28,8 @@ DataSource::DataSourceType DataSource::dataSourceType(QString typeString)
         throw(std::runtime_error("DataSource string can't be converted to an DataSourceType.\n"));
 }
 
-DataSource::DataSource(QString name, DataSourceType type, QString rootUrl, QString networkDataDirectory)
-    : name_(name), type_(type), rootUrl_(rootUrl), networkDataDirectory_(networkDataDirectory)
+DataSource::DataSource(QString name, DataSourceType type, QString rootUrl, QString networkDataDirectory, QString indexFile)
+    : name_(name), type_(type), rootUrl_(rootUrl), networkDataDirectory_(networkDataDirectory), indexFile_(indexFile)
 {
 }
 
@@ -51,3 +51,6 @@ const QString &DataSource::networkDataDirectory() const { return networkDataDire
 
 // Return whether the data is organised by ISIS instrument
 bool DataSource::organisedByInstrument() const { return organisedByInstrument_; }
+
+// Return name of the index file in the main directories, if known
+const QString &DataSource::indexFile() const { return indexFile_; }
