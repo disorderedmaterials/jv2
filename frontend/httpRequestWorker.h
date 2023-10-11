@@ -27,12 +27,16 @@ class HttpRequestWorker : public QObject
 
     protected:
     HttpRequestWorker(QNetworkAccessManager &manager, const QString &url, HttpRequestHandler handler = {});
+    HttpRequestWorker(QNetworkAccessManager &manager, const QString &url, const QJsonObject &data,
+                      HttpRequestHandler handler = {});
 
     private:
     // Network request object
     QNetworkRequest request_;
     // Network reply
     QNetworkReply *reply_{nullptr};
+    // Post data (if specified)
+    QByteArray postData_;
 
     public:
     QString response;

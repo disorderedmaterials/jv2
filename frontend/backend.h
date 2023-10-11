@@ -35,6 +35,8 @@ class Backend : public QObject
         ([&] { result += "/" + QString("%1").arg(routeParts); }(), ...);
         return result;
     }
+    // Create a POST request
+    HttpRequestWorker *postRequest(const QString &url, const QJsonObject &data, HttpRequestWorker::HttpRequestHandler handler);
     // Create a request
     HttpRequestWorker *createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler = {});
     // Configure backend process arguments

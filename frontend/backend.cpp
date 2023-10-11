@@ -32,6 +32,13 @@ Backend::Backend(const QCommandLineParser &args) : process_()
 // Return the backend bind address
 QString Backend::bindAddress() const { return "127.0.0.1:5000"; };
 
+// Create a POST request
+HttpRequestWorker *Backend::postRequest(const QString &url, const QJsonObject &data,
+                                        HttpRequestWorker::HttpRequestHandler handler)
+{
+    return new HttpRequestWorker(manager_, url, data, handler);
+}
+
 // Create a request
 HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler)
 {
