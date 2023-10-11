@@ -4,6 +4,7 @@
 #pragma once
 
 #include "backend.h"
+#include "dataSource.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
 #include "journal.h"
@@ -47,7 +48,26 @@ class MainWindow : public QMainWindow
     void closeEvent(QCloseEvent *event);
 
     /*
-     * Instrument Sources
+     * Data Sources
+     */
+    private:
+    // Known data sources
+    std::vector<DataSource> dataSources_;
+    // Currently selected instdata source (if any)
+    OptionalReferenceWrapper<DataSource> currentDataSource_;
+
+    private:
+    // Parse data source from specified source
+    bool parseDataSources(const QDomDocument &source);
+    // Get default data sources
+    void getDefaultDataSources();
+    // Set current data source
+    void setCurrentDataSource(QString name);
+    // Return current data source
+    const DataSource &currentDataSource() const;
+
+    /*
+     * Instruments
      */
     private:
     // Available instruments

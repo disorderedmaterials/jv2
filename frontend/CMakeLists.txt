@@ -38,6 +38,8 @@ qt6_add_executable(
   jv2
   MACOSX_BUNDLE
   # Base Classes
+  dataSource.h
+  dataSource.cpp
   instrument.cpp
   instrument.h
   journal.cpp
@@ -47,6 +49,7 @@ qt6_add_executable(
   backend.cpp
   # Main Window
   data.cpp
+  dataSources.cpp
   filtering.cpp
   httpRequestWorker.cpp
   httpRequestWorker.h

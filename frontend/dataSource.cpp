@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2023 Team JournalViewer and contributors
+
+#include "dataSource.h"
+
+// Return text string for specified DataSource type
+QString DataSource::dataSourceType(DataSource::DataSourceType type)
+{
+    switch (type)
+    {
+        case (DataSourceType::Network):
+            return "Network";
+        case (DataSourceType::Disk):
+            return "Disk";
+        default:
+            throw(std::runtime_error("DataSource type not known and can't be converted to a QString.\n"));
+    }
+}
+
+// Convert text string to DataSource type
+DataSource::DataSourceType DataSource::dataSourceType(QString typeString)
+{
+    if (typeString.toLower() == "network")
+        return DataSourceType::Network;
+    else if (typeString.toLower() == "disk")
+        return DataSourceType::Disk;
+    else
+        throw(std::runtime_error("DataSource string can't be converted to an DataSourceType.\n"));
+}
+
+DataSource::DataSource(QString name, DataSourceType type, QString rootUrl, QString networkDataDirectory)
+    : name_(name), type_(type), rootUrl_(rootUrl), networkDataDirectory_(networkDataDirectory)
+{
+}
+
+/*
+ * Basic Data
+ */
+
+// Return name (used for display)
+const QString &DataSource::name() const { return name_; }
+
+// Return type
+DataSource::DataSourceType DataSource::type() const { return type_; }
+
+// Return root URL for the source
+const QString &DataSource::rootUrl() const { return rootUrl_; }
+
+// Return data directory for network sources
+const QString &DataSource::networkDataDirectory() const { return networkDataDirectory_; }
+
+// Return whether the data is organised by ISIS instrument
+bool DataSource::organisedByInstrument() const { return organisedByInstrument_; }

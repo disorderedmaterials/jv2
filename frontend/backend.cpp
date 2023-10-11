@@ -129,7 +129,8 @@ void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createReques
 // List available journals in the specified directory
 void Backend::listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("journals/list", journalDirectory), handler);
+    postRequest(createRoute("journals/list"),
+                {{"rootPath", "http://data.isis.rl.ac.uk/journals"}, {"directory", journalDirectory}}, handler);
 }
 
 // Get journal file from the specified directory
