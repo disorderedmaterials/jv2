@@ -64,7 +64,7 @@ void MainWindow::setCurrentJournal(Journal &journal)
 
     ui_.journalButton->setText(journal.name());
 
-    backend_.getJournal(currentInstrument().journalDirectory(), journal.locationURL(),
+    backend_.getJournal(currentDataSource(), currentInstrument().journalDirectory(), journal.locationURL(),
                         [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 
     setLoadScreen(true);

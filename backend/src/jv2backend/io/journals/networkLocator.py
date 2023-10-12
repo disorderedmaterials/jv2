@@ -59,30 +59,17 @@ class NetworkJournalLocator:
 
         return journals
 
-    def journal(
-        self,
-        instrument_name: str,
-        *,  # kw-only past here
-        filename: Optional[str] = None,
-        cyclename: Optional[str] = None,
-    ) -> Journal:
+    def get_journal(self, server_root: str, journal_directory: str, journal_file: str) -> Journal:
         """
-        :param instrument_name: The instrument name
-        :param filename: Filename of the cycle journal
-        :param cyclename: Cycle name in the form [cycle_]YY_N. If filename is provided it takes precendence.
-        :return: The list of journal filenames as strings
+        :param root_url: Root server URL to make request to
+        :param journal_directory: Directory containing journal file
+        :param journal_file: Name of journal file to retrieve
+        :return: Array of run data information
         """
-        if filename is None and cyclename is None:
-            raise ValueError(
-                "Cannot retrieve Journal. Please provide either filename or cyclename parameter."
-            )
-
-        filename_str = (
-            self.filename(cyclename) if cyclename is not None else str(filename)
-        )
-        response = requests.get(self._journalfile_url(instrument_name, filename_str))
+        url = self._url_join(server_root, journal_directory, journal_file)
+        response = requests.get(url)
         response.raise_for_status()
-        reader = ISISXMLJournalReader(Instrument(instrument_name))
+        reader = ISISXMLJournalReader(Instrument("NOTMYNAME"))
         return reader.read_journalfile(response.content)
 
     def filename_for_run(self, instrument: str, run: str) -> Optional[str]:

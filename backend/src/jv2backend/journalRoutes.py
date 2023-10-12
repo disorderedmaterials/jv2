@@ -41,24 +41,38 @@ def add_routes(
         except Exception as exc:
             return jsonify(f"Error: Unable to list journals for {directory} from {rootUrl}: {str(exc)}")
 
+    @app.post("/journals/get")
+    def getJournal() -> FlaskResponse:
+        """Return a journal of Runs for the instrument and cycle
 
-    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
-    @app.route("/journals/get/<instrument>/<filename>")
-    def getJournal(instrument: str, filename: str) -> FlaskResponse:
-        """Return a single journal of Runs for the instrument and cycle
+        The POST data should contain:
+                rootUrl: The root network or disk location for the journals
+              directory: The directory in rootUrl to probe for journals
+            journalFile: Name of the target journal file in the directory
 
-        :param instrument: The name of an instrument
-        :param filename: The filename of a cycle journal file in the format journal_YY_N.xml
-        :return: A JSON reponse
+        :return: A JSON reponse containing the content of the journal, or an error
         """
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        journalFile = data["journalFile"]
+        logging.debug(
+            f"Get journal {journalFile} from {directory} at {rootUrl}"
+            )
         try:
             return json_response(
-                networkJournalLocator.journal(instrument_name=instrument, filename=filename)
+                networkJournalLocator.get_journal(server_root=rootUrl,
+                                                  journal_directory=directory,
+                                                  journal_file=journalFile)
             )
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to fetch journal for {instrument}, cycle {filename}: {str(exc)}"
+                f"Error: Unable to get journal {journalFile} from {directory} at {rootUrl}: {str(exc)}"
             )
+
+
+
+    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 
     @app.route("/journals/findRuns/<instrument>/<field>/<search>/<options>")
     def findRuns(

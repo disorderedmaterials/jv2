@@ -141,10 +141,15 @@ void Backend::listJournals(const DataSource &source, const QString &journalDirec
 }
 
 // Get journal file from the specified directory
-void Backend::getJournal(const QString &journalDirectory, const QString &journalFilename,
+void Backend::getJournal(const DataSource &source, const QString &journalDirectory, const QString &journalFilename,
                          HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("journals/get", journalDirectory, journalFilename), handler);
+    QJsonObject data;
+    data["rootUrl"] = source.rootUrl();
+    data["directory"] = journalDirectory;
+    data["journalFile"] = journalFilename;
+
+    postRequest(createRoute("journals/get"), data, handler);
 }
 
 // Search all journals for matching runs
