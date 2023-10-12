@@ -5,6 +5,7 @@
 #include "args.h"
 #include "dataSource.h"
 #include "httpRequestWorker.h"
+#include "locator.h"
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
@@ -140,14 +141,13 @@ void Backend::listJournals(const DataSource &source, const QString &journalDirec
     postRequest(createRoute("journals/list"), data, handler);
 }
 
-// Get journal file from the specified directory
-void Backend::getJournal(const DataSource &source, const QString &journalDirectory, const QString &journalFilename,
-                         HttpRequestWorker::HttpRequestHandler handler)
+// Get journal file at the specified location
+void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = source.rootUrl();
-    data["directory"] = journalDirectory;
-    data["journalFile"] = journalFilename;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["journalFile"] = location.filename();
 
     postRequest(createRoute("journals/get"), data, handler);
 }

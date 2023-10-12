@@ -10,10 +10,10 @@
 #include <QWidgetAction>
 
 // Add new journal
-Journal &MainWindow::addJournal(const QString &name, Journal::JournalLocation location, const QString &locationURL)
+Journal &MainWindow::addJournal(const QString &name, const Locator &location)
 {
     auto &journal = journals_.emplace_back(name);
-    journal.setFileLocation(location, locationURL);
+    journal.setLocation(location);
 
     auto *action = new QAction(name, this);
     connect(action, &QAction::triggered, [=]() { setCurrentJournal(name); });
@@ -64,8 +64,7 @@ void MainWindow::setCurrentJournal(Journal &journal)
 
     ui_.journalButton->setText(journal.name());
 
-    backend_.getJournal(currentDataSource(), currentInstrument().journalDirectory(), journal.locationURL(),
-                        [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+    backend_.getJournal(journal.location(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 
     setLoadScreen(true);
 }

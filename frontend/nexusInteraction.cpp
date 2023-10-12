@@ -383,7 +383,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
     ui_.MainTabs->setTabToolTip(ui_.MainTabs->count() - 1, toolTip);
     chartView->setFocus();
 
-    QString cycle = currentJournal_->get().locationURL();
+    QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusDetectorAnalysis(currentInstrument().dataDirectory(), cycle, runs,
@@ -456,7 +456,7 @@ void MainWindow::getSpectrumCount()
     if (runNos.size() == 0)
         return;
 
-    QString cycle = currentJournal_->get().locationURL();
+    QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusSpectrumRange(currentInstrument().dataDirectory(), cycle, runNos,
@@ -473,7 +473,7 @@ void MainWindow::getMonitorCount()
     if (runNos.size() == 0)
         return;
 
-    QString cycle = currentJournal_->get().locationURL();
+    QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusMonitorRange(currentInstrument().dataDirectory(), cycle, runNos,
@@ -497,7 +497,7 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     if (runNos.size() == 0)
         return;
 
-    QString cycle = currentJournal_->get().locationURL();
+    QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusDetector(currentInstrument().dataDirectory(), cycle, runNos, QString::number(spectrumNumber),
@@ -519,7 +519,7 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     if (runNos.size() == 0)
         return;
 
-    QString cycle = currentJournal_->get().locationURL();
+    QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusMonitor(currentInstrument().dataDirectory(), cycle, runNos, QString::number(monNumber),
@@ -541,7 +541,7 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    backend_.getRunTotalMuAmps(currentInstrument().dataDirectory(), currentJournal_->get().locationURL(), runs,
+    backend_.getRunTotalMuAmps(currentInstrument().dataDirectory(), currentJournal_->get().location().filename(), runs,
                                [=](HttpRequestWorker *worker) { window->modifyAgainstString(worker->response, checked); });
 }
 
@@ -557,7 +557,7 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    QString cycle = currentJournal_->get().locationURL();
+    QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusDetector(currentInstrument().dataDirectory(), cycle, run, currentDetector,
@@ -576,7 +576,7 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    QString cycle = currentJournal_->get().locationURL();
+    QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusMonitor(currentInstrument().dataDirectory(), cycle, currentRun, mon,

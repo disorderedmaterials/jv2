@@ -84,8 +84,9 @@ void MainWindow::handlePingJournals(QString response)
     }
     else
     {
-        auto nameParts = response.split("_");
-        addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer, response);
+        // auto nameParts = response.split("_");
+        // addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer,
+        // response);
     }
 }
 
@@ -101,18 +102,17 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     if (networkRequestHasError(worker, "trying to list journals"))
         return;
 
-    QJsonValue value;
+    // Add returned journals
     for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
     {
-        value = worker->jsonArray[i];
+        auto value = worker->jsonArray[i].toObject();
 
-        auto nameParts = value.toString().split("_");
-        addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer,
-                   value.toString());
+        addJournal(value["filename"].toString(),
+                   {value["rootUrl"].toString(), value["directory"].toString(), value["filename"].toString()});
     }
 
     // If there is no current journal, set one
-    if (!currentJournal_)
+    if (!currentJournal_ && !journals_.empty())
     {
         QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
         auto optJournal = findJournal(settings.value("recentJournal").toString());

@@ -10,6 +10,7 @@
 #include "journal.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
+#include "locator.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>
@@ -93,8 +94,6 @@ class MainWindow : public QMainWindow
      * Journals
      */
     private:
-    // Current journal source
-    Journal::JournalLocation journalSource_{Journal::JournalLocation::ISISServer};
     // Available journals
     std::vector<Journal> journals_;
     // Currently selected journal (if any)
@@ -102,7 +101,7 @@ class MainWindow : public QMainWindow
 
     private:
     // Add new journal
-    Journal &addJournal(const QString &name, Journal::JournalLocation location, const QString &locationURL);
+    Journal &addJournal(const QString &name, const Locator &location);
     // Find named journal
     OptionalReferenceWrapper<Journal> findJournal(const QString &name);
     // Set current journal being displayed
