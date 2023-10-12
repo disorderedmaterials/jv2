@@ -106,10 +106,6 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     {
         value = worker->jsonArray[i];
 
-        // Ignore the main index file
-        if (value.toString() == "journal.xml")
-            continue;
-
         auto nameParts = value.toString().split("_");
         addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer,
                    value.toString());

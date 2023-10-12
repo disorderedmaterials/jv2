@@ -34,33 +34,55 @@ class NetworkJournalLocator:
         :param root_url: An optional root URL for the server to replace the default
         """
         self._root_url = root_url
-        # Store the last modified times of the _main journal files against the instrument names
-        self._last_modified: MutableMapping[str, datetime] = dict()
+        # Modification times of journal files and index file
+        self._journal_files_last_modified: MutableMapping[str, datetime] = dict()
 
     def get_index(self, server_root: str, journal_directory: str, index_file: str) -> JournalFileList:
         """Retrive an index file containing journal information
 
+        It is expected that index file is "ISIS standard" XML and structured
+        in the following way:
+        
+        <journal>
+           <file name="journal.xml"/>
+           <file name="journal_YY_N.xml"/>
+           ...
+        </journal>
+
+        The first entry (journal.xml) is not relevant and should not be
+        returned as a valid result. Other files represent journals
+        corresponding to specific years (YY) and cycle integers (N)
+        and which can be expected to reside in the same directory as
+        the index file.
+
         :param root_url: Root server URL to make request to
         :param journal_directory: Directory containing journal index file
         :param index_file: Name of index file containing all available journals
-        :return: The list of journal filenames as strings or an Exception object
+        :return: The list of journal filenames as strings or an Exception
         """
         url = self._url_join(server_root, journal_directory, index_file)
         response = requests.get(url)
         response.raise_for_status()
+
+        # Store the last modified time of the index file for future reference
         self._store_last_modified_time(
             url, response.headers["Last-Modified"]
         )
 
-        data = pd.read_xml(BytesIO(response.content), dtype=str)
+        # Parse the journal index file
+        data = pd.read_xml(BytesIO(response.content), xpath="/journal/file", dtype=str)
+
+        # Construct list of valid journal files for return
         journals = JournalFileList()
         for name in data["name"]:
-            journals.append(name)
+            if not name == "journal.xml":
+                journals.append(name)
 
         return journals
 
     def get_journal(self, server_root: str, journal_directory: str, journal_file: str) -> Journal:
-        """
+        """Retrieve a journal file containing run information
+
         :param root_url: Root server URL to make request to
         :param journal_directory: Directory containing journal file
         :param journal_file: Name of journal file to retrieve
@@ -69,6 +91,12 @@ class NetworkJournalLocator:
         url = self._url_join(server_root, journal_directory, journal_file)
         response = requests.get(url)
         response.raise_for_status()
+
+        # Store the last modified time of the journal file for future reference
+        self._store_last_modified_time(
+            url, response.headers["Last-Modified"]
+        )
+
         reader = ISISXMLJournalReader(Instrument("NOTMYNAME"))
         return reader.read_journalfile(response.content)
 
@@ -99,7 +127,7 @@ class NetworkJournalLocator:
         """
         response = requests.head(self._mainfile_url(instrument_name))
         last_modified_on_server = self._to_datetime(response.headers["Last-Modified"])
-        last_modified_here = self._last_modified.get(instrument_name, None)
+        last_modified_here = self._journal_files_last_modifieds.get(instrument_name, None)
         if last_modified_here is not None and (
             last_modified_on_server > last_modified_here
         ):
@@ -172,7 +200,7 @@ class NetworkJournalLocator:
         :param last_modified_ts: Timestamp of the last modification time as a str
         """
         dt = self._to_datetime(last_modified_ts)
-        self._last_modified[instrument_name] = dt
+        self._journal_files_last_modified[instrument_name] = dt
         return dt
 
     @classmethod
