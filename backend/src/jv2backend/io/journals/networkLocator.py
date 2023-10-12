@@ -46,10 +46,6 @@ class NetworkJournalLocator:
         :return: The list of journal filenames as strings or an Exception object
         """
         url = self._url_join(server_root, journal_directory, index_file)
-        print(server_root)
-        print(journal_directory)
-        print(index_file)
-        print(url)
         response = requests.get(url)
         response.raise_for_status()
         self._store_last_modified_time(

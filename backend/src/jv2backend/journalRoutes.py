@@ -26,7 +26,7 @@ def add_routes(
              directory: The directory in rootUrl to probe for journals
             index_file: Name of the index file in the directory, if known
 
-        :return: JSON response containing an array of available journals in the form of a JournalFileList, or an error
+        :return: A JSON response containing an array of available journals in the form of a JournalFileList, or an error
         """
         data = request.json
         rootUrl = data["rootUrl"]
