@@ -10,6 +10,7 @@ from jv2backend import config
 from jv2backend import journalRoutes
 from jv2backend import nexusRoutes
 from jv2backend import serverRoutes
+from flask import jsonify
 
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
@@ -31,6 +32,7 @@ def create_app(indside_gunicorn: bool = True) -> Flask:
     serverRoutes.add_routes(app)
     journalRoutes.add_routes(app, networkJournalLocator)
     nexusRoutes.add_routes(app, networkJournalLocator, run_locator)
+
     return app
 
 def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:

@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from datetime import datetime
-from typing import MutableMapping, Optional
+from typing import MutableMapping, Optional, List
 from io import BytesIO
 from functools import reduce
 import pandas as pd
@@ -10,7 +10,7 @@ import requests
 
 from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal, concatenate
-from jv2backend.journalFileList import JournalFileList
+from jv2backend.journalFileList import JournalFile
 from jv2backend.io.journals.xmlJournalReader import ISISXMLJournalReader
 
 class NetworkJournalLocator:
@@ -37,7 +37,7 @@ class NetworkJournalLocator:
         # Modification times of journal files and index file
         self._journal_files_last_modified: MutableMapping[str, datetime] = dict()
 
-    def get_index(self, server_root: str, journal_directory: str, index_file: str) -> JournalFileList:
+    def get_index(self, server_root: str, journal_directory: str, index_file: str) -> List[JournalFile]:
         """Retrive an index file containing journal information
 
         It is expected that index file is "ISIS standard" XML and structured
@@ -73,10 +73,10 @@ class NetworkJournalLocator:
         data = pd.read_xml(BytesIO(response.content), xpath="/journal/file", dtype=str)
 
         # Construct list of valid journal files for return
-        journals = JournalFileList()
+        journals = []
         for name in data["name"]:
             if not name == "journal.xml":
-                journals.append(name)
+                journals.append(JournalFile(server_root, journal_directory, name))
 
         return journals
 
