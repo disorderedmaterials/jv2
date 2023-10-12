@@ -127,7 +127,7 @@ class NetworkJournalLocator:
         """
         response = requests.head(self._mainfile_url(instrument_name))
         last_modified_on_server = self._to_datetime(response.headers["Last-Modified"])
-        last_modified_here = self._journal_files_last_modifieds.get(instrument_name, None)
+        last_modified_here = self._journal_files_last_modified.get(instrument_name, None)
         if last_modified_here is not None and (
             last_modified_on_server > last_modified_here
         ):
