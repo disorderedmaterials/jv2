@@ -59,10 +59,11 @@ def add_routes(
                           network source ({rootUrl}/{directory}).")
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to list journals for {directory} from {rootUrl}: {str(exc)}")
+                f"Error: Unable to list journals for {directory} from \
+                  {rootUrl}: {str(exc)}")
 
     @app.post("/journals/get")
-    def getJournal() -> FlaskResponse:
+    def getJournalData() -> FlaskResponse:
         """Return a journal of Runs for the instrument and cycle
 
         The POST data should contain:
@@ -70,7 +71,7 @@ def add_routes(
               directory: The directory in rootUrl to probe for journals
             journalFile: Name of the target journal file in the directory
 
-        :return: A JSON reponse containing the content of the journal, or an error
+        :return: A JSON reponse containing the journal data, or an error
         """
         data = request.json
         rootUrl = data["rootUrl"]
@@ -91,12 +92,14 @@ def add_routes(
                         journal_file=journalFile))
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to get journal {journalFile} from {directory} at {rootUrl}: {str(exc)}"
+                f"Error: Unable to get journal {journalFile} from {directory} \
+                  at {rootUrl}: {str(exc)}"
             )
 
     @app.post("/journals/getUpdates")
     def getUpdates():
-        """Checks the specified journal file for updates, returning any new run data
+        """Checks the specified journal file for updates, returning any new
+        run data
 
         :param instrument: The instrument name
         :param filename: The cycle filename
@@ -122,7 +125,8 @@ def add_routes(
                         journal_file=journalFile))
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to get updates to {journalFile} from {directory} at {rootUrl}: {str(exc)}"
+                f"Error: Unable to get updates to {journalFile} from \
+                  {directory} at {rootUrl}: {str(exc)}"
             )
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
@@ -131,12 +135,14 @@ def add_routes(
     def findRuns(
         instrument: str, field: str, search: str, options: str
     ) -> FlaskResponse:
-        """Search over all available journals for any runs matching the specified search parameters
+        """Search over all available journals for any runs matching the
+        specified search parameters
 
         :param instrument: The instrument name
         :param field: The field to search
         :param search: The search text
-        :param options: Options to control the search. Current recognizes caseSensitivity=true|false
+        :param options: Options to control the search. Current recognizes
+                        caseSensitivity=true|false
         :return: The runs matching the search
         """
         case_sensitive = "caseSensitivity=true" in options
@@ -160,14 +166,16 @@ def add_routes(
         :param instrument: The name of the instrument
         :param cycle: The cycle containing the runs
         :param runs: The list of runs whose data is returned
-        :return: The total current in microamps, for each run as a ';' separate string
+        :return: The total current in microamps, for each run as a
+                 ';'-separated string
         """
         try:
             journal = networkJournalLocator.journal(
                 instrument_name=instrument, filename=cycle)
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
+                f"Error: Unable to fetch journal for {instrument}, cycle \
+                  {cycle}: {str(exc)}"
             )
         run_info = [journal.run(run) for run in split(runs, ";")]
         if not all(run_info):
@@ -183,7 +191,8 @@ def add_routes(
 
         :param instrument: The instrument name
         :param run: The run number
-        :return: The journal filename containing the run or "Not Found" if no run is found
+        :return: The journal filename containing the run or "Not Found" if no
+                 run is found
         """
         try:
             result = networkJournalLocator.filename_for_run(instrument, run)
