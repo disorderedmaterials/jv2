@@ -215,29 +215,3 @@ class NetworkJournalLocator:
                     case_sensitive))
 
         return concatenate(results)
-
-    # private
-    def _mainfile_url(self, instrument_name: str) -> str:
-        """Return the URL for the _main index journal file
-
-        :param instrument_name: The name of the instrument
-        :return: A string containing the full URL
-        """
-        return f"{self._journal_root(instrument_name)}/{self.JOURNAL_FILELIST_FILENAME}"
-
-    def _journalfile_url(self, instrument_name: str, filename: str) -> str:
-        """Return the URL for jounal file given
-
-        :param instrument_name: The name of the instrument
-        :param filename: The filename of the journalfile
-        :return: A string containing the full URL
-        """
-        return f"{self._journal_root(instrument_name)}/{filename}"
-
-    def _journal_root(self, instrument_name: str) -> str:
-        """Return the base url on the server for a given instrument
-
-        :param instrument_name: _description_
-        :return: The URL to the directory of the journals
-        """
-        return self._root_url + f"/{instrument_name.lower()}"
