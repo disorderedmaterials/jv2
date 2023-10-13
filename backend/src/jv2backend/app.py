@@ -22,7 +22,7 @@ def create_app(indside_gunicorn: bool = True) -> Flask:
     """
     app = Flask(__name__)
     _configure_logging(app, indside_gunicorn)
-    networkJournalLocator = NetworkJournalLocator(config.get("journal_server_url"))
+    networkJournalLocator = NetworkJournalLocator()
     run_locator = RunDataFileLocator(config.get("run_locator_prefix"))
 
     journalLibrary = JournalLibrary({})

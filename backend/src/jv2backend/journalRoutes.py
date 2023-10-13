@@ -28,7 +28,7 @@ def add_routes(
              directory: The directory in rootUrl to probe for journals
             index_file: Name of the index file in the directory, if known
 
-        :return: A JSON response containing an array of available journals in the form of a
+        :return: A JSON response containing available journals in a
                  list(BasicJournalFile), or an error
         """
         data = request.json
@@ -37,21 +37,29 @@ def add_routes(
 
         logging.debug(f"Listing journals for {directory} in {rootUrl}")
 
-        # If we already have a library collection for the specified rootUrl/directory, just return it
+        # If we already have a library collection for the specified
+        # rootUrl/directory, just return it
         library_key = url_join(rootUrl, directory)
         if library_key in journalLibrary:
-            logging.debug(f"Returning existing journal collection for {library_key}")
+            logging.debug(
+                f"Returning existing journal collection for {library_key}")
             return journalLibrary[library_key].to_basic()
 
         try:
             if (rootUrl.startswith("http")):
                 if "indexFile" in data:
-                    journalLibrary[library_key] = JournalCollection(networkJournalLocator.get_index(server_root=rootUrl, journal_directory=directory, index_file=data['indexFile']))
+                    journalLibrary[library_key] = JournalCollection(
+                        networkJournalLocator.get_index(
+                            server_root=rootUrl, journal_directory=directory,
+                            index_file=data['indexFile']))
                     return jsonify(journalLibrary[library_key].to_basic())
                 else:
-                    return jsonify(f"Error: Index file name must be provided for a network source ({rootUrl}/{directory}).")
+                    return jsonify(
+                        f"Error: Index file name must be provided for a\
+                          network source ({rootUrl}/{directory}).")
         except Exception as exc:
-            return jsonify(f"Error: Unable to list journals for {directory} from {rootUrl}: {str(exc)}")
+            return jsonify(
+                f"Error: Unable to list journals for {directory} from {rootUrl}: {str(exc)}")
 
     @app.post("/journals/get")
     def getJournal() -> FlaskResponse:
@@ -69,18 +77,18 @@ def add_routes(
         directory = data["directory"]
         journalFile = data["journalFile"]
         library_key = url_join(rootUrl, directory)
+
         logging.debug(
             f"Get journal {journalFile} from {directory} at {rootUrl}"
-            )
+        )
 
         try:
             if (rootUrl.startswith("http")):
                 return json_response(
-                    networkJournalLocator.get_journal_data(journalLibrary[library_key],
-                                                      server_root=rootUrl,
-                                                      journal_directory=directory,
-                                                      journal_file=journalFile)
-                )
+                    networkJournalLocator.get_journal_data(
+                        journalLibrary[library_key],
+                        server_root=rootUrl, journal_directory=directory,
+                        journal_file=journalFile))
         except Exception as exc:
             return jsonify(
                 f"Error: Unable to get journal {journalFile} from {directory} at {rootUrl}: {str(exc)}"
@@ -88,7 +96,7 @@ def add_routes(
 
     @app.post("/journals/getUpdates")
     def getUpdates():
-        """Checks the specified journal file for updates, returning any new runs
+        """Checks the specified journal file for updates, returning any new run data
 
         :param instrument: The instrument name
         :param filename: The cycle filename
@@ -103,15 +111,15 @@ def add_routes(
 
         logging.debug(
             f"Get journal {journalFile} from {directory} at {rootUrl}"
-            )
-        
+        )
+
         try:
             if (rootUrl.startswith("http")):
-                return json_response(networkJournalLocator.get_updates(journalLibrary[library_key],
-                                                                       server_root=rootUrl,
-                                                                       journal_directory=directory,
-                                                                       journal_file=journalFile)
-                )
+                return json_response(
+                    networkJournalLocator.get_updates(
+                        journalLibrary[library_key],
+                        server_root=rootUrl, journal_directory=directory,
+                        journal_file=journalFile))
         except Exception as exc:
             return jsonify(
                 f"Error: Unable to get updates to {journalFile} from {directory} at {rootUrl}: {str(exc)}"
@@ -133,16 +141,17 @@ def add_routes(
         """
         case_sensitive = "caseSensitivity=true" in options
         if field in ("start_time", "start_date"):
-            # keep compatible with frontend sending semi-colon separated date fields
+            # keep compatible with frontend sending semi-colon separated date
+            # fields
             search = search.replace(";", "/")
             # start_date maps to start_time in the run_fields
             field = "start_time" if field.endswith("date") else field
         try:
-            return json_response(
-                networkJournalLocator.search(instrument, field, search, case_sensitive)
-            )
+            return json_response(networkJournalLocator.search(
+                instrument, field, search, case_sensitive))
         except Exception as exc:
-            return jsonify(f"Error: Unable to complete search '{search}': {str(exc)}")
+            return jsonify(
+                f"Error: Unable to complete search '{search}': {str(exc)}")
 
     @app.route("/journals/getTotalMuAmps/<instrument>/<cycle>/<runs>")
     def getTotalMuAmps(instrument, cycle, runs):
@@ -154,16 +163,19 @@ def add_routes(
         :return: The total current in microamps, for each run as a ';' separate string
         """
         try:
-            journal = networkJournalLocator.journal(instrument_name=instrument, filename=cycle)
+            journal = networkJournalLocator.journal(
+                instrument_name=instrument, filename=cycle)
         except Exception as exc:
             return jsonify(
                 f"Error: Unable to fetch journal for {instrument}, cycle {cycle}: {str(exc)}"
             )
         run_info = [journal.run(run) for run in split(runs, ";")]
         if not all(run_info):
-            return jsonify(f"Error: Unable to find all run information: {runs}")
+            return jsonify(
+                f"Error: Unable to find all run information: {runs}")
 
-        return ";".join([info["proton_charge"] for info in run_info])  # type: ignore
+        return ";".join([info["proton_charge"]
+                        for info in run_info])  # type: ignore
 
     @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):

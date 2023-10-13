@@ -25,7 +25,7 @@ def split(input: str, delimiter: str, discard_empty=True) -> Sequence[str]:
 
     :param input: The input string
     :param delimiter: Delimeter used for splitting
-    :param discard_empty: If True then empty elements are removed, defaults to True
+    :param discard_empty: If True then empty elements are removed
     """
     items = input.split(delimiter)
     if discard_empty:
@@ -45,8 +45,8 @@ def url_join(*args):
 
 
 def lm_to_datetime(timestamp: str) -> datetime:
-    """Convert the supplied timestamp string, as provided in a Last-Modified header
-    for instance, to a datetime.
+    """Convert the supplied timestamp string, as provided in a Last-Modified
+    header, to a datetime.
 
     :param timestamp: A timestamp as a string
     :return: A datetime.datetime object

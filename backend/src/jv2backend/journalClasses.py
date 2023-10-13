@@ -13,12 +13,13 @@ USERINPUT_DT_FORMAT_STR = "%Y/%m/%d"
 
 
 def _to_datetime(user_input: str) -> dt.datetime:
-    """Convert from a user input string of format YYY/MM/DD to a datetime object"""
+    """Convert from a string of format YYY/MM/DD to a datetime object"""
     return dt.datetime.strptime(user_input, USERINPUT_DT_FORMAT_STR)
 
 
 # Query handlers
-# A handler should have the form Callable[[pd.DataFrame, str, bool], pd.DataFrame]
+# A handler should have the form Callable[[pd.DataFrame, str, bool],
+# pd.DataFrame]
 def contains(
     data: pd.DataFrame, column: str, text: str, case_sensitive: bool
 ) -> pd.DataFrame:
@@ -52,13 +53,15 @@ def equals(
         return data[data[column].str.lower() == text.lower()]
 
 
-def inrange_int(data: pd.DataFrame, column: str, text: str, _: bool) -> pd.DataFrame:
+def inrange_int(data: pd.DataFrame, column: str,
+                text: str, _: bool) -> pd.DataFrame:
     """Return the rows of the input DataFrame where range provided in the
     text is included. It is assumed the column
     can be converted to an integer and the search is insclusive
 
     :param data: The input data
-    :param column: The name of the column that should be matched. It should be convertible to an integer
+    :param column: The name of the column that should be matched. It should be
+                   convertible to an integer
     :param text: Input query:
                    - Use a "start-end" to indicate an inclusive range
                    - or "(OP)value" where (OP) is one of "<,>"
@@ -88,8 +91,10 @@ def inrange_datetime(
     can be converted to an datetime and the search is insclusive
 
     :param data: The input data
-    :param column: The name of the column that should be matched. It should be convertible to an datetime object
-    :param text: Text to search in the format "YYYY/MM/DD-YYYY/MM/DD". An empty result is returned if the format is incorrect
+    :param column: The name of the column that should be matched. It should be
+                   convertible to an datetime object
+    :param text: Text to search in the format "YYYY/MM/DD-YYYY/MM/DD". An
+                 empty result is returned if the format is incorrect
     :param _: Ignored in this case. Required by API
     :return: A new DataFrame with the selected rows
     """
@@ -103,7 +108,8 @@ def inrange_datetime(
     return data[column_values.between(start, end, inclusive="both")]
 
 
-# Map a field name to a handler for that query if it should have special handling
+# Map a field name to a handler for that query if it should have special
+# handling
 _SPECIAL_QUERY_HANDLERS = {
     "experiment_identifier": equals,
     "run_number": inrange_int,
@@ -152,9 +158,9 @@ class JournalData:
     def search(
         self, run_field: str, user_input: str, case_sensitive: bool = False
     ) -> JournalData:
-        """Search across the runs for those matching the user_input over the run_field"""
-        # Different fields need handling differently but we will fallback to a basic
-        # "is in string check"
+        """Search data for runs whose run_field matches the user_input"""
+        # Different fields need handling differently but we will fallback to a
+        # basic "is in string check"
         query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
 
         return JournalData(
@@ -164,7 +170,6 @@ class JournalData:
 
     # Output formats
     def to_json(self) -> str:
-        """Return the collection of runs as a list[dict()] formatted as requested"""
         return self._data.to_json(orient="records")
 
 
@@ -173,7 +178,7 @@ def concatenate(journals: Sequence[JournalData]) -> JournalData:
     """Concatenate the Journals to a single Journal
 
     :param journals: Sequence of Journal objects
-    :return: A new Journal, the result of concatenating the input journals into one
+    :return: A new JournalData, the result of concatenating the input data
     """
     return JournalData(
         journals[0].source, pd.concat([journal._data for journal in journals])
@@ -215,8 +220,10 @@ class JournalCollection:
         self.journalFiles = journalFiles
 
     def get_info(self, filename: str):
-        return next((jf for jf in self.journalFiles if jf.filename == filename), None)
-    
+        return next(
+            (jf for jf in self.journalFiles if jf.filename == filename),
+            None)
+
     def to_basic(self) -> List(BasicJournalFile):
         basic = []
         for x in self.journalFiles:
