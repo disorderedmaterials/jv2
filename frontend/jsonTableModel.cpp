@@ -30,11 +30,24 @@ QJsonObject JsonTableModel::getData(const QModelIndex &index) const { return get
  */
 
 // Set the source data for the model
-void JsonTableModel::setData(const QJsonArray &array)
+void JsonTableModel::setData(QJsonArray &array)
 {
     beginResetModel();
     jsonData_ = array;
     endResetModel();
+}
+
+// Append supplied data to the current data
+void JsonTableModel::appendData(const QJsonArray &newData)
+{
+    if (!jsonData_)
+        throw(std::runtime_error("Tried to append data in JsonTableModel but no current data reference is set.\n"));
+    auto &currentData = jsonData_->get();
+
+    beginInsertRows(QModelIndex(), currentData.size(), currentData.size() + newData.count() - 1);
+    foreach (auto &item, newData)
+        currentData.append(item);
+    endInsertRows();
 }
 
 // Set the table column (horizontal) headers
