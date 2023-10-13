@@ -9,9 +9,7 @@ from jv2backend import config
 from jv2backend import journalRoutes
 from jv2backend import nexusRoutes
 from jv2backend import serverRoutes
-
-# Import the ISIS server. Use a factory in the future should
-# alternate implementations be required
+from jv2backend.journalClasses import JournalLibrary
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.io.runDataFileLocator import RunDataFileLocator
 
@@ -27,11 +25,14 @@ def create_app(indside_gunicorn: bool = True) -> Flask:
     networkJournalLocator = NetworkJournalLocator(config.get("journal_server_url"))
     run_locator = RunDataFileLocator(config.get("run_locator_prefix"))
 
+    journalLibrary = JournalLibrary({})
+
     serverRoutes.add_routes(app)
-    journalRoutes.add_routes(app, networkJournalLocator)
+    journalRoutes.add_routes(app, networkJournalLocator, journalLibrary)
     nexusRoutes.add_routes(app, networkJournalLocator, run_locator)
 
     return app
+
 
 def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
     """_summary_

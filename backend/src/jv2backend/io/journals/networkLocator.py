@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from datetime import datetime
-from typing import MutableMapping, Optional, List
+from typing import Optional, List
 from io import BytesIO
-from functools import reduce
+from jv2backend.utils import url_join, lm_to_datetime
 import pandas as pd
 import requests
+import logging
 
-from jv2backend.journal import Journal, concatenate
-from jv2backend.journalFile import JournalFile
+from jv2backend.journalClasses import JournalCollection, JournalFile
+from jv2backend.journalClasses import JournalData, concatenate
 
 
 class NetworkJournalLocator:
@@ -17,11 +17,10 @@ class NetworkJournalLocator:
 
     JOURNAL_FILELIST_FILENAME = "journal_main.xml"
     JOURNAL_FILENAME_TEMPLATE = "journal_{}.xml"
-    LAST_MODIFIED_DT_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 
     @classmethod
     def filename(cls, cyclename: str):
-        """Return the Journal filename from a cycle name
+        """Return the journal filename from a cycle name
         :param cyclename: Name of the cycle in the form [cycle_]YY_N
         :return: Construct the journal filename as journal_YY_N.xml
         """
@@ -33,13 +32,6 @@ class NetworkJournalLocator:
         :param root_url: An optional root URL for the server to replace the default
         """
         self._root_url = root_url
-        # Journal information - modification times, last run no in file etc.
-        self._journal_info: MutableMapping[str, dict] = dict()
-
-    def journal_info(self, url: str) -> dict:
-        if url not in self._journal_info:
-            self._journal_info[url] = {}
-        return self._journal_info[url]
 
     def get_index(self, server_root: str, journal_directory: str, index_file: str) -> List[JournalFile]:
         """Retrive an index file containing journal information
@@ -64,12 +56,9 @@ class NetworkJournalLocator:
         :param index_file: Name of index file containing all available journals
         :return: The list of journal filenames as strings or an Exception
         """
-        url = self._url_join(server_root, journal_directory, index_file)
+        url = url_join(server_root, journal_directory, index_file)
         response = requests.get(url)
         response.raise_for_status()
-
-        # Store the last modified time of the index file for future reference
-        self.journal_info(url)["last_modified"] = self._to_datetime(response.headers["Last-Modified"])
 
         # Parse the journal index file
         data = pd.read_xml(BytesIO(response.content), xpath="/journal/file", dtype=str)
@@ -80,32 +69,49 @@ class NetworkJournalLocator:
             if not name == "journal.xml":
                 journals.append(JournalFile(server_root, journal_directory, name))
 
+        logging.debug(f"Journals = {journals}")
         return journals
 
-    def get_journal(self, server_root: str, journal_directory: str, journal_file: str) -> Journal:
-        """Retrieve a journal file containing run information
+    def get_journal_data(self, collection: JournalCollection, server_root: str, journal_directory: str, journal_file: str) -> JournalData:
+        """Retrieve run data contained in a journal file
 
+        :param collection: JournalCollection in which the data should be stored
         :param root_url: Root server URL to make request to
         :param journal_directory: Directory containing journal file
         :param journal_file: Name of journal file to retrieve
         :return: Array of run data information
         """
-        url = self._url_join(server_root, journal_directory, journal_file)
+        # Construct the full url to the journal file
+        url = url_join(server_root, journal_directory, journal_file)
+
+        # If we already have this journal file in the collection, check its modification time
+        j = collection.get_info(journal_file)
+        if j is not None:
+            # Get file headers
+            response = requests.head(url)
+            response.raise_for_status()
+            
+            # Compare modification times - if the same, return existing data
+            current_last_modified = lm_to_datetime(response.headers["Last-Modified"])
+            if current_last_modified == j.last_modified:
+                return j.run_data
+
+        # Make the full http request
         response = requests.get(url)
         response.raise_for_status()
 
-        # Store the last modified time of the index file for future reference
-        self.journal_info(url)["last_modified"] = self._to_datetime(response.headers["Last-Modified"])
+        # Update the last modified time
+        j.last_modified = lm_to_datetime(response.headers["Last-Modified"])
 
         # Read in the run data from the journal file
-        journal = Journal(journal_file, data=pd.read_xml(BytesIO(response.content), dtype=str))
+        j.run_data = JournalData(journal_file, data=pd.read_xml(BytesIO(response.content), dtype=str))
 
         # Store the most-recent (highest) run number in the journal for future reference
-        self.journal_info(url)["last_run_number"] = journal.last_run_number
+        j.last_run_number = j.run_data.get_last_run_number
 
-        return journal
+        return j.run_data
 
-    def get_updates(self, server_root: str, journal_directory: str, journal_file: str) -> Journal:
+    def get_updates(self, collection: JournalCollection, server_root: str, journal_directory: str, journal_file: str) -> JournalData:
         """Check if the journal index files has been modified since the last retrieval
         and return new runs added after the last known
 
@@ -114,30 +120,37 @@ class NetworkJournalLocator:
         :param journal_file: Name of journal file to retrieve
         :return: Array of new run data information
         """
+        # Construct the full url to the journal file
+        url = url_join(server_root, journal_directory, journal_file)
 
-        # Retrieve the specified journal
-        url = self._url_join(server_root, journal_directory, journal_file)
+        # If we already have this journal file in the collection, check its modification time
+        j = collection.get_info(journal_file)
+        if j is not None:
+            # Get file headers
+            response = requests.head(url)
+            response.raise_for_status()
+            
+            # Compare modification times - if the same, return existing data
+            current_last_modified = lm_to_datetime(response.headers["Last-Modified"])
+            if current_last_modified == j.last_modified:
+                return None
+
+        # Changed, so read full data
         response = requests.get(url)
         response.raise_for_status()
 
-        # If the modification time is the same we can return None now
-        current_modification_time = self._to_datetime(response.headers["Last-Modified"])
-        if self.journal_info(url)["last_modified"] == current_modification_time:
-            return None
-        self.journal_info(url)["last_modified"] = current_modification_time
-
-        # Read in the run data from the journal file
-        journal = Journal(journal_file, data=pd.read_xml(BytesIO(response.content), dtype=str))
+        # Read in the run data from the journal file and store the whole thing
+        j.run_data = JournalData(journal_file, data=pd.read_xml(BytesIO(response.content), dtype=str))
 
         # Get the last run number
-        old_last_run_number = self.journal_info(url)["last_run_number"]
-        current_last_run_number = journal.last_run_number
+        old_last_run_number = j.last_run_number
+        current_last_run_number = j.run_data.get_last_run_number
         if old_last_run_number == current_last_run_number:
             return None
-        self.journal_info(url)["last_run_number"] = current_last_run_number
+        j.last_run_number = current_last_run_number
 
         # Get new run data
-        return journal.search("run_number", f">{old_last_run_number}")
+        return j.run_data.search("run_number", f">{old_last_run_number}")
         
     def filename_for_run(self, instrument: str, run: str) -> Optional[str]:
         """Find the journal file that contains the given run
@@ -163,17 +176,17 @@ class NetworkJournalLocator:
         run_field: str,
         user_input: str,
         case_sensitive: bool = False,
-    ) -> Journal:
+    ) -> JournalData:
         """
-        Search across all journals for the given user input against the given field
-        in the journals
+        Search across all journals for the given user input against the given
+        field in the journals
 
         :param instrument_name: The instrument name
         :param run_field: Field to search over from all runs
         :param user_input: Search query
         :param case_sensitive: If True, use case sensitive searching
-        :return: A Journal of the runs matching the search query. An empty journal
-                 indicates nothing could be found
+        :return: A JournalData object of the runs matching the search query.
+                 An empty object indicates nothing could be found
         """
         results = []
         for filename in self.journal_filenames(instrument_name):
@@ -183,12 +196,6 @@ class NetworkJournalLocator:
         return concatenate(results)
 
     # private
-    def _join_slash(self, a: str, b: str):
-        return a.rstrip('/') + '/' + b.lstrip('/')
-
-    def _url_join(self, *args):
-        return reduce(self._join_slash, args) if args else ''
-
     def _mainfile_url(self, instrument_name: str) -> str:
         """Return the URL for the _main index journal file
 
@@ -213,12 +220,3 @@ class NetworkJournalLocator:
         :return: The URL to the directory of the journals
         """
         return self._root_url + f"/{instrument_name.lower()}"
-
-    @classmethod
-    def _to_datetime(cls, timestamp: str) -> datetime:
-        """_summary_
-
-        :param timestamp: A timestamp as a string
-        :return: A datetime.datetime object
-        """
-        return datetime.strptime(timestamp, cls.LAST_MODIFIED_DT_FORMAT)

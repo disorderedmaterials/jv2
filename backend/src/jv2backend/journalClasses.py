@@ -2,6 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from __future__ import annotations
+from dataclasses import dataclass
+from typing import List, Dict
 import datetime as dt
 from typing import Optional, Sequence
 import pandas as pd
@@ -109,17 +111,16 @@ _SPECIAL_QUERY_HANDLERS = {
 }
 
 
-# Journal class
-class Journal:
-    """A Journal captures records of runs from a given source"""
+# JournalData class
+class JournalData:
+    """JournalData captures all run information from a given journal file"""
 
     def __init__(self, source: str, data: pd.DataFrame) -> None:
         """
-        :param instrument: Defines the instrument associated with this
+        :param source: Defines the source filename
         """
         self._source = source
         self._data = data
-        # todo: check instrument matches data
 
     @property
     def instrument(self) -> str:
@@ -131,7 +132,7 @@ class Journal:
         return len(self._data)
 
     @property
-    def last_run_number(self) -> int:
+    def get_last_run_number(self) -> int:
         """Return the run number of the last run in the journal"""
         run_numbers = self._data["run_number"]
         return int(run_numbers.max())
@@ -150,13 +151,13 @@ class Journal:
 
     def search(
         self, run_field: str, user_input: str, case_sensitive: bool = False
-    ) -> Journal:
+    ) -> JournalData:
         """Search across the runs for those matching the user_input over the run_field"""
         # Different fields need handling differently but we will fallback to a basic
         # "is in string check"
         query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
 
-        return Journal(
+        return JournalData(
             self.source,
             query_handle(self._data, run_field, user_input, case_sensitive),
         )
@@ -167,13 +168,77 @@ class Journal:
         return self._data.to_json(orient="records")
 
 
-# Operations on multiple journals
-def concatenate(journals: Sequence[Journal]) -> Journal:
+# Operations on multiple journal data
+def concatenate(journals: Sequence[JournalData]) -> JournalData:
     """Concatenate the Journals to a single Journal
 
     :param journals: Sequence of Journal objects
     :return: A new Journal, the result of concatenating the input journals into one
     """
-    return Journal(
+    return JournalData(
         journals[0].source, pd.concat([journal._data for journal in journals])
     )
+
+
+@dataclass
+class BasicJournalFile:
+    """Defines basic properties of a single journal file"""
+    rootUrl: str
+    directory: str
+    filename: str
+    last_modified: dt.datetime = None
+    first_run_number: int = -1
+    last_run_number: int = -1
+
+    @classmethod
+    def from_derived(cls, derived):
+        basic = cls(derived.rootUrl, derived.directory, derived.filename,
+                    derived.last_modified, derived.first_run_number,
+                    derived.last_run_number)
+        return basic
+
+
+@dataclass
+class JournalFile(BasicJournalFile):
+    """Defines a single journal file, including run data"""
+    run_data: JournalData = None
+
+
+@dataclass
+class JournalCollection:
+    """Defines a collection of journal files"""
+
+    # The available journal files within a collection
+    journalFiles: List(JournalFile)
+
+    def __init__(self, journalFiles: List(JournalFile)) -> None:
+        self.journalFiles = journalFiles
+
+    def get_info(self, filename: str):
+        return next((jf for jf in self.journalFiles if jf.filename == filename), None)
+    
+    def to_basic(self) -> List(BasicJournalFile):
+        basic = []
+        for x in self.journalFiles:
+            basic.append(x.from_derived(x))
+        return basic
+
+
+@dataclass
+class JournalLibrary:
+    """Defines one or more data source rootURL/directory and their associated
+    journal collections.
+    """
+    collections: Dict(str, JournalCollection)
+
+    def __setitem__(self, key, value):
+        self.collections[key] = value
+
+    def __getitem__(self, key):
+        if key in self.collections:
+            return self.collections[key]
+        else:
+            return None
+
+    def __contains__(self, key):
+        return key in self.collections

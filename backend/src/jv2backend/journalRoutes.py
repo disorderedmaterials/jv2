@@ -6,13 +6,15 @@ import logging
 from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
+from jv2backend.journalClasses import JournalLibrary, JournalCollection
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
-from jv2backend.utils import json_response, split
+from jv2backend.utils import json_response, split, url_join
 
 
 def add_routes(
     app: Flask,
     networkJournalLocator: NetworkJournalLocator,
+    journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
 
@@ -26,7 +28,8 @@ def add_routes(
              directory: The directory in rootUrl to probe for journals
             index_file: Name of the index file in the directory, if known
 
-        :return: A JSON response containing an array of available journals in the form of a list(JournalFile), or an error
+        :return: A JSON response containing an array of available journals in the form of a
+                 list(BasicJournalFile), or an error
         """
         data = request.json
         rootUrl = data["rootUrl"]
@@ -34,10 +37,17 @@ def add_routes(
 
         logging.debug(f"Listing journals for {directory} in {rootUrl}")
 
+        # If we already have a library collection for the specified rootUrl/directory, just return it
+        library_key = url_join(rootUrl, directory)
+        if library_key in journalLibrary:
+            logging.debug(f"Returning existing journal collection for {library_key}")
+            return journalLibrary[library_key].to_basic()
+
         try:
             if (rootUrl.startswith("http")):
                 if "indexFile" in data:
-                    return jsonify(networkJournalLocator.get_index(server_root=rootUrl, journal_directory=directory, index_file=data['indexFile']))
+                    journalLibrary[library_key] = JournalCollection(networkJournalLocator.get_index(server_root=rootUrl, journal_directory=directory, index_file=data['indexFile']))
+                    return jsonify(journalLibrary[library_key].to_basic())
                 else:
                     return jsonify(f"Error: Index file name must be provided for a network source ({rootUrl}/{directory}).")
         except Exception as exc:
@@ -58,7 +68,7 @@ def add_routes(
         rootUrl = data["rootUrl"]
         directory = data["directory"]
         journalFile = data["journalFile"]
-
+        library_key = url_join(rootUrl, directory)
         logging.debug(
             f"Get journal {journalFile} from {directory} at {rootUrl}"
             )
@@ -66,7 +76,8 @@ def add_routes(
         try:
             if (rootUrl.startswith("http")):
                 return json_response(
-                    networkJournalLocator.get_journal(server_root=rootUrl,
+                    networkJournalLocator.get_journal_data(journalLibrary[library_key],
+                                                      server_root=rootUrl,
                                                       journal_directory=directory,
                                                       journal_file=journalFile)
                 )
@@ -88,6 +99,7 @@ def add_routes(
         rootUrl = data["rootUrl"]
         directory = data["directory"]
         journalFile = data["journalFile"]
+        library_key = url_join(rootUrl, directory)
 
         logging.debug(
             f"Get journal {journalFile} from {directory} at {rootUrl}"
@@ -95,7 +107,8 @@ def add_routes(
         
         try:
             if (rootUrl.startswith("http")):
-                return json_response(networkJournalLocator.get_updates(server_root=rootUrl,
+                return json_response(networkJournalLocator.get_updates(journalLibrary[library_key],
+                                                                       server_root=rootUrl,
                                                                        journal_directory=directory,
                                                                        journal_file=journalFile)
                 )
