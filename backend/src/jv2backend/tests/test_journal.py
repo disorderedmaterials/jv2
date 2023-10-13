@@ -4,10 +4,9 @@
 import json
 import pytest
 
-from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal
 
-INSTRUMENT_NAME = "FAKE"
+JOURNAL_SOURCE = "FAKE"
 
 
 @pytest.fixture()
@@ -16,13 +15,13 @@ def journal_fake(sample_journal_dataframe) -> Journal:
 
 
 def _create_fake_journal(sample_dataframe) -> Journal:
-    return Journal(Instrument(INSTRUMENT_NAME), sample_dataframe)
+    return Journal(JOURNAL_SOURCE, sample_dataframe)
 
 
 def test_default_journal_creation_stores_instrument_and_data(sample_journal_dataframe):
     journal = _create_fake_journal(sample_journal_dataframe)
 
-    assert journal.instrument.name == INSTRUMENT_NAME
+    assert journal.source == JOURNAL_SOURCE
     assert journal.run_count == len(sample_journal_dataframe)
 
 

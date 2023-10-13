@@ -11,8 +11,3 @@ class JournalFile:
     directory: str
     filename: str
 
-
-class JournalFileList(list):
-    """Stores a collection of journal names"""
-
-    pass

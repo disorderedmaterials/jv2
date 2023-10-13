@@ -8,10 +8,8 @@ from functools import reduce
 import pandas as pd
 import requests
 
-from jv2backend.instrument import Instrument
 from jv2backend.journal import Journal, concatenate
-from jv2backend.journalFileList import JournalFile
-from jv2backend.io.journals.xmlJournalReader import ISISXMLJournalReader
+from jv2backend.journalFile import JournalFile
 
 
 class NetworkJournalLocator:
@@ -100,8 +98,7 @@ class NetworkJournalLocator:
         self.journal_info(url)["last_modified"] = self._to_datetime(response.headers["Last-Modified"])
 
         # Read in the run data from the journal file
-        reader = ISISXMLJournalReader(Instrument("NOTMYNAME"))
-        journal = reader.read_journalfile(response.content)
+        journal = Journal(journal_file, data=pd.read_xml(BytesIO(response.content), dtype=str))
 
         # Store the most-recent (highest) run number in the journal for future reference
         self.journal_info(url)["last_run_number"] = journal.last_run_number
@@ -130,8 +127,7 @@ class NetworkJournalLocator:
         self.journal_info(url)["last_modified"] = current_modification_time
 
         # Read in the run data from the journal file
-        reader = ISISXMLJournalReader(Instrument("NOTMYNAME"))
-        journal = reader.read_journalfile(response.content)
+        journal = Journal(journal_file, data=pd.read_xml(BytesIO(response.content), dtype=str))
 
         # Get the last run number
         old_last_run_number = self.journal_info(url)["last_run_number"]

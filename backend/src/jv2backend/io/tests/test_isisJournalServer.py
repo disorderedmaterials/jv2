@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from jv2backend.journal import Journal
-from jv2backend.journalFileList import JournalFileList
 from jv2backend.io.isis.isisJournalServer import ISISJournalServer
 
 import pytest

@@ -1,14 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-"""Defines a Journal class to encapsulate a collection of Runs on an instrument"""
 from __future__ import annotations
 import datetime as dt
 from typing import Optional, Sequence
 import pandas as pd
-import logging
-
-from jv2backend.instrument import Instrument
 
 # Format of start time search string
 USERINPUT_DT_FORMAT_STR = "%Y/%m/%d"
@@ -112,21 +108,22 @@ _SPECIAL_QUERY_HANDLERS = {
     "start_time": inrange_datetime,
 }
 
+
 # Journal class
 class Journal:
-    """A Journal captures records of runs on a given instrument"""
+    """A Journal captures records of runs from a given source"""
 
-    def __init__(self, instrument: Instrument, data: pd.DataFrame) -> None:
+    def __init__(self, source: str, data: pd.DataFrame) -> None:
         """
         :param instrument: Defines the instrument associated with this
         """
-        self._instrument = instrument
+        self._source = source
         self._data = data
         # todo: check instrument matches data
 
     @property
-    def instrument(self) -> Instrument:
-        return self._instrument
+    def instrument(self) -> str:
+        return self._source
 
     @property
     def run_count(self) -> int:
@@ -160,7 +157,7 @@ class Journal:
         query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
 
         return Journal(
-            self.instrument,
+            self.source,
             query_handle(self._data, run_field, user_input, case_sensitive),
         )
 
@@ -178,5 +175,5 @@ def concatenate(journals: Sequence[Journal]) -> Journal:
     :return: A new Journal, the result of concatenating the input journals into one
     """
     return Journal(
-        journals[0].instrument, pd.concat([journal._data for journal in journals])
+        journals[0].source, pd.concat([journal._data for journal in journals])
     )

@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 """Define the Flask instance and backend API routes"""
-import importlib
 import logging
 from flask import Flask
 
@@ -10,7 +9,6 @@ from jv2backend import config
 from jv2backend import journalRoutes
 from jv2backend import nexusRoutes
 from jv2backend import serverRoutes
-from flask import jsonify
 
 # Import the ISIS server. Use a factory in the future should
 # alternate implementations be required
