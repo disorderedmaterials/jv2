@@ -121,8 +121,11 @@ bool MainWindow::highlightRunNumber(int runNumber)
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    backend_.pingJournals(currentInstrument().journalDirectory(),
-                          [=](HttpRequestWorker *worker) { handlePingJournals(worker->response); });
+    if (!currentJournal_)
+        return;
+    auto &journal = currentJournal_->get();
+
+    backend_.getJournalUpdates(journal.location(), [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
 // Jump to run number

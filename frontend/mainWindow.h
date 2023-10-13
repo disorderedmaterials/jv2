@@ -142,8 +142,8 @@ class MainWindow : public QMainWindow
     bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
     // Handle backend ping result
     void handleBackendPingResult(HttpRequestWorker *worker);
-    // Handle journal ping result
-    void handlePingJournals(QString response);
+    // Handle get journal updates result
+    void handleGetJournalUpdates(HttpRequestWorker *workers);
     // Handle returned journal information for an instrument
     void handleListJournals(HttpRequestWorker *worker);
     // Handle run data returned for a whole journal

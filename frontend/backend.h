@@ -69,16 +69,13 @@ class Backend : public QObject
     // List available journals in the specified source and directory
     void listJournals(const DataSource &source, const QString &journalDirectory,
                       HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get journal file at the specified locations
+    // Get journal file at the specified location
     void getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get any updates to the specified journal
+    void getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
     // Search all journals for matching runs
     void findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
                   HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get updated journal data
-    void updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
-                       HttpRequestWorker::HttpRequestHandler handler = {});
-    // Ping for any updates in the specified journal directory
-    void pingJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get total uAmps for run numbers in the given cycle
     void getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
                            HttpRequestWorker::HttpRequestHandler handler = {});

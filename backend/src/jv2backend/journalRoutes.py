@@ -31,7 +31,9 @@ def add_routes(
         data = request.json
         rootUrl = data["rootUrl"]
         directory = data["directory"]
-        logging.debug("Listing journals for: " + rootUrl + ", " + directory)
+
+        logging.debug(f"Listing journals for {directory} in {rootUrl}")
+
         try:
             if (rootUrl.startswith("http")):
                 if "indexFile" in data:
@@ -56,21 +58,51 @@ def add_routes(
         rootUrl = data["rootUrl"]
         directory = data["directory"]
         journalFile = data["journalFile"]
+
         logging.debug(
             f"Get journal {journalFile} from {directory} at {rootUrl}"
             )
+
         try:
-            return json_response(
-                networkJournalLocator.get_journal(server_root=rootUrl,
-                                                  journal_directory=directory,
-                                                  journal_file=journalFile)
-            )
+            if (rootUrl.startswith("http")):
+                return json_response(
+                    networkJournalLocator.get_journal(server_root=rootUrl,
+                                                      journal_directory=directory,
+                                                      journal_file=journalFile)
+                )
         except Exception as exc:
             return jsonify(
                 f"Error: Unable to get journal {journalFile} from {directory} at {rootUrl}: {str(exc)}"
             )
 
+    @app.post("/journals/getUpdates")
+    def getUpdates():
+        """Checks the specified journal file for updates, returning any new runs
 
+        :param instrument: The instrument name
+        :param filename: The cycle filename
+        :param last_run: The last run that is currently known
+        :return: A JSON-formatted list of Run data for runs newer than last_run
+        """
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        journalFile = data["journalFile"]
+
+        logging.debug(
+            f"Get journal {journalFile} from {directory} at {rootUrl}"
+            )
+        
+        try:
+            if (rootUrl.startswith("http")):
+                return json_response(networkJournalLocator.get_updates(server_root=rootUrl,
+                                                                       journal_directory=directory,
+                                                                       journal_file=journalFile)
+                )
+        except Exception as exc:
+            return jsonify(
+                f"Error: Unable to get updates to {journalFile} from {directory} at {rootUrl}: {str(exc)}"
+            )
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 
@@ -98,33 +130,6 @@ def add_routes(
             )
         except Exception as exc:
             return jsonify(f"Error: Unable to complete search '{search}': {str(exc)}")
-
-    @app.route("/journals/ping/<instrument>")
-    def pingJournals(instrument):
-        """Check if a new journal has been added for the instrument
-
-        :param instrument: Instrument name
-        :return: Json string containing the name of the new journal
-        """
-        result = networkJournalLocator.check_for_journal_filenames_update(instrument)
-        return result if result is not None else ""
-
-    @app.route("/journals/update/<instrument>/<filename>/<last_run>")
-    def updateJournal(instrument, filename, last_run):
-        """Return runs after the last given run for the instrument and cycle
-
-        :param instrument: The instrument name
-        :param filename: The cycle filename
-        :param last_run: The last run that is currently known
-        :return: A JSON-formatted list of Run data for runs newer than last_run
-        """
-        try:
-            all_cycle_runs = networkJournalLocator.journal(instrument, filename=filename)
-            return json_response(all_cycle_runs.search("run_number", f">{last_run}"))
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to fetch new runs for {instrument}, cycle {filename}: {str(exc)}"
-            )
 
     @app.route("/journals/getTotalMuAmps/<instrument>/<cycle>/<runs>")
     def getTotalMuAmps(instrument, cycle, runs):

@@ -152,24 +152,22 @@ void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequest
     postRequest(createRoute("journals/get"), data, handler);
 }
 
+// Get any updates to the specified journals
+void Backend::getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
+{
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["journalFile"] = location.filename();
+
+    postRequest(createRoute("journals/getUpdates"), data, handler);
+}
+
 // Search all journals for matching runs
 void Backend::findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
                        HttpRequestWorker::HttpRequestHandler handler)
 {
     createRequest(createRoute("journals/findRuns", journalDirectory, value, textInput, options), handler);
-}
-
-// Get updated journal data [FIXME, COULD DO WITH A BETTER NAME]
-void Backend::updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
-                            HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("journals/update", journalDirectory, cycleString, lastKnownRunNo), handler);
-}
-
-// Ping for any updates in the specified journal directory
-void Backend::pingJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("journals/ping", journalDirectory), handler);
 }
 
 // Get total uAmps for run numbers in the given cycle

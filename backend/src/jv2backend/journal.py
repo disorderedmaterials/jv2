@@ -6,6 +6,7 @@ from __future__ import annotations
 import datetime as dt
 from typing import Optional, Sequence
 import pandas as pd
+import logging
 
 from jv2backend.instrument import Instrument
 
@@ -131,6 +132,12 @@ class Journal:
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return len(self._data)
+
+    @property
+    def last_run_number(self) -> int:
+        """Return the run number of the last run in the journal"""
+        run_numbers = self._data["run_number"]
+        return int(run_numbers.max())
 
     def run(self, run_number: str) -> Optional[dict]:
         """Return a dictionary describing the given run number
