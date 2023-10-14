@@ -152,7 +152,7 @@ void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequest
     postRequest(createRoute("journals/get"), data, handler);
 }
 
-// Get any updates to the specified journals
+// Get any updates to the specified journal
 void Backend::getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
