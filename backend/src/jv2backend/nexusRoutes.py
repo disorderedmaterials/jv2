@@ -16,18 +16,11 @@ import jv2backend.io.nexus as nxs
 
 
 def add_routes(
-    app: Flask, networkJournalLocator: NetworkJournalLocator, run_locator: RunDataFileLocator
+    app: Flask,
+    networkJournalLocator: NetworkJournalLocator,
+    run_locator: RunDataFileLocator
 ) -> Flask:
     """Add routes to the given Flask application."""
-
-    @app.route("/runData/setRoot/<prefix>")
-    def setRoot(prefix):
-        """Set the prefix to use by the RunDataFileLocator"""
-        if prefix == "Default":
-            prefix = config.get("run_locator_prefix")
-        run_locator.prefix = f"{prefix}"
-
-        return jsonify("success")
 
     @app.route("/runData/nexus/getLogValues/<instrument>/<cycles>/<runs>")
     def getLogValues(instrument, cycles, runs):

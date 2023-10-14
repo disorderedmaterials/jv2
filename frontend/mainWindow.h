@@ -160,10 +160,6 @@ class MainWindow : public QMainWindow
     // Retrieve user settings
     void loadSettings();
 
-    private slots:
-    void on_actionMountPoint_triggered();
-    void on_actionClearMountPoint_triggered();
-
     /*
      * Searching
      */

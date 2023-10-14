@@ -335,8 +335,6 @@
     <property name="title">
      <string>&amp;Settings</string>
     </property>
-    <addaction name="actionMountPoint"/>
-    <addaction name="actionClearMountPoint"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuRunData"/>
@@ -408,16 +406,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F3</string>
-   </property>
-  </action>
-  <action name="actionMountPoint">
-   <property name="text">
-    <string>Set NeXus Archive Location</string>
-   </property>
-  </action>
-  <action name="actionClearMountPoint">
-   <property name="text">
-    <string>Clear NeXus Archive Location</string>
    </property>
   </action>
   <action name="actionJumpTo">

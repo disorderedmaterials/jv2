@@ -187,12 +187,6 @@ void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, H
  * NeXuS Endpoints
  */
 
-// Set data mountpoint
-void Backend::setRunDataRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("runData/setRoot", directory), handler);
-}
-
 // Get NeXuS log values present in specified run files
 void Backend::getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
                              HttpRequestWorker::HttpRequestHandler handler)

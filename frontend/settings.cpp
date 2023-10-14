@@ -28,36 +28,4 @@ void MainWindow::saveCustomColumnSettings() const
 }
 
 // Retrieve user settings
-void MainWindow::loadSettings()
-{
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-
-    // Mount point?
-    auto mountPoint = settings.value("mountPoint").toString();
-    if (!mountPoint.isEmpty())
-        backend_.setRunDataRoot(mountPoint);
-}
-
-/*
- * UI
- */
-
-void MainWindow::on_actionMountPoint_triggered()
-{
-    QString textInput = QInputDialog::getText(this, tr("Set Mount Point"), tr("Location:"), QLineEdit::Normal);
-    if (textInput.isEmpty())
-        return;
-
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.setValue("mountPoint", textInput);
-
-    backend_.setRunDataRoot(textInput);
-}
-
-void MainWindow::on_actionClearMountPoint_triggered()
-{
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.setValue("mountPoint", "");
-
-    backend_.setRunDataRoot("Default");
-}
+void MainWindow::loadSettings() { QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2"); }

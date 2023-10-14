@@ -86,8 +86,6 @@ class Backend : public QObject
      * NeXuS Endpoints
      */
     public:
-    // Set data mountpoint
-    void setRunDataRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log values present in specified run files
     void getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
                         HttpRequestWorker::HttpRequestHandler handler = {});
