@@ -105,7 +105,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
         auto value = worker->jsonArray[i].toObject();
 
         addJournal(value["filename"].toString(),
-                   {value["rootUrl"].toString(), value["directory"].toString(), value["filename"].toString()});
+                   {value["server_root"].toString(), value["directory"].toString(), value["filename"].toString()});
     }
 
     // If there is no current journal, set one

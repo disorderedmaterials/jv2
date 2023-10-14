@@ -6,6 +6,7 @@ from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import pandas as pd
 import requests
+import logging
 
 from jv2backend.journalClasses import JournalCollection, JournalFile
 from jv2backend.journalClasses import JournalData, concatenate
@@ -119,6 +120,22 @@ class NetworkJournalLocator:
         j.last_run_number = j.run_data.get_last_run_number
 
         return j.run_data
+
+    def get_all_journal_data(self, collection: JournalCollection) -> None:
+        """Retrieve all run data for all journals listed in the collection
+
+        :param collection: JournalCollection in which the data should be stored
+        :return: None
+        """
+        # Loop over defined journal files. If run_data is already present we 
+        # assume it's up-to-date.
+        for j in collection.journalFiles:
+            if j.run_data is None:
+                logging.debug(f"Obtaining journal {j.filename}")
+                self.get_journal_data(collection, j.server_root, j.directory,
+                                      j.filename)
+
+        return None
 
     def get_updates(
             self, collection: JournalCollection, server_root: str,
