@@ -14,14 +14,15 @@ from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.io.runDataFileLocator import RunDataFileLocator
 
 
-def create_app(indside_gunicorn: bool = True) -> Flask:
+def create_app(inside_gunicorn: bool = True) -> Flask:
     """Create the Flask application and define
     the routes served by the backend. See config.py for configuration settings
 
-    :param inside_gunicorn: If True, the app has been run by gunicorn and not directly
+    :param inside_gunicorn: Whether the app has been run by gunicorn and
+                            not directly
     """
     app = Flask(__name__)
-    _configure_logging(app, indside_gunicorn)
+    _configure_logging(app, inside_gunicorn)
     networkJournalLocator = NetworkJournalLocator()
     run_locator = RunDataFileLocator(config.get("run_locator_prefix"))
 
@@ -38,7 +39,8 @@ def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
     """_summary_
 
     :param app: Flask app to configure
-    :param inside_gunicorn: If True, the app has been run by gunicorn and not directly
+    :param inside_gunicorn: Whether the app has been run by gunicorn and
+                            not directly
     """
     if inside_gunicorn:
         # Match logging handlers and configuration with gunicorn
@@ -49,13 +51,13 @@ def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
         root.setLevel(gunicorn_logger.level)
     else:
         logging.config.dictConfig(
-        {
-            "version": 1,
-            "root": {
-                "level": config.get("logger_level"),
-            },
-        }
-    )
+            {
+                "version": 1,
+                "root": {
+                    "level": config.get("logger_level"),
+                },
+            }
+        )
 
     return app
 
