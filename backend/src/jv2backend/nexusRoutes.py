@@ -3,15 +3,12 @@
 
 """Defines the Flask endpoints that only access NeXuS information"""
 import logging
-from pathlib import Path
-from typing import Optional, Sequence
 
 from flask import Flask, jsonify, request
-
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.io.runDataFileLocator import RunDataFileLocator
 from jv2backend.journalClasses import JournalLibrary
-from jv2backend.utils import json_response, split, url_join
+from jv2backend.utils import json_response, url_join
 import jv2backend.io.nexus as nxs
 
 
@@ -271,45 +268,3 @@ def add_routes(
     # ------------------------ End Routes -------------------------
 
     return app
-
-
-# Private functions
-
-
-def _locate_run_files(
-    networkJournalLocator: NetworkJournalLocator,
-    run_locator: RunDataFileLocator,
-    instrument: str,
-    cycles_str: str,
-    runs_str: str,
-) -> Sequence[Optional[Path]]:
-    """Return a list of Path objects to files for the given query
-
-    :param file_locator: An object that understands how to locate a Run
-    :param instrument: Instrument name
-    :param cycles: A semi-colon separated list of cycle names in the format YY_N
-    :param runs: A semi-colon separated list of run numbers. Length should match cycles.
-    :return: A list of Path|None to the found data files. None indicates the files could not be found
-
-    The instrument_name entries in the returned dicts are set to the input instrument name in order
-    to pass the correct name (e.g. 'ndxabc') to the run locator.
-    """
-    logging.debug(f"Locating runs: '{cycles_str}'/'{runs_str}'")
-    cycles, runs = split(cycles_str, ";"), split(runs_str, ";")
-    if len(cycles) == 1:
-        # Use the same cycle for each run
-        cycles = [cycles[0]] * len(runs)
-
-    filepaths = []
-    for cycle, run in zip(cycles, runs):
-        logging.debug(f"Fetching journal for {instrument}, cycle={cycle}")
-        journal = networkJournalLocator.journal(instrument, cyclename=cycle)
-        run = journal.run(run_number=run)
-        if run is None:
-            filepaths.append(None)
-            continue
-        logging.debug(f"Found metadata for run {run}")
-        run["instrument_name"] = instrument
-        filepaths.append(run_locator.locate(run))
-
-    return filepaths
