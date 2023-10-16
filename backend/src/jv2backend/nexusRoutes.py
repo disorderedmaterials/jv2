@@ -5,8 +5,6 @@
 import logging
 
 from flask import Flask, jsonify, request
-from jv2backend.io.journals.networkLocator import NetworkJournalLocator
-from jv2backend.io.runDataFileLocator import RunDataFileLocator
 from jv2backend.journalClasses import JournalLibrary
 from jv2backend.utils import json_response, url_join
 import jv2backend.io.nexus as nxs
@@ -14,8 +12,6 @@ import jv2backend.io.nexus as nxs
 
 def add_routes(
     app: Flask,
-    networkJournalLocator: NetworkJournalLocator,
-    run_locator: RunDataFileLocator,
     journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
@@ -241,9 +237,11 @@ def add_routes(
     def getDetectorAnalysis():
         """Determine the number of spectra with non-zero signal values
 
-        :param instrument: The instrument name
-        :param cycle: The cycle containing the run
-        :param run: The run to analyse
+        The POST data should contain:
+            rootUrl: The root network or disk location for the journals
+          directory: The directory in rootUrl containing the journals
+          runNumber: Run number to get analysis for
+
         :return: A string of the form "count(non_zero)/count(all_spectra)"
         """
         data = request.json

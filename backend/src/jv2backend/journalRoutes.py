@@ -66,7 +66,7 @@ def add_routes(
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:
-        """Return a journal of Runs for the instrument and cycle
+        """Return the specified journal contents
 
         The POST data should contain:
                 rootUrl: The root network or disk location for the journals
@@ -103,10 +103,12 @@ def add_routes(
         """Checks the specified journal file for updates, returning any new
         run data
 
-        :param instrument: The instrument name
-        :param filename: The cycle filename
-        :param last_run: The last run that is currently known
-        :return: A JSON-formatted list of Run data for runs newer than last_run
+                The POST data should contain:
+                rootUrl: The root network or disk location for the journals
+              directory: The directory in rootUrl to probe for journals
+            journalFile: Name of the target journal file in the directory
+
+        :return: A JSON-formatted list of new run data, or None
         """
         data = request.json
         rootUrl = data["rootUrl"]

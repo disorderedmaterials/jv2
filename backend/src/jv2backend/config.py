@@ -8,9 +8,7 @@ import os
 ENVIRON_NAME_PREFIX = "JV2"
 
 DEFAULTS = {
-    "logger_level": "INFO",
-    "run_locator_class": "jv2backend.io.isis.fileLocator.LegacyArchiveFileLocator",
-    "run_locator_prefix": "/archive",
+    "logger_level": "INFO"
 }
 
 

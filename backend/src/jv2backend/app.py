@@ -11,8 +11,6 @@ from jv2backend import nexusRoutes
 from jv2backend import serverRoutes
 from jv2backend.journalClasses import JournalLibrary
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
-from jv2backend.io.runDataFileLocator import RunDataFileLocator
-
 
 def create_app(inside_gunicorn: bool = True) -> Flask:
     """Create the Flask application and define
@@ -24,14 +22,12 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
     app = Flask(__name__)
     _configure_logging(app, inside_gunicorn)
     networkJournalLocator = NetworkJournalLocator()
-    run_locator = RunDataFileLocator(config.get("run_locator_prefix"))
 
     journalLibrary = JournalLibrary({})
 
     serverRoutes.add_routes(app)
     journalRoutes.add_routes(app, networkJournalLocator, journalLibrary)
-    nexusRoutes.add_routes(app, networkJournalLocator, run_locator,
-                           journalLibrary)
+    nexusRoutes.add_routes(app, journalLibrary)
 
     return app
 

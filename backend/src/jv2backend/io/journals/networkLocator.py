@@ -15,19 +15,6 @@ from jv2backend.journalClasses import JournalData, concatenate
 class NetworkJournalLocator:
     """Journal file locator"""
 
-    JOURNAL_FILELIST_FILENAME = "journal_main.xml"
-    JOURNAL_FILENAME_TEMPLATE = "journal_{}.xml"
-
-    @classmethod
-    def filename(cls, cyclename: str):
-        """Return the journal filename from a cycle name
-        :param cyclename: Name of the cycle in the form [cycle_]YY_N
-        :return: Construct the journal filename as journal_YY_N.xml
-        """
-        cycleid = cyclename.lstrip(
-            "cycle_") if cyclename.startswith("cycle") else cyclename
-        return cls.JOURNAL_FILENAME_TEMPLATE.format(cycleid)
-
     def get_index(self, server_root: str, journal_directory: str,
                   index_file: str, data_directory: str) -> List[JournalFile]:
         """Retrive an index file containing journal information
