@@ -39,8 +39,6 @@ def add_routes(
         directory = data["directory"]
         runNumbers = data["runNumbers"]
         library_key = url_join(rootUrl, directory)
-        for x in runNumbers:
-            logging.debug(f"We got run number {x}")
 
         # Get the specified collection
         collection = journalLibrary[library_key]
