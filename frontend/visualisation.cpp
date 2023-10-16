@@ -69,7 +69,6 @@ void MainWindow::handleCreateSELogPlot(HttpRequestWorker *worker)
     auto *dateTimeChartView = new ChartView(dateTimeChart, window);
     auto *relTimeChart = new QChart();
     auto *relTimeChartView = new ChartView(relTimeChart, window);
-    auto *fieldsMenu = new QMenu("fieldsMenu", window);
 
     // Check network reply
     if (networkRequestHasError(worker, "trying to graph a log value"))
@@ -260,18 +259,12 @@ void MainWindow::handleCreateSELogPlot(HttpRequestWorker *worker)
 
     auto *gridLayout = new QGridLayout(window);
     auto *axisToggleCheck = new QCheckBox("Plot relative to run start times", window);
-    auto *addFieldButton = new QPushButton("Add field", window);
-
-    addFieldButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     connect(axisToggleCheck, SIGNAL(stateChanged(int)), this, SLOT(toggleAxis(int)));
-    connect(addFieldButton, &QPushButton::clicked,
-            [=]() { fieldsMenu->exec(addFieldButton->mapToGlobal(QPoint(0, addFieldButton->height()))); });
 
     gridLayout->addWidget(dateTimeChartView, 1, 0, -1, -1);
     gridLayout->addWidget(relTimeChartView, 1, 0, -1, -1);
     relTimeChartView->hide();
     gridLayout->addWidget(axisToggleCheck, 0, 0);
-    gridLayout->addWidget(addFieldButton, 0, 1);
     QString tabName;
     for (auto i = 0; i < chartFields.size(); i++)
     {
