@@ -107,6 +107,8 @@ class MainWindow : public QMainWindow
     // Set current journal being displayed
     void setCurrentJournal(QString name);
     void setCurrentJournal(Journal &journal);
+    // Return current journal
+    const Journal &currentJournal() const;
 
     /*
      * Run Data
@@ -124,6 +126,8 @@ class MainWindow : public QMainWindow
     const QModelIndex runDataIndexAtPos(const QPoint pos) const;
     // Get selected run / cycle information [LEGACY, TO FIX]
     std::pair<QString, QString> selectedRunNumbersAndCycles() const;
+    // Return integer list of currently-selected run numbers
+    std::vector<int> selectedRunNumbers() const;
     // Select and show specified run number in table (if it exists)
     bool highlightRunNumber(int runNumber);
 

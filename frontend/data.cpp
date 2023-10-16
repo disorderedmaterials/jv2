@@ -87,6 +87,27 @@ std::pair<QString, QString> MainWindow::selectedRunNumbersAndCycles() const
     return {runNos, cycles};
 }
 
+// Return integer list of currently-selected run numbers
+std::vector<int> MainWindow::selectedRunNumbers() const
+{
+    // Get current selection
+    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
+    std::vector<int> runNumbers;
+
+    // Concats runs
+    for (const auto &runIndex : selectedRuns)
+    {
+        auto runNo = runDataFilterProxy_.getData("run_number", runIndex);
+
+        // Account for grouped run information
+        auto runNoArray = runNo.split(",");
+        for (const auto &n : runNoArray)
+            runNumbers.push_back(n.toInt());
+    }
+
+    return runNumbers;
+}
+
 // Select and show specified run number in table (if it exists)
 bool MainWindow::highlightRunNumber(int runNumber)
 {

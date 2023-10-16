@@ -68,3 +68,12 @@ void MainWindow::setCurrentJournal(Journal &journal)
 
     setLoadScreen(true);
 }
+
+// Return current journal
+const Journal &MainWindow::currentJournal() const
+{
+    if (currentJournal_)
+        return currentJournal_->get();
+
+    throw(std::runtime_error("No current journal defined.\n"));
+}
