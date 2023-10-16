@@ -135,9 +135,6 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 
     QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
-
-    backend_.getNexusDetectorAnalysis(currentInstrument().dataDirectory(), cycle, runs,
-                                      [=](HttpRequestWorker *worker) { window->setLabel(worker->response); });
 }
 
 void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)

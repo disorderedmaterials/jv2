@@ -278,8 +278,12 @@ void Backend::getNexusDetector(const Locator &location, const std::vector<int> &
 }
 
 // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-void Backend::getNexusDetectorAnalysis(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                       HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getDetectorAnalysis", dataDirectory, runNos, cycle), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["runNumber"] = runNo;
+
+    postRequest(createRoute("runData/nexus/getDetectorAnalysis"), data, handler);
 }

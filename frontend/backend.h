@@ -94,16 +94,14 @@ class Backend : public QObject
                               HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor range for specified run number
     void getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor spectrum for specified run numbers in the given cycle
+    // Get NeXuS monitor spectrum for specified run numbers
     void getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
                          HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS spectrum range for specified run numbers in the given cycle
+    // Get NeXuS spectrum range for specified run numbers
     void getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS detector spectra for specified run numbers in the given cycle
+    // Get NeXuS detector spectra for specified run numbers
     void getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
                           HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-    // [FIXME - Different argument order (cycle/runs) to others]
-    void getNexusDetectorAnalysis(const QString &dataDirectory, const QString &cycle, const QString &runNos,
-                                  HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS detector spectra analysis for specified run number
+    void getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 };

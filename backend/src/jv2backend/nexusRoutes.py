@@ -241,7 +241,7 @@ def add_routes(
         return json_response(spectra)
 
     @app.post("/runData/nexus/getDetectorAnalysis")
-    def getDetectorAnalysis(instrument, cycle, run):
+    def getDetectorAnalysis():
         """Determine the number of spectra with non-zero signal values
 
         :param instrument: The instrument name
@@ -249,13 +249,24 @@ def add_routes(
         :param run: The run to analyse
         :return: A string of the form "count(non_zero)/count(all_spectra)"
         """
-        filepaths = _locate_run_files(
-            networkJournalLocator, run_locator, instrument, cycle, run
-        )
-        if not any(filepaths):
-            return jsonify(f"Error: Unable to find run {run}")
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        run_number = data["runNumber"]
+        library_key = url_join(rootUrl, directory)
 
-        return nxs.nonzero_spectra_ratio(filepaths[0])  # type: ignore
+        # Get the specified collection
+        collection = journalLibrary[library_key]
+        if collection is None:
+            return jsonify(f"Error: Collection {library_key} does not exist.")
+
+        # Locate data file for the specified run number in the collection
+        dataFile = collection.locate_data_file(run_number)
+        if dataFile is None:
+            return jsonify(f"Error: Unable to find data file for run \
+                           {run_number}")
+
+        return nxs.nonzero_spectra_ratio(dataFile)
 
     # ------------------------ End Routes -------------------------
 
