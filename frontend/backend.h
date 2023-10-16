@@ -92,17 +92,15 @@ class Backend : public QObject
     // Get NeXuS log value data for specified run files
     void getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
                               HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor range for specified run numbers in the given cycle
-    void getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                              HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS monitor range for specified run number
+    void getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor spectrum for specified run numbers in the given cycle
-    void getNexusMonitor(const QString &dataDirectory, const QString &runNos, const QString &cycle, const QString &spectrumID,
+    void getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
                          HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS spectrum range for specified run numbers in the given cycle
-    void getNexusSpectrumRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                               HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra for specified run numbers in the given cycle
-    void getNexusDetector(const QString &dataDirectory, const QString &runNos, const QString &cycle, const QString &spectrumID,
+    void getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
     // [FIXME - Different argument order (cycle/runs) to others]

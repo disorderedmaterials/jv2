@@ -107,93 +107,140 @@ def add_routes(
 
         return json_response(result)
 
-    @app.route("/runData/nexus/getSpectrumRange/<instrument>/<cycle>/<runs>")
-    def getSpectrumRange(instrument, cycle, runs):
-        """Return the number of spectra for the first run. The old
-        api simply ignored anything past the first run
+    @app.post("/runData/nexus/getSpectrumRange")
+    def getSpectrumRange():
+        """Return the number of detector spectra for the run.
 
-        :param instrument: The instrument name
-        :param cycle: The cycle containing the runs
-        :param runs: The run numbers
-        :return: A
+        The POST data should contain:
+            rootUrl: The root network or disk location for the journals
+          directory: The directory in rootUrl containing the journals
+          runNumber: Run number to probe for detector count
+
+        :return: The number of available detectors
         """
-        # To conform to the frontend expectation take only the first run supplied
-        run = runs
-        if ";" in runs:
-            run = runs[: runs.index(";")]
-        filepaths = _locate_run_files(
-            networkJournalLocator, run_locator, instrument, cycle, run
-        )
-        if not any(filepaths):
-            return jsonify(f"Error: Unable to find run {run}")
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        run_number = data["runNumber"]
+        library_key = url_join(rootUrl, directory)
 
-        return str(nxs.spectra_count(filepaths[0]))  # type: ignore
+        # Get the specified collection
+        collection = journalLibrary[library_key]
+        if collection is None:
+            return jsonify(f"Error: Collection {library_key} does not exist.")
 
-    @app.route("/runData/nexus/getMonitorRange/<instrument>/<cycle>/<runs>")
-    def getMonitorRange(instrument, cycle, runs):
-        """Return the number of monitors for the first run. The old
-        api simply ignored anything past the first run
+        # Locate data file for the specified run number in the collection
+        dataFile = collection.locate_data_file(run_number)
+        if dataFile is None:
+            return jsonify(f"Error: Unable to find data file for run \
+                           {run_number}")
 
-        :param instrument: The instrument name
-        :param cycle: The cycle containing the runs
-        :param runs: The run numbers
-        :return: The number of monitors encoded as a str
+        return str(nxs.spectra_count(dataFile))
+
+    @app.post("/runData/nexus/getMonitorRange")
+    def getMonitorRange():
+        """Return the number of monitor spectra for the run.
+
+        The POST data should contain:
+            rootUrl: The root network or disk location for the journals
+          directory: The directory in rootUrl containing the journals
+          runNumber: Run number to probe for monitor count
+
+        :return: The number of available monitors
         """
-        # To conform to the frontend expectation take only the first run supplied
-        run = runs
-        if ";" in runs:
-            run = runs[: runs.index(";")]
-        filepaths = _locate_run_files(
-            networkJournalLocator, run_locator, instrument, cycle, run
-        )
-        if not any(filepaths):
-            return jsonify(f"Error: Unable to find run {runs}")
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        run_number = data["runNumber"]
+        library_key = url_join(rootUrl, directory)
 
-        return str(nxs.monitor_count(filepaths[0]))  # type: ignore
+        # Get the specified collection
+        collection = journalLibrary[library_key]
+        if collection is None:
+            return jsonify(f"Error: Collection {library_key} does not exist.")
 
-    @app.route("/runData/nexus/getSpectrum/<instrument>/<cycle>/<runs>/<spectrum>")
-    def getSpectrum(instrument, cycle, runs, spectrum):
-        """Return a spectrum from a given set of runs
+        # Locate data file for the specified run number in the collection
+        dataFile = collection.locate_data_file(run_number)
+        if dataFile is None:
+            return jsonify(f"Error: Unable to find data file for run \
+                           {run_number}")
 
-        :param instrument: The name of the instrument
-        :param cycle: The cycle containing the runs
-        :param runs: The list of runs whose data is returned
-        :param spectrum: The number of the spectrum to access
-        :return:
+        return str(nxs.monitor_count(dataFile))
+
+    @app.post("/runData/nexus/getSpectrum")
+    def getSpectrum():
+        """Return detector spectrum for one or more run numbers.
+
+        The POST data should contain:
+            rootUrl: The root network or disk location for the journals
+          directory: The directory in rootUrl containing the journals
+         runNumbers: Array of run numbers to work on
+         spectrumId: Target detector spectrum to return
+
+        :return: A list of the detector spectra
         """
-        filepaths = _locate_run_files(
-            networkJournalLocator, run_locator, instrument, cycle, runs
-        )
-        if not any(filepaths):
-            return jsonify(f"Error: Unable to find run {runs}")
 
-        # first entry matches expectation of the frontend with sending back the parameters
-        data = [[runs, spectrum, "detector"]]
-        data.extend([nxs.spectrum(filepath, int(spectrum)) for filepath in filepaths])  # type: ignore
-        return json_response(data)
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        spectrum_id = data["spectrumId"]
+        run_numbers = data["runNumbers"]
+        library_key = url_join(rootUrl, directory)
 
-    @app.route("/runData/nexus/getMonitorSpectrum/<instrument>/<cycle>/<runs>/<monitor>")
-    def getMonitorSpectrum(instrument, cycle, runs, monitor):
-        """Return a spectrum from a monitor for a given set of runs
+        # Get the specified collection
+        collection = journalLibrary[library_key]
+        if collection is None:
+            return jsonify(f"Error: Collection {library_key} does not exist.")
 
-        :param instrument: The name of the instrument
-        :param cycle: The cycle containing the runs
-        :param runs: The list of runs whose data is returned
-        :param spectrum: The number of the spectrum to access
-        :return:
+        # Locate data files for the specified run numbers in the collection
+        dataFiles = collection.locate_data_files(run_numbers)
+
+        # first entry matches sata expectation of the frontend
+        spectra = [[run_numbers, spectrum_id, "detector"]]
+        for run in dataFiles:
+            if run is not None:
+                spectra.append(nxs.spectrum(dataFiles[run], int(spectrum_id)))
+
+        return json_response(spectra)
+
+    @app.post("/runData/nexus/getMonitorSpectrum")
+    def getMonitorSpectrum():
+        """Return monitor spectrum for one or more run numbers.
+
+        The POST data should contain:
+            rootUrl: The root network or disk location for the journals
+          directory: The directory in rootUrl containing the journals
+         runNumbers: Array of run numbers to work on
+         spectrumId: Target monitor spectrum to return
+
+        :return: A list of the monitor spectra
         """
-        filepaths = _locate_run_files(
-            networkJournalLocator, run_locator, instrument, cycle, runs
-        )
-        if not any(filepaths):
-            return jsonify(f"Error: Unable to find run {runs}")
 
-        # first entry matches expectation of the frontend with sending back the parameters
-        data = [[runs, monitor, "monitor"]]
-        data.extend([nxs.spectrum(filepath, int(monitor)) for filepath in filepaths])  # type: ignore
-        return json_response(data)
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        spectrum_id = data["spectrumId"]
+        run_numbers = data["runNumbers"]
+        library_key = url_join(rootUrl, directory)
 
-    @app.route("/runData/nexus/getDetectorAnalysis/<instrument>/<cycle>/<run>")
+        # Get the specified collection
+        collection = journalLibrary[library_key]
+        if collection is None:
+            return jsonify(f"Error: Collection {library_key} does not exist.")
+
+        # Locate data files for the specified run numbers in the collection
+        dataFiles = collection.locate_data_files(run_numbers)
+
+        # first entry matches data expectation of the frontend
+        spectra = [[run_numbers, spectrum_id, "monitor"]]
+        for run in dataFiles:
+            if run is not None:
+                spectra.append(nxs.monitor_spectrum(dataFiles[run],
+                                                    int(spectrum_id)))
+
+        return json_response(spectra)
+
+    @app.post("/runData/nexus/getDetectorAnalysis")
     def getDetectorAnalysis(instrument, cycle, run):
         """Determine the number of spectra with non-zero signal values
 

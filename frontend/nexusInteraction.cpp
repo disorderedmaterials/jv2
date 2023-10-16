@@ -209,7 +209,7 @@ void MainWindow::getSpectrumCount()
     QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    backend_.getNexusSpectrumRange(currentInstrument().dataDirectory(), cycle, runNos,
+    backend_.getNexusSpectrumRange(currentJournal().location(), selectedRunNumbers().front(),
                                    [=](HttpRequestWorker *worker) { plotSpectra(worker); });
 
     setLoadScreen(true);
@@ -226,7 +226,7 @@ void MainWindow::getMonitorCount()
     QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    backend_.getNexusMonitorRange(currentInstrument().dataDirectory(), cycle, runNos,
+    backend_.getNexusMonitorRange(currentJournal().location(), selectedRunNumbers().front(),
                                   [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
 
     setLoadScreen(true);
@@ -250,7 +250,7 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
     QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    backend_.getNexusDetector(currentInstrument().dataDirectory(), cycle, runNos, QString::number(spectrumNumber),
+    backend_.getNexusDetector(currentJournal().location(), selectedRunNumbers(), spectrumNumber,
                               [=](HttpRequestWorker *worker) { handleSpectraCharting(worker); });
 }
 
@@ -272,7 +272,7 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
     QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    backend_.getNexusMonitor(currentInstrument().dataDirectory(), cycle, runNos, QString::number(monNumber),
+    backend_.getNexusMonitor(currentJournal().location(), selectedRunNumbers(), monNumber,
                              [=](HttpRequestWorker *worker) { handleMonSpectraCharting(worker); });
 }
 
@@ -310,7 +310,7 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
     QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    backend_.getNexusDetector(currentInstrument().dataDirectory(), cycle, run, currentDetector,
+    backend_.getNexusDetector(currentJournal().location(), {run.toInt()}, currentDetector.toInt(),
                               [=](HttpRequestWorker *worker) { window->modifyAgainstWorker(worker, checked); });
 }
 
@@ -329,6 +329,6 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
     QString cycle = currentJournal_->get().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
-    backend_.getNexusMonitor(currentInstrument().dataDirectory(), cycle, currentRun, mon,
+    backend_.getNexusMonitor(currentJournal().location(), {currentRun.toInt()}, mon.toInt(),
                              [=](HttpRequestWorker *worker) { window->modifyAgainstWorker(worker, checked); });
 }

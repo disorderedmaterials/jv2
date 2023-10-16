@@ -222,31 +222,59 @@ void Backend::getNexusLogValueData(const Locator &location, const std::vector<in
 }
 
 // Get NeXuS monitor range for specified run numbers in the given cycle
-void Backend::getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                   HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getMonitorRange", dataDirectory, cycle, runNos), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["runNumber"] = runNo;
+
+    postRequest(createRoute("runData/nexus/getMonitorRange"), data, handler);
 }
 
 // Get NeXuS monitor spectrum for specified run numbers in the given cycle
-void Backend::getNexusMonitor(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                              const QString &spectrumID, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
+                              HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getMonitorSpectrums", dataDirectory, cycle, runNos, spectrumID), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["spectrumId"] = monitorId;
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getMonitorSpectrum"), data, handler);
 }
 
-// Get NeXuS spectrum range for specified run numbers in the given cycle
-void Backend::getNexusSpectrumRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                    HttpRequestWorker::HttpRequestHandler handler)
+// Get NeXuS spectrum range for specified run number
+void Backend::getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getSpectrumRange", dataDirectory, cycle, runNos), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["runNumber"] = runNo;
+
+    postRequest(createRoute("runData/nexus/getSpectrumRange"), data, handler);
 }
 
 // Get NeXuS detector spectra for specified run numbers in the given cycle
-void Backend::getNexusDetector(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                               const QString &spectrumID, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
+                               HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getSpectrum", dataDirectory, cycle, runNos, spectrumID), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["spectrumId"] = monitorId;
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getSpectrum"), data, handler);
 }
 
 // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
