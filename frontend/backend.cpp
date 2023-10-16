@@ -135,6 +135,7 @@ void Backend::listJournals(const DataSource &source, const QString &journalDirec
     QJsonObject data;
     data["rootUrl"] = source.rootUrl();
     data["directory"] = journalDirectory;
+    data["dataDirectory"] = source.networkDataDirectory();
     if (!source.indexFile().isEmpty())
         data["indexFile"] = source.indexFile();
 

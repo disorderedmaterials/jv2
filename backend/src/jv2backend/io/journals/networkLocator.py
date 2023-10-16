@@ -29,12 +29,13 @@ class NetworkJournalLocator:
         return cls.JOURNAL_FILENAME_TEMPLATE.format(cycleid)
 
     def get_index(self, server_root: str, journal_directory: str,
-                  index_file: str) -> List[JournalFile]:
+                  index_file: str, data_directory: str) -> List[JournalFile]:
         """Retrive an index file containing journal information
 
         :param server_root: Root server URL to make request to
         :param journal_directory: Directory containing journal index file
         :param index_file: Name of index file containing all available journals
+        :param data_directory: Path to data files for the journal
         :return: The list of journal filenames as strings or an Exception
 
         It is expected that index file is "ISIS standard" XML and structured
@@ -51,6 +52,11 @@ class NetworkJournalLocator:
         corresponding to specific years (YY) and cycle integers (N)
         and which can be expected to reside in the same directory as
         the index file.
+
+        Furthermore, it is expected that the data directory layout whose
+        root is the data_directory parameter is laid out as follows:
+
+        /data_directory/NDXINSTRUMENT/Instrument/data/cycle_YY_M
         """
         # Construct the full url to the journal file
         url = url_join(server_root, journal_directory, index_file)
@@ -62,15 +68,20 @@ class NetworkJournalLocator:
             BytesIO(response.content),
             xpath="/journal/file", dtype=str)
 
+        # Set base data file location
+        baseDataLocation = url_join(data_directory, journal_directory.upper(),
+                                    "Instrument", "data")
+
         # Construct list of valid journal files for return
         journals = []
         for name in data["name"]:
             if not name == "journal.xml":
+                dirName = name.replace("journal", "cycle").replace(".xml", "")
                 journals.append(
                     JournalFile(
                         server_root,
                         journal_directory,
-                        name))
+                        name, url_join(baseDataLocation, dirName)))
 
         return journals
 

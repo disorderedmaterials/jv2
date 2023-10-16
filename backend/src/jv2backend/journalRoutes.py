@@ -34,6 +34,7 @@ def add_routes(
         data = request.json
         rootUrl = data["rootUrl"]
         directory = data["directory"]
+        dataDirectory = data["dataDirectory"]
 
         logging.debug(f"Listing journals for {directory} in {rootUrl}")
 
@@ -51,7 +52,8 @@ def add_routes(
                     journalLibrary[library_key] = JournalCollection(
                         networkJournalLocator.get_index(
                             server_root=rootUrl, journal_directory=directory,
-                            index_file=data['indexFile']))
+                            index_file=data['indexFile'],
+                            data_directory=dataDirectory))
                     return jsonify(journalLibrary[library_key].to_basic())
                 else:
                     return jsonify(
