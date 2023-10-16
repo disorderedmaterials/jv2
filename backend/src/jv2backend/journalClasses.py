@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from typing import List, Dict
 import datetime as dt
 from typing import Optional, Sequence
+from jv2backend.utils import url_join
 import pandas as pd
+import logging
 
 # Format of start time search string
 USERINPUT_DT_FORMAT_STR = "%Y/%m/%d"
@@ -191,6 +193,7 @@ class BasicJournalFile:
     server_root: str
     directory: str
     filename: str
+    data_directory: str = "/I/AM/A/TEST/PATH"
     last_modified: dt.datetime = None
     first_run_number: int = -1
     last_run_number: int = -1
@@ -198,8 +201,8 @@ class BasicJournalFile:
     @classmethod
     def from_derived(cls, derived):
         basic = cls(derived.server_root, derived.directory, derived.filename,
-                    derived.last_modified, derived.first_run_number,
-                    derived.last_run_number)
+                    derived.data_directory, derived.last_modified,
+                    derived.first_run_number, derived.last_run_number)
         return basic
 
 
@@ -207,6 +210,19 @@ class BasicJournalFile:
 class JournalFile(BasicJournalFile):
     """Defines a single journal file, including run data"""
     run_data: JournalData = None
+
+    def get_data(self, run_number: int) -> Dict:
+        """Return the data for the specified run number.
+        
+        :param run_number: Run number of interest
+        :return: A Dict describing the run, or None if not found
+        """
+        return self.run_data.run(str(run_number))
+
+    def __contains__(self, run_number: int):
+        """Return whether the run_number exists in the journal file"""
+        return (run_number >= self.first_run_number and
+                run_number <= self.last_run_number)
 
 
 @dataclass
@@ -218,6 +234,49 @@ class JournalCollection:
 
     def __init__(self, journalFiles: List(JournalFile)) -> None:
         self.journalFiles = journalFiles
+
+    def journal_for_run(self, run_number: int) -> JournalFile:
+        """Find the journal in the collection that contains the specified run
+        number.
+        
+        :param run_number: Run number to locate
+        :return: JournalFile containing the run number, or None if not found
+        """
+        return next(
+            (jf for jf in self.journalFiles if run_number in jf),
+            None)
+    
+    def locate_data_file(self, run_number: int) -> str:
+        """Return the full path to the data (NeXuS) file for the specified
+        run number
+        :param run_number: Run number to locate the data file for
+        :return: Full path to the data file or None if it couldn't be found
+        """
+        # Get the journal file for the specified run number
+        jf = self.journal_for_run(run_number)
+        if jf is None:
+            return None
+        logging.debug(f"Run number {run_number} exists in journal {jf.filename}")
+
+        # Get the data for the specified run number
+        data = jf.get_data(run_number)
+
+        # Return the full path
+        return url_join(jf.data_directory, data["name"] + ".nxs")
+
+    def locate_data_files(self, run_numbers: List[int]) -> Dict[int, str]:
+        """Return a dict of run number/paths to NeXuS data files
+        If a run number is not locatable, return None for that entry
+
+        :param run_numbers: A list of integer run numbers to locate
+        :return: A Dict[int,str] mapping of integer run number to either
+                 to eithr NeXuS file path or None if not locatable
+        """
+        # For each of the supplied run numbers, find its parent journal
+        result = {}
+        for i in run_numbers:
+            result[i] = self.locate_data_file(i)
+        return result
 
     def get_info(self, filename: str):
         return next(
