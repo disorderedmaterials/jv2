@@ -10,7 +10,7 @@ from flask import Flask, jsonify, request
 
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.io.runDataFileLocator import RunDataFileLocator
-from jv2backend.journalClasses import JournalCollection, JournalLibrary
+from jv2backend.journalClasses import JournalLibrary
 from jv2backend.utils import json_response, split, url_join
 import jv2backend.io.nexus as nxs
 
@@ -83,29 +83,29 @@ def add_routes(
         # Locate data files for the specified run numbers in the collection
         dataFiles = collection.locate_data_files(run_numbers)
 
-        # The front end expects a list where the first entry is a list of all available fields.
-        # The assumption is all instruments offer the same fields so only the first is examined.
-        # The subsequent entries are one additional entry per run:
-        #   [(start_time, end_time), [(run, field1),(time1, val1),...], [(run, field2),(time1, val1),...]]
-        all_field_data = []
+        # Retrieve the log value data
+        log_value_data = {}
         for run in dataFiles:
             if dataFiles[run] is None:
-                return jsonify(f"Error: Unable to find run file for run '{run}'")
+                return jsonify(f"Error: Unable to find run file for run \
+                               '{run}'")
 
+            runData = {}
             nxsfile, first_group = nxs.open_at(dataFiles[run], 0)
-            run_data = [nxs.timerange(first_group)]
 
-            log_data = nxs.logvalues(first_group[log_value])  # type: ignore
-            log_data.insert(0, (run, log_value))  # type: ignore
-            run_data.append(log_data)  # type: ignore
+            runData["runNumber"] = str(run)
+            runData["timeRange"] = [nxs.timerange(first_group)]
+            runData["data"] = nxs.logvalues(first_group[log_value])
 
-            nxsfile.close()
-            all_field_data.append(run_data)
+            log_value_data[run] = runData
 
-        # Add the list of all available log paths required by the frontend
-        all_field_data.insert(0, nxs.logpaths_from_path(dataFiles[86376]))  # type: ignore
+        # Construct the final return object
+        result = {}
+        result["logValue"] = log_value
+        result["runNumbers"] = run_numbers
+        result["data"] = log_value_data
 
-        return json_response(all_field_data)
+        return json_response(result)
 
     @app.route("/runData/nexus/getSpectrumRange/<instrument>/<cycle>/<runs>")
     def getSpectrumRange(instrument, cycle, runs):
