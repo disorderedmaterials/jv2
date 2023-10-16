@@ -171,13 +171,6 @@ void Backend::findRuns(const QString &journalDirectory, const QString &value, co
     createRequest(createRoute("journals/findRuns", journalDirectory, value, textInput, options), handler);
 }
 
-// Get total uAmps for run numbers in the given cycle
-void Backend::getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("journals/getTotalMuAmps", dataDirectory, cycle, runNos), handler);
-}
-
 // Go to cycle containing specified run number
 void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler)
 {

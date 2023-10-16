@@ -76,9 +76,6 @@ class Backend : public QObject
     // Search all journals for matching runs
     void findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
                   HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get total uAmps for run numbers in the given cycle
-    void getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
     void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 

@@ -13,6 +13,19 @@
  * Private Functions
  */
 
+// Get data for specified run number
+std::optional<QJsonObject> MainWindow::dataForRunNumber(int runNumber) const
+{
+    for (const auto &value : runData_)
+    {
+        auto valueObj = value.toObject();
+        if (valueObj["run_number"].toInt() == runNumber)
+            return valueObj;
+    }
+
+    return {};
+}
+
 // Generate grouped run data from current run data
 void MainWindow::generateGroupedData()
 {

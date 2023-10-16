@@ -288,8 +288,17 @@ void MainWindow::muAmps(QString runs, bool checked, QString modified)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    backend_.getRunTotalMuAmps(currentInstrument().dataDirectory(), currentJournal_->get().location().filename(), runs,
-                               [=](HttpRequestWorker *worker) { window->modifyAgainstString(worker->response, checked); });
+    // For each run number extract the proton_charge data from the run data
+    QString result;
+    QStringList muAmps;
+    auto runNumbers = runs.split(";");
+    foreach (auto run, runNumbers)
+    {
+        auto runData = dataForRunNumber(run.toInt());
+        muAmps.append(runData ? (*runData)["proton_charge"].toString() : "1.0");
+    }
+
+    window->modifyAgainstString(muAmps.join(";"), checked);
 }
 
 void MainWindow::runDivide(QString currentDetector, QString run, bool checked)

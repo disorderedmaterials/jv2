@@ -120,6 +120,8 @@ class MainWindow : public QMainWindow
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:
+    // Get data for specified run number
+    std::optional<QJsonObject> dataForRunNumber(int runNumber) const;
     // Generate grouped run data from current run data
     void generateGroupedData();
     // Return the run data model index under the mouse, accounting for the effects of the filter proxys

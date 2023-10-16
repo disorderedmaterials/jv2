@@ -161,32 +161,6 @@ def add_routes(
             return jsonify(
                 f"Error: Unable to complete search '{search}': {str(exc)}")
 
-    @app.route("/journals/getTotalMuAmps/<instrument>/<cycle>/<runs>")
-    def getTotalMuAmps(instrument, cycle, runs):
-        """Return the total current values for each run
-
-        :param instrument: The name of the instrument
-        :param cycle: The cycle containing the runs
-        :param runs: The list of runs whose data is returned
-        :return: The total current in microamps, for each run as a
-                 ';'-separated string
-        """
-        try:
-            journal = networkJournalLocator.journal(
-                instrument_name=instrument, filename=cycle)
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to fetch journal for {instrument}, cycle \
-                  {cycle}: {str(exc)}"
-            )
-        run_info = [journal.run(run) for run in split(runs, ";")]
-        if not all(run_info):
-            return jsonify(
-                f"Error: Unable to find all run information: {runs}")
-
-        return ";".join([info["proton_charge"]
-                        for info in run_info])  # type: ignore
-
     @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):
         """Find the cycle containing the run.
