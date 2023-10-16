@@ -42,15 +42,6 @@ void MainWindow::getField()
     auto *graphParent = ui_.MainTabs->currentWidget();
     auto tabCharts = graphParent->findChildren<QChartView *>();
 
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-
-    if (cycles == "")
-    {
-        for (auto run : runNos.split(";"))
-            cycles.append(" ;");
-        cycles.chop(1);
-    }
-
     backend_.getNexusLogValueData(currentJournal().location(), selectedRunNumbers(), action->data().toString(),
                                   [=](HttpRequestWorker *worker)
                                   {
@@ -197,15 +188,6 @@ void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
 
 void MainWindow::getSpectrumCount()
 {
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-
-    // Error handling
-    if (runNos.size() == 0)
-        return;
-
-    QString cycle = currentJournal_->get().location().filename();
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
-
     backend_.getNexusSpectrumRange(currentJournal().location(), selectedRunNumbers().front(),
                                    [=](HttpRequestWorker *worker) { plotSpectra(worker); });
 
@@ -214,15 +196,6 @@ void MainWindow::getSpectrumCount()
 
 void MainWindow::getMonitorCount()
 {
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-
-    // Error handling
-    if (runNos.size() == 0)
-        return;
-
-    QString cycle = currentJournal_->get().location().filename();
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
-
     backend_.getNexusMonitorRange(currentJournal().location(), selectedRunNumbers().front(),
                                   [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
 
@@ -239,13 +212,6 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
                                                count->response.toInt() - 1, 1, &valid);
     if (!valid)
         return;
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-    // Error handling
-    if (runNos.size() == 0)
-        return;
-
-    QString cycle = currentJournal_->get().location().filename();
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusDetector(currentJournal().location(), selectedRunNumbers(), spectrumNumber,
                               [=](HttpRequestWorker *worker) { handleSpectraCharting(worker); });
@@ -261,13 +227,6 @@ void MainWindow::plotMonSpectra(HttpRequestWorker *count)
                              0, count->response.toInt() - 1, 1, &valid);
     if (!valid)
         return;
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-    // Error handling
-    if (runNos.size() == 0)
-        return;
-
-    QString cycle = currentJournal_->get().location().filename();
-    cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusMonitor(currentJournal().location(), selectedRunNumbers(), monNumber,
                              [=](HttpRequestWorker *worker) { handleMonSpectraCharting(worker); });

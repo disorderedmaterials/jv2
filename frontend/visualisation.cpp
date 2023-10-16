@@ -44,12 +44,7 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     SELogChooserDialog chooserDialog(this, rootItem);
 
     auto logValue = chooserDialog.getValue();
-    qDebug() << logValue;
     if (logValue.isEmpty())
-        return;
-
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-    if (runNos.size() == 0)
         return;
 
     // Request the log value data

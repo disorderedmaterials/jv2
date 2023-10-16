@@ -126,8 +126,6 @@ class MainWindow : public QMainWindow
     void generateGroupedData();
     // Return the run data model index under the mouse, accounting for the effects of the filter proxys
     const QModelIndex runDataIndexAtPos(const QPoint pos) const;
-    // Get selected run / cycle information [LEGACY, TO FIX]
-    std::pair<QString, QString> selectedRunNumbersAndCycles() const;
     // Return integer list of currently-selected run numbers
     std::vector<int> selectedRunNumbers() const;
     // Select and show specified run number in table (if it exists)

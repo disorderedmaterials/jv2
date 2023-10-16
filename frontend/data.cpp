@@ -74,32 +74,6 @@ const QModelIndex MainWindow::runDataIndexAtPos(const QPoint pos) const
     return index.isValid() ? runDataFilterProxy_.mapToSource(index) : QModelIndex();
 }
 
-// Get selected run / cycle information [LEGACY, TO FIX]
-std::pair<QString, QString> MainWindow::selectedRunNumbersAndCycles() const
-{
-    // Get selected run numbers / cycles
-    auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
-    QString runNos, cycles;
-
-    // Concats runs
-    for (const auto &runIndex : selectedRuns)
-    {
-        auto runNo = runDataFilterProxy_.getData("run_number", runIndex);
-        auto cycle = runDataFilterProxy_.getData("isis_cycle", runIndex);
-
-        // Account for grouped run information
-        auto runNoArray = runNo.split(",");
-        for (auto n : runNoArray)
-        {
-            runNos.append(runNos.isEmpty() ? runNo : (";" + runNo));
-            cycles.append((cycles.isEmpty() ? "cycle_" : ";cycle_") + cycle);
-        }
-    }
-    qDebug() << runNos;
-    qDebug() << cycles;
-    return {runNos, cycles};
-}
-
 // Return integer list of currently-selected run numbers
 std::vector<int> MainWindow::selectedRunNumbers() const
 {
@@ -198,9 +172,6 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     auto *plotMonitor = contextMenu.addAction("Plot monitor...");
 
     auto *selectedAction = contextMenu.exec(ui_.RunDataTable->mapToGlobal(pos));
-
-    // Get selected run numbers / cycles
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
 
     if (selectedAction == selectSameTitle)
     {
