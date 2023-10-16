@@ -189,10 +189,19 @@ void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, H
  */
 
 // Get NeXuS log values present in specified run files
-void Backend::getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
+void Backend::getNexusFields(const Locator &location, const std::vector<int> &runNos,
                              HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getLogValues", dataDirectory, cycles, runNos), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getLogValues"), data, handler);
 }
 
 // Get NeXuS log value data for specified run files

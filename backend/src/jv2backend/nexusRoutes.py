@@ -6,41 +6,56 @@ import logging
 from pathlib import Path
 from typing import Optional, Sequence
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
-import jv2backend.config as config
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.io.runDataFileLocator import RunDataFileLocator
-from jv2backend.utils import json_response, split
+from jv2backend.journalClasses import JournalCollection, JournalLibrary
+from jv2backend.utils import json_response, split, url_join
 import jv2backend.io.nexus as nxs
 
 
 def add_routes(
     app: Flask,
     networkJournalLocator: NetworkJournalLocator,
-    run_locator: RunDataFileLocator
+    run_locator: RunDataFileLocator,
+    journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
 
-    @app.route("/runData/nexus/getLogValues/<instrument>/<cycles>/<runs>")
-    def getLogValues(instrument, cycles, runs):
-        """Return a list of the log fields within the run
+    @app.post("/runData/nexus/getLogValues")
+    def getLogValues():
+        """Return a list of the available log fields within the run
 
-        :param instrument: Instrument name
-        :param cycles: A semi-colon separated list of cycle names
-        :param runs: A semi-colon separated list of run numbers. Length should match cycles
-        :return: A list of full paths to log fields. Each entry is a list
-        where the first entry is the group name followed by the full path to each available log entry
+        The POST data should contain:
+            rootUrl: The root network or disk location for the journals
+          directory: The directory in rootUrl to probe for journals
+         runNumbers: Array of run numbers to probe for SE log values
+
+        :return: A JSON response with the list of full paths to log fields
         """
-        filepaths = _locate_run_files(
-            networkJournalLocator, run_locator, instrument, cycles, runs
-        )
-        app.logger.debug(f"/runData/nexus/getFields: Located files: {filepaths}")
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        runNumbers = data["runNumbers"]
+        library_key = url_join(rootUrl, directory)
+        for x in runNumbers:
+            logging.debug(f"We got run number {x}")
+
+        # Get the specified collection
+        collection = journalLibrary[library_key]
+        if collection is None:
+            return jsonify(f"Error: Collection {library_key} does not exist.")
+
+        # Locate data files for the specified run numbers in the collection
+        dataFiles = collection.locate_data_files(runNumbers)
+        logging.debug(dataFiles)
         logpaths = []
-        for filepath, run in zip(filepaths, runs):
-            if filepath is None:
-                return jsonify(f"Error: Unable to find run file for run '{run}'")
-            logpaths.extend(nxs.logpaths_from_path(filepath))
+        for run in dataFiles:
+            if dataFiles[run] is None:
+                return jsonify(f"Error: Unable to find run file for run \
+                               '{run}'")
+            logpaths.extend(nxs.logpaths_from_path(dataFiles[run]))
 
         return json_response(logpaths)
 

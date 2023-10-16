@@ -30,7 +30,8 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
 
     serverRoutes.add_routes(app)
     journalRoutes.add_routes(app, networkJournalLocator, journalLibrary)
-    nexusRoutes.add_routes(app, networkJournalLocator, run_locator)
+    nexusRoutes.add_routes(app, networkJournalLocator, run_locator,
+                           journalLibrary)
 
     return app
 
