@@ -29,7 +29,7 @@ def add_routes(
 
         The POST data should contain:
             rootUrl: The root network or disk location for the journals
-          directory: The directory in rootUrl to probe for journals
+          directory: The directory in rootUrl containing the journals
          runNumbers: Array of run numbers to probe for SE log values
 
         :return: A JSON response with the list of full paths to log fields
@@ -63,7 +63,7 @@ def add_routes(
 
         The POST data should contain:
             rootUrl: The root network or disk location for the journals
-          directory: The directory in rootUrl to probe for journals
+          directory: The directory in rootUrl containing the journals
          runNumbers: Array of run numbers to probe for SE log values
 
         :return: A list of the log data
