@@ -205,14 +205,20 @@ void Backend::getNexusFields(const Locator &location, const std::vector<int> &ru
 }
 
 // Get NeXuS log value data for specified run files
-void Backend::getNexusLogValueData(const QString &dataDirectory, const QString &cycles, const QString &runNos,
-                                   const QString &logValue, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
+                                   HttpRequestWorker::HttpRequestHandler handler)
 {
-    // Log values typically contain '/' in their name as they are paths, so swap with ':' so we can handle it properly
-    // [FIXME Can we escape this, or use %2F, or encode it in some other way]
-    auto cleanedLogValue = logValue;
-    cleanedLogValue.replace("/", ":");
-    createRequest(createRoute("runData/nexus/getLogValueData", dataDirectory, cycles, runNos, cleanedLogValue), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["logValue"] = logValue;
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getLogValueData"), data, handler);
 }
 
 // Get NeXuS monitor range for specified run numbers in the given cycle

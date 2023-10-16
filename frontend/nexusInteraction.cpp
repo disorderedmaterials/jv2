@@ -301,7 +301,7 @@ void MainWindow::getField()
         cycles.chop(1);
     }
 
-    backend_.getNexusLogValueData(currentInstrument().dataDirectory(), cycles, runNos, action->data().toString(),
+    backend_.getNexusLogValueData(currentJournal().location(), selectedRunNumbers(), action->data().toString(),
                                   [=](HttpRequestWorker *worker)
                                   {
                                       dynamic_cast<ChartView *>(tabCharts[0])->addSeries(worker);

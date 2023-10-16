@@ -90,8 +90,8 @@ class Backend : public QObject
     void getNexusFields(const Locator &location, const std::vector<int> &runNos,
                         HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log value data for specified run files
-    void getNexusLogValueData(const QString &dataDirectory, const QString &runNos, const QString &cycles,
-                              const QString &logValue, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
+                              HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor range for specified run numbers in the given cycle
     void getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
                               HttpRequestWorker::HttpRequestHandler handler = {});

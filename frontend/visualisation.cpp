@@ -37,9 +37,9 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     // Create the dialog
     SELogChooserDialog chooserDialog(this, rootItem);
 
-    auto result = chooserDialog.getValue();
-    qDebug() << result;
-    if (result.isEmpty())
+    auto logValue = chooserDialog.getValue();
+    qDebug() << logValue;
+    if (logValue.isEmpty())
         return;
 
     auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
@@ -47,7 +47,7 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
         return;
 
     // Request the log value data
-    backend_.getNexusLogValueData(currentInstrument().dataDirectory(), cycles, runNos, result,
+    backend_.getNexusLogValueData(currentJournal().location(), selectedRunNumbers(), logValue,
                                   [=](HttpRequestWorker *worker) { handle_result_contextGraph(worker); });
 
     setLoadScreen(true);

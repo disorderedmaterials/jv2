@@ -57,43 +57,53 @@ def add_routes(
 
         return json_response(logpaths)
 
-    @app.route("/runData/nexus/getLogValueData/<instrument>/<cycles>/<runs>/<fields>")
-    def getLogValueData(instrument, cycles, runs, fields):
-        """Return a list of the log fields within the run.
+    @app.post("/runData/nexus/getLogValueData")
+    def getLogValueData():
+        """Return log value data specified for one or more run numbers.
 
-        :param instrument: Instrument name
-        :param cycles: A semi-colon separated list of cycle names
-        :param runs: A semi-colon separated list of run numbers. Length should match cycles
-        :param fields: A semi-colon separated list of field names. A colon indicates a path separator in field
+        The POST data should contain:
+            rootUrl: The root network or disk location for the journals
+          directory: The directory in rootUrl to probe for journals
+         runNumbers: Array of run numbers to probe for SE log values
+
         :return: A list of the log data
         """
-        filepaths = _locate_run_files(
-            networkJournalLocator, run_locator, instrument, cycles, runs
-        )
+        data = request.json
+        rootUrl = data["rootUrl"]
+        directory = data["directory"]
+        log_value = data["logValue"]
+        run_numbers = data["runNumbers"]
+        library_key = url_join(rootUrl, directory)
+
+        # Get the specified collection
+        collection = journalLibrary[library_key]
+        if collection is None:
+            return jsonify(f"Error: Collection {library_key} does not exist.")
+
+        # Locate data files for the specified run numbers in the collection
+        dataFiles = collection.locate_data_files(run_numbers)
 
         # The front end expects a list where the first entry is a list of all available fields.
         # The assumption is all instruments offer the same fields so only the first is examined.
         # The subsequent entries are one additional entry per run:
         #   [(start_time, end_time), [(run, field1),(time1, val1),...], [(run, field2),(time1, val1),...]]
-        runs, fields = split(runs, ";"), split(fields, ";")
         all_field_data = []
-        for filepath, run in zip(filepaths, runs):
-            if filepath is None:
+        for run in dataFiles:
+            if dataFiles[run] is None:
                 return jsonify(f"Error: Unable to find run file for run '{run}'")
 
-            nxsfile, first_group = nxs.open_at(filepath, 0)
+            nxsfile, first_group = nxs.open_at(dataFiles[run], 0)
             run_data = [nxs.timerange(first_group)]
-            for name in fields:
-                # request substitutes '/' in place of ';' so reverse this
-                field_path = name.replace(":", "/")
-                log_data = nxs.logvalues(first_group[field_path])  # type: ignore
-                log_data.insert(0, (run, name))  # type: ignore
-                run_data.append(log_data)  # type: ignore
+
+            log_data = nxs.logvalues(first_group[log_value])  # type: ignore
+            log_data.insert(0, (run, log_value))  # type: ignore
+            run_data.append(log_data)  # type: ignore
+
             nxsfile.close()
             all_field_data.append(run_data)
 
         # Add the list of all available log paths required by the frontend
-        all_field_data.insert(0, nxs.logpaths_from_path(filepaths[0]))  # type: ignore
+        all_field_data.insert(0, nxs.logpaths_from_path(dataFiles[86376]))  # type: ignore
 
         return json_response(all_field_data)
 
