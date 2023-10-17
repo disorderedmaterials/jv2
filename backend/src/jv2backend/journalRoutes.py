@@ -8,7 +8,7 @@ from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.journalClasses import JournalLibrary, JournalCollection
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
-from jv2backend.utils import json_response, split, url_join
+from jv2backend.utils import json_response, url_join
 
 
 def add_routes(
