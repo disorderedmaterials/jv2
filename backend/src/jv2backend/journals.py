@@ -202,8 +202,10 @@ class BasicJournalFile:
     @classmethod
     def from_derived(cls, derived):
         basic = cls(derived.server_root, derived.directory, derived.filename,
-                    derived.data_directory, derived.last_modified,
-                    derived.first_run_number, derived.last_run_number)
+                    derived.data_directory,
+                    last_modified=derived.last_modified,
+                    first_run_number=derived.first_run_number,
+                    last_run_number=derived.last_run_number)
         return basic
 
 
