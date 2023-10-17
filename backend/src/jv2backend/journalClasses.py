@@ -213,7 +213,7 @@ class JournalFile(BasicJournalFile):
 
     def get_data(self, run_number: int) -> Dict:
         """Return the data for the specified run number.
-        
+
         :param run_number: Run number of interest
         :return: A Dict describing the run, or None if not found
         """
@@ -238,14 +238,14 @@ class JournalCollection:
     def journal_for_run(self, run_number: int) -> JournalFile:
         """Find the journal in the collection that contains the specified run
         number.
-        
+
         :param run_number: Run number to locate
         :return: JournalFile containing the run number, or None if not found
         """
         return next(
             (jf for jf in self.journalFiles if run_number in jf),
             None)
-    
+
     def locate_data_file(self, run_number: int) -> str:
         """Return the full path to the data (NeXuS) file for the specified
         run number
@@ -256,7 +256,8 @@ class JournalCollection:
         jf = self.journal_for_run(run_number)
         if jf is None:
             return None
-        logging.debug(f"Run number {run_number} exists in journal {jf.filename}")
+        logging.debug(f"Run number {run_number} exists in journal \
+                      {jf.filename}")
 
         # Get the data for the specified run number
         data = jf.get_data(run_number)
