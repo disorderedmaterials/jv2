@@ -133,8 +133,6 @@ class NetworkJournalLocator:
             self.get_journal_data(collection, journal.server_root,
                                   journal.directory, journal.filename)
 
-        return None
-
     def get_updates(
             self, collection: JournalCollection, server_root: str,
             journal_directory: str, journal_file: str) -> JournalData:
