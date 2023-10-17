@@ -12,6 +12,7 @@ from jv2backend import serverRoutes
 from jv2backend.journalClasses import JournalLibrary
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 
+
 def create_app(inside_gunicorn: bool = True) -> Flask:
     """Create the Flask application and define
     the routes served by the backend. See config.py for configuration settings
@@ -20,7 +21,7 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
                             not directly
     """
     app = Flask(__name__)
-    _configure_logging(app, inside_gunicorn)
+    configure_logging(app, inside_gunicorn)
     networkJournalLocator = NetworkJournalLocator()
 
     journalLibrary = JournalLibrary({})
@@ -32,7 +33,7 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
     return app
 
 
-def _configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
+def configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
     """_summary_
 
     :param app: Flask app to configure
