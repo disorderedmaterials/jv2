@@ -12,8 +12,8 @@ class DataSource
     // DataSource Types
     enum class DataSourceType
     {
-        Network,
-        Disk
+        ISISArchive,
+        DiskByDirectory
     };
     // Return text string for specified DataSource type
     static QString dataSourceType(DataSourceType type);

@@ -8,10 +8,10 @@ QString DataSource::dataSourceType(DataSource::DataSourceType type)
 {
     switch (type)
     {
-        case (DataSourceType::Network):
-            return "Network";
-        case (DataSourceType::Disk):
-            return "Disk";
+        case (DataSourceType::ISISArchive):
+            return "ISISArchive";
+        case (DataSourceType::DiskByDirectory):
+            return "DiskByDirectory";
         default:
             throw(std::runtime_error("DataSource type not known and can't be converted to a QString.\n"));
     }
@@ -20,10 +20,10 @@ QString DataSource::dataSourceType(DataSource::DataSourceType type)
 // Convert text string to DataSource type
 DataSource::DataSourceType DataSource::dataSourceType(QString typeString)
 {
-    if (typeString.toLower() == "network")
-        return DataSourceType::Network;
-    else if (typeString.toLower() == "disk")
-        return DataSourceType::Disk;
+    if (typeString.toLower() == "isisarchive")
+        return DataSourceType::ISISArchive;
+    else if (typeString.toLower() == "diskbydirectory")
+        return DataSourceType::DiskByDirectory;
     else
         throw(std::runtime_error("DataSource string can't be converted to an DataSourceType.\n"));
 }
