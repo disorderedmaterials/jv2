@@ -1,5 +1,6 @@
 <xml>
 	<sources>
 		<source name="ISIS Archive" type="ISISNetwork" rootUrl="http://data.isis.rl.ac.uk/journals" indexFile="journal_main.xml" byInstrument="true" dataDirectory="/archive"/>
+		<source name="Local" type="DiskByDirectory" rootUrl="/home/ty11203/TestData/Directories/journals" indexFile="journal_main.xml" dataDirectory="/home/ty11203/TestData/Directories"/>
 	</sources>
 </xml>
