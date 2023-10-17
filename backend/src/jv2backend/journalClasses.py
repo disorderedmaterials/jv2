@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, KW_ONLY
 from typing import List, Dict
 import datetime as dt
 from typing import Optional, Sequence
@@ -193,7 +193,8 @@ class BasicJournalFile:
     server_root: str
     directory: str
     filename: str
-    data_directory: str = "/I/AM/A/TEST/PATH"
+    data_directory: str
+    _: KW_ONLY
     last_modified: dt.datetime = None
     first_run_number: int = -1
     last_run_number: int = -1
