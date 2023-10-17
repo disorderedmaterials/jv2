@@ -53,6 +53,9 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
         auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
         setCurrentInstrument(recentInstrument);
 
+        // Get default journal sources
+        getDefaultJournalSources();
+
         setLoadScreen(false);
     }
     else
