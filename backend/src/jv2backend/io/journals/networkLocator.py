@@ -125,13 +125,13 @@ class NetworkJournalLocator:
         :param collection: JournalCollection in which the data should be stored
         :return: None
         """
-        # Loop over defined journal files. If run_data is already present we 
+        # Loop over defined journal files. If run_data is already present we
         # assume it's up-to-date.
-        for j in collection.journalFiles:
-            if j.run_data is None:
-                logging.debug(f"Obtaining journal {j.filename}")
-                self.get_journal_data(collection, j.server_root, j.directory,
-                                      j.filename)
+        for journal in [j for j in collection.journalFiles
+                        if j.run_data is None]:
+            logging.debug(f"Obtaining journal {journal.filename}")
+            self.get_journal_data(collection, journal.server_root,
+                                  journal.directory, journal.filename)
 
         return None
 
