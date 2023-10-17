@@ -9,6 +9,15 @@
 #include <QSettings>
 #include <QWidgetAction>
 
+// Clear current journals
+void MainWindow::clearJournals()
+{
+    clearRunData();
+    journals_.clear();
+    journalsMenu_->clear();
+    currentJournal_ = std::nullopt;
+}
+
 // Add new journal
 Journal &MainWindow::addJournal(const QString &name, const Locator &location)
 {

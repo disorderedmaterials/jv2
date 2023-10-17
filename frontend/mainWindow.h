@@ -63,9 +63,12 @@ class MainWindow : public QMainWindow
     // Get default data sources
     void getDefaultDataSources();
     // Set current data source
-    void setCurrentDataSource(QString name);
+    void setCurrentDataSource(std::optional<QString> optName);
     // Return current data source
     const DataSource &currentDataSource() const;
+
+    private slots:
+    void on_DataSourceComboBox_currentIndexChanged(int index);
 
     /*
      * Instruments
@@ -100,6 +103,8 @@ class MainWindow : public QMainWindow
     OptionalReferenceWrapper<Journal> currentJournal_;
 
     private:
+    // Clear current journals
+    void clearJournals();
     // Add new journal
     Journal &addJournal(const QString &name, const Locator &location);
     // Find named journal
@@ -120,6 +125,8 @@ class MainWindow : public QMainWindow
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:
+    // Clear all run data
+    void clearRunData();
     // Get data for specified run number
     std::optional<QJsonObject> dataForRunNumber(int runNumber) const;
     // Generate grouped run data from current run data

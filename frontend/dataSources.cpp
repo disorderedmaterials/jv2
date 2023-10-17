@@ -12,6 +12,10 @@
 // Parse data sources from specified source
 bool MainWindow::parseDataSources(const QDomDocument &source)
 {
+    // Clear old sources
+    dataSources_.clear();
+    ui_.DataSourceComboBox->clear();
+
     auto docRoot = source.documentElement();
     auto sourceNodes = docRoot.elementsByTagName("source");
 
@@ -33,8 +37,12 @@ bool MainWindow::parseDataSources(const QDomDocument &source)
         auto sourceDataDirectory = sourceElement.attribute("dataDirectory");
         auto sourceIndexFile = sourceElement.attribute("indexFile");
 
+        // Create the source
         auto &dataSource =
             dataSources_.emplace_back(sourceName, sourceType, sourceRootURL, sourceDataDirectory, sourceIndexFile);
+
+        // Add a combo box item
+        ui_.DataSourceComboBox->addItem(sourceName);
     }
 
     return true;
@@ -60,9 +68,19 @@ void MainWindow::getDefaultDataSources()
  */
 
 // Set current data source
-void MainWindow::setCurrentDataSource(QString name)
+void MainWindow::setCurrentDataSource(std::optional<QString> optName)
 {
+    // If no source is specified, clear everything
+    if (!optName)
+    {
+        clearRunData();
+        clearJournals();
+        journals_.clear();
+        return;
+    }
+
     // Find the source specified
+    auto name = *optName;
     auto sourceIt =
         std::find_if(dataSources_.begin(), dataSources_.end(), [name](const auto &source) { return source.name() == name; });
     if (sourceIt == dataSources_.end())
@@ -88,4 +106,16 @@ const DataSource &MainWindow::currentDataSource() const
         return currentDataSource_->get();
 
     throw(std::runtime_error("No current data source defined.\n"));
+}
+
+/*
+ * Private SLots
+ */
+
+void MainWindow::on_DataSourceComboBox_currentIndexChanged(int index)
+{
+    if (index == -1)
+        setCurrentDataSource({});
+    else
+        setCurrentDataSource(ui_.DataSourceComboBox->currentText());
 }
