@@ -4,10 +4,10 @@
 #pragma once
 
 #include "backend.h"
-#include "dataSource.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
 #include "journal.h"
+#include "journalSource.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
 #include "locator.h"
@@ -49,26 +49,26 @@ class MainWindow : public QMainWindow
     void closeEvent(QCloseEvent *event);
 
     /*
-     * Data Sources
+     * Journal Sources
      */
     private:
-    // Known data sources
-    std::vector<DataSource> dataSources_;
-    // Currently selected instdata source (if any)
-    OptionalReferenceWrapper<DataSource> currentDataSource_;
+    // Known journal sources
+    std::vector<JournalSource> journalSources_;
+    // Currently selected instjournal source (if any)
+    OptionalReferenceWrapper<JournalSource> currentJournalSource_;
 
     private:
-    // Parse data source from specified source
-    bool parseDataSources(const QDomDocument &source);
-    // Get default data sources
-    void getDefaultDataSources();
-    // Set current data source
-    void setCurrentDataSource(std::optional<QString> optName);
-    // Return current data source
-    const DataSource &currentDataSource() const;
+    // Parse journal source from specified source
+    bool parseJournalSources(const QDomDocument &source);
+    // Get default journal sources
+    void getDefaultJournalSources();
+    // Set current journal source
+    void setCurrentJournalSource(std::optional<QString> optName);
+    // Return current journal source
+    const JournalSource &currentJournalSource() const;
 
     private slots:
-    void on_DataSourceComboBox_currentIndexChanged(int index);
+    void on_JournalSourceComboBox_currentIndexChanged(int index);
 
     /*
      * Instruments

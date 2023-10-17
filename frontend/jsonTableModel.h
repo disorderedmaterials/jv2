@@ -19,7 +19,7 @@ class JsonTableModel : public QAbstractTableModel
     JsonTableModel();
 
     private:
-    // Data source for the model
+    // journal source for the model
     OptionalReferenceWrapper<QJsonArray> jsonData_;
     OptionalReferenceWrapper<const Instrument::RunDataColumns> horizontalHeaders_;
 

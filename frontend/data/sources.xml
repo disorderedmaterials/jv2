@@ -1,5 +1,5 @@
 <xml>
 	<sources>
-		<source name="ISIS Archive" type="ISISArchive" rootUrl="http://data.isis.rl.ac.uk/journals" indexFile="journal_main.xml" dataDirectory="/archive">
+		<source name="ISIS Archive" type="ISISNetwork" rootUrl="http://data.isis.rl.ac.uk/journals" indexFile="journal_main.xml" byInstrument="true" dataDirectory="/archive"/>
 	</sources>
 </xml>

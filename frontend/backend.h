@@ -9,7 +9,7 @@
 #include <QString>
 
 // Forward-declarations
-class DataSource;
+class JournalSource;
 class Locator;
 class QCommandLineParser;
 
@@ -67,7 +67,7 @@ class Backend : public QObject
      */
     public:
     // List available journals in the specified source and directory
-    void listJournals(const DataSource &source, const QString &journalDirectory,
+    void listJournals(const JournalSource &source, const QString &journalDirectory,
                       HttpRequestWorker::HttpRequestHandler handler = {});
     // Get journal file at the specified location
     void getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});

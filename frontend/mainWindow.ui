@@ -101,7 +101,7 @@
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_2">
                  <item>
-                  <widget class="QComboBox" name="DataSourceComboBox"/>
+                  <widget class="QComboBox" name="JournalSourceComboBox"/>
                  </item>
                  <item>
                   <widget class="QPushButton" name="instrumentButton">

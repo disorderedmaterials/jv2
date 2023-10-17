@@ -3,8 +3,8 @@
 
 #include "backend.h"
 #include "args.h"
-#include "dataSource.h"
 #include "httpRequestWorker.h"
+#include "journalSource.h"
 #include "locator.h"
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
@@ -129,13 +129,13 @@ void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createReques
  */
 
 // List available journals in the specified directory
-void Backend::listJournals(const DataSource &source, const QString &journalDirectory,
+void Backend::listJournals(const JournalSource &source, const QString &journalDirectory,
                            HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
     data["rootUrl"] = source.rootUrl();
     data["directory"] = journalDirectory;
-    data["dataDirectory"] = source.networkDataDirectory();
+    data["dataDirectory"] = source.runDataDirectory();
     if (!source.indexFile().isEmpty())
         data["filename"] = source.indexFile();
 
