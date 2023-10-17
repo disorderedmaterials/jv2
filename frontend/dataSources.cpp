@@ -40,10 +40,11 @@ bool MainWindow::parseDataSources(const QDomDocument &source)
         // Create the source
         auto &dataSource =
             dataSources_.emplace_back(sourceName, sourceType, sourceRootURL, sourceDataDirectory, sourceIndexFile);
-
-        // Add a combo box item
-        ui_.DataSourceComboBox->addItem(sourceName);
     }
+
+    // Populate the combo box with options
+    for (const auto &source : dataSources_)
+        ui_.DataSourceComboBox->addItem(source.name());
 
     return true;
 }
