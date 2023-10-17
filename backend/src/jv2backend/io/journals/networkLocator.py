@@ -8,8 +8,8 @@ import pandas as pd
 import requests
 import logging
 
-from jv2backend.journalClasses import JournalCollection, JournalFile
-from jv2backend.journalClasses import JournalData, concatenate
+from jv2backend.journals import JournalCollection, JournalFile
+from jv2backend.journals import JournalData, concatenate
 
 
 class NetworkJournalLocator:

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2backend.journalClasses import JournalFile
+from jv2backend.journals import JournalFile
 
 
 def test_default_constructed_empty():

@@ -5,7 +5,7 @@
 import logging
 
 from flask import Flask, jsonify, request
-from jv2backend.journalClasses import JournalLibrary
+from jv2backend.journals import JournalLibrary
 from jv2backend.utils import json_response, url_join
 import jv2backend.io.nexus as nxs
 

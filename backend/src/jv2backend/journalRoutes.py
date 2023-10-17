@@ -6,7 +6,7 @@ import logging
 from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
-from jv2backend.journalClasses import JournalLibrary, JournalCollection
+from jv2backend.journals import JournalLibrary, JournalCollection
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.utils import json_response, url_join
 

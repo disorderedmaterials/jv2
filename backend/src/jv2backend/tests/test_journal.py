@@ -4,7 +4,7 @@
 import json
 import pytest
 
-from jv2backend.journalClasses  import Journal
+from jv2backend.journals  import Journal
 
 JOURNAL_SOURCE = "FAKE"
 
