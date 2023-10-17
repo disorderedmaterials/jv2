@@ -9,7 +9,7 @@ from jv2backend import config
 from jv2backend import journalRoutes
 from jv2backend import nexusRoutes
 from jv2backend import serverRoutes
-from jv2backend.journalClasses import JournalLibrary
+from jv2backend.journals import JournalLibrary
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 
 
