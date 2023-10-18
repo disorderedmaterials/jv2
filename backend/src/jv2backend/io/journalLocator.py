@@ -16,8 +16,8 @@ from jv2backend.journals import JournalData, concatenate
 from jv2backend.utils import jsonify
 
 
-class NetworkJournalLocator:
-    """Network journal file locator"""
+class JournalLocator:
+    """Journal file locator"""
 
     @classmethod
     def _get_file(cls, requestData: RequestData) -> BytesIO:
