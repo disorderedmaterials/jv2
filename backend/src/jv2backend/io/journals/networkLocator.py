@@ -14,10 +14,10 @@ from jv2backend.journals import JournalData, concatenate
 
 
 class NetworkJournalLocator:
-    """Journal file locator"""
+    """Network journal file locator"""
 
     def get_index(self, requestData: RequestData) -> List[JournalFile]:
-        """Retrive an index file containing journal information
+        """Retrieve an index file containing journal information
 
         :param requestData: RequestData object containing index file details
         :return: The list of journal filenames as strings or an Exception
