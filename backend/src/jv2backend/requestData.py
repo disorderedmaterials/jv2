@@ -22,7 +22,7 @@ class RequestData:
              filename: [OPTIONAL] Target filename
 
         We can make various stipulations on the available data:
-            require_in_library: Whether a library matching the library_key
+            require_in_library: Whether a collection matching the library_key
                                 must already exist
         require_data_directory: Whether a 'dataDirectory' must be provided
               require_filename: Whether a 'filename' must be provided
@@ -92,6 +92,11 @@ class RequestData:
     def directory(self) -> str:
         """Return the directory within the rootURl (if provided)"""
         return self._directory
+
+    @property
+    def filename(self) -> str:
+        """Return the filename targeted (if provided)"""
+        return self._filename
 
     @property
     def data_directory(self) -> bool:

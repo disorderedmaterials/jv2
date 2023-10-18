@@ -148,7 +148,7 @@ void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequest
     QJsonObject data;
     data["rootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
-    data["journalFile"] = location.filename();
+    data["filename"] = location.filename();
 
     postRequest(createRoute("journals/get"), data, handler);
 }
@@ -159,7 +159,7 @@ void Backend::getJournalUpdates(const Locator &location, HttpRequestWorker::Http
     QJsonObject data;
     data["rootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
-    data["journalFile"] = location.filename();
+    data["filename"] = location.filename();
 
     postRequest(createRoute("journals/getUpdates"), data, handler);
 }
