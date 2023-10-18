@@ -52,7 +52,8 @@ class NetworkJournalLocator:
             xpath="/journal/file", dtype=str)
 
         # Set base data file location
-        baseDataLocation = url_join(requestData.url,
+        baseDataLocation = url_join(requestData.data_directory,
+                                    requestData.directory,
                                     "Instrument", "data")
 
         # Construct list of valid journal files for return
