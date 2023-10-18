@@ -6,7 +6,7 @@ import logging
 from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
-from jv2backend.requestData import RequestData
+from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journals import JournalLibrary, JournalCollection
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.utils import json_response
@@ -32,11 +32,12 @@ def add_routes(
         :return: A JSON response containing available journals in a
                  list(BasicJournalFile), or an error
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_data_directory=True,
-                               require_filename=True)
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_data_directory=True,
+                                   require_filename=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         logging.debug(f"Listing journals at {postData.url}")
 
@@ -69,10 +70,11 @@ def add_routes(
 
         :return: A JSON reponse containing the journal data, or an error
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_filename=True)
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_filename=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         logging.debug(
             f"Get journal {postData.filename} from {postData.url}"
@@ -99,16 +101,18 @@ def add_routes(
 
         :return: A JSON-formatted list of new run data, or None
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_filename=True)
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_filename=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         logging.debug(f"Get journal {postData.filename} from {postData.url}")
 
         try:
             if postData.is_http:
-                return json_response(networkJournalLocator.get_updates(postData))
+                return json_response(networkJournalLocator.get_updates(
+                    postData))
         except Exception as exc:
             return jsonify(
                 f"Error: Unable to get updates to {postData.filename} from \

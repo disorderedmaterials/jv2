@@ -5,9 +5,9 @@
 import logging
 
 from flask import Flask, jsonify, request
-from jv2backend.requestData import RequestData
+from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journals import JournalLibrary
-from jv2backend.utils import json_response, url_join
+from jv2backend.utils import json_response
 import jv2backend.io.nexus as nxs
 
 
@@ -28,11 +28,12 @@ def add_routes(
 
         :return: A JSON response with the list of full paths to log fields
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_run_numbers=True,
-                               require_in_library=True)
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_run_numbers=True,
+                                   require_in_library=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -59,12 +60,13 @@ def add_routes(
 
         :return: A list of the log data
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_run_numbers=True,
-                               require_in_library=True,
-                               require_parameter="logValue")
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_run_numbers=True,
+                                   require_in_library=True,
+                                   require_parameter="logValue")
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -105,11 +107,12 @@ def add_routes(
 
         :return: The number of available detectors
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_run_numbers=True,
-                               require_in_library=True)
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_run_numbers=True,
+                                   require_in_library=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
@@ -131,11 +134,12 @@ def add_routes(
 
         :return: The number of available monitors
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_run_numbers=True,
-                               require_in_library=True)
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_run_numbers=True,
+                                   require_in_library=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
@@ -158,12 +162,13 @@ def add_routes(
 
         :return: A list of the detector spectra
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_run_numbers=True,
-                               require_in_library=True,
-                               require_parameter="spectrumId")
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_run_numbers=True,
+                                   require_in_library=True,
+                                   require_parameter="spectrumId")
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -190,12 +195,13 @@ def add_routes(
 
         :return: A list of the monitor spectra
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_run_numbers=True,
-                               require_in_library=True,
-                               require_parameter="spectrumId")
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_run_numbers=True,
+                                   require_in_library=True,
+                                   require_parameter="spectrumId")
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -221,11 +227,12 @@ def add_routes(
 
         :return: A string of the form "count(non_zero)/count(all_spectra)"
         """
-        postData = RequestData(request.json, journalLibrary,
-                               require_run_numbers=True,
-                               require_in_library=True)
-        if not postData.is_valid:
-            return jsonify(f"Error: {postData.error}")
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_run_numbers=True,
+                                   require_in_library=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]

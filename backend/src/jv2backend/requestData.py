@@ -6,6 +6,22 @@ import jv2backend.journals
 from jv2backend.utils import url_join
 
 
+class InvalidRequest(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
+
 class RequestData:
     """Simple class for checking / handling POST data supplied to a Flask
     route"""
@@ -40,12 +56,10 @@ class RequestData:
         self._journal_collection: jv2backend.journals.JournalCollection = None
         self._run_numbers: typing.List[int] = []
         self._is_http: bool = False
-        self._error: str = None
 
         # Root url is always required
         if "rootUrl" not in requestData:
-            self._error = "No root URL provided in request."
-            return
+            raise InvalidRequest("No root URL provided in request.")
         self._root_url = requestData["rootUrl"]
 
         # Determine whether this is a network or file url
@@ -62,39 +76,37 @@ class RequestData:
         self._journal_collection = (library[self._full_url] if
                                     self._full_url in library else None)
         if require_in_library and self._journal_collection is None:
-            self._error = f"No collection {self._full_url} in library."
-            return
+            raise InvalidRequest(f"No collection {self._full_url} in library.")
 
         # Was a data directory provided / required?
         self._data_directory = (requestData["dataDirectory"]
                                 if "dataDirectory" in requestData else None)
         if require_data_directory and self._data_directory is None:
-            self._error = f"Data directory required for URL \
-                          {self._full_url}."
-            return
+            raise InvalidRequest(f"Data directory required for URL \
+                          {self._full_url}.")
 
         # Was an optional filename provided / required?
         self._filename = (requestData["filename"] if "filename" in
                           requestData else None)
         if require_filename and self._filename is None:
-            self._error = f"Filename required for URL {self._full_url}."
-            return
+            raise InvalidRequest(f"Filename required for URL \
+                                 {self._full_url}.")
 
-        # Were run number(s) provided / requireds?
+        # Were run number(s) provided / required?
         if "runNumbers" in requestData:
             self._run_numbers = requestData["runNumbers"]
         if require_run_numbers and len(self._run_numbers) == 0:
-            self._error = f"Run number(s) required but were not provided."
-            return
+            raise InvalidRequest("Run number(s) required but were not \
+                                 provided.")
 
         # Was an additional parameter provided / required?
         if require_parameter:
             if require_parameter in requestData:
                 self._parameter = requestData[require_parameter]
             else:
-                self._error = f"Additional parameter {require_parameter} \
-                    required but was not provided."
-                return
+                raise InvalidRequest(f"Additional parameter \
+                                     {require_parameter} \
+                                     required but was not provided.")
 
     @property
     def url(self) -> str:
@@ -152,13 +164,3 @@ class RequestData:
     def journal_collection(self) -> jv2backend.journals.JournalCollection:
         """Return the associated JournalCollection object (if any)"""
         return self._journal_collection
-
-    @property
-    def is_valid(self) -> bool:
-        """Return whether the route data is all valid"""
-        return self._error is None
-
-    @property
-    def error(self) -> str:
-        """Return the encountered error (if any)"""
-        return self._error
