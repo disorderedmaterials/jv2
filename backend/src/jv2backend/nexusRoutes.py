@@ -5,6 +5,7 @@
 import logging
 
 from flask import Flask, jsonify, request
+from jv2backend.requestData import RequestData
 from jv2backend.journals import JournalLibrary
 from jv2backend.utils import json_response, url_join
 import jv2backend.io.nexus as nxs
@@ -18,7 +19,7 @@ def add_routes(
 
     @app.post("/runData/nexus/getLogValues")
     def getLogValues():
-        """Return a list of the available log fields within the run
+        """Return the available log fields for one or more run numbers.
 
         The POST data should contain:
             rootUrl: The root network or disk location for the journals
@@ -27,19 +28,15 @@ def add_routes(
 
         :return: A JSON response with the list of full paths to log fields
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        runNumbers = data["runNumbers"]
-        library_key = url_join(rootUrl, directory)
-
-        # Get the specified collection
-        collection = journalLibrary[library_key]
-        if collection is None:
-            return jsonify(f"Error: Collection {library_key} does not exist.")
+        postData = RequestData(request.json, journalLibrary,
+                               require_run_numbers=True,
+                               require_in_library=True)
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
 
         # Locate data files for the specified run numbers in the collection
-        dataFiles = collection.locate_data_files(runNumbers)
+        dataFiles = postData.journal_collection.locate_data_files(
+            postData.run_numbers)
         logging.debug(dataFiles)
         logpaths = []
         for run in dataFiles:
@@ -58,23 +55,20 @@ def add_routes(
             rootUrl: The root network or disk location for the journals
           directory: The directory in rootUrl containing the journals
          runNumbers: Array of run numbers to probe for SE log values
+           logValue: Log value to retrieve
 
         :return: A list of the log data
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        log_value = data["logValue"]
-        run_numbers = data["runNumbers"]
-        library_key = url_join(rootUrl, directory)
-
-        # Get the specified collection
-        collection = journalLibrary[library_key]
-        if collection is None:
-            return jsonify(f"Error: Collection {library_key} does not exist.")
+        postData = RequestData(request.json, journalLibrary,
+                               require_run_numbers=True,
+                               require_in_library=True,
+                               require_parameter="logValue")
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
 
         # Locate data files for the specified run numbers in the collection
-        dataFiles = collection.locate_data_files(run_numbers)
+        dataFiles = postData.journal_collection.locate_data_files(
+            postData.run_numbers)
 
         # Retrieve the log value data
         log_value_data = {}
@@ -88,14 +82,14 @@ def add_routes(
 
             runData["runNumber"] = str(run)
             runData["timeRange"] = [nxs.timerange(first_group)]
-            runData["data"] = nxs.logvalues(first_group[log_value])
+            runData["data"] = nxs.logvalues(first_group[postData.parameter])
 
             log_value_data[run] = runData
 
         # Construct the final return object
         result = {}
-        result["logValue"] = log_value
-        result["runNumbers"] = run_numbers
+        result["logValue"] = postData.parameter
+        result["runNumbers"] = postData.run_numbers
         result["data"] = log_value_data
 
         return json_response(result)
@@ -111,19 +105,15 @@ def add_routes(
 
         :return: The number of available detectors
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        run_number = data["runNumber"]
-        library_key = url_join(rootUrl, directory)
-
-        # Get the specified collection
-        collection = journalLibrary[library_key]
-        if collection is None:
-            return jsonify(f"Error: Collection {library_key} does not exist.")
+        postData = RequestData(request.json, journalLibrary,
+                               require_run_numbers=True,
+                               require_in_library=True)
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
 
         # Locate data file for the specified run number in the collection
-        dataFile = collection.locate_data_file(run_number)
+        run_number = postData.run_numbers[0]
+        dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
             return jsonify(f"Error: Unable to find data file for run \
                            {run_number}")
@@ -141,19 +131,15 @@ def add_routes(
 
         :return: The number of available monitors
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        run_number = data["runNumber"]
-        library_key = url_join(rootUrl, directory)
-
-        # Get the specified collection
-        collection = journalLibrary[library_key]
-        if collection is None:
-            return jsonify(f"Error: Collection {library_key} does not exist.")
+        postData = RequestData(request.json, journalLibrary,
+                               require_run_numbers=True,
+                               require_in_library=True)
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
 
         # Locate data file for the specified run number in the collection
-        dataFile = collection.locate_data_file(run_number)
+        run_number = postData.run_numbers[0]
+        dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
             return jsonify(f"Error: Unable to find data file for run \
                            {run_number}")
@@ -172,27 +158,23 @@ def add_routes(
 
         :return: A list of the detector spectra
         """
-
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        spectrum_id = data["spectrumId"]
-        run_numbers = data["runNumbers"]
-        library_key = url_join(rootUrl, directory)
-
-        # Get the specified collection
-        collection = journalLibrary[library_key]
-        if collection is None:
-            return jsonify(f"Error: Collection {library_key} does not exist.")
+        postData = RequestData(request.json, journalLibrary,
+                               require_run_numbers=True,
+                               require_in_library=True,
+                               require_parameter="spectrumId")
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
 
         # Locate data files for the specified run numbers in the collection
-        dataFiles = collection.locate_data_files(run_numbers)
+        dataFiles = postData.journal_collection.locate_data_files(
+            postData.run_numbers)
 
         # first entry matches sata expectation of the frontend
-        spectra = [[run_numbers, spectrum_id, "detector"]]
+        spectra = [[postData.run_numbers, postData.parameter, "detector"]]
         for run in dataFiles:
             if run is not None:
-                spectra.append(nxs.spectrum(dataFiles[run], int(spectrum_id)))
+                spectra.append(nxs.spectrum(dataFiles[run],
+                                            int(postData.parameter)))
 
         return json_response(spectra)
 
@@ -208,28 +190,23 @@ def add_routes(
 
         :return: A list of the monitor spectra
         """
-
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        spectrum_id = data["spectrumId"]
-        run_numbers = data["runNumbers"]
-        library_key = url_join(rootUrl, directory)
-
-        # Get the specified collection
-        collection = journalLibrary[library_key]
-        if collection is None:
-            return jsonify(f"Error: Collection {library_key} does not exist.")
+        postData = RequestData(request.json, journalLibrary,
+                               require_run_numbers=True,
+                               require_in_library=True,
+                               require_parameter="spectrumId")
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
 
         # Locate data files for the specified run numbers in the collection
-        dataFiles = collection.locate_data_files(run_numbers)
+        dataFiles = postData.journal_collection.locate_data_files(
+            postData.run_numbers)
 
         # first entry matches data expectation of the frontend
-        spectra = [[run_numbers, spectrum_id, "monitor"]]
+        spectra = [[postData.run_numbers, postData.parameter, "monitor"]]
         for run in dataFiles:
             if run is not None:
                 spectra.append(nxs.monitor_spectrum(dataFiles[run],
-                                                    int(spectrum_id)))
+                                                    int(postData.parameter)))
 
         return json_response(spectra)
 
@@ -244,19 +221,15 @@ def add_routes(
 
         :return: A string of the form "count(non_zero)/count(all_spectra)"
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        run_number = data["runNumber"]
-        library_key = url_join(rootUrl, directory)
-
-        # Get the specified collection
-        collection = journalLibrary[library_key]
-        if collection is None:
-            return jsonify(f"Error: Collection {library_key} does not exist.")
+        postData = RequestData(request.json, journalLibrary,
+                               require_run_numbers=True,
+                               require_in_library=True)
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
 
         # Locate data file for the specified run number in the collection
-        dataFile = collection.locate_data_file(run_number)
+        run_number = postData.run_numbers[0]
+        dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
             return jsonify(f"Error: Unable to find data file for run \
                            {run_number}")
