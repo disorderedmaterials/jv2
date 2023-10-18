@@ -8,11 +8,9 @@ import os
 ENVIRON_NAME_PREFIX = "JV2"
 
 DEFAULTS = {
-    "logger_level": "INFO",
-    "journal_server_url": "http://data.isis.rl.ac.uk/journals",
-    "run_locator_class": "jv2backend.io.isis.filelocator.LegacyArchiveFileLocator",
-    "run_locator_prefix": "/archive",
+    "logger_level": "INFO"
 }
+
 
 def get(name: str) -> str:
     """Access a configuration value via its name.

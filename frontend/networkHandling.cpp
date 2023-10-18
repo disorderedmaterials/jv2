@@ -59,33 +59,31 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
         waitForBackend();
 }
 
-// Handle journal ping result
-void MainWindow::handlePingJournals(QString response)
+// Handle get journal updates result
+void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
 {
     // A null response indicates no change
-    if (response == "")
+    if (worker->response.startsWith("null"))
         return;
 
-    qDebug() << response;
-    qDebug() << currentJournal_->get().name();
-
-    // The response contains the updated / most recent journal name
-    if (response == journals_.front().name())
+    // The main body of the request contains any run numbers we don't currently have.
+    // If we are currently displaying grouped data we append the new data directly then refresh the grouping
+    if (ui_.GroupRunsButton->isChecked())
     {
-        qDebug() << "Journals up to date, but runs are not\n";
-        // The most recent journal has been updated, probably with new run data.
-        // If we're currently displaying that journal, update with the new run data
-        if (currentJournal_ && currentJournal_->get().name() == response)
-        {
-            backend_.updateJournal(currentInstrument().journalDirectory(), response,
-                                   runData_.last().toObject()["run_number"].toString(),
-                                   [this](HttpRequestWorker *worker) { handleBackendPingResult(worker); });
-        }
+        foreach (const auto &item, worker->jsonArray)
+            runData_.append(item);
+
+        generateGroupedData();
+
+        runDataModel_.setData(groupedRunData_);
+        runDataModel_.setHorizontalHeaders(groupedRunDataColumns_);
+
+        ui_.RunDataTable->resizeColumnsToContents();
     }
     else
     {
-        auto nameParts = response.split("_");
-        addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer, response);
+        // Update via the model
+        runDataModel_.appendData(worker->jsonArray);
     }
 }
 
@@ -101,22 +99,17 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     if (networkRequestHasError(worker, "trying to list journals"))
         return;
 
-    QJsonValue value;
+    // Add returned journals
     for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
     {
-        value = worker->jsonArray[i];
+        auto value = worker->jsonArray[i].toObject();
 
-        // Ignore the main index file
-        if (value.toString() == "journal.xml")
-            continue;
-
-        auto nameParts = value.toString().split("_");
-        addJournal("Cycle " + nameParts[1] + "/" + nameParts[2].remove(".xml"), Journal::JournalLocation::ISISServer,
-                   value.toString());
+        addJournal(value["filename"].toString(),
+                   {value["server_root"].toString(), value["directory"].toString(), value["filename"].toString()});
     }
 
     // If there is no current journal, set one
-    if (!currentJournal_)
+    if (!currentJournal_ && !journals_.empty())
     {
         QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
         auto optJournal = findJournal(settings.value("recentJournal").toString());

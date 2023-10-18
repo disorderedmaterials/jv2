@@ -2,11 +2,7 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from pathlib import Path
-from jv2backend.io.isis.filelocator import (
-    DAaaSDataCacheFileLocator,
-    LegacyArchiveFileLocator,
-)
-
+from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 import pytest
 
 # Note: in these tests 'fs' refers to the fake filesystem fixture in

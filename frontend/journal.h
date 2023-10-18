@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "locator.h"
 #include <QString>
 #include <map>
 
@@ -15,23 +16,13 @@ class Journal
     /*
      * Basic Data
      */
-    public:
-    // Journal Location
-    enum class JournalLocation
-    {
-        ISISServer,
-        Disk
-    };
-
     private:
     // Name (used for display)
     QString name_;
     // Description
     QString description_;
-    // Location Type
-    JournalLocation location_;
-    // Location URL
-    QString locationURL_;
+    // Location
+    Locator location_;
 
     public:
     // Return name (used for display)
@@ -39,11 +30,9 @@ class Journal
     // Return description
     const QString &description() const;
     // Set location
-    void setFileLocation(JournalLocation location, QString url);
-    // Return location type
-    JournalLocation location() const;
-    // Return location UTL
-    const QString &locationURL() const;
+    void setLocation(const Locator &location);
+    // Return location
+    const Locator &location() const;
 
     /*
      * Associated Run Data

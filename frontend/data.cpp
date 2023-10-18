@@ -13,6 +13,19 @@
  * Private Functions
  */
 
+// Get data for specified run number
+std::optional<QJsonObject> MainWindow::dataForRunNumber(int runNumber) const
+{
+    for (const auto &value : runData_)
+    {
+        auto valueObj = value.toObject();
+        if (valueObj["run_number"].toInt() == runNumber)
+            return valueObj;
+    }
+
+    return {};
+}
+
 // Generate grouped run data from current run data
 void MainWindow::generateGroupedData()
 {
@@ -61,30 +74,25 @@ const QModelIndex MainWindow::runDataIndexAtPos(const QPoint pos) const
     return index.isValid() ? runDataFilterProxy_.mapToSource(index) : QModelIndex();
 }
 
-// Get selected run / cycle information [LEGACY, TO FIX]
-std::pair<QString, QString> MainWindow::selectedRunNumbersAndCycles() const
+// Return integer list of currently-selected run numbers
+std::vector<int> MainWindow::selectedRunNumbers() const
 {
-    // Get selected run numbers / cycles
+    // Get current selection
     auto selectedRuns = ui_.RunDataTable->selectionModel()->selectedRows();
-    QString runNos, cycles;
+    std::vector<int> runNumbers;
 
     // Concats runs
     for (const auto &runIndex : selectedRuns)
     {
         auto runNo = runDataFilterProxy_.getData("run_number", runIndex);
-        auto cycle = runDataFilterProxy_.getData("isis_cycle", runIndex);
 
         // Account for grouped run information
         auto runNoArray = runNo.split(",");
-        for (auto n : runNoArray)
-        {
-            runNos.append(runNos.isEmpty() ? runNo : (";" + runNo));
-            cycles.append((cycles.isEmpty() ? "cycle_" : ";cycle_") + cycle);
-        }
+        for (const auto &n : runNoArray)
+            runNumbers.push_back(n.toInt());
     }
-    qDebug() << runNos;
-    qDebug() << cycles;
-    return {runNos, cycles};
+
+    return runNumbers;
 }
 
 // Select and show specified run number in table (if it exists)
@@ -121,11 +129,11 @@ bool MainWindow::highlightRunNumber(int runNumber)
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    if (journalSource_ == Journal::JournalLocation::ISISServer)
-    {
-        backend_.pingJournals(currentInstrument().journalDirectory(),
-                              [=](HttpRequestWorker *worker) { handlePingJournals(worker->response); });
-    }
+    if (!currentJournal_)
+        return;
+    auto &journal = currentJournal_->get();
+
+    backend_.getJournalUpdates(journal.location(), [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
 // Jump to run number
@@ -165,9 +173,6 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
 
     auto *selectedAction = contextMenu.exec(ui_.RunDataTable->mapToGlobal(pos));
 
-    // Get selected run numbers / cycles
-    auto &&[runNos, cycles] = selectedRunNumbersAndCycles();
-
     if (selectedAction == selectSameTitle)
     {
         auto title = runDataModel_.getData("title", runDataIndexAtPos(pos));
@@ -186,7 +191,7 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotSELog)
     {
-        backend_.getNexusFields(currentInstrument().dataDirectory(), cycles, runNos,
+        backend_.getNexusFields(currentJournal().location(), selectedRunNumbers(),
                                 [=](HttpRequestWorker *worker) { handlePlotSELogValue(worker); });
     }
     else if (selectedAction == plotDetector)

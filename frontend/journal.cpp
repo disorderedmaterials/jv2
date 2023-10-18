@@ -2,10 +2,8 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "journal.h"
-#include <QDomDocument>
-#include <QFile>
 
-Journal::Journal(QString name) : name_(name), location_(Journal::JournalLocation::ISISServer) {}
+Journal::Journal(QString name) : name_(name) {}
 
 /*
  * Basic Data
@@ -18,14 +16,7 @@ const QString &Journal::name() const { return name_; }
 const QString &Journal::description() const { return description_; }
 
 // Set location
-void Journal::setFileLocation(Journal::JournalLocation location, QString url)
-{
-    location_ = location;
-    locationURL_ = url;
-}
+void Journal::setLocation(const Locator &location) { location_ = location; }
 
-// Return location type
-Journal::JournalLocation Journal::location() const { return location_; }
-
-// Return location UTL
-const QString &Journal::locationURL() const { return locationURL_; }
+// Return location
+const Locator &Journal::location() const { return location_; }

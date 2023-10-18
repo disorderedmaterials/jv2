@@ -3,7 +3,9 @@
 
 #include "backend.h"
 #include "args.h"
+#include "dataSource.h"
 #include "httpRequestWorker.h"
+#include "locator.h"
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
@@ -31,6 +33,13 @@ Backend::Backend(const QCommandLineParser &args) : process_()
 
 // Return the backend bind address
 QString Backend::bindAddress() const { return "127.0.0.1:5000"; };
+
+// Create a POST request
+HttpRequestWorker *Backend::postRequest(const QString &url, const QJsonObject &data,
+                                        HttpRequestWorker::HttpRequestHandler handler)
+{
+    return new HttpRequestWorker(manager_, url, data, handler);
+}
 
 // Create a request
 HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler)
@@ -120,16 +129,39 @@ void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createReques
  */
 
 // List available journals in the specified directory
-void Backend::listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::listJournals(const DataSource &source, const QString &journalDirectory,
+                           HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("journals/list", journalDirectory), handler);
+    QJsonObject data;
+    data["rootUrl"] = source.rootUrl();
+    data["directory"] = journalDirectory;
+    data["dataDirectory"] = source.networkDataDirectory();
+    if (!source.indexFile().isEmpty())
+        data["indexFile"] = source.indexFile();
+
+    postRequest(createRoute("journals/list"), data, handler);
 }
 
-// Get journal file from the specified directory
-void Backend::getJournal(const QString &journalDirectory, const QString &journalFilename,
-                         HttpRequestWorker::HttpRequestHandler handler)
+// Get journal file at the specified location
+void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("journals/get", journalDirectory, journalFilename), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["journalFile"] = location.filename();
+
+    postRequest(createRoute("journals/get"), data, handler);
+}
+
+// Get any updates to the specified journal
+void Backend::getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
+{
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["journalFile"] = location.filename();
+
+    postRequest(createRoute("journals/getUpdates"), data, handler);
 }
 
 // Search all journals for matching runs
@@ -137,26 +169,6 @@ void Backend::findRuns(const QString &journalDirectory, const QString &value, co
                        HttpRequestWorker::HttpRequestHandler handler)
 {
     createRequest(createRoute("journals/findRuns", journalDirectory, value, textInput, options), handler);
-}
-
-// Get updated journal data [FIXME, COULD DO WITH A BETTER NAME]
-void Backend::updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
-                            HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("journals/update", journalDirectory, cycleString, lastKnownRunNo), handler);
-}
-
-// Ping for any updates in the specified journal directory
-void Backend::pingJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("journals/ping", journalDirectory), handler);
-}
-
-// Get total uAmps for run numbers in the given cycle
-void Backend::getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("journals/getTotalMuAmps", dataDirectory, cycle, runNos), handler);
 }
 
 // Go to cycle containing specified run number
@@ -169,61 +181,102 @@ void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, H
  * NeXuS Endpoints
  */
 
-// Set data mountpoint
-void Backend::setRunDataRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler)
-{
-    createRequest(createRoute("runData/setRoot", directory), handler);
-}
-
 // Get NeXuS log values present in specified run files
-void Backend::getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
+void Backend::getNexusFields(const Locator &location, const std::vector<int> &runNos,
                              HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getLogValues", dataDirectory, cycles, runNos), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getLogValues"), data, handler);
 }
 
 // Get NeXuS log value data for specified run files
-void Backend::getNexusLogValueData(const QString &dataDirectory, const QString &cycles, const QString &runNos,
-                                   const QString &logValue, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
+                                   HttpRequestWorker::HttpRequestHandler handler)
 {
-    // Log values typically contain '/' in their name as they are paths, so swap with ':' so we can handle it properly
-    // [FIXME Can we escape this, or use %2F, or encode it in some other way]
-    auto cleanedLogValue = logValue;
-    cleanedLogValue.replace("/", ":");
-    createRequest(createRoute("runData/nexus/getLogValueData", dataDirectory, cycles, runNos, cleanedLogValue), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["logValue"] = logValue;
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getLogValueData"), data, handler);
 }
 
 // Get NeXuS monitor range for specified run numbers in the given cycle
-void Backend::getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                   HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getMonitorRange", dataDirectory, cycle, runNos), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["runNumber"] = runNo;
+
+    postRequest(createRoute("runData/nexus/getMonitorRange"), data, handler);
 }
 
 // Get NeXuS monitor spectrum for specified run numbers in the given cycle
-void Backend::getNexusMonitor(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                              const QString &spectrumID, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
+                              HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getMonitorSpectrums", dataDirectory, cycle, runNos, spectrumID), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["spectrumId"] = monitorId;
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getMonitorSpectrum"), data, handler);
 }
 
-// Get NeXuS spectrum range for specified run numbers in the given cycle
-void Backend::getNexusSpectrumRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                    HttpRequestWorker::HttpRequestHandler handler)
+// Get NeXuS spectrum range for specified run number
+void Backend::getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getSpectrumRange", dataDirectory, cycle, runNos), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["runNumber"] = runNo;
+
+    postRequest(createRoute("runData/nexus/getSpectrumRange"), data, handler);
 }
 
 // Get NeXuS detector spectra for specified run numbers in the given cycle
-void Backend::getNexusDetector(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                               const QString &spectrumID, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
+                               HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getSpectrum", dataDirectory, cycle, runNos, spectrumID), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["spectrumId"] = monitorId;
+
+    QJsonArray runNumbers;
+    for (auto i : runNos)
+        runNumbers.append(i);
+    data["runNumbers"] = runNumbers;
+
+    postRequest(createRoute("runData/nexus/getSpectrum"), data, handler);
 }
 
 // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-void Backend::getNexusDetectorAnalysis(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                                       HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("runData/nexus/getDetectorAnalysis", dataDirectory, runNos, cycle), handler);
+    QJsonObject data;
+    data["rootUrl"] = location.rootUrl();
+    data["directory"] = location.directory();
+    data["runNumber"] = runNo;
+
+    postRequest(createRoute("runData/nexus/getDetectorAnalysis"), data, handler);
 }

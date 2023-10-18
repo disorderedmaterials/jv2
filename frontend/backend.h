@@ -9,6 +9,8 @@
 #include <QString>
 
 // Forward-declarations
+class DataSource;
+class Locator;
 class QCommandLineParser;
 
 // Backend Process
@@ -35,6 +37,8 @@ class Backend : public QObject
         ([&] { result += "/" + QString("%1").arg(routeParts); }(), ...);
         return result;
     }
+    // Create a POST request
+    HttpRequestWorker *postRequest(const QString &url, const QJsonObject &data, HttpRequestWorker::HttpRequestHandler handler);
     // Create a request
     HttpRequestWorker *createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler = {});
     // Configure backend process arguments
@@ -62,22 +66,16 @@ class Backend : public QObject
      * Journal Endpoints
      */
     public:
-    // List available journals in the specified directory
-    void listJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get journal file from the specified directory
-    void getJournal(const QString &journalDirectory, const QString &journalFilename,
-                    HttpRequestWorker::HttpRequestHandler handler = {});
+    // List available journals in the specified source and directory
+    void listJournals(const DataSource &source, const QString &journalDirectory,
+                      HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get journal file at the specified location
+    void getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get any updates to the specified journal
+    void getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
     // Search all journals for matching runs
     void findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
                   HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get updated journal data
-    void updateJournal(const QString &journalDirectory, const QString &cycleString, const QString &lastKnownRunNo,
-                       HttpRequestWorker::HttpRequestHandler handler = {});
-    // Ping for any updates in the specified journal directory
-    void pingJournals(const QString &journalDirectory, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get total uAmps for run numbers in the given cycle
-    void getRunTotalMuAmps(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
     void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 
@@ -85,28 +83,22 @@ class Backend : public QObject
      * NeXuS Endpoints
      */
     public:
-    // Set data mountpoint
-    void setRunDataRoot(const QString &directory, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log values present in specified run files
-    void getNexusFields(const QString &dataDirectory, const QString &cycles, const QString &runNos,
+    void getNexusFields(const Locator &location, const std::vector<int> &runNos,
                         HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log value data for specified run files
-    void getNexusLogValueData(const QString &dataDirectory, const QString &runNos, const QString &cycles,
-                              const QString &logValue, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor range for specified run numbers in the given cycle
-    void getNexusMonitorRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
+    void getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
                               HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor spectrum for specified run numbers in the given cycle
-    void getNexusMonitor(const QString &dataDirectory, const QString &runNos, const QString &cycle, const QString &spectrumID,
+    // Get NeXuS monitor range for specified run number
+    void getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS monitor spectrum for specified run numbers
+    void getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
                          HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS spectrum range for specified run numbers in the given cycle
-    void getNexusSpectrumRange(const QString &dataDirectory, const QString &runNos, const QString &cycle,
-                               HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS detector spectra for specified run numbers in the given cycle
-    void getNexusDetector(const QString &dataDirectory, const QString &runNos, const QString &cycle, const QString &spectrumID,
+    // Get NeXuS spectrum range for specified run numbers
+    void getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS detector spectra for specified run numbers
+    void getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
                           HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-    // [FIXME - Different argument order (cycle/runs) to others]
-    void getNexusDetectorAnalysis(const QString &dataDirectory, const QString &cycle, const QString &runNos,
-                                  HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS detector spectra analysis for specified run number
+    void getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 };

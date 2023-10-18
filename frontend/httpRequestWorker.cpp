@@ -20,6 +20,25 @@ HttpRequestWorker::HttpRequestWorker(QNetworkAccessManager &manager, const QStri
     connect(reply_, &QNetworkReply::finished, this, &HttpRequestWorker::requestComplete);
 }
 
+HttpRequestWorker::HttpRequestWorker(QNetworkAccessManager &manager, const QString &url, const QJsonObject &data,
+                                     HttpRequestHandler handler)
+{
+    // Set up the request
+    request_.setUrl(url);
+    request_.setHeader(QNetworkRequest::UserAgentHeader, "JournalViewer2");
+    request_.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    if (handler)
+        connect(this, &HttpRequestWorker::requestFinished, [=](HttpRequestWorker *workerProxy) { handler(workerProxy); });
+
+    // Create POST data from the supplied QJsonObject
+    postData_ = QJsonDocument(data).toJson();
+
+    // Execute the request and connect the reply
+    reply_ = manager.post(request_, postData_);
+    connect(reply_, &QNetworkReply::finished, this, &HttpRequestWorker::requestComplete);
+}
+
 // Process request
 void HttpRequestWorker::requestComplete()
 {

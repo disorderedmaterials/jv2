@@ -4,11 +4,13 @@
 #pragma once
 
 #include "backend.h"
+#include "dataSource.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
 #include "journal.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
+#include "locator.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>
@@ -47,7 +49,26 @@ class MainWindow : public QMainWindow
     void closeEvent(QCloseEvent *event);
 
     /*
-     * Instrument Sources
+     * Data Sources
+     */
+    private:
+    // Known data sources
+    std::vector<DataSource> dataSources_;
+    // Currently selected instdata source (if any)
+    OptionalReferenceWrapper<DataSource> currentDataSource_;
+
+    private:
+    // Parse data source from specified source
+    bool parseDataSources(const QDomDocument &source);
+    // Get default data sources
+    void getDefaultDataSources();
+    // Set current data source
+    void setCurrentDataSource(QString name);
+    // Return current data source
+    const DataSource &currentDataSource() const;
+
+    /*
+     * Instruments
      */
     private:
     // Available instruments
@@ -73,8 +94,6 @@ class MainWindow : public QMainWindow
      * Journals
      */
     private:
-    // Current journal source
-    Journal::JournalLocation journalSource_{Journal::JournalLocation::ISISServer};
     // Available journals
     std::vector<Journal> journals_;
     // Currently selected journal (if any)
@@ -82,12 +101,14 @@ class MainWindow : public QMainWindow
 
     private:
     // Add new journal
-    Journal &addJournal(const QString &name, Journal::JournalLocation location, const QString &locationURL);
+    Journal &addJournal(const QString &name, const Locator &location);
     // Find named journal
     OptionalReferenceWrapper<Journal> findJournal(const QString &name);
     // Set current journal being displayed
     void setCurrentJournal(QString name);
     void setCurrentJournal(Journal &journal);
+    // Return current journal
+    const Journal &currentJournal() const;
 
     /*
      * Run Data
@@ -99,12 +120,14 @@ class MainWindow : public QMainWindow
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:
+    // Get data for specified run number
+    std::optional<QJsonObject> dataForRunNumber(int runNumber) const;
     // Generate grouped run data from current run data
     void generateGroupedData();
     // Return the run data model index under the mouse, accounting for the effects of the filter proxys
     const QModelIndex runDataIndexAtPos(const QPoint pos) const;
-    // Get selected run / cycle information [LEGACY, TO FIX]
-    std::pair<QString, QString> selectedRunNumbersAndCycles() const;
+    // Return integer list of currently-selected run numbers
+    std::vector<int> selectedRunNumbers() const;
     // Select and show specified run number in table (if it exists)
     bool highlightRunNumber(int runNumber);
 
@@ -123,8 +146,8 @@ class MainWindow : public QMainWindow
     bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
     // Handle backend ping result
     void handleBackendPingResult(HttpRequestWorker *worker);
-    // Handle journal ping result
-    void handlePingJournals(QString response);
+    // Handle get journal updates result
+    void handleGetJournalUpdates(HttpRequestWorker *workers);
     // Handle returned journal information for an instrument
     void handleListJournals(HttpRequestWorker *worker);
     // Handle run data returned for a whole journal
@@ -140,10 +163,6 @@ class MainWindow : public QMainWindow
     void saveCustomColumnSettings() const;
     // Retrieve user settings
     void loadSettings();
-
-    private slots:
-    void on_actionMountPoint_triggered();
-    void on_actionClearMountPoint_triggered();
 
     /*
      * Searching
@@ -197,15 +216,16 @@ class MainWindow : public QMainWindow
     /*
      * Visualisation
      */
-    private slots:
+    private:
     // Handle extracted SE log values for plotting
     void handlePlotSELogValue(HttpRequestWorker *worker);
+    // Handle plotting of SE log data
+    void handleCreateSELogPlot(HttpRequestWorker *worker);
 
     /*
      * Nexus Interaction Stuff To Be Organised
      */
     private slots:
-    void handle_result_contextGraph(HttpRequestWorker *worker);
     void toggleAxis(int state);
     void getField();
     void showStatus(qreal x, qreal y, QString title);

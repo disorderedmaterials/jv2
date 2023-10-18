@@ -8,5 +8,6 @@
   <qresource prefix="data">
     <file alias="instruments.xml">data/instruments.xml</file>
     <file alias="defaultColumns.xml">data/defaultColumns.xml</file>
+    <file alias="sources.xml">data/sources.xml</file>
   </qresource>
 </RCC>

@@ -20,7 +20,7 @@ class JsonTableModel : public QAbstractTableModel
 
     private:
     // Data source for the model
-    OptionalReferenceWrapper<const QJsonArray> jsonData_;
+    OptionalReferenceWrapper<QJsonArray> jsonData_;
     OptionalReferenceWrapper<const Instrument::RunDataColumns> horizontalHeaders_;
 
     private:
@@ -31,7 +31,9 @@ class JsonTableModel : public QAbstractTableModel
 
     public:
     // Set the source data for the model
-    void setData(const QJsonArray &array);
+    void setData(QJsonArray &array);
+    // Append supplied data to the current data
+    void appendData(const QJsonArray &newData);
     // Set the table column (horizontal) headers
     void setHorizontalHeaders(const Instrument::RunDataColumns &headers);
     // Get named data for specified row
