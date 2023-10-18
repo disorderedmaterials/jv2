@@ -49,15 +49,10 @@ def add_routes(
                     {postData.library_key}")
             return postData.journal_collection.to_basic()
 
-        try:
-            if postData.is_http:
-                journalLibrary[postData.url] = JournalCollection(
+        # Parse the journal index
+        journalLibrary[postData.url] = JournalCollection(
                     networkJournalLocator.get_index(postData))
-                return jsonify(journalLibrary[postData.url].to_basic())
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to list journals at {postData.url}:\
-                  {str(exc)}")
+        return jsonify(journalLibrary[postData.url].to_basic())
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:
@@ -80,14 +75,8 @@ def add_routes(
             f"Get journal {postData.filename} from {postData.url}"
         )
 
-        try:
-            if postData.is_http:
-                return json_response(
-                    networkJournalLocator.get_journal_data(postData))
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to get journal {postData.filename} from \
-                    {postData.url}: {str(exc)}")
+        return json_response(
+            networkJournalLocator.get_journal_data(postData))
 
     @app.post("/journals/getUpdates")
     def getUpdates():
@@ -109,15 +98,7 @@ def add_routes(
 
         logging.debug(f"Get journal {postData.filename} from {postData.url}")
 
-        try:
-            if postData.is_http:
-                return json_response(networkJournalLocator.get_updates(
-                    postData))
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to get updates to {postData.filename} from \
-                  {postData.url}: {str(exc)}"
-            )
+        return json_response(networkJournalLocator.get_updates(postData))
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 

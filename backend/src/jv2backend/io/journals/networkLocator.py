@@ -4,17 +4,43 @@
 from typing import Optional, List
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
+import datetime
 import pandas as pd
 import requests
 import logging
+import os.path
 
 from jv2backend.requestData import RequestData
 from jv2backend.journals import JournalCollection, JournalFile
 from jv2backend.journals import JournalData, concatenate
+from jv2backend.utils import jsonify
 
 
 class NetworkJournalLocator:
     """Network journal file locator"""
+
+    @classmethod
+    def _get_file(cls, requestData: RequestData) -> BytesIO:
+        """Get the content of the file"""
+        if requestData.is_http:
+            response = requests.get(requestData.file_url)
+            response.raise_for_status()
+            return BytesIO(response.content)
+        else:
+            with open(requestData.file_url, "rb") as file:
+                buffer = BytesIO(file.read())
+            return buffer
+
+    @classmethod
+    def _get_modification_time(cls,
+                               requestData: RequestData) -> datetime.datetime:
+        """Get the modification time of the file"""
+        if requestData.is_http:
+            response = requests.head(requestData.file_url)
+            response.raise_for_status()
+            return lm_to_datetime(response.headers["Last-Modified"])
+        else:
+            return os.path.getmtime(requestData.file_url)
 
     def get_index(self, requestData: RequestData) -> List[JournalFile]:
         """Retrieve an index file containing journal information
@@ -43,13 +69,13 @@ class NetworkJournalLocator:
         /data_directory/NDXINSTRUMENT/Instrument/data/cycle_YY_M
         """
         # Retrieve the specified file, assumed to be an xml index file
-        response = requests.get(requestData.file_url)
-        response.raise_for_status()
+        try:
+            fileBytes = self._get_file(requestData)
+        except (requests.HTTPError, FileNotFoundError) as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         # Parse the journal index file
-        data = pd.read_xml(
-            BytesIO(response.content),
-            xpath="/journal/file", dtype=str)
+        data = pd.read_xml(fileBytes, xpath="/journal/file", dtype=str)
 
         # Set base data file location
         baseDataLocation = url_join(requestData.data_directory,
@@ -79,28 +105,21 @@ class NetworkJournalLocator:
         # modification time
         j = requestData.journal_collection.get_info(requestData.filename)
         if j is not None:
-            # Get file headers
-            response = requests.head(requestData.file_url)
-            response.raise_for_status()
-
-            # Compare modification times - if the same, return existing data
-            current_last_modified = lm_to_datetime(
-                response.headers["Last-Modified"])
+            # Return current data if the file still has the same modtime
+            current_last_modified = self._get_modification_time(requestData)
             if current_last_modified == j.last_modified:
                 return j.run_data
 
-        # Make the full http request
-        response = requests.get(requestData.file_url)
-        response.raise_for_status()
-
-        # Update the last modified time
-        j.last_modified = lm_to_datetime(response.headers["Last-Modified"])
+        # Not up-to-date, so get the full file content and update modtime
+        try:
+            fileBytes = self._get_file(requestData)
+        except (requests.HTTPError, FileNotFoundError) as exc:
+            return jsonify(f"Error: {str(exc)}")
+        j.last_modified = current_last_modified
 
         # Read in the run data from the journal file
         j.run_data = JournalData(
-            requestData.filename, data=pd.read_xml(
-                BytesIO(response.content),
-                dtype=str))
+            requestData.filename, data=pd.read_xml(fileBytes, dtype=str))
 
         # Store the most-recent (highest) run number in the journal for future
         # reference
@@ -133,25 +152,21 @@ class NetworkJournalLocator:
         # modification time
         j = requestData.journal_collection.get_info(requestData.filename)
         if j is not None:
-            # Get file headers
-            response = requests.head(requestData.file_url)
-            response.raise_for_status()
-
             # Compare modification times - if the same, return existing data
-            current_last_modified = lm_to_datetime(
-                response.headers["Last-Modified"])
+            current_last_modified = self._get_modification_time(requestData)
             if current_last_modified == j.last_modified:
                 return None
 
         # Changed, so read full data
-        response = requests.get(requestData.file_url)
-        response.raise_for_status()
+        try:
+            fileBytes = self._get_file(requestData)
+        except (requests.HTTPError, FileNotFoundError) as exc:
+            return jsonify(f"Error: {str(exc)}")
+        j.last_modified = current_last_modified
 
         # Read in the run data from the journal file and store the whole thing
         j.run_data = JournalData(
-            requestData.filename, data=pd.read_xml(
-                BytesIO(response.content),
-                dtype=str))
+            requestData.filename, data=pd.read_xml(fileBytes, dtype=str))
 
         # Get the last run number
         old_last_run_number = j.last_run_number
