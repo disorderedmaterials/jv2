@@ -6,6 +6,7 @@ import logging
 from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
+from jv2backend.requestData import RequestData
 from jv2backend.journals import JournalLibrary, JournalCollection
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
 from jv2backend.utils import json_response, url_join
@@ -31,38 +32,30 @@ def add_routes(
         :return: A JSON response containing available journals in a
                  list(BasicJournalFile), or an error
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        dataDirectory = data["dataDirectory"]
-
-        logging.debug(f"Listing journals for {directory} in {rootUrl}")
+        postData = RequestData(request.json, journalLibrary,
+                               require_data_directory=True,
+                               require_index_for_http=True)
+        if not postData.is_valid:
+            return jsonify(f"Error: {postData.error}")
+        logging.debug(f"Listing journals at {postData.url}")
 
         # If we already have a library collection for the specified
         # rootUrl/directory, just return it
-        library_key = url_join(rootUrl, directory)
-        if library_key in journalLibrary:
+        if postData.journal_collection is not None:
             logging.debug(
-                f"Returning existing journal collection for {library_key}")
-            return journalLibrary[library_key].to_basic()
+                f"Returning existing journal collection for \
+                    {postData.library_key}")
+            return postData.journal_collection.to_basic()
 
         try:
-            if (rootUrl.startswith("http")):
-                if "indexFile" in data:
-                    journalLibrary[library_key] = JournalCollection(
-                        networkJournalLocator.get_index(
-                            server_root=rootUrl, journal_directory=directory,
-                            index_file=data['indexFile'],
-                            data_directory=dataDirectory))
-                    return jsonify(journalLibrary[library_key].to_basic())
-                else:
-                    return jsonify(
-                        f"Error: Index file name must be provided for a\
-                          network source ({rootUrl}/{directory}).")
+            if postData.is_http:
+                journalLibrary[postData.url] = JournalCollection(
+                    networkJournalLocator.get_index(postData))
+                return jsonify(journalLibrary[postData.url].to_basic())
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to list journals for {directory} from \
-                  {rootUrl}: {str(exc)}")
+                f"Error: Unable to list journals at {postData.url}:\
+                  {str(exc)}")
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:

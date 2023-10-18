@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 import logging
 
+from jv2backend.requestData import RequestData
 from jv2backend.journals import JournalCollection, JournalFile
 from jv2backend.journals import JournalData, concatenate
 
@@ -15,8 +16,7 @@ from jv2backend.journals import JournalData, concatenate
 class NetworkJournalLocator:
     """Journal file locator"""
 
-    def get_index(self, server_root: str, journal_directory: str,
-                  index_file: str, data_directory: str) -> List[JournalFile]:
+    def get_index(self, requestData: RequestData) -> List[JournalFile]:
         """Retrive an index file containing journal information
 
         :param server_root: Root server URL to make request to
@@ -45,9 +45,8 @@ class NetworkJournalLocator:
 
         /data_directory/NDXINSTRUMENT/Instrument/data/cycle_YY_M
         """
-        # Construct the full url to the journal file
-        url = url_join(server_root, journal_directory, index_file)
-        response = requests.get(url)
+        # Construct the full url to the index file
+        response = requests.get(requestData.index_file_url)
         response.raise_for_status()
 
         # Parse the journal index file
@@ -56,7 +55,7 @@ class NetworkJournalLocator:
             xpath="/journal/file", dtype=str)
 
         # Set base data file location
-        baseDataLocation = url_join(data_directory, journal_directory.upper(),
+        baseDataLocation = url_join(requestData.url,
                                     "Instrument", "data")
 
         # Construct list of valid journal files for return
@@ -66,8 +65,8 @@ class NetworkJournalLocator:
                 dirName = name.replace("journal", "cycle").replace(".xml", "")
                 journals.append(
                     JournalFile(
-                        server_root,
-                        journal_directory,
+                        requestData.root_url,
+                        requestData.directory,
                         name, url_join(baseDataLocation, dirName)))
 
         return journals
