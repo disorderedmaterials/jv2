@@ -6,9 +6,10 @@ import logging
 from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
+from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journals import JournalLibrary, JournalCollection
 from jv2backend.io.journals.networkLocator import NetworkJournalLocator
-from jv2backend.utils import json_response, url_join
+from jv2backend.utils import json_response
 
 
 def add_routes(
@@ -24,113 +25,98 @@ def add_routes(
         """Return the list of journal files in a specified location
 
         The POST data should contain:
-               rootUrl: The root network or disk location for the journals
-             directory: The directory in rootUrl to probe for journals
-            index_file: Name of the index file in the directory, if known
+             rootUrl: The root network or disk location for the journals
+           directory: The directory in rootUrl to probe for journals
+            filename: Name of the index file in the directory
 
         :return: A JSON response containing available journals in a
                  list(BasicJournalFile), or an error
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        dataDirectory = data["dataDirectory"]
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_data_directory=True,
+                                   require_filename=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(f"Listing journals for {directory} in {rootUrl}")
+        logging.debug(f"Listing journals at {postData.url}")
 
         # If we already have a library collection for the specified
         # rootUrl/directory, just return it
-        library_key = url_join(rootUrl, directory)
-        if library_key in journalLibrary:
+        if postData.journal_collection is not None:
             logging.debug(
-                f"Returning existing journal collection for {library_key}")
-            return journalLibrary[library_key].to_basic()
+                f"Returning existing journal collection for \
+                    {postData.library_key}")
+            return postData.journal_collection.to_basic()
 
         try:
-            if (rootUrl.startswith("http")):
-                if "indexFile" in data:
-                    journalLibrary[library_key] = JournalCollection(
-                        networkJournalLocator.get_index(
-                            server_root=rootUrl, journal_directory=directory,
-                            index_file=data['indexFile'],
-                            data_directory=dataDirectory))
-                    return jsonify(journalLibrary[library_key].to_basic())
-                else:
-                    return jsonify(
-                        f"Error: Index file name must be provided for a\
-                          network source ({rootUrl}/{directory}).")
+            if postData.is_http:
+                journalLibrary[postData.url] = JournalCollection(
+                    networkJournalLocator.get_index(postData))
+                return jsonify(journalLibrary[postData.url].to_basic())
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to list journals for {directory} from \
-                  {rootUrl}: {str(exc)}")
+                f"Error: Unable to list journals at {postData.url}:\
+                  {str(exc)}")
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:
         """Return the specified journal contents
 
         The POST data should contain:
-                rootUrl: The root network or disk location for the journals
-              directory: The directory in rootUrl to probe for journals
-            journalFile: Name of the target journal file in the directory
+             rootUrl: The root network or disk location for the journal
+           directory: The directory in rootUrl containing the journal
+            filename: Name of the target journal file
 
         :return: A JSON reponse containing the journal data, or an error
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        journalFile = data["journalFile"]
-        library_key = url_join(rootUrl, directory)
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_filename=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
         logging.debug(
-            f"Get journal {journalFile} from {directory} at {rootUrl}"
+            f"Get journal {postData.filename} from {postData.url}"
         )
 
         try:
-            if (rootUrl.startswith("http")):
+            if postData.is_http:
                 return json_response(
-                    networkJournalLocator.get_journal_data(
-                        journalLibrary[library_key],
-                        server_root=rootUrl, journal_directory=directory,
-                        journal_file=journalFile))
+                    networkJournalLocator.get_journal_data(postData))
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to get journal {journalFile} from {directory} \
-                  at {rootUrl}: {str(exc)}"
-            )
+                f"Error: Unable to get journal {postData.filename} from \
+                    {postData.url}: {str(exc)}")
 
     @app.post("/journals/getUpdates")
     def getUpdates():
         """Checks the specified journal file for updates, returning any new
         run data
 
-                The POST data should contain:
-                rootUrl: The root network or disk location for the journals
-              directory: The directory in rootUrl to probe for journals
-            journalFile: Name of the target journal file in the directory
+        The POST data should contain:
+             rootUrl: The root network or disk location for the journal
+           directory: The directory in rootUrl containing the journal
+            filename: Name of the target journal file
 
         :return: A JSON-formatted list of new run data, or None
         """
-        data = request.json
-        rootUrl = data["rootUrl"]
-        directory = data["directory"]
-        journalFile = data["journalFile"]
-        library_key = url_join(rootUrl, directory)
+        try:
+            postData = RequestData(request.json, journalLibrary,
+                                   require_filename=True)
+        except InvalidRequest as exc:
+            return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(
-            f"Get journal {journalFile} from {directory} at {rootUrl}"
-        )
+        logging.debug(f"Get journal {postData.filename} from {postData.url}")
 
         try:
-            if (rootUrl.startswith("http")):
-                return json_response(
-                    networkJournalLocator.get_updates(
-                        journalLibrary[library_key],
-                        server_root=rootUrl, journal_directory=directory,
-                        journal_file=journalFile))
+            if postData.is_http:
+                return json_response(networkJournalLocator.get_updates(
+                    postData))
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to get updates to {journalFile} from \
-                  {directory} at {rootUrl}: {str(exc)}"
+                f"Error: Unable to get updates to {postData.filename} from \
+                  {postData.url}: {str(exc)}"
             )
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS

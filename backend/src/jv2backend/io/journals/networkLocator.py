@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 import logging
 
+from jv2backend.requestData import RequestData
 from jv2backend.journals import JournalCollection, JournalFile
 from jv2backend.journals import JournalData, concatenate
 
@@ -15,14 +16,10 @@ from jv2backend.journals import JournalData, concatenate
 class NetworkJournalLocator:
     """Journal file locator"""
 
-    def get_index(self, server_root: str, journal_directory: str,
-                  index_file: str, data_directory: str) -> List[JournalFile]:
+    def get_index(self, requestData: RequestData) -> List[JournalFile]:
         """Retrive an index file containing journal information
 
-        :param server_root: Root server URL to make request to
-        :param journal_directory: Directory containing journal index file
-        :param index_file: Name of index file containing all available journals
-        :param data_directory: Path to data files for the journal
+        :param requestData: RequestData object containing index file details
         :return: The list of journal filenames as strings or an Exception
 
         It is expected that index file is "ISIS standard" XML and structured
@@ -45,9 +42,8 @@ class NetworkJournalLocator:
 
         /data_directory/NDXINSTRUMENT/Instrument/data/cycle_YY_M
         """
-        # Construct the full url to the journal file
-        url = url_join(server_root, journal_directory, index_file)
-        response = requests.get(url)
+        # Retrieve the specified file, assumed to be an xml index file
+        response = requests.get(requestData.file_url)
         response.raise_for_status()
 
         # Parse the journal index file
@@ -56,7 +52,8 @@ class NetworkJournalLocator:
             xpath="/journal/file", dtype=str)
 
         # Set base data file location
-        baseDataLocation = url_join(data_directory, journal_directory.upper(),
+        baseDataLocation = url_join(requestData.data_directory,
+                                    requestData.directory,
                                     "Instrument", "data")
 
         # Construct list of valid journal files for return
@@ -66,32 +63,24 @@ class NetworkJournalLocator:
                 dirName = name.replace("journal", "cycle").replace(".xml", "")
                 journals.append(
                     JournalFile(
-                        server_root,
-                        journal_directory,
+                        requestData.root_url,
+                        requestData.directory,
                         name, url_join(baseDataLocation, dirName)))
 
         return journals
 
-    def get_journal_data(
-            self, collection: JournalCollection, server_root: str,
-            journal_directory: str, journal_file: str) -> JournalData:
+    def get_journal_data(self, requestData: RequestData) -> JournalData:
         """Retrieve run data contained in a journal file
 
-        :param collection: JournalCollection in which the data should be stored
-        :param server_root: Root server URL to make request to
-        :param journal_directory: Directory containing journal file
-        :param journal_file: Name of journal file to retrieve
+        :param requestData: RequestData object containing journal details
         :return: Array of run data information
         """
-        # Construct the full url to the journal file
-        url = url_join(server_root, journal_directory, journal_file)
-
         # If we already have this journal file in the collection, check its
         # modification time
-        j = collection.get_info(journal_file)
+        j = requestData.journal_collection.get_info(requestData.filename)
         if j is not None:
             # Get file headers
-            response = requests.head(url)
+            response = requests.head(requestData.file_url)
             response.raise_for_status()
 
             # Compare modification times - if the same, return existing data
@@ -101,7 +90,7 @@ class NetworkJournalLocator:
                 return j.run_data
 
         # Make the full http request
-        response = requests.get(url)
+        response = requests.get(requestData.file_url)
         response.raise_for_status()
 
         # Update the last modified time
@@ -109,7 +98,7 @@ class NetworkJournalLocator:
 
         # Read in the run data from the journal file
         j.run_data = JournalData(
-            journal_file, data=pd.read_xml(
+            requestData.filename, data=pd.read_xml(
                 BytesIO(response.content),
                 dtype=str))
 
@@ -133,26 +122,19 @@ class NetworkJournalLocator:
             self.get_journal_data(collection, journal.server_root,
                                   journal.directory, journal.filename)
 
-    def get_updates(
-            self, collection: JournalCollection, server_root: str,
-            journal_directory: str, journal_file: str) -> JournalData:
+    def get_updates(self, requestData: RequestData) -> JournalData:
         """Check if the journal index files has been modified since the last
         retrieval and return new runs added after the last known.
 
-        :param server_root: Root server URL to make request to
-        :param journal_directory: Directory containing journal file
-        :param journal_file: Name of journal file to retrieve
+        :param requestData: RequestData object containing journal details
         :return: Array of new run data information
         """
-        # Construct the full url to the journal file
-        url = url_join(server_root, journal_directory, journal_file)
-
         # If we already have this journal file in the collection, check its
         # modification time
-        j = collection.get_info(journal_file)
+        j = requestData.journal_collection.get_info(requestData.filename)
         if j is not None:
             # Get file headers
-            response = requests.head(url)
+            response = requests.head(requestData.file_url)
             response.raise_for_status()
 
             # Compare modification times - if the same, return existing data
@@ -162,12 +144,12 @@ class NetworkJournalLocator:
                 return None
 
         # Changed, so read full data
-        response = requests.get(url)
+        response = requests.get(requestData.file_url)
         response.raise_for_status()
 
         # Read in the run data from the journal file and store the whole thing
         j.run_data = JournalData(
-            journal_file, data=pd.read_xml(
+            requestData.filename, data=pd.read_xml(
                 BytesIO(response.content),
                 dtype=str))
 
