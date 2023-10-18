@@ -45,8 +45,8 @@ class NetworkJournalLocator:
 
         /data_directory/NDXINSTRUMENT/Instrument/data/cycle_YY_M
         """
-        # Construct the full url to the index file
-        response = requests.get(requestData.index_file_url)
+        # Retrieve the specified file, assumed to be an xml index file
+        response = requests.get(requestData.file_url)
         response.raise_for_status()
 
         # Parse the journal index file

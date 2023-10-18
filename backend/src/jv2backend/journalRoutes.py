@@ -34,7 +34,7 @@ def add_routes(
         """
         postData = RequestData(request.json, journalLibrary,
                                require_data_directory=True,
-                               require_index_for_http=True)
+                               require_filename=True)
         if not postData.is_valid:
             return jsonify(f"Error: {postData.error}")
         logging.debug(f"Listing journals at {postData.url}")

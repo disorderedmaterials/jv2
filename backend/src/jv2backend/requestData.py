@@ -14,25 +14,24 @@ class RequestData:
                  library: jv2backend.journals.JournalLibrary,
                  require_in_library=False,
                  require_data_directory=False,
-                 require_index_for_http=False) -> None:
+                 require_filename=False) -> None:
         """Set up the class. The POST data contains the following:
               rootUrl: The main, root URL path (http or file)
             directory: [OPTIONAL] Directory within the rootUrl to consider
         dataDirectory: [OPTIONAL] Associated run data directory
-            indexFile: [OPTIONAL] Journal index file
+             filename: [OPTIONAL] Target filename
 
         We can make various stipulations on the available data:
             require_in_library: Whether a library matching the library_key
                                 must already exist
-        require_data_directory: Whether a 'dataDirectory' must be probided
-        require_index_for_http: Whether an 'indexFile' must be provided if
-                                an http source is specified
+        require_data_directory: Whether a 'dataDirectory' must be provided
+              require_filename: Whether a 'filename' must be provided
         """
         self._root_url: str = None
         self._directory: str = None
         self._full_url: str = None
         self._data_directory: str = None
-        self._index_file: str = None
+        self._filename: str = None
         self._journal_collection: jv2backend.journals.JournalCollection = None
         self._is_http: bool = False
         self._error: str = None
@@ -70,13 +69,13 @@ class RequestData:
                           {self._full_url}."
             return
 
-        # Was an optional index file provided?
-        self._index_file = (requestData["indexFile"] if "indexFile" in
-                            requestData else None)
+        # Was an optional filename provided?
+        self._filename = (requestData["filename"] if "filename" in
+                          requestData else None)
 
-        # Was it required?
-        if require_index_for_http and self._index_file is None:
-            self._error = f"Index file required for URL {self._full_url}."
+        # Was a filename required?
+        if require_filename and self._filename is None:
+            self._error = f"Filename required for URL {self._full_url}."
             return
 
     @property
@@ -105,11 +104,11 @@ class RequestData:
         return self._is_http
 
     @property
-    def index_file_url(self) -> str:
-        """Return the full URL to the index file"""
-        if self._index_file is None:
-            raise ValueError("No index file is set.")
-        return url_join(self._full_url, self._index_file)
+    def file_url(self) -> str:
+        """Return the full URL to the filename provided"""
+        if self._filename is None:
+            raise ValueError("No filename is set.")
+        return url_join(self._full_url, self._filename)
 
     @property
     def library_key(self) -> str:
