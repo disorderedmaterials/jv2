@@ -102,6 +102,16 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     if (networkRequestHasError(worker, "trying to list journals"))
         return;
 
+    // Special case - for disk-based sources we may get an error stating that the index file was not found.
+    // This may just be because it hasn't been generated yet, so we can offer to do it now...
+    if (worker->response.startsWith("\"Index File Not Found\""))
+    {
+        QMessageBox::question(this, "Index File Doesn't Exist",
+                              QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
+                                  .arg(currentJournalSource().rootUrl(), currentJournalSource().indexFile()));
+        return;
+    }
+
     // Add returned journals
     for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
     {
