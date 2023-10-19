@@ -2,12 +2,10 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import typing
-from io import BytesIO
-import datetime
-import requests
 import logging
 import os.path
 import h5py
+import xml.etree.ElementTree as ET
 
 from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
@@ -110,5 +108,21 @@ class JournalGenerator:
 
         print(runData)
 
-        # Create individual journals for the run data
+        # Create organised journals for the run data
         journals = {}
+        for run in runData:
+            # If the data directory isn't already in the dict, add it now
+            if run["data_directory"] not in journals:
+                journals[run["data_directory"]] = []
+            journals[run["data_directory"]].append(run)
+
+        for j in journals:
+            logging.debug(f"Journal for {j} has {len(journals[j])} runs")
+            root = ET.Element("NXroot")
+            for run in journals[j]:
+                runEntry = ET.SubElement(root, "NXentry")
+                for attr in run:
+                    runEntry.set(attr, run[attr])
+
+            ET.dump(root)
+
