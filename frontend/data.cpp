@@ -13,6 +13,15 @@
  * Private Functions
  */
 
+// Clear all run data
+void MainWindow::clearRunData()
+{
+    runData_ = QJsonArray();
+    runDataModel_.setData(runData_);
+    groupedRunData_ = QJsonArray();
+    ui_.GroupRunsButton->setDown(false);
+}
+
 // Get data for specified run number
 std::optional<QJsonObject> MainWindow::dataForRunNumber(int runNumber) const
 {

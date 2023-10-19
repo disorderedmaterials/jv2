@@ -6,11 +6,11 @@ import logging
 from flask import Flask
 
 from jv2backend import config
-from jv2backend import journalRoutes
-from jv2backend import nexusRoutes
-from jv2backend import serverRoutes
-from jv2backend.journals import JournalLibrary
-from jv2backend.io.journals.networkLocator import NetworkJournalLocator
+import jv2backend.journalRoutes
+import jv2backend.nexusRoutes
+import jv2backend.serverRoutes
+import jv2backend.journals
+import jv2backend.io.journalLocator
 
 
 def create_app(inside_gunicorn: bool = True) -> Flask:
@@ -22,13 +22,13 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
     """
     app = Flask(__name__)
     configure_logging(app, inside_gunicorn)
-    networkJournalLocator = NetworkJournalLocator()
 
-    journalLibrary = JournalLibrary({})
+    journalLocator = jv2backend.io.journalLocator.JournalLocator()
+    journalLibrary = jv2backend.journals.JournalLibrary({})
 
-    serverRoutes.add_routes(app)
-    journalRoutes.add_routes(app, networkJournalLocator, journalLibrary)
-    nexusRoutes.add_routes(app, journalLibrary)
+    jv2backend.serverRoutes.add_routes(app)
+    jv2backend.journalRoutes.add_routes(app, journalLocator, journalLibrary)
+    jv2backend.nexusRoutes.add_routes(app, journalLibrary)
 
     return app
 

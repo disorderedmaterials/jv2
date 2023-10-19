@@ -4,10 +4,10 @@
 #pragma once
 
 #include "backend.h"
-#include "dataSource.h"
 #include "httpRequestWorker.h"
 #include "instrument.h"
 #include "journal.h"
+#include "journalSource.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
 #include "locator.h"
@@ -49,23 +49,26 @@ class MainWindow : public QMainWindow
     void closeEvent(QCloseEvent *event);
 
     /*
-     * Data Sources
+     * Journal Sources
      */
     private:
-    // Known data sources
-    std::vector<DataSource> dataSources_;
-    // Currently selected instdata source (if any)
-    OptionalReferenceWrapper<DataSource> currentDataSource_;
+    // Known journal sources
+    std::vector<JournalSource> journalSources_;
+    // Currently selected instjournal source (if any)
+    OptionalReferenceWrapper<JournalSource> currentJournalSource_;
 
     private:
-    // Parse data source from specified source
-    bool parseDataSources(const QDomDocument &source);
-    // Get default data sources
-    void getDefaultDataSources();
-    // Set current data source
-    void setCurrentDataSource(QString name);
-    // Return current data source
-    const DataSource &currentDataSource() const;
+    // Parse journal source from specified source
+    bool parseJournalSources(const QDomDocument &source);
+    // Get default journal sources
+    void getDefaultJournalSources();
+    // Set current journal source
+    void setCurrentJournalSource(std::optional<QString> optName);
+    // Return current journal source
+    const JournalSource &currentJournalSource() const;
+
+    private slots:
+    void on_JournalSourceComboBox_currentIndexChanged(int index);
 
     /*
      * Instruments
@@ -100,6 +103,8 @@ class MainWindow : public QMainWindow
     OptionalReferenceWrapper<Journal> currentJournal_;
 
     private:
+    // Clear current journals
+    void clearJournals();
     // Add new journal
     Journal &addJournal(const QString &name, const Locator &location);
     // Find named journal
@@ -120,6 +125,8 @@ class MainWindow : public QMainWindow
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:
+    // Clear all run data
+    void clearRunData();
     // Get data for specified run number
     std::optional<QJsonObject> dataForRunNumber(int runNumber) const;
     // Generate grouped run data from current run data

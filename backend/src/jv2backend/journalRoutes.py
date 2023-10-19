@@ -7,14 +7,14 @@ from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary, JournalCollection
-from jv2backend.io.journals.networkLocator import NetworkJournalLocator
+from jv2backend.journals import JournalLibrary
+from jv2backend.io.journalLocator import JournalLocator
 from jv2backend.utils import json_response
 
 
 def add_routes(
     app: Flask,
-    networkJournalLocator: NetworkJournalLocator,
+    journalLocator: JournalLocator,
     journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
@@ -49,15 +49,8 @@ def add_routes(
                     {postData.library_key}")
             return postData.journal_collection.to_basic()
 
-        try:
-            if postData.is_http:
-                journalLibrary[postData.url] = JournalCollection(
-                    networkJournalLocator.get_index(postData))
-                return jsonify(journalLibrary[postData.url].to_basic())
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to list journals at {postData.url}:\
-                  {str(exc)}")
+        # Parse the journal index
+        return journalLocator.get_index(postData, journalLibrary)
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:
@@ -80,14 +73,7 @@ def add_routes(
             f"Get journal {postData.filename} from {postData.url}"
         )
 
-        try:
-            if postData.is_http:
-                return json_response(
-                    networkJournalLocator.get_journal_data(postData))
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to get journal {postData.filename} from \
-                    {postData.url}: {str(exc)}")
+        return journalLocator.get_journal_data(postData)
 
     @app.post("/journals/getUpdates")
     def getUpdates():
@@ -109,15 +95,7 @@ def add_routes(
 
         logging.debug(f"Get journal {postData.filename} from {postData.url}")
 
-        try:
-            if postData.is_http:
-                return json_response(networkJournalLocator.get_updates(
-                    postData))
-        except Exception as exc:
-            return jsonify(
-                f"Error: Unable to get updates to {postData.filename} from \
-                  {postData.url}: {str(exc)}"
-            )
+        return journalLocator.get_updates(postData)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 
@@ -143,7 +121,7 @@ def add_routes(
             # start_date maps to start_time in the run_fields
             field = "start_time" if field.endswith("date") else field
         try:
-            return json_response(networkJournalLocator.search(
+            return json_response(journalLocator.search(
                 instrument, field, search, case_sensitive))
         except Exception as exc:
             return jsonify(
@@ -159,7 +137,7 @@ def add_routes(
                  run is found
         """
         try:
-            result = networkJournalLocator.filename_for_run(instrument, run)
+            result = journalLocator.filename_for_run(instrument, run)
         except Exception as exc:
             return jsonify(f"Error finding {run} for {instrument}: {exc}")
 

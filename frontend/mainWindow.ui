@@ -83,6 +83,9 @@
                <string>Source</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_3">
+               <property name="spacing">
+                <number>4</number>
+               </property>
                <property name="leftMargin">
                 <number>4</number>
                </property>
@@ -96,14 +99,21 @@
                 <number>4</number>
                </property>
                <item>
-                <widget class="QPushButton" name="instrumentButton">
-                 <property name="contextMenuPolicy">
-                  <enum>Qt::CustomContextMenu</enum>
-                 </property>
-                 <property name="text">
-                  <string>&lt;INSTRUMENT&gt;</string>
-                 </property>
-                </widget>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QComboBox" name="JournalSourceComboBox"/>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="instrumentButton">
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
+                   <property name="text">
+                    <string>&lt;INSTRUMENT&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
                <item>
                 <widget class="QPushButton" name="journalButton">
