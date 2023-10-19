@@ -27,7 +27,7 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     {
         statusBar()->showMessage("Response Error");
         QMessageBox::warning(
-            this, "Respose Error",
+            this, "Response Error",
             QString("The backend failed while %1.\nThe response returned was: %2").arg(taskDescription, response));
         return true;
     }
