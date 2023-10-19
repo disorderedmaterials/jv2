@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary, JournalCollection
+from jv2backend.journals import JournalLibrary
 from jv2backend.io.journalLocator import JournalLocator
 from jv2backend.utils import json_response
 
@@ -50,9 +50,7 @@ def add_routes(
             return postData.journal_collection.to_basic()
 
         # Parse the journal index
-        journalLibrary[postData.url] = JournalCollection(
-                    networkJournalLocator.get_index(postData))
-        return jsonify(journalLibrary[postData.url].to_basic())
+        return networkJournalLocator.get_index(postData, journalLibrary)
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:
@@ -75,8 +73,7 @@ def add_routes(
             f"Get journal {postData.filename} from {postData.url}"
         )
 
-        return json_response(
-            networkJournalLocator.get_journal_data(postData))
+        return networkJournalLocator.get_journal_data(postData)
 
     @app.post("/journals/getUpdates")
     def getUpdates():
@@ -98,7 +95,7 @@ def add_routes(
 
         logging.debug(f"Get journal {postData.filename} from {postData.url}")
 
-        return json_response(networkJournalLocator.get_updates(postData))
+        return networkJournalLocator.get_updates(postData)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 

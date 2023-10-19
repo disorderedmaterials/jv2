@@ -12,8 +12,8 @@ import os.path
 
 from jv2backend.requestData import RequestData
 from jv2backend.journals import JournalCollection, JournalFile
-from jv2backend.journals import JournalData, concatenate
-from jv2backend.utils import jsonify
+from jv2backend.journals import JournalData, JournalLibrary, concatenate
+from jv2backend.utils import jsonify, json_response
 
 
 class JournalLocator:
@@ -42,11 +42,12 @@ class JournalLocator:
         else:
             return os.path.getmtime(requestData.file_url)
 
-    def get_index(self, requestData: RequestData) -> List[JournalFile]:
+    def get_index(self, requestData: RequestData,
+                  journalLibrary: JournalLibrary) -> List[JournalFile]:
         """Retrieve an index file containing journal information
 
         :param requestData: RequestData object containing index file details
-        :return: The list of journal filenames as strings or an Exception
+        :return: A JSON response with the journal list or an error string
 
         It is expected that index file is "ISIS standard" XML and structured
         in the following way:
@@ -93,7 +94,10 @@ class JournalLocator:
                         requestData.directory,
                         name, url_join(baseDataLocation, dirName)))
 
-        return journals
+        # Store as a new collection in the library
+        journalLibrary[requestData.url] = JournalCollection(journals)
+
+        return jsonify(journalLibrary[requestData.url].to_basic())
 
     def get_journal_data(self, requestData: RequestData) -> JournalData:
         """Retrieve run data contained in a journal file
@@ -108,7 +112,7 @@ class JournalLocator:
             # Return current data if the file still has the same modtime
             current_last_modified = self._get_modification_time(requestData)
             if current_last_modified == j.last_modified:
-                return j.run_data
+                return json_response(j.run_data)
 
         # Not up-to-date, so get the full file content and update modtime
         try:
@@ -125,7 +129,7 @@ class JournalLocator:
         # reference
         j.last_run_number = j.run_data.get_last_run_number
 
-        return j.run_data
+        return json_response(j.run_data)
 
     def get_all_journal_data(self, collection: JournalCollection) -> None:
         """Retrieve all run data for all journals listed in the collection
@@ -146,7 +150,7 @@ class JournalLocator:
         retrieval and return new runs added after the last known.
 
         :param requestData: RequestData object containing journal details
-        :return: Array of new run data information
+        :return: Array of new run data information or None
         """
         # If we already have this journal file in the collection, check its
         # modification time
@@ -155,7 +159,7 @@ class JournalLocator:
             # Compare modification times - if the same, return existing data
             current_last_modified = self._get_modification_time(requestData)
             if current_last_modified == j.last_modified:
-                return None
+                return jsonify(None)
 
         # Changed, so read full data
         try:
@@ -176,7 +180,8 @@ class JournalLocator:
         j.last_run_number = current_last_run_number
 
         # Get new run data
-        return j.run_data.search("run_number", f">{old_last_run_number}")
+        return json_response(j.run_data.search("run_number",
+                                               f">{old_last_run_number}"))
 
     def filename_for_run(self, instrument: str, run: str) -> Optional[str]:
         """Find the journal file that contains the given run
