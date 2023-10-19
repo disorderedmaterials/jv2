@@ -72,8 +72,10 @@ class JournalLocator:
         # Retrieve the specified file, assumed to be an xml index file
         try:
             fileBytes = self._get_file(requestData)
-        except (requests.HTTPError, FileNotFoundError) as exc:
+        except requests.HTTPError as exc:
             return jsonify(f"Error: {str(exc)}")
+        except FileNotFoundError:
+            return jsonify("Index File Not Found")
 
         # Parse the journal index file
         data = pd.read_xml(fileBytes, xpath="/journal/file", dtype=str)
