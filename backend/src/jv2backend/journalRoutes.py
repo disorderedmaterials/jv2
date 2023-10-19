@@ -14,7 +14,7 @@ from jv2backend.utils import json_response
 
 def add_routes(
     app: Flask,
-    networkJournalLocator: JournalLocator,
+    journalLocator: JournalLocator,
     journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
@@ -50,7 +50,7 @@ def add_routes(
             return postData.journal_collection.to_basic()
 
         # Parse the journal index
-        return networkJournalLocator.get_index(postData, journalLibrary)
+        return journalLocator.get_index(postData, journalLibrary)
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:
@@ -73,7 +73,7 @@ def add_routes(
             f"Get journal {postData.filename} from {postData.url}"
         )
 
-        return networkJournalLocator.get_journal_data(postData)
+        return journalLocator.get_journal_data(postData)
 
     @app.post("/journals/getUpdates")
     def getUpdates():
@@ -95,7 +95,7 @@ def add_routes(
 
         logging.debug(f"Get journal {postData.filename} from {postData.url}")
 
-        return networkJournalLocator.get_updates(postData)
+        return journalLocator.get_updates(postData)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 
@@ -121,7 +121,7 @@ def add_routes(
             # start_date maps to start_time in the run_fields
             field = "start_time" if field.endswith("date") else field
         try:
-            return json_response(networkJournalLocator.search(
+            return json_response(journalLocator.search(
                 instrument, field, search, case_sensitive))
         except Exception as exc:
             return jsonify(
@@ -137,7 +137,7 @@ def add_routes(
                  run is found
         """
         try:
-            result = networkJournalLocator.filename_for_run(instrument, run)
+            result = journalLocator.filename_for_run(instrument, run)
         except Exception as exc:
             return jsonify(f"Error finding {run} for {instrument}: {exc}")
 
