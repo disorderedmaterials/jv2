@@ -74,12 +74,12 @@ void MainWindow::getDefaultJournalSources()
 // Set current journal source
 void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
 {
-    // If no source is specified, clear everything
+    // Clear any existing journal (and run) data
+    clearJournals();
+
+    // If no source is specified, we're done
     if (!optName)
     {
-        clearRunData();
-        clearJournals();
-
         currentJournalSource_ = std::nullopt;
 
         return;
