@@ -146,6 +146,13 @@ class MainWindow : public QMainWindow
     void runDataContextMenuRequested(QPoint pos);
 
     /*
+     * Journal Generation
+     */
+    private:
+    // Handle returned directory list result
+    void handleListDataDirectory(const JournalSource &source, HttpRequestWorker *worker);
+
+    /*
      * Network Handling
      */
     private:

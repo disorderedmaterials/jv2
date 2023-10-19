@@ -280,3 +280,35 @@ void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpR
 
     postRequest(createRoute("runData/nexus/getDetectorAnalysis"), data, handler);
 }
+
+/*
+ * Generation Endpoints
+ */
+
+// List data directory for the specified source
+void Backend::listDataDirectory(const JournalSource &source,
+                      HttpRequestWorker::HttpRequestHandler handler)
+{
+    QJsonObject data;
+    data["rootUrl"] = source.rootUrl();
+    data["dataDirectory"] = source.runDataDirectory();
+
+    postRequest(createRoute("generate/list"), data, handler);
+}
+
+// Generate journals for the specified source
+void Backend::generateJournals(const JournalSource &source,
+                      HttpRequestWorker::HttpRequestHandler handler)
+{
+    // Only for disk-based sources
+    if (source.type() == JournalSource::JournalSourceType::ISISNetwork)
+        throw(std::runtime_error("Can't generate journals for a network source.\n"));
+
+    QJsonObject data;
+    data["rootUrl"] = source.rootUrl();
+    data["dataDirectory"] = source.runDataDirectory();
+    if (!source.indexFile().isEmpty())
+        data["filename"] = source.indexFile();
+
+    postRequest(createRoute("generate/scan"), data, handler);
+}

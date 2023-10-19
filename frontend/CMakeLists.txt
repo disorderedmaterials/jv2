@@ -52,6 +52,7 @@ qt6_add_executable(
   # Main Window
   data.cpp
   filtering.cpp
+  generation.cpp
   httpRequestWorker.cpp
   httpRequestWorker.h
   instruments.cpp

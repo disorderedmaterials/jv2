@@ -95,8 +95,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
 {
     setLoadScreen(false);
 
-    journalsMenu_->clear();
-    journals_.clear();
+    clearJournals();
 
     // Check network reply
     if (networkRequestHasError(worker, "trying to list journals"))
@@ -106,9 +105,12 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
     if (worker->response.startsWith("\"Index File Not Found\""))
     {
+        auto &journalSource = currentJournalSource();
         QMessageBox::question(this, "Index File Doesn't Exist",
                               QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
                                   .arg(currentJournalSource().rootUrl(), currentJournalSource().indexFile()));
+        backend_.listDataDirectory(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); } );
+
         return;
     }
 
