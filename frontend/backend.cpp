@@ -306,8 +306,7 @@ void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::H
     QJsonObject data;
     data["rootUrl"] = source.rootUrl();
     data["dataDirectory"] = source.runDataDirectory();
-    if (!source.indexFile().isEmpty())
-        data["filename"] = source.indexFile();
+    data["filename"] = source.indexFile();
 
     postRequest(createRoute("generate/scan"), data, handler);
 }
