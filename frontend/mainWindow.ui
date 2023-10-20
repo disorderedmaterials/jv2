@@ -442,6 +442,20 @@
               </item>
              </layout>
             </widget>
+            <widget class="QWidget" name="JournalGenerationErrorPage">
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <item>
+               <widget class="QLabel" name="JournalGenerationErrorLabel">
+                <property name="text">
+                 <string>Journal Generation Failed!</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>

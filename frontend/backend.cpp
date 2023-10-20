@@ -136,8 +136,7 @@ void Backend::listJournals(const JournalSource &source, const QString &journalDi
     data["rootUrl"] = source.rootUrl();
     data["directory"] = journalDirectory;
     data["dataDirectory"] = source.runDataDirectory();
-    if (!source.indexFile().isEmpty())
-        data["filename"] = source.indexFile();
+    data["filename"] = source.indexFile();
 
     postRequest(createRoute("journals/list"), data, handler);
 }
@@ -286,10 +285,12 @@ void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpR
  */
 
 // List data directory for the specified source
-void Backend::listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::listDataDirectory(const JournalSource &source, const QString &journalDirectory,
+                                HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
     data["rootUrl"] = source.rootUrl();
+    data["directory"] = journalDirectory;
     data["dataDirectory"] = source.runDataDirectory();
 
     postRequest(createRoute("generate/list"), data, handler);
@@ -305,8 +306,8 @@ void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::H
     QJsonObject data;
     data["rootUrl"] = source.rootUrl();
     data["dataDirectory"] = source.runDataDirectory();
-    if (!source.indexFile().isEmpty())
-        data["filename"] = source.indexFile();
+    data["filename"] = source.indexFile();
+    data["dataOrganisation"] = JournalSource::dataOrganisationType(source.runDataOrganisation());
 
     postRequest(createRoute("generate/scan"), data, handler);
 }

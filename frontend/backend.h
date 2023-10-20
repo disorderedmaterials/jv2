@@ -107,7 +107,8 @@ class Backend : public QObject
      */
     public:
     // List data directory for the specified source
-    void listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    void listDataDirectory(const JournalSource &source, const QString &journalDirectory,
+                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Generate journals for the specified source
     void generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
 };
