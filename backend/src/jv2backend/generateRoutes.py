@@ -20,7 +20,7 @@ def add_routes(
 
     # ---------------- Queries ------------------
     @app.post("/generate/list")
-    def list():
+    def list() -> FlaskResponse:
         """List available NeXuS files in a target directory
 
         The POST data should contain:
@@ -41,7 +41,7 @@ def add_routes(
         return journalGenerator.list_files(postData.data_directory)
 
     @app.post("/generate/scan")
-    def scan():
+    def scan() -> FlaskResponse:
         """Generates journals and accompanying index file for a target dir
 
         The POST data should contain:

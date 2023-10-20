@@ -150,3 +150,5 @@ class JournalGenerator:
         # Write the index file
         with open(requestData.file_url, "wb") as f:
             ET.ElementTree(indexRoot).write(f)
+
+        return jsonify("Success")
