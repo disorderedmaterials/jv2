@@ -267,8 +267,13 @@ class JournalCollection:
         # Get the data for the specified run number
         data = jf.get_data(run_number)
 
-        # Return the full path
-        return url_join(jf.data_directory, data["name"] + ".nxs")
+        # The journal entry may contain the full data_directory and filename
+        # information if we generated it. Otherwise we have to assume the
+        # stored 'data_directory' and use the 'name' attribute.
+        if "data_directory" in data and "filename" in data:
+            return url_join(data["data_directory"], data["filename"])
+        else:
+            return url_join(jf.data_directory, data["name"] + ".nxs")
 
     def locate_data_files(self, run_numbers: List[int]) -> Dict[int, str]:
         """Return a dict of run number/paths to NeXuS data files
