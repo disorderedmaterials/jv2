@@ -41,6 +41,7 @@ class JournalSource
         RunDataScanInProgress,
         RunDataScanNoFilesError,
         JournalGenerationInProgress,
+        JournalGenerationError
     };
 
     public:
