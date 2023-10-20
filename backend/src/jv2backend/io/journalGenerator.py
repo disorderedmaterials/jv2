@@ -99,8 +99,7 @@ class JournalGenerator:
     def scan_files(self, requestData: RequestData):
         """Generate an index file containing journal information
 
-        :param requestData: RequestData object containing index file details
-        :return: A JSON response with the journal list or an error string
+        :param requestData: RequestData object containing the necessary info
 
         Search all folders in the data file directory and generate a set of
         journal files and an accompanying index file describing the contents.

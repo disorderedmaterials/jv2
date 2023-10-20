@@ -24,8 +24,8 @@ def add_routes(
         """List available NeXuS files in a target directory
 
         The POST data should contain:
-               rootUrl: The root network or disk location for journals [UNUSED]
-        data_directory: The data file directory to list
+              rootUrl: The root network or disk location for journals [UNUSED]
+        dataDirectory: The data file directory to list
 
         :return: The number of NeXuS files found
         """
@@ -35,7 +35,7 @@ def add_routes(
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(f"Scan for NeXus files in data ditrctory \
+        logging.debug(f"Scan for NeXuS files in data directory \
                       {postData.data_directory}...")
 
         return journalGenerator.list_files(postData.data_directory)
@@ -45,10 +45,11 @@ def add_routes(
         """Generates journals and accompanying index file for a target dir
 
         The POST data should contain:
-               rootUrl: The root network or disk location for the journal
-             directory: The directory in rootUrl containing the journal
-        data_directory: Location of the run data to scan
-              filename: Name of the target index file to generate
+                 rootUrl: The root network or disk location for the journal
+               directory: The directory in rootUrl containing the journal
+           dataDirectory: Location of the run data to scan
+        dataOrganisation: How the data is to be organised
+                filename: Name of the target index file to generate
 
         :return: A JSON-formatted list of new run data, or None
         """

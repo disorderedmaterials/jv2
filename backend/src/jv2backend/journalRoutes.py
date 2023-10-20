@@ -26,9 +26,10 @@ def add_routes(
         """Return the list of journal files in a specified location
 
         The POST data should contain:
-             rootUrl: The root network or disk location for the journals
-           directory: The directory in rootUrl to probe for journals
-            filename: Name of the index file in the directory
+              rootUrl: The root network or disk location for the journals
+            directory: The directory in rootUrl to probe for journals
+        dataDirectory: Associated run data location
+             filename: Name of the index file in the directory
 
         :return: A JSON response containing available journals in a
                  list(BasicJournalFile), or an error
