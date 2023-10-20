@@ -135,8 +135,10 @@ class JournalGenerator:
             journalRoot = ET.Element("NXroot")
             for run in journals[j]:
                 runEntry = ET.SubElement(journalRoot, "NXentry")
-                for attr in run:
-                    runEntry.set(attr, run[attr])
+                runEntry.set("name", run["filename"].replace(".nxs", ""))
+                for d in run:
+                    dataEntry = ET.SubElement(runEntry, d)
+                    dataEntry.text = run[d]
 
             # Write the child journal file
             with open(url_join(requestData.url, journalFilename), "wb") as f:
