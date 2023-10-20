@@ -2,11 +2,7 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "mainWindow.h"
-#include <QJsonArray>
 #include <QMessageBox>
-#include <QNetworkReply>
-#include <QSettings>
-#include <QTimer>
 
 // Handle returned directory list result
 void MainWindow::handleListDataDirectory(const JournalSource &source, HttpRequestWorker *worker)
