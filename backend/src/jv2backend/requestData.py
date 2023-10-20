@@ -71,37 +71,38 @@ class RequestData:
         self._journal_collection = (library[self._full_url] if
                                     self._full_url in library else None)
         if require_in_library and self._journal_collection is None:
-            raise InvalidRequest(f"No collection {self._full_url} in library.")
+            raise InvalidRequest(f"No collection '{self._full_url}' "
+                                 f"in library.")
 
         # Was a data directory provided / required?
         self._data_directory = (requestData["dataDirectory"]
                                 if "dataDirectory" in requestData else None)
         if require_data_directory and self._data_directory is None:
-            raise InvalidRequest(f"Data directory required for URL \
-                          {self._full_url}.")
+            raise InvalidRequest(f"Data directory required for URL "
+                                 f"'{self._full_url}'.")
 
         # Was an optional filename provided / required?
         self._filename = (requestData["filename"] if "filename" in
                           requestData else None)
         if require_filename and self._filename is None:
-            raise InvalidRequest(f"Filename required for URL \
-                                 {self._full_url}.")
+            raise InvalidRequest(f"Filename required for URL "
+                                 f"'{self._full_url}'.")
 
         # Were run number(s) provided / required?
         if "runNumbers" in requestData:
             self._run_numbers = requestData["runNumbers"]
         if require_run_numbers and len(self._run_numbers) == 0:
-            raise InvalidRequest("Run number(s) required but were not \
-                                 provided.")
+            raise InvalidRequest("Run number(s) required but were not "
+                                 "provided.")
 
         # Was an additional parameter provided / required?
-        if require_parameter:
+        if require_parameter is not None:
             if require_parameter in requestData:
                 self._parameter = requestData[require_parameter]
             else:
-                raise InvalidRequest(f"Additional parameter \
-                                     {require_parameter} \
-                                     required but was not provided.")
+                raise InvalidRequest(f"Additional parameter "
+                                     f"'{require_parameter}' "
+                                     f"required but was not provided.")
 
     @property
     def url(self) -> str:
