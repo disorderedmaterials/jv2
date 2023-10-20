@@ -6,6 +6,7 @@ import logging
 import os.path
 import h5py
 import xml.etree.ElementTree as ET
+import hashlib
 
 from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
@@ -106,8 +107,6 @@ class JournalGenerator:
                 # Get attributes from the file
                 runData.append(self.create_journal_entry(dir, f))
 
-        print(runData)
-
         # Create organised journals for the run data
         journals = {}
         for run in runData:
@@ -116,13 +115,31 @@ class JournalGenerator:
                 journals[run["data_directory"]] = []
             journals[run["data_directory"]].append(run)
 
+        # Create and write index and journal files
+        indexRoot = ET.Element("journal")
         for j in journals:
             logging.debug(f"Journal for {j} has {len(journals[j])} runs")
-            root = ET.Element("NXroot")
+
+            # Create hash and journal filename
+            hash = hashlib.sha256(j.encode('utf-8'))
+            journalFilename = hash.hexdigest() + ".xml"
+
+            # Construct the child journal data
+            journalRoot = ET.Element("NXroot")
             for run in journals[j]:
-                runEntry = ET.SubElement(root, "NXentry")
+                runEntry = ET.SubElement(journalRoot, "NXentry")
                 for attr in run:
                     runEntry.set(attr, run[attr])
 
-            ET.dump(root)
+            # Write the child journal file
+            with open(url_join(requestData.url, journalFilename), "wb") as f:
+                ET.ElementTree(journalRoot).write(f)
 
+            # Add an entry in the index file
+            indexEntry = ET.SubElement(indexRoot, "jv2file")
+            indexEntry.set("name", journalFilename)
+            indexEntry.set("data_directory", j)
+
+        # Write the index file
+        with open(requestData.file_url, "wb") as f:
+            ET.ElementTree(indexRoot).write(f)
