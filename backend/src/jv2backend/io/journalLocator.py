@@ -4,8 +4,9 @@
 from typing import Optional, List
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
-import datetime
+import xml.etree.ElementTree as ET
 import pandas as pd
+import datetime
 import requests
 import logging
 import os.path
@@ -49,25 +50,40 @@ class JournalLocator:
         :param requestData: RequestData object containing index file details
         :return: A JSON response with the journal list or an error string
 
-        It is expected that index file is "ISIS standard" XML and structured
-        in the following way:
+        The index xml file contains a simple list of full journal files in the
+        same directory:
 
         <journal>
            <file name="journal.xml"/>
            <file name="journal_YY_N.xml"/>
            ...
+           <file name="hash1.xml" display_name="My Data"
+                 data_directory="/data"/>           # JV2-generated entry
         </journal>
 
         The first entry (journal.xml) is not relevant and should not be
         returned as a valid result. Other files represent journals
-        corresponding to specific years (YY) and cycle integers (N)
-        and which can be expected to reside in the same directory as
+        corresponding to directory locations or, in the case of the ISIS
+        standard journals, specific years (YY) and cycle integers (N).
+        These journal files are expected to reside in the same directory as
         the index file.
 
-        Furthermore, it is expected that the data directory layout whose
-        root is the data_directory parameter is laid out as follows:
+        -- Display Name --
+
+        The display name of the journal is given in the 'display_name'
+        attribute. If not specified, a display name is generated from the
+        journal filename, assuming that it is ISIS standard.
+
+        -- Run Data Location --
+
+        The location on disk of the associated run data for the journal is
+        given in the 'data_directory' attribute. If not present, it is
+        assumed that the location follows the ISIS Archive format, e.g.:
 
         /data_directory/NDXINSTRUMENT/Instrument/data/cycle_YY_M
+
+        The 'instrument' in this case is expected to be the `directory`
+        parameter passed in the requestData object.
         """
         # Retrieve the specified file, assumed to be an xml index file
         try:
@@ -78,23 +94,42 @@ class JournalLocator:
             return jsonify("Index File Not Found")
 
         # Parse the journal index file
-        data = pd.read_xml(fileBytes, xpath="/journal/file", dtype=str)
-
-        # Set base data file location
-        baseDataLocation = url_join(requestData.data_directory,
-                                    requestData.directory,
-                                    "Instrument", "data")
+        indexTree = ET.parse(fileBytes)
+        indexRoot = indexTree.getroot()
 
         # Construct list of valid journal files for return
         journals = []
-        for name in data["name"]:
-            if not name == "journal.xml":
-                dirName = name.replace("journal", "cycle").replace(".xml", "")
-                journals.append(
-                    JournalFile(
-                        requestData.root_url,
-                        requestData.directory,
-                        name, url_join(baseDataLocation, dirName)))
+        for j in indexRoot.iter("file"):
+            # Skip the "journal.xml" or malformed entries
+            if "name" not in j.attrib or j.attrib["name"] == "journal.xml":
+                continue
+
+            # Determine display name
+            displayName = (
+                j.attrib["display_name"] if "display_name" in j.attrib else
+                j.attrib["name"].replace("journal",
+                                         "Cycle").replace(".xml", "").replace("_", " ")
+            )
+
+            # Determine data directory
+            dataDirectory = (
+                j.attrib["data_directory"]
+                if "data_directory" in j.attrib else
+                url_join(requestData.data_directory,
+                         requestData.directory,
+                         "Instrument",
+                         "data",
+                         j.attrib["name"].replace("journal",
+                                                  "cycle").replace(".xml", ""))
+            )
+
+            # Append to our list
+            journals.append(
+                JournalFile(
+                    displayName,
+                    requestData.root_url,
+                    requestData.directory,
+                    j.attrib["name"], dataDirectory))
 
         # Store as a new collection in the library
         journalLibrary[requestData.url] = JournalCollection(journals)

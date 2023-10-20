@@ -190,6 +190,7 @@ def concatenate(journals: Sequence[JournalData]) -> JournalData:
 @dataclass
 class BasicJournalFile:
     """Defines basic properties of a single journal file"""
+    display_name: str
     server_root: str
     directory: str
     filename: str
@@ -201,7 +202,8 @@ class BasicJournalFile:
 
     @classmethod
     def from_derived(cls, derived):
-        basic = cls(derived.server_root, derived.directory, derived.filename,
+        basic = cls(derived.display_name, derived.server_root,
+                    derived.directory, derived.filename,
                     derived.data_directory,
                     last_modified=derived.last_modified,
                     first_run_number=derived.first_run_number,
