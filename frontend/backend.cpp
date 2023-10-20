@@ -136,8 +136,7 @@ void Backend::listJournals(const JournalSource &source, const QString &journalDi
     data["rootUrl"] = source.rootUrl();
     data["directory"] = journalDirectory;
     data["dataDirectory"] = source.runDataDirectory();
-    if (!source.indexFile().isEmpty())
-        data["filename"] = source.indexFile();
+    data["filename"] = source.indexFile();
 
     postRequest(createRoute("journals/list"), data, handler);
 }
