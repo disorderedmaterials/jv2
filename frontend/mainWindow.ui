@@ -278,9 +278,22 @@
           <item>
            <widget class="QStackedWidget" name="MainStack">
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
-            <widget class="QWidget" name="NoBackendPage"/>
+            <widget class="QWidget" name="NoBackendPage">
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QLabel" name="NoBackendLabel">
+                <property name="text">
+                 <string>No Backend</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
             <widget class="QWidget" name="LoadingPage">
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <property name="spacing">
@@ -299,9 +312,12 @@
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label">
+               <widget class="QLabel" name="LoadingPageLabel">
                 <property name="text">
                  <string>Loading...</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
@@ -342,12 +358,90 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="NetworkErrorPage"/>
-            <widget class="QWidget" name="NoIndexFileErrorPage"/>
-            <widget class="QWidget" name="NoJournalsErrorPage"/>
-            <widget class="QWidget" name="RunDataScanInProgressPage"/>
-            <widget class="QWidget" name="RunDataScanNoFilesErrorPage"/>
-            <widget class="QWidget" name="JournalGenerationInProgressPage"/>
+            <widget class="QWidget" name="NetworkErrorPage">
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="QLabel" name="NetworkErrorLabel">
+                <property name="text">
+                 <string>Network Error</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="NoIndexFileErrorPage">
+             <layout class="QVBoxLayout" name="verticalLayout_8">
+              <item>
+               <widget class="QLabel" name="NoIndexFileErrorLabel">
+                <property name="text">
+                 <string>No Index File Found</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="NoJournalsErrorPage">
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <widget class="QLabel" name="NoJournalsFoundLabel">
+                <property name="text">
+                 <string>No Journals Found</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="RunDataScanInProgressPage">
+             <layout class="QVBoxLayout" name="verticalLayout_11">
+              <item>
+               <widget class="QLabel" name="RunDataScanInProgressLabel">
+                <property name="text">
+                 <string>Run Data Scan in Progress</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="RunDataScanNoFilesErrorPage">
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <item>
+               <widget class="QLabel" name="RunDataScanNoFilesFoundLabel">
+                <property name="text">
+                 <string>No Files Found in Run Data Scan</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="JournalGenerationInProgressPage">
+             <layout class="QVBoxLayout" name="verticalLayout_13">
+              <item>
+               <widget class="QLabel" name="JournalGenerationInProgressLabel">
+                <property name="text">
+                 <string>Journal Generation in Progress...</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </widget>
           </item>
          </layout>
