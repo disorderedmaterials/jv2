@@ -50,15 +50,11 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
     // Request the log value data
     backend_.getNexusLogValueData(currentJournal().location(), selectedRunNumbers(), logValue,
                                   [=](HttpRequestWorker *worker) { handleCreateSELogPlot(worker); });
-
-    setLoadScreen(true);
 }
 
 // Handle plotting of SE log data
 void MainWindow::handleCreateSELogPlot(HttpRequestWorker *worker)
 {
-    setLoadScreen(false);
-
     auto *window = new QWidget;
     auto *dateTimeChart = new QChart();
     auto *dateTimeChartView = new ChartView(dateTimeChart, window);

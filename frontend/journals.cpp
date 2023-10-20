@@ -53,7 +53,7 @@ void MainWindow::setCurrentJournal(QString name)
         if (it != cachedMassSearch_.end())
         {
             ui_.journalButton->setText(name);
-            setLoadScreen(true);
+
             handleCompleteJournalRunData(std::get<0>(*it));
         }
         return;
@@ -73,9 +73,9 @@ void MainWindow::setCurrentJournal(Journal &journal)
 
     ui_.journalButton->setText(journal.name());
 
-    backend_.getJournal(journal.location(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+    updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
-    setLoadScreen(true);
+    backend_.getJournal(journal.location(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 }
 
 // Return current journal
@@ -94,24 +94,29 @@ const Journal &MainWindow::currentJournal() const
 // Handle returned journal information for an instrument
 void MainWindow::handleListJournals(HttpRequestWorker *worker)
 {
-    setLoadScreen(false);
-
     clearJournals();
 
     // Check network reply
     if (networkRequestHasError(worker, "trying to list journals"))
+    {
+        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
         return;
+    }
 
     // Special case - for disk-based sources we may get an error stating that the index file was not found.
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
     if (worker->response.startsWith("\"Index File Not Found\""))
     {
         auto &journalSource = currentJournalSource();
-        QMessageBox::question(this, "Index File Doesn't Exist",
-                              QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
-                                  .arg(currentJournalSource().rootUrl(), currentJournalSource().indexFile()));
-        backend_.listDataDirectory(currentJournalSource(),
-                                   [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
+
+        updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
+
+        if (QMessageBox::question(this, "Index File Doesn't Exist",
+                                  QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
+                                      .arg(currentJournalSource().rootUrl(), currentJournalSource().indexFile())) ==
+            QMessageBox::StandardButton::Yes)
+            backend_.listDataDirectory(currentJournalSource(),
+                                       [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
 
         return;
     }
@@ -135,6 +140,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
         else
             setCurrentJournal(journals_.front());
     }
+    else
+        updateForCurrentSource(JournalSource::JournalSourceState::OK);
 }
 
 // Handle get journal updates result

@@ -19,6 +19,19 @@ class JournalSource
     static QString journalSourceType(JournalSourceType type);
     // Convert text string to JournalSource type
     static JournalSourceType journalSourceType(QString typeString);
+    // JournalSource States
+    enum JournalSourceState
+    {
+        _NoBackend,
+        Loading,
+        OK,
+        NetworkError,
+        NoIndexFileError,
+        NoJournalsError,
+        RunDataScanInProgress,
+        RunDataScanNoFilesError,
+        JournalGenerationInProgress,
+    };
 
     public:
     JournalSource(QString name, JournalSourceType type, QString rootUrl, QString runDataDirectory, QString indexFile,
@@ -40,6 +53,8 @@ class JournalSource
     QString indexFile_;
     // Whether this source is organised by ISIS instrument
     bool organisedByInstrument_{true};
+    // Current state of the journal source
+    JournalSourceState state_{JournalSourceState::Loading};
 
     public:
     // Return name (used for display)
@@ -54,4 +69,8 @@ class JournalSource
     const QString &indexFile() const;
     // Return whether this source is organised by ISIS instrument
     bool organisedByInstrument() const;
+    // Set current state of the journal source
+    void setState(JournalSourceState state);
+    // Return current state of the journal source
+    JournalSourceState state() const;
 };

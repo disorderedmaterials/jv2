@@ -28,7 +28,7 @@ void MainWindow::handleListDataDirectory(const JournalSource &source, HttpReques
             this, "File Error",
             QString("No NeXuS files were found in '%1'.\nCheck the location, network mounts etc.").arg(dataDirectory));
 
-        setLoadScreen(false);
+        updateForCurrentSource(JournalSource::JournalSourceState::RunDataScanNoFilesError);
 
         return;
     }

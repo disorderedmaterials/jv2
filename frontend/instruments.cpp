@@ -98,11 +98,11 @@ void MainWindow::setCurrentInstrument(QString name)
     if (!currentJournalSource_ || !currentJournalSource().organisedByInstrument())
         return;
 
+    updateForCurrentSource(JournalSource::JournalSourceState::Loading);
+
     backend_.listJournals(currentJournalSource(),
                           currentJournalSource().organisedByInstrument() ? currentInstrument().journalDirectory() : "",
                           [=](HttpRequestWorker *worker) { handleListJournals(worker); });
-
-    setLoadScreen(true);
 }
 
 // Return current instrument

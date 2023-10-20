@@ -37,8 +37,11 @@ class MainWindow : public QMainWindow
     // Main backend class
     Backend backend_;
 
+    private:
+    // Update the UI accordingly for the current source, updating its state if required
+    void updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState = {});
+
     private slots:
-    void setLoadScreen(bool state);
     void removeTab(int index);
     // Notification point for backend startup
     void backendStarted(const QString &result);

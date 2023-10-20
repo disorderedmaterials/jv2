@@ -276,19 +276,78 @@
            </layout>
           </item>
           <item>
-           <widget class="QTableView" name="RunDataTable">
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
+           <widget class="QStackedWidget" name="MainStack">
+            <property name="currentIndex">
+             <number>1</number>
             </property>
-            <property name="verticalScrollMode">
-             <enum>QAbstractItemView::ScrollPerPixel</enum>
-            </property>
-            <property name="horizontalScrollMode">
-             <enum>QAbstractItemView::ScrollPerPixel</enum>
-            </property>
-            <property name="sortingEnabled">
-             <bool>true</bool>
-            </property>
+            <widget class="QWidget" name="NoBackendPage"/>
+            <widget class="QWidget" name="LoadingPage">
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Loading...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="RunDataPage">
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QTableView" name="RunDataTable">
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+                <property name="verticalScrollMode">
+                 <enum>QAbstractItemView::ScrollPerPixel</enum>
+                </property>
+                <property name="horizontalScrollMode">
+                 <enum>QAbstractItemView::ScrollPerPixel</enum>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="NetworkErrorPage"/>
+            <widget class="QWidget" name="NoIndexFileErrorPage"/>
+            <widget class="QWidget" name="NoJournalsErrorPage"/>
+            <widget class="QWidget" name="RunDataScanInProgressPage"/>
+            <widget class="QWidget" name="RunDataScanNoFilesErrorPage"/>
+            <widget class="QWidget" name="JournalGenerationInProgressPage"/>
            </widget>
           </item>
          </layout>

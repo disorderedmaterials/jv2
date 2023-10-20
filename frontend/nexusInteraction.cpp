@@ -190,21 +190,16 @@ void MainWindow::getSpectrumCount()
 {
     backend_.getNexusSpectrumRange(currentJournal().location(), selectedRunNumbers().front(),
                                    [=](HttpRequestWorker *worker) { plotSpectra(worker); });
-
-    setLoadScreen(true);
 }
 
 void MainWindow::getMonitorCount()
 {
     backend_.getNexusMonitorRange(currentJournal().location(), selectedRunNumbers().front(),
                                   [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
-
-    setLoadScreen(true);
 }
 
 void MainWindow::plotSpectra(HttpRequestWorker *count)
 {
-    setLoadScreen(false);
     auto spectraCount = count->response.toUtf8();
     bool valid;
     auto spectrumNumber = QInputDialog::getInt(this, tr("Plot Detector Spectrum"),
@@ -219,7 +214,6 @@ void MainWindow::plotSpectra(HttpRequestWorker *count)
 
 void MainWindow::plotMonSpectra(HttpRequestWorker *count)
 {
-    setLoadScreen(false);
     auto monCount = count->response.toUtf8();
     bool valid;
     auto monNumber =

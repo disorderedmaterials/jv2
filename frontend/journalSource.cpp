@@ -56,3 +56,9 @@ const QString &JournalSource::indexFile() const { return indexFile_; }
 
 // Return whether the data is organised by ISIS instrument
 bool JournalSource::organisedByInstrument() const { return organisedByInstrument_; }
+
+// Set current state of the journal source
+void JournalSource::setState(JournalSourceState state) { state_ = state; }
+
+// Return current state of the journal source
+JournalSource::JournalSourceState JournalSource::state() const { return state_; }
