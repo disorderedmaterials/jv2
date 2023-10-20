@@ -159,8 +159,6 @@ void MainWindow::on_actionJumpTo_triggered()
 
     backend_.goToCycle(inst.journalDirectory(), QString::number(runNo),
                        [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
-
-    setLoadScreen(true);
 }
 
 // Run data context menu requested

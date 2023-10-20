@@ -35,44 +35,18 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     return false;
 }
 
-// Handle backend ping result
-void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
-{
-    if (worker->response.contains("READY"))
-    {
-        // Connect up an update timer
-        QTimer *timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
-        timer->start(30000);
-
-        // Update the GUI
-        fillInstruments();
-
-        // Last used instrument?
-        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-        auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
-        setCurrentInstrument(recentInstrument);
-
-        // Get default journal sources
-        getDefaultJournalSources();
-
-        setLoadScreen(false);
-    }
-    else
-        waitForBackend();
-}
-
 // Handle run data returned for a whole journal
 void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
 {
-    setLoadScreen(false);
-
     runData_ = QJsonArray();
     runDataModel_.setData(runData_);
 
     // Check network reply
     if (networkRequestHasError(worker, "trying to retrieve run data for the journal"))
+    {
+        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
         return;
+    }
 
     // Turn off grouping
     if (ui_.GroupRunsButton->isChecked())
@@ -89,16 +63,19 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
     ui_.RunDataTable->resizeColumnsToContents();
     updateSearch(searchString_);
     ui_.RunFilterEdit->clear();
+
+    updateForCurrentSource(JournalSource::JournalSourceState::OK);
 }
 
 // Handle jump to specified run numbers
 void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber)
 {
-    setLoadScreen(false);
-
     // Check network reply
     if (networkRequestHasError(worker, "trying to select run number within journal"))
+    {
+        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
         return;
+    }
 
     if (worker->response == "Not Found")
     {

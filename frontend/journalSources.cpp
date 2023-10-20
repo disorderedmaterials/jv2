@@ -82,6 +82,8 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     {
         currentJournalSource_ = std::nullopt;
 
+        updateForCurrentSource();
+
         return;
     }
 
@@ -97,14 +99,12 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     // Clear any mass search results since they're source-specific
     cachedMassSearch_.clear();
 
-    // If the source is organised by instrument, ensure the instrument selector is visible
-    bool orgByInst = currentJournalSource_->get().organisedByInstrument();
-    ui_.instrumentButton->setEnabled(orgByInst);
+    // Reset the state of the source since we can't assume the result of the index request
+    currentJournalSource_->get().setState(JournalSource::JournalSourceState::Loading);
 
+    bool orgByInst = currentJournalSource_->get().organisedByInstrument();
     backend_.listJournals(currentJournalSource(), orgByInst ? currentInstrument().journalDirectory() : "",
                           [=](HttpRequestWorker *worker) { handleListJournals(worker); });
-
-    setLoadScreen(true);
 }
 
 // Return current journal source

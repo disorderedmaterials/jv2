@@ -50,9 +50,6 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Get user settings
     loadSettings();
 
-    // Set the loading screen
-    setLoadScreen(true);
-
     // Start the backend - this will notify backendStarted when complete, but we still need to wait for the server to come up
     connect(&backend_, SIGNAL(started(const QString &)), this, SLOT(backendStarted(const QString &)));
     backend_.start();
@@ -62,18 +59,36 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
  * UI
  */
 
-void MainWindow::setLoadScreen(bool state)
+// Update the UI accordingly for the current source, updating its state if required
+void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState)
 {
-    if (state)
+    // Do we actually have a current source?
+    if (!currentJournalSource_)
     {
-        QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        QWidget::setEnabled(false);
+        ui_.instrumentButton->setEnabled(false);
+        ui_.journalButton->setEnabled(false);
+
+        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoBackendError);
+    }
+
+    auto &source = currentJournalSource_->get();
+    if (newState)
+        source.setState(*newState);
+
+    // If the source is OK, we enable relevant controls
+    if (source.state() == JournalSource::JournalSourceState::OK)
+    {
+        ui_.instrumentButton->setEnabled(source.organisedByInstrument());
+        ui_.journalButton->setEnabled(true);
     }
     else
     {
-        QWidget::setEnabled(true);
-        QGuiApplication::restoreOverrideCursor();
+        ui_.instrumentButton->setEnabled(false);
+        ui_.journalButton->setEnabled(false);
     }
+
+    // Set the main stack page to correspond to the state enum
+    ui_.MainStack->setCurrentIndex(source.state());
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
@@ -129,4 +144,29 @@ void MainWindow::waitForBackend()
     connect(pingTimer, &QTimer::timeout,
             [=]() { backend_.ping([this](HttpRequestWorker *worker) { handleBackendPingResult(worker); }); });
     pingTimer->start();
+}
+
+// Handle backend ping result
+void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
+{
+    if (worker->response.contains("READY"))
+    {
+        // Connect up an update timer
+        QTimer *timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
+        timer->start(30000);
+
+        // Update the GUI
+        fillInstruments();
+
+        // Last used instrument?
+        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+        auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
+        setCurrentInstrument(recentInstrument);
+
+        // Get default journal sources
+        getDefaultJournalSources();
+    }
+    else
+        waitForBackend();
 }

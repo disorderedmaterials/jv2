@@ -89,7 +89,7 @@ void MainWindow::massSearch(QString name, QString value)
                 if (action->text() == "[" + std::get<1>(tuple) + "]")
                     action->trigger();
             }
-            setLoadScreen(true);
+
             return;
         }
     }
@@ -110,7 +110,6 @@ void MainWindow::massSearch(QString name, QString value)
     // connect(action, &QAction::triggered, [=]() { setCurrentCycle("[" + text + "]"); });  [FIXME]!
     journalsMenu_->addAction(action);
     ui_.journalButton->setText("[" + text + "]");
-    setLoadScreen(true);
 }
 
 /*
