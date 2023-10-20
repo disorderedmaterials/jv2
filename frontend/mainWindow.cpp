@@ -68,7 +68,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         ui_.instrumentButton->setEnabled(false);
         ui_.journalButton->setEnabled(false);
 
-        ui_.MainStack->setCurrentIndex(0);
+        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoBackendError);
     }
 
     auto &source = currentJournalSource_->get();

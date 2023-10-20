@@ -22,7 +22,7 @@ class JournalSource
     // JournalSource States
     enum JournalSourceState
     {
-        _NoBackend,
+        _NoBackendError,
         Loading,
         OK,
         NetworkError,
