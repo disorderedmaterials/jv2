@@ -115,11 +115,17 @@ class JournalGenerator:
 
         # Create organised journals for the run data
         journals = {}
+        if requestData.parameter == "Directory":
+            sortKey = "data_directory"
+        elif requestData.parameter == "RBNumber":
+            sortKey = "experiment_identifier"
+        logging.debug(f"Sorting key is {sortKey}")
+
         for run in runData:
-            # If the data directory isn't already in the dict, add it now
-            if run["data_directory"] not in journals:
-                journals[run["data_directory"]] = []
-            journals[run["data_directory"]].append(run)
+            # If the sorting key isn't already in the dict, add it now
+            if run[sortKey] not in journals:
+                journals[run[sortKey]] = []
+            journals[run[sortKey]].append(run)
 
         # Create and write index and journal files
         indexRoot = ET.Element("journal")
@@ -140,8 +146,12 @@ class JournalGenerator:
                     dataEntry.text = run[d]
 
             # Write the child journal file
-            with open(url_join(requestData.url, journalFilename), "wb") as f:
-                ET.ElementTree(journalRoot).write(f)
+            try:
+                with open(url_join(requestData.url,
+                                   journalFilename), "wb") as f:
+                    ET.ElementTree(journalRoot).write(f)
+            except Exception as exc:
+                return jsonify(f"Error: {str(exc)}")
 
             # Add an entry in the index file
             indexEntry = ET.SubElement(indexRoot, "file")
@@ -156,4 +166,4 @@ class JournalGenerator:
         with open(requestData.file_url, "wb") as f:
             ET.ElementTree(indexRoot).write(f)
 
-        return jsonify("Success")
+        return jsonify("SUCCESS")

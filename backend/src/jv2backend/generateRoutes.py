@@ -56,7 +56,8 @@ def add_routes(
         try:
             postData = RequestData(request.json, journalLibrary,
                                    require_filename=True,
-                                   require_data_directory=True)
+                                   require_data_directory=True,
+                                   require_parameter="dataOrganisation")
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 

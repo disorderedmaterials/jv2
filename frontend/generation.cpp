@@ -29,6 +29,26 @@ void MainWindow::handleListDataDirectory(const JournalSource &source, HttpReques
         return;
     }
 
+    updateForCurrentSource(JournalSource::JournalSourceState::JournalGenerationInProgress);
+
     // Begin the journal generation
-    backend_.generateJournals(source);
+    backend_.generateJournals(source, [=](HttpRequestWorker *scanWorker) { handleScanResult(source, scanWorker); });
+}
+
+// Handle returned journal generation result
+void MainWindow::handleScanResult(const JournalSource &source, HttpRequestWorker *worker)
+{
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to generate journals for directory"))
+        return;
+
+    // Success?
+    if (!worker->response.startsWith("\"SUCCESS"))
+    {
+        updateForCurrentSource(JournalSource::JournalSourceState::JournalGenerationError);
+        return;
+    }
+
+    // Generation was a success, so try to load in the file we just generated
+    setCurrentJournalSource(source.name());
 }

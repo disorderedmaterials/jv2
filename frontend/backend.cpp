@@ -307,6 +307,7 @@ void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::H
     data["rootUrl"] = source.rootUrl();
     data["dataDirectory"] = source.runDataDirectory();
     data["filename"] = source.indexFile();
+    data["dataOrganisation"] = JournalSource::dataOrganisationType(source.runDataOrganisation());
 
     postRequest(createRoute("generate/scan"), data, handler);
 }
