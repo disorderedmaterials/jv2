@@ -95,13 +95,13 @@ void MainWindow::setCurrentInstrument(QString name)
     cachedMassSearch_.clear();
 
     // Make sure we have a valid journal source before we request any data
-    if (!currentJournalSource_ || !currentJournalSource().organisedByInstrument())
+    if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
         return;
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
     backend_.listJournals(currentJournalSource(),
-                          currentJournalSource().organisedByInstrument() ? currentInstrument().journalDirectory() : "",
+                          currentJournalSource().instrumentSubdirectories() ? currentInstrument().journalDirectory() : "",
                           [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 

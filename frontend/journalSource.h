@@ -13,12 +13,22 @@ class JournalSource
     enum class JournalSourceType
     {
         ISISNetwork,
-        DiskByDirectory
+        Disk
     };
     // Return text string for specified JournalSource type
     static QString journalSourceType(JournalSourceType type);
     // Convert text string to JournalSource type
     static JournalSourceType journalSourceType(QString typeString);
+    // Data Organisation Types
+    enum class DataOrganisationType
+    {
+        Directory,
+        RBNumber
+    };
+    // Return text string for specified DataOrganisationType
+    static QString dataOrganisationType(DataOrganisationType type);
+    // Convert text string to DataOrganisationType
+    static DataOrganisationType dataOrganisationType(QString typeString);
     // JournalSource States
     enum JournalSourceState
     {
@@ -35,7 +45,7 @@ class JournalSource
 
     public:
     JournalSource(QString name, JournalSourceType type, QString rootUrl, QString runDataDirectory, QString indexFile,
-                  bool organisedByInstrument);
+                  bool instrumentSubdirectories_, DataOrganisationType runDataOrganisation);
 
     /*
      * Basic Data
@@ -51,10 +61,10 @@ class JournalSource
     QString runDataDirectory_;
     // Name of the index file in the main directories, if known
     QString indexFile_;
-    // Whether this source is organised by ISIS instrument
-    bool organisedByInstrument_{true};
-    // Current state of the journal source
-    JournalSourceState state_{JournalSourceState::Loading};
+    // Whether this source has instrument subdirectories
+    bool instrumentSubdirectories_{true};
+    // Run data organisation
+    DataOrganisationType runDataOrganisation_;
 
     public:
     // Return name (used for display)
@@ -67,8 +77,19 @@ class JournalSource
     const QString &runDataDirectory() const;
     // Return name of the index file in the main directories, if known
     const QString &indexFile() const;
-    // Return whether this source is organised by ISIS instrument
-    bool organisedByInstrument() const;
+    // Return whether this source has instrument subdirectories
+    bool instrumentSubdirectories() const;
+    // Return run data organisation
+    DataOrganisationType runDataOrganisation() const;
+
+    /*
+     * State
+     */
+    private:
+    // Current state of the journal source
+    JournalSourceState state_{JournalSourceState::Loading};
+
+    public:
     // Set current state of the journal source
     void setState(JournalSourceState state);
     // Return current state of the journal source

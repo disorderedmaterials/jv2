@@ -28,7 +28,7 @@ bool MainWindow::parseJournalSources(const QDomDocument &source)
         auto sourceName = sourceElement.attribute("name");
 
         // Get source type
-        auto sourceType = JournalSource::journalSourceType(sourceElement.attribute("type", "DiskByDirectory"));
+        auto sourceType = JournalSource::journalSourceType(sourceElement.attribute("type", "Disk"));
 
         // Get source root URL
         auto sourceRootURL = sourceElement.attribute("rootUrl");
@@ -38,11 +38,14 @@ bool MainWindow::parseJournalSources(const QDomDocument &source)
         auto sourceIndexFile = sourceElement.attribute("indexFile");
 
         // Whether the journals / data are organised by known instrument
-        auto organisedByInstrument = sourceElement.attribute("byInstrument", "false").toLower() == "true";
+        auto organisedByInstrument = sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true";
+
+        // Get run data organisation type
+        auto runDataOrgType = JournalSource::dataOrganisationType(sourceElement.attribute("dataOrganisation", "Directory"));
 
         // Create the source
         auto &journalSource = journalSources_.emplace_back(sourceName, sourceType, sourceRootURL, sourceDataDirectory,
-                                                           sourceIndexFile, organisedByInstrument);
+                                                           sourceIndexFile, organisedByInstrument, runDataOrgType);
     }
 
     // Populate the combo box with options
@@ -102,7 +105,7 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     // Reset the state of the source since we can't assume the result of the index request
     currentJournalSource_->get().setState(JournalSource::JournalSourceState::Loading);
 
-    bool orgByInst = currentJournalSource_->get().organisedByInstrument();
+    bool orgByInst = currentJournalSource_->get().instrumentSubdirectories();
     backend_.listJournals(currentJournalSource(), orgByInst ? currentInstrument().journalDirectory() : "",
                           [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }

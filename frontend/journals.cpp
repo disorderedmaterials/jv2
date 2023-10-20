@@ -115,10 +115,14 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
                                   QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
                                       .arg(currentJournalSource().rootUrl(), currentJournalSource().indexFile())) ==
             QMessageBox::StandardButton::Yes)
-            backend_.listDataDirectory(currentJournalSource(),
+        {
+            bool orgByInst = currentJournalSource_->get().instrumentSubdirectories();
+
+            backend_.listDataDirectory(currentJournalSource(), orgByInst ? currentInstrument().journalDirectory() : "",
                                        [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
 
-        return;
+            return;
+        }
     }
 
     // Add returned journals

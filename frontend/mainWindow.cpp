@@ -78,7 +78,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     // If the source is OK, we enable relevant controls
     if (source.state() == JournalSource::JournalSourceState::OK)
     {
-        ui_.instrumentButton->setEnabled(source.organisedByInstrument());
+        ui_.instrumentButton->setEnabled(source.instrumentSubdirectories());
         ui_.journalButton->setEnabled(true);
     }
     else

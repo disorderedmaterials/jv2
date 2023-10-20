@@ -286,10 +286,12 @@ void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpR
  */
 
 // List data directory for the specified source
-void Backend::listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::listDataDirectory(const JournalSource &source, const QString &journalDirectory,
+                                HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
     data["rootUrl"] = source.rootUrl();
+    data["directory"] = journalDirectory;
     data["dataDirectory"] = source.runDataDirectory();
 
     postRequest(createRoute("generate/list"), data, handler);

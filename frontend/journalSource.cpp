@@ -10,8 +10,8 @@ QString JournalSource::journalSourceType(JournalSource::JournalSourceType type)
     {
         case (JournalSourceType::ISISNetwork):
             return "ISISArchive";
-        case (JournalSourceType::DiskByDirectory):
-            return "DiskByDirectory";
+        case (JournalSourceType::Disk):
+            return "Disk";
         default:
             throw(std::runtime_error("JournalSource type not known and can't be converted to a QString.\n"));
     }
@@ -22,16 +22,41 @@ JournalSource::JournalSourceType JournalSource::journalSourceType(QString typeSt
 {
     if (typeString.toLower() == "isisnetwork")
         return JournalSourceType::ISISNetwork;
-    else if (typeString.toLower() == "diskbydirectory")
-        return JournalSourceType::DiskByDirectory;
+    else if (typeString.toLower() == "disk")
+        return JournalSourceType::Disk;
     else
         throw(std::runtime_error("JournalSource string can't be converted to a JournalSourceType.\n"));
 }
 
+// Return text string for specified DataOrganisationType
+QString JournalSource::dataOrganisationType(JournalSource::DataOrganisationType type)
+{
+    switch (type)
+    {
+        case (DataOrganisationType::Directory):
+            return "Directory";
+        case (DataOrganisationType::RBNumber):
+            return "RBNumber";
+        default:
+            throw(std::runtime_error("DataOrganisationType not known and can't be converted to a QString.\n"));
+    }
+}
+
+// Convert text string to DataOrganisationType
+JournalSource::DataOrganisationType JournalSource::dataOrganisationType(QString typeString)
+{
+    if (typeString.toLower() == "directory")
+        return DataOrganisationType::Directory;
+    else if (typeString.toLower() == "rbnumber")
+        return DataOrganisationType::RBNumber;
+    else
+        throw(std::runtime_error("DataOrganisationType string can't be converted to a DataOrganisationType.\n"));
+}
+
 JournalSource::JournalSource(QString name, JournalSourceType type, QString rootUrl, QString runDataDirectory, QString indexFile,
-                             bool organisedByInstrument)
+                             bool instrumentSubdirectories, DataOrganisationType runDataOrganisation)
     : name_(name), type_(type), rootUrl_(rootUrl), runDataDirectory_(runDataDirectory), indexFile_(indexFile),
-      organisedByInstrument_(organisedByInstrument)
+      instrumentSubdirectories_(instrumentSubdirectories), runDataOrganisation_(runDataOrganisation)
 {
 }
 
@@ -54,8 +79,15 @@ const QString &JournalSource::runDataDirectory() const { return runDataDirectory
 // Return name of the index file in the main directories, if known
 const QString &JournalSource::indexFile() const { return indexFile_; }
 
-// Return whether the data is organised by ISIS instrument
-bool JournalSource::organisedByInstrument() const { return organisedByInstrument_; }
+// Return whether this source has instrument subdirectories
+bool JournalSource::instrumentSubdirectories() const { return instrumentSubdirectories_; }
+
+// Return run data organisation
+JournalSource::DataOrganisationType JournalSource::runDataOrganisation() const { return runDataOrganisation_; }
+
+/*
+ * State
+ */
 
 // Set current state of the journal source
 void JournalSource::setState(JournalSourceState state) { state_ = state; }
