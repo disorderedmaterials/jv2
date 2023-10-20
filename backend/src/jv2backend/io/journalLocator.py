@@ -105,23 +105,24 @@ class JournalLocator:
                 continue
 
             # Determine display name
-            displayName = (
-                j.attrib["display_name"] if "display_name" in j.attrib else
-                j.attrib["name"].replace("journal",
-                                         "Cycle").replace(".xml", "").replace("_", " ")
-            )
+            if "display_name" in j.attrib:
+                displayName = j.attrib["display_name"]
+            else:
+                displayName = j.attrib["name"].replace("journal", "Cycle")
+                displayName = displayName.replace(".xml", "").replace("_", " ")
 
             # Determine data directory
-            dataDirectory = (
-                j.attrib["data_directory"]
-                if "data_directory" in j.attrib else
-                url_join(requestData.data_directory,
-                         requestData.directory,
-                         "Instrument",
-                         "data",
-                         j.attrib["name"].replace("journal",
-                                                  "cycle").replace(".xml", ""))
-            )
+            if "data_directory" in j.attrib:
+                dataDirectory = j.attrib["data_directory"]
+            else:
+                cycleDir = j.attrib["name"].replace("journal", "cycle")
+                cycleDir.replace(".xml", "")
+                dataDirectory = url_join(
+                    requestData.data_directory,
+                    requestData.directory,
+                    "Instrument",
+                    "data",
+                    cycleDir)
 
             # Append to our list
             journals.append(

@@ -110,7 +110,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
         QMessageBox::question(this, "Index File Doesn't Exist",
                               QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
                                   .arg(currentJournalSource().rootUrl(), currentJournalSource().indexFile()));
-        backend_.listDataDirectory(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); } );
+        backend_.listDataDirectory(currentJournalSource(),
+                                   [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
 
         return;
     }

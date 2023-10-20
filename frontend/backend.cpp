@@ -286,8 +286,7 @@ void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpR
  */
 
 // List data directory for the specified source
-void Backend::listDataDirectory(const JournalSource &source,
-                      HttpRequestWorker::HttpRequestHandler handler)
+void Backend::listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
     data["rootUrl"] = source.rootUrl();
@@ -297,8 +296,7 @@ void Backend::listDataDirectory(const JournalSource &source,
 }
 
 // Generate journals for the specified source
-void Backend::generateJournals(const JournalSource &source,
-                      HttpRequestWorker::HttpRequestHandler handler)
+void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
     // Only for disk-based sources
     if (source.type() == JournalSource::JournalSourceType::ISISNetwork)
