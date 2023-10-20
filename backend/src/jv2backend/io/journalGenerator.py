@@ -143,9 +143,13 @@ class JournalGenerator:
                 ET.ElementTree(journalRoot).write(f)
 
             # Add an entry in the index file
-            indexEntry = ET.SubElement(indexRoot, "jv2file")
+            indexEntry = ET.SubElement(indexRoot, "file")
             indexEntry.set("name", journalFilename)
             indexEntry.set("data_directory", j)
+            indexEntry.set("display_name",
+                           j.removeprefix(
+                               requestData.data_directory
+                               ).lstrip("/"))
 
         # Write the index file
         with open(requestData.file_url, "wb") as f:
