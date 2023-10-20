@@ -120,7 +120,7 @@ const JournalSource &MainWindow::currentJournalSource() const
 }
 
 /*
- * Private SLots
+ * Private Slots
  */
 
 void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
