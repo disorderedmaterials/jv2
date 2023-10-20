@@ -28,12 +28,10 @@ class JournalGenerator:
             "/raw_data_1/start_time": "start_time",
             "/raw_data_1/end_time": "end_time"
         }
-        self._nxs_integers = {
+        self._nxs_numericals = {
             "/raw_data_1/good_frames": "good_frames",
             "/raw_data_1/raw_frames": "raw_frames",
-            "/raw_data_1/run_number": "run_number"
-        }
-        self._nxs_doubles = {
+            "/raw_data_1/run_number": "run_number",
             "/raw_data_1/duration": "duration",
             "/raw_data_1/proton_charge": "proton_charge"
         }
@@ -78,14 +76,23 @@ class JournalGenerator:
         """
         nxs = h5py.File(url_join(data_directory, filename))
 
+        # Basic data
         data = {
             "data_directory": data_directory,
             "filename": filename
         }
+
+        # String attributes
         for stringValue in self._nxs_strings:
             if stringValue in nxs:
                 value = nxs[stringValue][0]
                 data[self._nxs_strings[stringValue]] = value.decode('utf-8')
+
+        # Numerical attributes
+        for numValue in self._nxs_numericals:
+            if numValue in nxs:
+                value = nxs[numValue][0]
+                data[self._nxs_numericals[numValue]] = str(value)
 
         return data
 
