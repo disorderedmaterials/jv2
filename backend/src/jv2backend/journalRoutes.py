@@ -8,13 +8,14 @@ from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journals import JournalLibrary
-from jv2backend.io.journalLocator import JournalLocator
+import jv2backend.io.journalLocator
+import jv2backend.io.journalGenerator
 from jv2backend.utils import json_response
 
 
 def add_routes(
     app: Flask,
-    journalLocator: JournalLocator,
+    journalLocator: jv2backend.io.journalLocator.JournalLocator,
     journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""

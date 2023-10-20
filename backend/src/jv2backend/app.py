@@ -7,10 +7,12 @@ from flask import Flask
 
 from jv2backend import config
 import jv2backend.journalRoutes
+import jv2backend.generateRoutes
 import jv2backend.nexusRoutes
 import jv2backend.serverRoutes
 import jv2backend.journals
 import jv2backend.io.journalLocator
+import jv2backend.io.journalGenerator
 
 
 def create_app(inside_gunicorn: bool = True) -> Flask:
@@ -24,10 +26,12 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
     configure_logging(app, inside_gunicorn)
 
     journalLocator = jv2backend.io.journalLocator.JournalLocator()
+    journalGenerator = jv2backend.io.journalGenerator.JournalGenerator()
     journalLibrary = jv2backend.journals.JournalLibrary({})
 
     jv2backend.serverRoutes.add_routes(app)
     jv2backend.journalRoutes.add_routes(app, journalLocator, journalLibrary)
+    jv2backend.generateRoutes.add_routes(app, journalGenerator, journalLibrary)
     jv2backend.nexusRoutes.add_routes(app, journalLibrary)
 
     return app

@@ -101,4 +101,13 @@ class Backend : public QObject
                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra analysis for specified run number
     void getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+
+    /*
+     * Generation Endpoints
+     */
+    public:
+    // List data directory for the specified source
+    void listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Generate journals for the specified source
+    void generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
 };

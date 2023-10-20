@@ -115,6 +115,12 @@ class MainWindow : public QMainWindow
     // Return current journal
     const Journal &currentJournal() const;
 
+    private:
+    // Handle get journal updates result
+    void handleGetJournalUpdates(HttpRequestWorker *workers);
+    // Handle returned journal information for an instrument
+    void handleListJournals(HttpRequestWorker *worker);
+
     /*
      * Run Data
      */
@@ -146,6 +152,13 @@ class MainWindow : public QMainWindow
     void runDataContextMenuRequested(QPoint pos);
 
     /*
+     * Journal Generation
+     */
+    private:
+    // Handle returned directory list result
+    void handleListDataDirectory(const JournalSource &source, HttpRequestWorker *worker);
+
+    /*
      * Network Handling
      */
     private:
@@ -153,10 +166,6 @@ class MainWindow : public QMainWindow
     bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
     // Handle backend ping result
     void handleBackendPingResult(HttpRequestWorker *worker);
-    // Handle get journal updates result
-    void handleGetJournalUpdates(HttpRequestWorker *workers);
-    // Handle returned journal information for an instrument
-    void handleListJournals(HttpRequestWorker *worker);
     // Handle run data returned for a whole journal
     void handleCompleteJournalRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number
