@@ -6,10 +6,10 @@ import logging
 import os.path
 import h5py
 import xml.etree.ElementTree as ET
-import hashlib
 
 from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
+from jv2backend.journals import JournalLibrary, JournalCollection
 
 
 class JournalGenerator:
@@ -96,8 +96,10 @@ class JournalGenerator:
 
         return data
 
-    def scan_files(self, requestData: RequestData):
-        """Generate an index file containing journal information
+    def scan_files(self, requestData: RequestData,
+                   journalLibrary: JournalLibrary):
+        """Scan the current list of discovered files amd create journals
+        accordingly.
 
         :param requestData: RequestData object containing the necessary info
 
@@ -131,11 +133,7 @@ class JournalGenerator:
         indexRoot = ET.Element("journal")
         for j in journals:
             logging.debug(f"Journal for {j} has {len(journals[j])} runs")
-
-            # Create hash and journal filename
-            hash = hashlib.sha256(j.encode('utf-8'))
-            journalFilename = hash.hexdigest() + ".xml"
-
+            
             # Construct the child journal data
             journalRoot = ET.Element("NXroot")
             for run in journals[j]:
@@ -145,25 +143,15 @@ class JournalGenerator:
                     dataEntry = ET.SubElement(runEntry, d)
                     dataEntry.text = run[d]
 
-            # Write the child journal file
-            try:
-                with open(url_join(requestData.url,
-                                   journalFilename), "wb") as f:
-                    ET.ElementTree(journalRoot).write(f)
-            except Exception as exc:
-                return jsonify(f"Error: {str(exc)}")
-
             # Add an entry in the index file
             indexEntry = ET.SubElement(indexRoot, "file")
-            indexEntry.set("name", journalFilename)
             indexEntry.set("data_directory", j)
             indexEntry.set("display_name",
                            j.removeprefix(
                                requestData.data_directory
                                ).lstrip("/"))
 
-        # Write the index file
-        with open(requestData.file_url, "wb") as f:
-            ET.ElementTree(indexRoot).write(f)
+        # Store as a new collection in the library
+        journalLibrary[requestData.url] = JournalCollection(journals)
 
         return jsonify("SUCCESS")
