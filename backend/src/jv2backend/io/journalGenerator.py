@@ -17,7 +17,7 @@ class JournalGenerator:
 
     def __init__(self) -> None:
         self._total_files_to_scan: int = None
-        self._scanned_files: typing.Dict(str, typing.Any) = {}
+        self._discovered_files: typing.Dict(str, typing.Any) = {}
         # Dicts of descriptors we wish to extract from the NeXuS file, and the
         # journal attributes they map to
         self._nxs_strings = {
@@ -47,17 +47,17 @@ class JournalGenerator:
 
         # First step, create a dict of all available nxs files in the target
         # directory, organised by folder name
-        self._scanned_files = {}
+        self._discovered_files = {}
         for rootDir, dirs, files in os.walk(data_directory):
             for f in files:
                 if f.lower().endswith(".nxs"):
-                    if (rootDir not in self._scanned_files):
-                        self._scanned_files[rootDir] = []
-                    self._scanned_files[rootDir].append(f)
+                    if (rootDir not in self._discovered_files):
+                        self._discovered_files[rootDir] = []
+                    self._discovered_files[rootDir].append(f)
 
-        num_files = sum(len(runs) for runs in self._scanned_files.values())
+        num_files = sum(len(runs) for runs in self._discovered_files.values())
         logging.debug(f"Found {num_files} NeXus files over \
-                      {len(self._scanned_files)} unique directories \
+                      {len(self._discovered_files)} unique directories \
                       in root directory {data_directory}.")
 
         # Create the response
@@ -106,9 +106,9 @@ class JournalGenerator:
         """
         # Iterate over available data files and get their journal attributes
         runData = []
-        for dir in self._scanned_files:
+        for dir in self._discovered_files:
             logging.debug(f"Probing files in directory {dir}...")
-            for f in self._scanned_files[dir]:
+            for f in self._discovered_files[dir]:
                 logging.debug(f"... {f}")
                 # Get attributes from the file
                 runData.append(self.create_journal_entry(dir, f))
