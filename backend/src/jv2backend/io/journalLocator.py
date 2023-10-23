@@ -24,7 +24,7 @@ class JournalLocator:
     def _get_file(cls, requestData: RequestData) -> BytesIO:
         """Get the content of the file"""
         if requestData.is_http:
-            response = requests.get(requestData.file_url, timeout=5)
+            response = requests.get(requestData.file_url, timeout=3)
             response.raise_for_status()
             return BytesIO(response.content)
         else:
@@ -37,7 +37,7 @@ class JournalLocator:
                                requestData: RequestData) -> datetime.datetime:
         """Get the modification time of the file"""
         if requestData.is_http:
-            response = requests.head(requestData.file_url, timeout=5)
+            response = requests.head(requestData.file_url, timeout=3)
             response.raise_for_status()
             return lm_to_datetime(response.headers["Last-Modified"])
         else:
