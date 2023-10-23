@@ -99,6 +99,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     // Check network reply
     if (networkRequestHasError(worker, "trying to list journals"))
     {
+        ui_.NetworkErrorInfoLabel->setText(worker->response);
         updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
         return;
     }
