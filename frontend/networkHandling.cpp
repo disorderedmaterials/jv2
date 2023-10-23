@@ -14,7 +14,7 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     // Network error?
     if (worker->errorType != QNetworkReply::NoError)
     {
-        statusBar()->showMessage("Network Error");
+        statusBar()->showMessage(QString("Network error for source %1").arg(currentJournalSource().name()), 3000);
         QMessageBox::warning(this, "Network Error",
                              QString("A network error was encountered while %1.\nThe error returned was: %2")
                                  .arg(taskDescription, worker->errorString));
@@ -25,7 +25,7 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     auto response = worker->response;
     if (response.contains("Error"))
     {
-        statusBar()->showMessage("Response Error");
+        statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource().name()), 3000);
         QMessageBox::warning(
             this, "Response Error",
             QString("The backend failed while %1.\nThe response returned was: %2").arg(taskDescription, response));
