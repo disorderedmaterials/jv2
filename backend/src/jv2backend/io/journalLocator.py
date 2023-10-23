@@ -37,7 +37,7 @@ class JournalLocator:
                                requestData: RequestData) -> datetime.datetime:
         """Get the modification time of the file"""
         if requestData.is_http:
-            response = requests.head(requestData.file_url)
+            response = requests.head(requestData.file_url, timeout=5)
             response.raise_for_status()
             return lm_to_datetime(response.headers["Last-Modified"])
         else:
@@ -88,7 +88,7 @@ class JournalLocator:
         # Retrieve the specified file, assumed to be an xml index file
         try:
             fileBytes = self._get_file(requestData)
-        except requests.HTTPError as exc:
+        except (requests.HTTPError, requests.ConnectionError) as exc:
             return jsonify(f"Error: {str(exc)}")
         except FileNotFoundError:
             return jsonify("Index File Not Found")
@@ -155,7 +155,8 @@ class JournalLocator:
         # Not up-to-date, so get the full file content and update modtime
         try:
             fileBytes = self._get_file(requestData)
-        except (requests.HTTPError, FileNotFoundError) as exc:
+        except (requests.HTTPError, requests.ConnectionError,
+                FileNotFoundError) as exc:
             return jsonify(f"Error: {str(exc)}")
         j.last_modified = current_last_modified
 
@@ -202,7 +203,8 @@ class JournalLocator:
         # Changed, so read full data
         try:
             fileBytes = self._get_file(requestData)
-        except (requests.HTTPError, FileNotFoundError) as exc:
+        except (requests.HTTPError, requests.ConnectionError,
+                FileNotFoundError) as exc:
             return jsonify(f"Error: {str(exc)}")
         j.last_modified = current_last_modified
 
