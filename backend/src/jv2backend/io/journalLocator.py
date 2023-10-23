@@ -24,7 +24,7 @@ class JournalLocator:
     def _get_file(cls, requestData: RequestData) -> BytesIO:
         """Get the content of the file"""
         if requestData.is_http:
-            response = requests.get(requestData.file_url)
+            response = requests.get(requestData.file_url, timeout=5)
             response.raise_for_status()
             return BytesIO(response.content)
         else:
