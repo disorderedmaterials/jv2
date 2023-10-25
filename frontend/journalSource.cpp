@@ -8,10 +8,10 @@ QString JournalSource::indexingType(JournalSource::IndexingType type)
 {
     switch (type)
     {
-        case (IndexingType::NetworkStatic):
-            return "NetworkStatic";
-        case (IndexingType::Generated):
-            return "Generated";
+        case (IndexingType::Network):
+            return "Network";
+        case (IndexingType::Cached):
+            return "Cached";
         default:
             throw(std::runtime_error("IndexingType type not known and can't be converted to a QString.\n"));
     }
@@ -20,10 +20,10 @@ QString JournalSource::indexingType(JournalSource::IndexingType type)
 // Convert text string to IndexingType type
 JournalSource::IndexingType JournalSource::indexingType(const QString &typeString)
 {
-    if (typeString.toLower() == "networkstatic")
-        return IndexingType::NetworkStatic;
-    else if (typeString.toLower() == "generated")
-        return IndexingType::Generated;
+    if (typeString.toLower() == "network")
+        return IndexingType::Network;
+    else if (typeString.toLower() == "cached")
+        return IndexingType::Cached;
     else
         throw(std::runtime_error("IndexingType string can't be converted to a IndexingType.\n"));
 }
@@ -114,6 +114,36 @@ void JournalSource::setState(JournalSourceState state) { state_ = state; }
 
 // Return current state of the journal source
 JournalSource::JournalSourceState JournalSource::state() const { return state_; }
+
+/*
+ * Object Data
+ */
+
+// Return basic object data ready for network request
+QJsonObject JournalSource::sourceObjectData() const
+{
+    QJsonObject data;
+    data["sourceID"] = name_;
+    data["sourceType"] = indexingType(type_);
+    data["journalRootUrl"] = journalRootUrl_;
+    data["journalFilename"] = journalIndexFilename_;
+    data["directory"] = "TODO";
+    data["runDataRootUrl"] = runDataRootUrl_;
+    return data;
+}
+
+// Return current journal data read for network request
+QJsonObject JournalSource::currentJournalObjectData() const
+{
+    QJsonObject data;
+    data["sourceID"] = name_;
+    data["sourceType"] = indexingType(type_);
+    data["journalRootUrl"] = journalRootUrl_;
+    data["journalFilename"] = currentJournal_ ? currentJournal_->get().location().filename() : "UNKNOWN";
+    data["directory"] = "TODO";
+    data["runDataRootUrl"] = runDataRootUrl_;
+    return data;
+}
 
 /*
  * Journals

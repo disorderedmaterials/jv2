@@ -36,15 +36,15 @@ def add_routes(
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_data_directory=True,
-                                   require_filename=True)
+                                   require_journal_file=True)
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(f"Listing journals at {postData.url}")
+        logging.debug(f"Listing journals for {postData.source_id}: "
+                      f"{postData.journal_file_url()}")
 
         # If we already have a library collection for the specified
-        # journalRoot/directory, just return it
+        # source, just return it
         if postData.journal_collection is not None:
             logging.debug(
                 f"Returning existing journal collection for \
@@ -67,13 +67,12 @@ def add_routes(
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_filename=True)
+                                   require_journal_file=True)
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(
-            f"Get journal {postData.filename} from {postData.url}"
-        )
+        logging.debug(f"Get journal {postData.journal_file_url()} "
+                      f"from {postData.library_key()}")
 
         return journalLocator.get_journal_data(postData)
 
@@ -91,7 +90,7 @@ def add_routes(
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_filename=True)
+                                   require_journal_file=True)
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 

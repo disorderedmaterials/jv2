@@ -132,22 +132,18 @@ void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createReques
 void Backend::listJournals(const JournalSource &source, const QString &journalDirectory,
                            HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = source.journalRootUrl();
-    data["directory"] = journalDirectory;
-    data["runDataRootUrl"] = source.runDataRootUrl();
-    data["filename"] = source.journalIndexFilename();
+    auto data = source.sourceObjectData();
+    data["directory"] = journalDirectory; // TODO
 
     postRequest(createRoute("journals/list"), data, handler);
 }
 
-// Get journal file at the specified location
-void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
+// Get current journal file for the specified source
+void Backend::getJournal(const JournalSource &source, const QString &journalDirectory,
+                         HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
-    data["filename"] = location.filename();
+    auto data = source.currentJournalObjectData();
+    data["directory"] = journalDirectory;
 
     postRequest(createRoute("journals/get"), data, handler);
 }
@@ -300,7 +296,7 @@ void Backend::listDataDirectory(const JournalSource &source, const QString &jour
 void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
     // Only for disk-based sources
-    if (source.type() == JournalSource::IndexingType::NetworkStatic)
+    if (source.type() == JournalSource::IndexingType::Network)
         throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
     QJsonObject data;

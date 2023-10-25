@@ -29,7 +29,7 @@ bool MainWindow::parseJournalSources(const QDomDocument &source)
         auto sourceName = sourceElement.attribute("name");
 
         // Get source type
-        auto sourceType = JournalSource::indexingType(sourceElement.attribute("type", "Generated"));
+        auto sourceType = JournalSource::indexingType(sourceElement.attribute("journalType", "Cached"));
 
         // Create the source
         auto &journalSource = journalSources_.emplace_back(sourceName, sourceType);
@@ -128,7 +128,8 @@ void MainWindow::setCurrentJournal(const QString &name)
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
-    backend_.getJournal(currentJournal().location(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+    backend_.getJournal(currentJournalSource(), currentJournal().location().directory(),
+                        [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 }
 
 // Return selected journal in current source (assuming one is selected)

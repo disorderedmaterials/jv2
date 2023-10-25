@@ -1,7 +1,7 @@
 <xml>
 	<sources>
-		<source name="ISIS Archive" journalType="NetworkStatic" journalRootUrl="http://data.isis.rl.ac.uk/journals" journalIndexFilename="journal_main.xml" instrumentSubdirs="true" runDataRootUrl="/archive"/>
-		<source name="Local" journalType="Generated" runDataRootUrl="/home/ty11203/TestData/Directories" dataOrganisation="Directory"/>
-		<source name="Local RB" journalType="Generated" instrumentSubdirs="true" runDataRootUrl="/home/ty11203/TestData/RB_Directories" dataOrganisation="RBNumber"/>
+		<source name="ISIS Archive" journalType="Network" journalRootUrl="http://data.isis.rl.ac.uk/journals" journalIndexFilename="journal_main.xml" instrumentSubdirs="true" runDataRootUrl="/archive"/>
+		<source name="Local" journalType="Cached" runDataRootUrl="/home/ty11203/TestData/Directories" dataOrganisation="Directory"/>
+		<source name="Local RB" journalType="Cached" instrumentSubdirs="true" runDataRootUrl="/home/ty11203/TestData/RB_Directories" dataOrganisation="RBNumber"/>
 	</sources>
 </xml>

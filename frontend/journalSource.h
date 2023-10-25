@@ -5,6 +5,7 @@
 
 #include "journal.h"
 #include "optionalRef.h"
+#include <QJsonObject>
 #include <QString>
 
 // Forward Declarations
@@ -17,8 +18,8 @@ class JournalSource
     // Indexing Types
     enum class IndexingType
     {
-        NetworkStatic,
-        Generated
+        Network,
+        Cached
     };
     // Return text string for specified IndexingType type
     static QString indexingType(IndexingType type);
@@ -106,6 +107,15 @@ class JournalSource
     const QString &runDataRootUrl() const;
     // Return run data organisation
     DataOrganisationType runDataOrganisation() const;
+
+    /*
+     * Object Data
+     */
+    public:
+    // Return basic source data ready for network request
+    QJsonObject sourceObjectData() const;
+    // Return current journal data read for network request
+    QJsonObject currentJournalObjectData() const;
 
     /*
      * State

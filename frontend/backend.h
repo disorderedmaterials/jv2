@@ -70,7 +70,8 @@ class Backend : public QObject
     void listJournals(const JournalSource &source, const QString &journalDirectory,
                       HttpRequestWorker::HttpRequestHandler handler = {});
     // Get journal file at the specified location
-    void getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getJournal(const JournalSource &source, const QString &journalDirectory,
+                    HttpRequestWorker::HttpRequestHandler handler = {});
     // Get any updates to the specified journal
     void getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
     // Search all journals for matching runs
