@@ -29,24 +29,22 @@ bool MainWindow::parseJournalSources(const QDomDocument &source)
         auto sourceName = sourceElement.attribute("name");
 
         // Get source type
-        auto sourceType = JournalSource::journalSourceType(sourceElement.attribute("type", "Disk"));
-
-        // Get source root URL
-        auto sourceRootURL = sourceElement.attribute("rootUrl");
-
-        // Data directory and main index file name
-        auto sourceDataDirectory = sourceElement.attribute("dataDirectory");
-        auto sourceIndexFile = sourceElement.attribute("indexFile");
-
-        // Whether the journals / data are organised by known instrument
-        auto organisedByInstrument = sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true";
-
-        // Get run data organisation type
-        auto runDataOrgType = JournalSource::dataOrganisationType(sourceElement.attribute("dataOrganisation", "Directory"));
+        auto sourceType = JournalSource::indexingType(sourceElement.attribute("type", "Generated"));
 
         // Create the source
-        auto &journalSource = journalSources_.emplace_back(sourceName, sourceType, sourceRootURL, sourceDataDirectory,
-                                                           sourceIndexFile, organisedByInstrument, runDataOrgType);
+        auto &journalSource = journalSources_.emplace_back(sourceName, sourceType);
+
+        // Set whether the journals / data are organised by known instrument
+        auto organisedByInstrument = sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true";
+
+        // Set journal data
+        journalSource.setJournalData(sourceElement.attribute("journalRootUrl"),
+                                     sourceElement.attribute("journalIndexFilename"));
+
+        // Run data
+        journalSource.setRunDataLocation(
+            sourceElement.attribute("runDataRootUrl"),
+            JournalSource::dataOrganisationType(sourceElement.attribute("dataOrganisation", "Directory")));
     }
 
     // Populate the combo box with options
@@ -182,12 +180,13 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
         updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
 
         bool orgByInst = journalSource.instrumentSubdirectories();
-        auto rootUrl = orgByInst ? QString("%1/%2").arg(currentJournalSource().rootUrl(), currentInstrument().name())
-                                 : currentJournalSource().rootUrl();
+        auto rootUrl = orgByInst ? QString("%1/%2").arg(currentJournalSource().journalRootUrl(), currentInstrument().name())
+                                 : currentJournalSource().journalRootUrl();
 
         if (QMessageBox::question(this, "Index File Doesn't Exist",
                                   QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
-                                      .arg(rootUrl, currentJournalSource().indexFile())) == QMessageBox::StandardButton::Yes)
+                                      .arg(rootUrl, currentJournalSource().journalIndexFilename())) ==
+            QMessageBox::StandardButton::Yes)
         {
             bool orgByInst = currentJournalSource_->get().instrumentSubdirectories();
 
@@ -214,7 +213,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
 
     // If there is no current journal, set one
     if (!currentJournalSource().currentJournal() && !currentJournalSource().journals().empty())
-            setCurrentJournal(currentJournalSource().journals().front().name());
+        setCurrentJournal(currentJournalSource().journals().front().name());
     else
         updateForCurrentSource(JournalSource::JournalSourceState::OK);
 }

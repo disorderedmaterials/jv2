@@ -133,10 +133,10 @@ void Backend::listJournals(const JournalSource &source, const QString &journalDi
                            HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = source.rootUrl();
+    data["journalRootUrl"] = source.journalRootUrl();
     data["directory"] = journalDirectory;
-    data["dataDirectory"] = source.runDataDirectory();
-    data["filename"] = source.indexFile();
+    data["runDataRootUrl"] = source.runDataRootUrl();
+    data["filename"] = source.journalIndexFilename();
 
     postRequest(createRoute("journals/list"), data, handler);
 }
@@ -145,7 +145,7 @@ void Backend::listJournals(const JournalSource &source, const QString &journalDi
 void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["filename"] = location.filename();
 
@@ -156,7 +156,7 @@ void Backend::getJournal(const Locator &location, HttpRequestWorker::HttpRequest
 void Backend::getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["filename"] = location.filename();
 
@@ -185,7 +185,7 @@ void Backend::getNexusFields(const Locator &location, const std::vector<int> &ru
                              HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
 
     QJsonArray runNumbers;
@@ -201,7 +201,7 @@ void Backend::getNexusLogValueData(const Locator &location, const std::vector<in
                                    HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["logValue"] = logValue;
 
@@ -217,7 +217,7 @@ void Backend::getNexusLogValueData(const Locator &location, const std::vector<in
 void Backend::getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["runNumber"] = runNo;
 
@@ -229,7 +229,7 @@ void Backend::getNexusMonitor(const Locator &location, const std::vector<int> &r
                               HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["spectrumId"] = monitorId;
 
@@ -245,7 +245,7 @@ void Backend::getNexusMonitor(const Locator &location, const std::vector<int> &r
 void Backend::getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["runNumber"] = runNo;
 
@@ -257,7 +257,7 @@ void Backend::getNexusDetector(const Locator &location, const std::vector<int> &
                                HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["spectrumId"] = monitorId;
 
@@ -273,7 +273,7 @@ void Backend::getNexusDetector(const Locator &location, const std::vector<int> &
 void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = location.rootUrl();
+    data["journalRootUrl"] = location.rootUrl();
     data["directory"] = location.directory();
     data["runNumber"] = runNo;
 
@@ -289,9 +289,9 @@ void Backend::listDataDirectory(const JournalSource &source, const QString &jour
                                 HttpRequestWorker::HttpRequestHandler handler)
 {
     QJsonObject data;
-    data["rootUrl"] = source.rootUrl();
+    data["journalRootUrl"] = source.journalRootUrl();
     data["directory"] = journalDirectory;
-    data["dataDirectory"] = source.runDataDirectory();
+    data["runDataRootUrl"] = source.runDataRootUrl();
 
     postRequest(createRoute("generate/list"), data, handler);
 }
@@ -300,13 +300,13 @@ void Backend::listDataDirectory(const JournalSource &source, const QString &jour
 void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
     // Only for disk-based sources
-    if (source.type() == JournalSource::JournalSourceType::ISISNetwork)
+    if (source.type() == JournalSource::IndexingType::NetworkStatic)
         throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
     QJsonObject data;
-    data["rootUrl"] = source.rootUrl();
-    data["dataDirectory"] = source.runDataDirectory();
-    data["filename"] = source.indexFile();
+    data["journalRootUrl"] = source.journalRootUrl();
+    data["runDataRootUrl"] = source.runDataRootUrl();
+    data["filename"] = source.journalIndexFilename();
     data["dataOrganisation"] = JournalSource::dataOrganisationType(source.runDataOrganisation());
 
     postRequest(createRoute("generate/scan"), data, handler);

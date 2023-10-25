@@ -30,7 +30,7 @@ bool MainWindow::parseInstruments(const QDomDocument &source)
 
         // Data locations
         inst.setJournalDirectory(instElement.attribute("journalDirectory"));
-        inst.setDataDirectory(instElement.attribute("dataDirectory"));
+        inst.setDataDirectory(instElement.attribute("runDataRootUrl"));
 
         // If display columns are defined parse them now, otherwise assign defaults based on instrument
         auto columns = instElement.elementsByTagName("columns");

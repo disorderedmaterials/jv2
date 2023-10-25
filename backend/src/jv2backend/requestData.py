@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+    # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import typing
@@ -29,8 +29,8 @@ class RequestData:
                  require_run_numbers=False,
                  require_parameter=None) -> None:
         """Set up the class. The POST data contains the following:
-              rootUrl: The main, root URL path (http or file)
-            directory: [OPTIONAL] Directory within the rootUrl to consider
+          journalRoot: The main, root URL path (http or file)
+            directory: [OPTIONAL] Directory within the journalRoot to consider
         dataDirectory: [OPTIONAL] Associated run data directory
              filename: [OPTIONAL] Target filename
 
@@ -53,9 +53,9 @@ class RequestData:
         self._is_http: bool = False
 
         # Root url is always required
-        if "rootUrl" not in requestData:
+        if "journalRootUrl" not in requestData:
             raise InvalidRequest("No root URL provided in request.")
-        self._root_url = requestData["rootUrl"]
+        self._root_url = requestData["journalRootUrl"]
 
         # Determine whether this is a network or file url
         self._is_http = (self._root_url.lower().startswith("http://") or
@@ -75,8 +75,8 @@ class RequestData:
                                  f"in library.")
 
         # Was a data directory provided / required?
-        self._data_directory = (requestData["dataDirectory"]
-                                if "dataDirectory" in requestData else None)
+        self._data_directory = (requestData["runDataRootUrl"]
+                                if "runDataRootUrl" in requestData else None)
         if require_data_directory and self._data_directory is None:
             raise InvalidRequest(f"Data directory required for URL "
                                  f"'{self._full_url}'.")
@@ -106,12 +106,12 @@ class RequestData:
 
     @property
     def url(self) -> str:
-        """Return the full URL (rootUrl plus any optional directory)"""
+        """Return the full URL (journalRoot plus any optional directory)"""
         return self._full_url
 
     @property
     def root_url(self) -> str:
-        """Return the rootUrl"""
+        """Return the journalRoot"""
         return self._root_url
 
     @property
