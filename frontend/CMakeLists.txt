@@ -57,7 +57,6 @@ qt6_add_executable(
   httpRequestWorker.h
   instruments.cpp
   journalSources.cpp
-  journals.cpp
   massSearch.cpp
   mainWindow.cpp
   mainWindow.cpp

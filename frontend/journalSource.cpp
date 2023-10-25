@@ -18,7 +18,7 @@ QString JournalSource::journalSourceType(JournalSource::JournalSourceType type)
 }
 
 // Convert text string to JournalSource type
-JournalSource::JournalSourceType JournalSource::journalSourceType(QString typeString)
+JournalSource::JournalSourceType JournalSource::journalSourceType(const QString &typeString)
 {
     if (typeString.toLower() == "isisnetwork")
         return JournalSourceType::ISISNetwork;
@@ -94,3 +94,52 @@ void JournalSource::setState(JournalSourceState state) { state_ = state; }
 
 // Return current state of the journal source
 JournalSource::JournalSourceState JournalSource::state() const { return state_; }
+
+/*
+ * Journals
+ */
+
+// Clear current journals
+void JournalSource::clearJournals()
+{
+    journals_.clear();
+    currentJournal_ = std::nullopt;
+}
+
+// Add new journal
+Journal &JournalSource::addJournal(const QString &name, const Locator &location)
+{
+    auto &journal = journals_.emplace_back(name);
+    journal.setLocation(location);
+
+    return journal;
+}
+
+// Return available journals
+const std::vector<Journal> &JournalSource::journals() const { return journals_; }
+
+// Find named journal
+OptionalReferenceWrapper<Journal> JournalSource::findJournal(const QString &name)
+{
+    auto journalIt =
+        std::find_if(journals_.begin(), journals_.end(), [name](const auto &journal) { return journal.name() == name; });
+
+    if (journalIt == journals_.end())
+        return std::nullopt;
+
+    return *journalIt;
+}
+
+// Set current journal being displayed
+void JournalSource::setCurrentJournal(QString name)
+{
+    // Find the journal specified
+    auto optJournal = findJournal(name);
+    if (!optJournal)
+        throw(std::runtime_error("Selected journal does not exist!\n"));
+
+    currentJournal_ = *optJournal;
+}
+
+// Return current journal
+OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return currentJournal_; }

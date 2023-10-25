@@ -124,7 +124,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
     ui_.MainTabs->setTabToolTip(ui_.MainTabs->count() - 1, toolTip);
     chartView->setFocus();
 
-    QString cycle = currentJournal_->get().location().filename();
+    QString cycle = currentJournal().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 }
 
@@ -266,7 +266,7 @@ void MainWindow::runDivide(QString currentDetector, QString run, bool checked)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    QString cycle = currentJournal_->get().location().filename();
+    QString cycle = currentJournal().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusDetector(currentJournal().location(), {run.toInt()}, currentDetector.toInt(),
@@ -285,7 +285,7 @@ void MainWindow::monDivide(QString currentRun, QString mon, bool checked)
         yAxisTitle.remove(modifier);
     window->getChartView()->chart()->axes(Qt::Vertical)[0]->setTitleText(yAxisTitle);
 
-    QString cycle = currentJournal_->get().location().filename();
+    QString cycle = currentJournal().location().filename();
     cycle.replace(0, 7, "cycle").replace(".xml", "");
 
     backend_.getNexusMonitor(currentJournal().location(), {currentRun.toInt()}, mon.toInt(),

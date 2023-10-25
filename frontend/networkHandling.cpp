@@ -82,7 +82,11 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
         statusBar()->showMessage("Search query not found", 5000);
         return;
     }
-    if (currentJournal_ && currentJournal_->get().name() == worker->response)
+
+    // Locate the journal returned
+    auto optJournal = currentJournalSource().findJournal(worker->response);
+
+    if (optJournal && optJournal->get().name() == worker->response)
     {
         highlightRunNumber(runNumber);
         return;
@@ -90,7 +94,7 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
 
     for (auto i = 0; i < journalsMenu_->actions().count(); i++)
     {
-        if (currentJournal_ && currentJournal_->get().name() == worker->response)
+        if (journalsMenu_->actions()[i]->text() == worker->response)
         {
             setCurrentJournal(journalsMenu_->actions()[i]->text());
             highlightRunNumber(runNumber);

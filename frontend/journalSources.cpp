@@ -4,6 +4,7 @@
 #include "mainWindow.h"
 #include <QDomDocument>
 #include <QFile>
+#include <QMessageBox>
 
 /*
  * Private Functions
@@ -77,8 +78,9 @@ void MainWindow::getDefaultJournalSources()
 // Set current journal source
 void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
 {
-    // Clear any existing journal (and run) data
-    clearJournals();
+    // Clear any existing data
+    clearRunData();
+    journalsMenu_->clear();
 
     // If no source is specified, we're done
     if (!optName)
@@ -111,7 +113,7 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
 }
 
 // Return current journal source
-const JournalSource &MainWindow::currentJournalSource() const
+JournalSource &MainWindow::currentJournalSource() const
 {
     if (currentJournalSource_)
         return currentJournalSource_->get();
@@ -119,8 +121,29 @@ const JournalSource &MainWindow::currentJournalSource() const
     throw(std::runtime_error("No current journal source defined.\n"));
 }
 
+// Set current journal in the current journal source
+void MainWindow::setCurrentJournal(const QString &name)
+{
+    currentJournalSource().setCurrentJournal(name);
+
+    ui_.journalButton->setText(name);
+
+    updateForCurrentSource(JournalSource::JournalSourceState::Loading);
+
+    backend_.getJournal(currentJournal().location(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+}
+
+// Return selected journal in current source (assuming one is selected)
+Journal &MainWindow::currentJournal() const
+{
+    if (currentJournalSource_ && currentJournalSource_->get().currentJournal())
+        return currentJournalSource_->get().currentJournal()->get();
+
+    throw(std::runtime_error("No current journal can be assumed (either the source or the selected journal is not defined.\n"));
+}
+
 /*
- * Private Slots
+ * UI
  */
 
 void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
@@ -129,4 +152,97 @@ void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
         setCurrentJournalSource({});
     else
         setCurrentJournalSource(ui_.JournalSourceComboBox->currentText());
+}
+
+/*
+ * Network Handling
+ */
+
+// Handle returned journal information for an instrument
+void MainWindow::handleListJournals(HttpRequestWorker *worker)
+{
+    // Clear existing data
+    clearRunData();
+    journalsMenu_->clear();
+
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to list journals"))
+    {
+        ui_.NetworkErrorInfoLabel->setText(worker->response);
+        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+        return;
+    }
+
+    // Special case - for disk-based sources we may get an error stating that the index file was not found.
+    // This may just be because it hasn't been generated yet, so we can offer to do it now...
+    if (worker->response.startsWith("\"Index File Not Found\""))
+    {
+        auto &journalSource = currentJournalSource();
+
+        updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
+
+        bool orgByInst = journalSource.instrumentSubdirectories();
+        auto rootUrl = orgByInst ? QString("%1/%2").arg(currentJournalSource().rootUrl(), currentInstrument().name())
+                                 : currentJournalSource().rootUrl();
+
+        if (QMessageBox::question(this, "Index File Doesn't Exist",
+                                  QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
+                                      .arg(rootUrl, currentJournalSource().indexFile())) == QMessageBox::StandardButton::Yes)
+        {
+            bool orgByInst = currentJournalSource_->get().instrumentSubdirectories();
+
+            backend_.listDataDirectory(currentJournalSource(), orgByInst ? currentInstrument().journalDirectory() : "",
+                                       [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
+
+            return;
+        }
+    }
+
+    // Add returned journals
+    for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
+    {
+        auto value = worker->jsonArray[i].toObject();
+
+        currentJournalSource().addJournal(
+            value["display_name"].toString(),
+            {value["server_root"].toString(), value["directory"].toString(), value["filename"].toString()});
+
+        auto *action = new QAction(value["display_name"].toString(), this);
+        connect(action, &QAction::triggered, [=]() { setCurrentJournal(value["display_name"].toString()); });
+        journalsMenu_->addAction(action);
+    }
+
+    // If there is no current journal, set one
+    if (!currentJournalSource().currentJournal() && !currentJournalSource().journals().empty())
+            setCurrentJournal(currentJournalSource().journals().front().name());
+    else
+        updateForCurrentSource(JournalSource::JournalSourceState::OK);
+}
+
+// Handle get journal updates result
+void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
+{
+    // A null response indicates no change
+    if (worker->response.startsWith("null"))
+        return;
+
+    // The main body of the request contains any run numbers we don't currently have.
+    // If we are currently displaying grouped data we append the new data directly then refresh the grouping
+    if (ui_.GroupRunsButton->isChecked())
+    {
+        foreach (const auto &item, worker->jsonArray)
+            runData_.append(item);
+
+        generateGroupedData();
+
+        runDataModel_.setData(groupedRunData_);
+        runDataModel_.setHorizontalHeaders(groupedRunDataColumns_);
+
+        ui_.RunDataTable->resizeColumnsToContents();
+    }
+    else
+    {
+        // Update via the model
+        runDataModel_.appendData(worker->jsonArray);
+    }
 }

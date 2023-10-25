@@ -57,7 +57,7 @@ class MainWindow : public QMainWindow
     private:
     // Known journal sources
     std::vector<JournalSource> journalSources_;
-    // Currently selected instjournal source (if any)
+    // Currently selected journal source (if any)
     OptionalReferenceWrapper<JournalSource> currentJournalSource_;
 
     private:
@@ -68,10 +68,20 @@ class MainWindow : public QMainWindow
     // Set current journal source
     void setCurrentJournalSource(std::optional<QString> optName);
     // Return current journal source
-    const JournalSource &currentJournalSource() const;
+    JournalSource &currentJournalSource() const;
+    // Set current journal in the current journal source
+    void setCurrentJournal(const QString &name);
+    // Return selected journal in current source (assuming one is selected)
+    Journal &currentJournal() const;
 
     private slots:
     void on_JournalSourceComboBox_currentIndexChanged(int index);
+
+    private:
+    // Handle get journal updates result
+    void handleGetJournalUpdates(HttpRequestWorker *workers);
+    // Handle returned journal information for an instrument
+    void handleListJournals(HttpRequestWorker *worker);
 
     /*
      * Instruments
@@ -95,34 +105,6 @@ class MainWindow : public QMainWindow
     void setCurrentInstrument(QString name);
     // Return current instrument
     const Instrument &currentInstrument() const;
-
-    /*
-     * Journals
-     */
-    private:
-    // Available journals
-    std::vector<Journal> journals_;
-    // Currently selected journal (if any)
-    OptionalReferenceWrapper<Journal> currentJournal_;
-
-    private:
-    // Clear current journals
-    void clearJournals();
-    // Add new journal
-    Journal &addJournal(const QString &name, const Locator &location);
-    // Find named journal
-    OptionalReferenceWrapper<Journal> findJournal(const QString &name);
-    // Set current journal being displayed
-    void setCurrentJournal(QString name);
-    void setCurrentJournal(Journal &journal);
-    // Return current journal
-    const Journal &currentJournal() const;
-
-    private:
-    // Handle get journal updates result
-    void handleGetJournalUpdates(HttpRequestWorker *workers);
-    // Handle returned journal information for an instrument
-    void handleListJournals(HttpRequestWorker *worker);
 
     /*
      * Run Data
