@@ -28,24 +28,22 @@ bool MainWindow::parseJournalSources(const QDomDocument &source)
         auto sourceName = sourceElement.attribute("name");
 
         // Get source type
-        auto sourceType = JournalSource::journalSourceType(sourceElement.attribute("type", "Disk"));
-
-        // Get source root URL
-        auto sourceRootURL = sourceElement.attribute("rootUrl");
-
-        // Data directory and main index file name
-        auto sourceDataDirectory = sourceElement.attribute("dataDirectory");
-        auto sourceIndexFile = sourceElement.attribute("indexFile");
-
-        // Whether the journals / data are organised by known instrument
-        auto organisedByInstrument = sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true";
-
-        // Get run data organisation type
-        auto runDataOrgType = JournalSource::dataOrganisationType(sourceElement.attribute("dataOrganisation", "Directory"));
+        auto sourceType = JournalSource::indexingType(sourceElement.attribute("type", "Generated"));
 
         // Create the source
-        auto &journalSource = journalSources_.emplace_back(sourceName, sourceType, sourceRootURL, sourceDataDirectory,
-                                                           sourceIndexFile, organisedByInstrument, runDataOrgType);
+        auto &journalSource = journalSources_.emplace_back(sourceName, sourceType);
+
+        // Set whether the journals / data are organised by known instrument
+        auto organisedByInstrument = sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true";
+
+        // Set journal data
+        journalSource.setJournalData(sourceElement.attribute("journalRootUrl"),
+                                     sourceElement.attribute("journalIndexFilename"));
+
+        // Run data
+        journalSource.setRunDataLocation(
+            sourceElement.attribute("runDataRootUrl"),
+            JournalSource::dataOrganisationType(sourceElement.attribute("dataOrganisation", "Directory")));
     }
 
     // Populate the combo box with options

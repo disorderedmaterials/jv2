@@ -26,8 +26,8 @@ def add_routes(
         """Return the list of journal files in a specified location
 
         The POST data should contain:
-              rootUrl: The root network or disk location for the journals
-            directory: The directory in rootUrl to probe for journals
+              journalRoot: The root network or disk location for the journals
+            directory: The directory in journalRoot to probe for journals
         dataDirectory: Associated run data location
              filename: Name of the index file in the directory
 
@@ -44,7 +44,7 @@ def add_routes(
         logging.debug(f"Listing journals at {postData.url}")
 
         # If we already have a library collection for the specified
-        # rootUrl/directory, just return it
+        # journalRoot/directory, just return it
         if postData.journal_collection is not None:
             logging.debug(
                 f"Returning existing journal collection for \
@@ -59,8 +59,8 @@ def add_routes(
         """Return the specified journal contents
 
         The POST data should contain:
-             rootUrl: The root network or disk location for the journal
-           directory: The directory in rootUrl containing the journal
+             journalRoot: The root network or disk location for the journal
+           directory: The directory in journalRoot containing the journal
             filename: Name of the target journal file
 
         :return: A JSON reponse containing the journal data, or an error
@@ -83,8 +83,8 @@ def add_routes(
         run data
 
         The POST data should contain:
-             rootUrl: The root network or disk location for the journal
-           directory: The directory in rootUrl containing the journal
+             journalRoot: The root network or disk location for the journal
+           directory: The directory in journalRoot containing the journal
             filename: Name of the target journal file
 
         :return: A JSON-formatted list of new run data, or None

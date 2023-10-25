@@ -9,16 +9,16 @@
 class JournalSource
 {
     public:
-    // JournalSource Types
-    enum class JournalSourceType
+    // Indexing Types
+    enum class IndexingType
     {
-        ISISNetwork,
-        Disk
+        NetworkStatic,
+        Generated
     };
-    // Return text string for specified JournalSource type
-    static QString journalSourceType(JournalSourceType type);
-    // Convert text string to JournalSource type
-    static JournalSourceType journalSourceType(QString typeString);
+    // Return text string for specified IndexingType type
+    static QString indexingType(IndexingType type);
+    // Convert text string to IndexingType type
+    static IndexingType indexingType(QString typeString);
     // Data Organisation Types
     enum class DataOrganisationType
     {
@@ -45,8 +45,7 @@ class JournalSource
     };
 
     public:
-    JournalSource(QString name, JournalSourceType type, QString rootUrl, QString runDataDirectory, QString indexFile,
-                  bool instrumentSubdirectories_, DataOrganisationType runDataOrganisation);
+    JournalSource(QString name, IndexingType type);
 
     /*
      * Basic Data
@@ -55,31 +54,51 @@ class JournalSource
     // Name (used for display)
     QString name_;
     // Type
-    JournalSourceType type_;
-    // Root URL for the journal source
-    QString rootUrl_;
-    // Directory containing associated run data
-    QString runDataDirectory_;
-    // Name of the index file in the main directories, if known
-    QString indexFile_;
+    IndexingType type_;
     // Whether this source has instrument subdirectories
     bool instrumentSubdirectories_{true};
-    // Run data organisation
-    DataOrganisationType runDataOrganisation_;
 
     public:
     // Return name (used for display)
     const QString &name() const;
     // Return type
-    JournalSourceType type() const;
-    // Return root URL for the source
-    const QString &rootUrl() const;
-    // Return directory containing associated run data
-    const QString &runDataDirectory() const;
-    // Return name of the index file in the main directories, if known
-    const QString &indexFile() const;
+    IndexingType type() const;
+    // Set whether this source has instrument subdirectories
+    void setInstrumentSubdirectories(bool b);
     // Return whether this source has instrument subdirectories
     bool instrumentSubdirectories() const;
+
+    /*
+     * Journal Data
+     */
+    public:
+    // Root URL for the journal source (if available)
+    QString journalRootUrl_;
+    // Journal index filename
+    QString journalIndexFilename_;
+
+    public:
+    // Set journal data
+    void setJournalData(const QString &journalRootUrl, const QString &indexFilename);
+    // Root URL for the journal source (if available)
+    const QString &journalRootUrl() const;
+    // Return journal index filename
+    const QString &journalIndexFilename() const;
+
+    /*
+     * Associated Run Data
+     */
+    private:
+    // Root URL containing associated run data
+    QString runDataRootUrl_;
+    // Run data organisation
+    DataOrganisationType runDataOrganisation_;
+
+    public:
+    // Set run data location
+    void setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType orgType);
+    // Return root URL containing associated run data
+    const QString &runDataRootUrl() const;
     // Return run data organisation
     DataOrganisationType runDataOrganisation() const;
 

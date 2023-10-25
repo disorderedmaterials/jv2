@@ -3,29 +3,29 @@
 
 #include "journalSource.h"
 
-// Return text string for specified JournalSource type
-QString JournalSource::journalSourceType(JournalSource::JournalSourceType type)
+// Return text string for specified IndexingType type
+QString JournalSource::indexingType(JournalSource::IndexingType type)
 {
     switch (type)
     {
-        case (JournalSourceType::ISISNetwork):
-            return "ISISArchive";
-        case (JournalSourceType::Disk):
-            return "Disk";
+        case (IndexingType::NetworkStatic):
+            return "NetworkStatic";
+        case (IndexingType::Generated):
+            return "Generated";
         default:
-            throw(std::runtime_error("JournalSource type not known and can't be converted to a QString.\n"));
+            throw(std::runtime_error("IndexingType type not known and can't be converted to a QString.\n"));
     }
 }
 
-// Convert text string to JournalSource type
-JournalSource::JournalSourceType JournalSource::journalSourceType(QString typeString)
+// Convert text string to IndexingType type
+JournalSource::IndexingType JournalSource::indexingType(QString typeString)
 {
-    if (typeString.toLower() == "isisnetwork")
-        return JournalSourceType::ISISNetwork;
-    else if (typeString.toLower() == "disk")
-        return JournalSourceType::Disk;
+    if (typeString.toLower() == "networkstatic")
+        return IndexingType::NetworkStatic;
+    else if (typeString.toLower() == "generated")
+        return IndexingType::Generated;
     else
-        throw(std::runtime_error("JournalSource string can't be converted to a JournalSourceType.\n"));
+        throw(std::runtime_error("IndexingType string can't be converted to a IndexingType.\n"));
 }
 
 // Return text string for specified DataOrganisationType
@@ -53,12 +53,7 @@ JournalSource::DataOrganisationType JournalSource::dataOrganisationType(QString 
         throw(std::runtime_error("DataOrganisationType string can't be converted to a DataOrganisationType.\n"));
 }
 
-JournalSource::JournalSource(QString name, JournalSourceType type, QString rootUrl, QString runDataDirectory, QString indexFile,
-                             bool instrumentSubdirectories, DataOrganisationType runDataOrganisation)
-    : name_(name), type_(type), rootUrl_(rootUrl), runDataDirectory_(runDataDirectory), indexFile_(indexFile),
-      instrumentSubdirectories_(instrumentSubdirectories), runDataOrganisation_(runDataOrganisation)
-{
-}
+JournalSource::JournalSource(QString name, IndexingType type) : name_(name), type_(type) {}
 
 /*
  * Basic Data
@@ -68,19 +63,44 @@ JournalSource::JournalSource(QString name, JournalSourceType type, QString rootU
 const QString &JournalSource::name() const { return name_; }
 
 // Return type
-JournalSource::JournalSourceType JournalSource::type() const { return type_; }
+JournalSource::IndexingType JournalSource::type() const { return type_; }
 
-// Return root URL for the source
-const QString &JournalSource::rootUrl() const { return rootUrl_; }
-
-// Return directory containing associated run data
-const QString &JournalSource::runDataDirectory() const { return runDataDirectory_; }
-
-// Return name of the index file in the main directories, if known
-const QString &JournalSource::indexFile() const { return indexFile_; }
+// Set whether this source has instrument subdirectories
+void JournalSource::setInstrumentSubdirectories(bool b) { instrumentSubdirectories_ = b; }
 
 // Return whether this source has instrument subdirectories
 bool JournalSource::instrumentSubdirectories() const { return instrumentSubdirectories_; }
+
+/*
+ * Journal Data
+ */
+
+// Set journal data
+void JournalSource::setJournalData(const QString &journalRootUrl, const QString &indexFilename)
+{
+    journalRootUrl_ = journalRootUrl;
+    journalIndexFilename_ = indexFilename;
+}
+
+// Root URL for the journal source (if available)
+const QString &JournalSource::journalRootUrl() const { return journalRootUrl_; }
+
+// Return name of the index file in the main directories, if known
+const QString &JournalSource::journalIndexFilename() const { return journalIndexFilename_; }
+
+/*
+ * Associated Run Data
+ */
+
+// Set run data location
+void JournalSource::setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType orgType)
+{
+    runDataRootUrl_ = runDataRootUrl;
+    runDataOrganisation_ = orgType;
+}
+
+// Return root URL containing associated run data
+const QString &JournalSource::runDataRootUrl() const { return runDataRootUrl_; }
 
 // Return run data organisation
 JournalSource::DataOrganisationType JournalSource::runDataOrganisation() const { return runDataOrganisation_; }
