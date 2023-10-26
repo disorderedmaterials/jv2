@@ -3,6 +3,7 @@
 
 #include "journalSource.h"
 #include "instrument.h"
+#include <QJsonArray>
 
 // Return text string for specified IndexingType type
 QString JournalSource::indexingType(JournalSource::IndexingType type)
@@ -90,17 +91,22 @@ void JournalSource::clearJournals()
     currentJournal_ = std::nullopt;
 }
 
-// Add new journal
-Journal &JournalSource::addJournal(const QString &name, const Locator &location)
+// Set journals
+void JournalSource::setJournals(const QJsonArray &journalData)
 {
-    auto &journal = journals_.emplace_back(name);
-    journal.setLocation(location);
+    clearJournals();
 
-    // If we have no current journal, set it as this one
-    if (!currentJournal_)
-        currentJournal_ = journal;
+    for (auto i = journalData.count() - 1; i >= 0; i--)
+    {
+        auto value = journalData[i].toObject();
 
-    return journal;
+        auto &journal = journals_.emplace_back(value["display_name"].toString());
+        journal.setLocation({value["server_root"].toString(), value["directory"].toString(), value["filename"].toString()});
+    }
+
+    // Set a current journal
+    if (!journals_.empty())
+        currentJournal_ = journals_.front();
 }
 
 // Return available journals

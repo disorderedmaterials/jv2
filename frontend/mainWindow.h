@@ -32,6 +32,8 @@ class MainWindow : public QMainWindow
     private:
     Ui::MainWindow ui_;
     bool init_;
+    // Whether UI controls are currently being updated with new data
+    bool controlsUpdating_{false};
     // Main backend class
     Backend backend_;
 

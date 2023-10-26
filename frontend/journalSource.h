@@ -91,8 +91,8 @@ class JournalSource
     const QString &journalIndexFilename() const;
     // Clear current journals
     void clearJournals();
-    // Add new journal
-    Journal &addJournal(const QString &name, const Locator &location);
+    // Set journals
+    void setJournals(const QJsonArray &journalData);
     // Return available journals
     std::vector<Journal> &journals();
     // Find named journal

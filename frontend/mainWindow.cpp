@@ -21,7 +21,6 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Get available instrument data
     getDefaultInstruments();
     instrumentModel_.setData(instruments_);
-    ui_.InstrumentComboBox->setModel(&instrumentModel_);
 
     // Define initial variable states
     init_ = true;
@@ -29,6 +28,10 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     groupedRunDataColumns_.emplace_back("Run Numbers", "run_number");
     groupedRunDataColumns_.emplace_back("Title", "title");
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
+
+    // Connect models
+    ui_.InstrumentComboBox->setModel(&instrumentModel_);
+    ui_.JournalComboBox->setModel(&journalModel_);
 
     // Set up the main data table
     ui_.RunDataTable->setModel(&runDataFilterProxy_);
@@ -69,6 +72,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     {
         ui_.InstrumentComboBox->setEnabled(false);
         ui_.JournalComboBox->setEnabled(false);
+        journalModel_.setData(std::nullopt);
 
         ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoBackendError);
     }

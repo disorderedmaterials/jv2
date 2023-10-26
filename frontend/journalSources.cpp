@@ -145,7 +145,7 @@ void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
 
 void MainWindow::on_JournalComboBox_currentIndexChanged(int index)
 {
-    if (!currentJournalSource_)
+    if (!currentJournalSource_ || controlsUpdating_)
         return;
 
     currentJournalSource().setCurrentJournal(index);
@@ -162,6 +162,8 @@ void MainWindow::on_JournalComboBox_currentIndexChanged(int index)
 // Handle returned journal information for an instrument
 void MainWindow::handleListJournals(HttpRequestWorker *worker)
 {
+    controlsUpdating_ = true;
+
     // Clear existing data
     clearRunData();
     journalModel_.setData(std::nullopt);
@@ -201,20 +203,14 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     }
 
     // Add returned journals
-    for (auto i = worker->jsonArray.count() - 1; i >= 0; i--)
-    {
-        auto value = worker->jsonArray[i].toObject();
-
-        journalSource.addJournal(
-            value["display_name"].toString(),
-            {value["server_root"].toString(), value["directory"].toString(), value["filename"].toString()});
-    }
+    journalSource.setJournals(worker->jsonArray);
 
     journalModel_.setData(journalSource.journals());
 
+    controlsUpdating_ = false;
+
     // Now have a new current journal, so retrieve it
-    backend_.getJournal(currentJournalSource(),
-                        [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
+    backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 }
 
 // Handle get journal updates result
