@@ -6,7 +6,7 @@
 #include "backend.h"
 #include "httpRequestWorker.h"
 #include "instrumentModel.h"
-#include "journal.h"
+#include "journalModel.h"
 #include "journalSource.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
@@ -31,7 +31,6 @@ class MainWindow : public QMainWindow
      */
     private:
     Ui::MainWindow ui_;
-    QMenu *journalsMenu_;
     bool init_;
     // Main backend class
     Backend backend_;
@@ -58,6 +57,8 @@ class MainWindow : public QMainWindow
     std::vector<JournalSource> journalSources_;
     // Currently selected journal source (if any)
     OptionalReferenceWrapper<JournalSource> currentJournalSource_;
+    // Model for available journals
+    JournalModel journalModel_;
 
     private:
     // Parse journal source from specified source
@@ -68,13 +69,12 @@ class MainWindow : public QMainWindow
     void setCurrentJournalSource(std::optional<QString> optName);
     // Return current journal source
     JournalSource &currentJournalSource() const;
-    // Set current journal in the current journal source
-    void setCurrentJournal(const QString &name);
     // Return selected journal in current source (assuming one is selected)
     Journal &currentJournal() const;
 
     private slots:
     void on_JournalSourceComboBox_currentIndexChanged(int index);
+    void on_JournalComboBox_currentIndexChanged(int index);
 
     private:
     // Handle get journal updates result
@@ -96,8 +96,6 @@ class MainWindow : public QMainWindow
     bool parseInstruments(const QDomDocument &source);
     // Get default instrument complement
     void getDefaultInstruments();
-    // Fill instrument list
-    void fillInstruments();
 
     private slots:
     void on_InstrumentComboBox_currentIndexChanged(int index);

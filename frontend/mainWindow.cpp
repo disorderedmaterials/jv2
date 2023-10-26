@@ -68,7 +68,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     if (!currentJournalSource_)
     {
         ui_.InstrumentComboBox->setEnabled(false);
-        ui_.journalButton->setEnabled(false);
+        ui_.JournalComboBox->setEnabled(false);
 
         ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoBackendError);
     }
@@ -87,12 +87,12 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     if (source.state() == JournalSource::JournalSourceState::OK)
     {
         ui_.InstrumentComboBox->setEnabled(source.instrumentSubdirectories());
-        ui_.journalButton->setEnabled(true);
+        ui_.JournalComboBox->setEnabled(true);
     }
     else
     {
         ui_.InstrumentComboBox->setEnabled(false);
-        ui_.journalButton->setEnabled(false);
+        ui_.JournalComboBox->setEnabled(false);
     }
 
     // Set the main stack page to correspond to the state enum
@@ -109,10 +109,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (currentInstrument())
+    if (currentJournalSource_)
     {
+        settings.setValue("recentSource", currentJournalSource().name());
         settings.setValue("recentInstrument", currentInstrument()->get().name());
-        settings.setValue("recentJournal", ui_.journalButton->text());
+        settings.setValue("recentJournal", currentInstrument()->get().name());
     }
 
     // Shut down backend
@@ -163,9 +164,6 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
         QTimer *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
         timer->start(30000);
-
-        // Update the GUI
-        fillInstruments();
 
         // Get default journal sources
         getDefaultJournalSources();

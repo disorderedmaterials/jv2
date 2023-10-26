@@ -84,11 +84,11 @@ void MainWindow::massSearch(QString name, QString value)
     {
         if (std::get<1>(tuple) == text)
         {
-            for (QAction *action : journalsMenu_->actions())
-            {
-                if (action->text() == "[" + std::get<1>(tuple) + "]")
-                    action->trigger();
-            }
+            //            for (QAction *action : journalsMenu_->actions())
+            //            {
+            //                if (action->text() == "[" + std::get<1>(tuple) + "]")
+            //                    action->trigger();
+            //            }
 
             return;
         }
@@ -106,10 +106,10 @@ void MainWindow::massSearch(QString name, QString value)
     // configure caching [FIXME]
     cachedMassSearch_.append(std::make_tuple(nullptr, text));
 
-    auto *action = new QAction("[" + text + "]", this);
+    //    auto *action = new QAction("[" + text + "]", this);
     // connect(action, &QAction::triggered, [=]() { setCurrentCycle("[" + text + "]"); });  [FIXME]!
-    journalsMenu_->addAction(action);
-    ui_.journalButton->setText("[" + text + "]");
+    //    journalsMenu_->addAction(action);
+    //    ui_.journalButton->setText("[" + text + "]");
 }
 
 /*
@@ -129,13 +129,13 @@ void MainWindow::on_actionMassSearchDateRange_triggered() { massSearch("Date Ran
 void MainWindow::on_actionClearCachedSearches_triggered()
 {
     cachedMassSearch_.clear();
-    for (auto i = journalsMenu_->actions().count() - 1; i >= 0; i--)
-    {
-        if (journalsMenu_->actions()[i]->text()[0] == '[')
-        {
-            journalsMenu_->removeAction(journalsMenu_->actions()[i]);
-        }
-    }
-    if (ui_.journalButton->text()[0] == '[')
-        journalsMenu_->actions()[0]->trigger();
+    //    for (auto i = journalsMenu_->actions().count() - 1; i >= 0; i--)
+    //    {
+    //        if (journalsMenu_->actions()[i]->text()[0] == '[')
+    //        {
+    //            journalsMenu_->removeAction(journalsMenu_->actions()[i]);
+    //        }
+    //    }
+    //    if (ui_.journalButton->text()[0] == '[')
+    //        journalsMenu_->actions()[0]->trigger();
 }

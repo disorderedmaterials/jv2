@@ -114,14 +114,7 @@
                 </layout>
                </item>
                <item>
-                <widget class="QPushButton" name="journalButton">
-                 <property name="contextMenuPolicy">
-                  <enum>Qt::CustomContextMenu</enum>
-                 </property>
-                 <property name="text">
-                  <string>&lt;JOURNAL&gt;</string>
-                 </property>
-                </widget>
+                <widget class="QComboBox" name="JournalComboBox"/>
                </item>
               </layout>
              </widget>

@@ -55,16 +55,6 @@ void MainWindow::getDefaultInstruments()
         throw(std::runtime_error("Couldn't parse internal instrument data.\n"));
 }
 
-// Fill instrument list
-void MainWindow::fillInstruments()
-{
-    // Only allow calls after initial population
-    journalsMenu_ = new QMenu("cyclesMenu");
-
-    connect(ui_.journalButton, &QPushButton::clicked,
-            [=]() { journalsMenu_->exec(ui_.journalButton->mapToGlobal(QPoint(0, ui_.journalButton->height()))); });
-}
-
 /*
  * UI
  */

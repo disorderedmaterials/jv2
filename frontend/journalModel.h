@@ -25,7 +25,7 @@ class JournalModel : public QAbstractListModel
 
     public:
     // Set the source data for the model
-    void setData(std::vector<Journal> &journals);
+    void setData(OptionalReferenceWrapper<std::vector<Journal>> journals);
 
     /*
      * QAbstractTableModel Overrides

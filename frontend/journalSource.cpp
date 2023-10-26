@@ -96,11 +96,15 @@ Journal &JournalSource::addJournal(const QString &name, const Locator &location)
     auto &journal = journals_.emplace_back(name);
     journal.setLocation(location);
 
+    // If we have no current journal, set it as this one
+    if (!currentJournal_)
+        currentJournal_ = journal;
+
     return journal;
 }
 
 // Return available journals
-const std::vector<Journal> &JournalSource::journals() const { return journals_; }
+std::vector<Journal> &JournalSource::journals() { return journals_; }
 
 // Find named journal
 OptionalReferenceWrapper<Journal> JournalSource::findJournal(const QString &name)
@@ -123,6 +127,15 @@ void JournalSource::setCurrentJournal(QString name)
         throw(std::runtime_error("Selected journal does not exist!\n"));
 
     currentJournal_ = *optJournal;
+}
+
+// Set current journal being displayed by index
+void JournalSource::setCurrentJournal(int index)
+{
+    if (index == -1 || index >= journals_.size())
+        currentJournal_ = std::nullopt;
+    else
+        currentJournal_ = journals_[index];
 }
 
 // Return current journal

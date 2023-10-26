@@ -93,12 +93,12 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
         return;
     }
 
-    for (auto i = 0; i < journalsMenu_->actions().count(); i++)
-    {
-        if (journalsMenu_->actions()[i]->text() == worker->response)
-        {
-            setCurrentJournal(journalsMenu_->actions()[i]->text());
-            highlightRunNumber(runNumber);
-        }
-    }
+    //    for (auto i = 0; i < journalsMenu_->actions().count(); i++)
+    //    {
+    //        if (journalsMenu_->actions()[i]->text() == worker->response)
+    //        {
+    //            setCurrentJournal(journalsMenu_->actions()[i]->text());
+    //            highlightRunNumber(runNumber);
+    //        }
+    //    }
 }

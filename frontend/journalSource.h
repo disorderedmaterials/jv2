@@ -94,11 +94,13 @@ class JournalSource
     // Add new journal
     Journal &addJournal(const QString &name, const Locator &location);
     // Return available journals
-    const std::vector<Journal> &journals() const;
+    std::vector<Journal> &journals();
     // Find named journal
     OptionalReferenceWrapper<Journal> findJournal(const QString &name);
-    // Set current journal being displayed
+    // Set current journal being displayed by name
     void setCurrentJournal(QString name);
+    // Set current journal being displayed by index
+    void setCurrentJournal(int index);
     // Return current journal
     OptionalReferenceWrapper<Journal> currentJournal() const;
 

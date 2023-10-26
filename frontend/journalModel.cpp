@@ -27,7 +27,7 @@ OptionalReferenceWrapper<Journal> JournalModel::getData(const QModelIndex &index
  */
 
 // Set the source data for the model
-void JournalModel::setData(std::vector<Journal> &journals)
+void JournalModel::setData(OptionalReferenceWrapper<std::vector<Journal>> journals)
 {
     beginResetModel();
     data_ = journals;
