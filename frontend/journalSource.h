@@ -91,7 +91,7 @@ class JournalSource
      */
     private:
     // Whether this source has instrument subdirectories
-    bool instrumentSubdirectories_{true};
+    bool instrumentSubdirectories_{false};
     // Currently selected instrument (if any)
     OptionalReferenceWrapper<const Instrument> currentInstrument_;
 

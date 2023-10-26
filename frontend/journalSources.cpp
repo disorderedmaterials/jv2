@@ -35,7 +35,7 @@ bool MainWindow::parseJournalSources(const QDomDocument &source)
         auto &journalSource = journalSources_.emplace_back(sourceName, sourceType);
 
         // Set whether the journals / data are organised by known instrument
-        auto organisedByInstrument = sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true";
+        journalSource.setInstrumentSubdirectories(sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true");
 
         // Set journal data
         journalSource.setJournalData(sourceElement.attribute("journalRootUrl"),
