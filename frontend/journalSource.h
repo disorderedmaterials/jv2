@@ -77,6 +77,10 @@ class JournalSource
     QString journalRootUrl_;
     // Journal index filename
     QString journalIndexFilename_;
+    // Available journals
+    std::vector<Journal> journals_;
+    // Currently selected journal (if any)
+    OptionalReferenceWrapper<Journal> currentJournal_;
 
     public:
     // Set journal data
@@ -85,6 +89,18 @@ class JournalSource
     const QString &journalRootUrl() const;
     // Return journal index filename
     const QString &journalIndexFilename() const;
+    // Clear current journals
+    void clearJournals();
+    // Add new journal
+    Journal &addJournal(const QString &name, const Locator &location);
+    // Return available journals
+    const std::vector<Journal> &journals() const;
+    // Find named journal
+    OptionalReferenceWrapper<Journal> findJournal(const QString &name);
+    // Set current journal being displayed
+    void setCurrentJournal(QString name);
+    // Return current journal
+    OptionalReferenceWrapper<Journal> currentJournal() const;
 
     /*
      * Instrument Subdirectories
@@ -143,27 +159,4 @@ class JournalSource
     void setState(JournalSourceState state);
     // Return current state of the journal source
     JournalSourceState state() const;
-
-    /*
-     * Journals
-     */
-    private:
-    // Available journals
-    std::vector<Journal> journals_;
-    // Currently selected journal (if any)
-    OptionalReferenceWrapper<Journal> currentJournal_;
-
-    public:
-    // Clear current journals
-    void clearJournals();
-    // Add new journal
-    Journal &addJournal(const QString &name, const Locator &location);
-    // Return available journals
-    const std::vector<Journal> &journals() const;
-    // Find named journal
-    OptionalReferenceWrapper<Journal> findJournal(const QString &name);
-    // Set current journal being displayed
-    void setCurrentJournal(QString name);
-    // Return current journal
-    OptionalReferenceWrapper<Journal> currentJournal() const;
 };

@@ -83,6 +83,51 @@ const QString &JournalSource::journalRootUrl() const { return journalRootUrl_; }
 // Return name of the index file in the main directories, if known
 const QString &JournalSource::journalIndexFilename() const { return journalIndexFilename_; }
 
+// Clear current journals
+void JournalSource::clearJournals()
+{
+    journals_.clear();
+    currentJournal_ = std::nullopt;
+}
+
+// Add new journal
+Journal &JournalSource::addJournal(const QString &name, const Locator &location)
+{
+    auto &journal = journals_.emplace_back(name);
+    journal.setLocation(location);
+
+    return journal;
+}
+
+// Return available journals
+const std::vector<Journal> &JournalSource::journals() const { return journals_; }
+
+// Find named journal
+OptionalReferenceWrapper<Journal> JournalSource::findJournal(const QString &name)
+{
+    auto journalIt =
+        std::find_if(journals_.begin(), journals_.end(), [name](const auto &journal) { return journal.name() == name; });
+
+    if (journalIt == journals_.end())
+        return std::nullopt;
+
+    return *journalIt;
+}
+
+// Set current journal being displayed
+void JournalSource::setCurrentJournal(QString name)
+{
+    // Find the journal specified
+    auto optJournal = findJournal(name);
+    if (!optJournal)
+        throw(std::runtime_error("Selected journal does not exist!\n"));
+
+    currentJournal_ = *optJournal;
+}
+
+// Return current journal
+OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return currentJournal_; }
+
 /*
  * Instrument Subdirectories
  */
@@ -157,52 +202,3 @@ QJsonObject JournalSource::currentJournalObjectData() const
     data["runDataRootUrl"] = runDataRootUrl_;
     return data;
 }
-
-/*
- * Journals
- */
-
-// Clear current journals
-void JournalSource::clearJournals()
-{
-    journals_.clear();
-    currentJournal_ = std::nullopt;
-}
-
-// Add new journal
-Journal &JournalSource::addJournal(const QString &name, const Locator &location)
-{
-    auto &journal = journals_.emplace_back(name);
-    journal.setLocation(location);
-
-    return journal;
-}
-
-// Return available journals
-const std::vector<Journal> &JournalSource::journals() const { return journals_; }
-
-// Find named journal
-OptionalReferenceWrapper<Journal> JournalSource::findJournal(const QString &name)
-{
-    auto journalIt =
-        std::find_if(journals_.begin(), journals_.end(), [name](const auto &journal) { return journal.name() == name; });
-
-    if (journalIt == journals_.end())
-        return std::nullopt;
-
-    return *journalIt;
-}
-
-// Set current journal being displayed
-void JournalSource::setCurrentJournal(QString name)
-{
-    // Find the journal specified
-    auto optJournal = findJournal(name);
-    if (!optJournal)
-        throw(std::runtime_error("Selected journal does not exist!\n"));
-
-    currentJournal_ = *optJournal;
-}
-
-// Return current journal
-OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return currentJournal_; }
