@@ -46,9 +46,8 @@ def add_routes(
         # If we already have a library collection for the specified
         # source, just return it
         if postData.journal_collection is not None:
-            logging.debug(
-                f"Returning existing journal collection for \
-                    {postData.library_key}")
+            logging.debug(f"Returning existing journal collection for "
+                          f"'{postData.library_key()}'")
             return postData.journal_collection.to_basic()
 
         # Parse the journal index
@@ -72,7 +71,7 @@ def add_routes(
             return jsonify(f"Error: {str(exc)}")
 
         logging.debug(f"Get journal {postData.journal_file_url()} "
-                      f"from {postData.library_key()}")
+                      f"from '{postData.library_key()}'")
 
         return journalLocator.get_journal_data(postData)
 
