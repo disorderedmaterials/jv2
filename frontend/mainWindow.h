@@ -89,8 +89,6 @@ class MainWindow : public QMainWindow
     private:
     // Available instruments
     std::vector<Instrument> instruments_;
-    // Currently selected instrument (if any)
-    OptionalReferenceWrapper<Instrument> currentInstrument_;
 
     private:
     // Parse instruments from specified source
@@ -101,10 +99,10 @@ class MainWindow : public QMainWindow
     void fillInstruments();
 
     private slots:
-    // Set current instrument
+    // Set current instrument in the active source
     void setCurrentInstrument(QString name);
-    // Return current instrument
-    const Instrument &currentInstrument() const;
+    // Return current instrument from active source
+    OptionalReferenceWrapper<const Instrument> currentInstrument() const;
 
     /*
      * Run Data

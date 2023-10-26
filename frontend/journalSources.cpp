@@ -105,9 +105,7 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     // Reset the state of the source since we can't assume the result of the index request
     currentJournalSource_->get().setState(JournalSource::JournalSourceState::Loading);
 
-    bool orgByInst = currentJournalSource_->get().instrumentSubdirectories();
-    backend_.listJournals(currentJournalSource(), orgByInst ? currentInstrument().journalDirectory() : "",
-                          [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.listJournals(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
 // Return current journal source
@@ -128,8 +126,7 @@ void MainWindow::setCurrentJournal(const QString &name)
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
-    backend_.getJournal(currentJournalSource(), currentJournal().location().directory(),
-                        [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+    backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 }
 
 // Return selected journal in current source (assuming one is selected)
@@ -180,18 +177,17 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
 
         updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
 
-        bool orgByInst = journalSource.instrumentSubdirectories();
-        auto rootUrl = orgByInst ? QString("%1/%2").arg(currentJournalSource().journalRootUrl(), currentInstrument().name())
-                                 : currentJournalSource().journalRootUrl();
+        bool orgByInst = journalSource.instrumentSubdirectories() && journalSource.currentInstrument();
+        auto rootUrl =
+            orgByInst ? QString("%1/%2").arg(journalSource.journalRootUrl(), journalSource.currentInstrument()->get().name())
+                      : journalSource.journalRootUrl();
 
         if (QMessageBox::question(this, "Index File Doesn't Exist",
                                   QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
                                       .arg(rootUrl, currentJournalSource().journalIndexFilename())) ==
             QMessageBox::StandardButton::Yes)
         {
-            bool orgByInst = currentJournalSource_->get().instrumentSubdirectories();
-
-            backend_.listDataDirectory(currentJournalSource(), orgByInst ? currentInstrument().journalDirectory() : "",
+            backend_.listDataDirectory(currentJournalSource(),
                                        [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
 
             return;

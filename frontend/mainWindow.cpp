@@ -101,9 +101,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (currentInstrument_)
+    if (currentInstrument())
     {
-        settings.setValue("recentInstrument", currentInstrument().name());
+        settings.setValue("recentInstrument", currentInstrument()->get().name());
         settings.setValue("recentJournal", ui_.journalButton->text());
     }
 

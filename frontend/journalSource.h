@@ -10,6 +10,7 @@
 
 // Forward Declarations
 class HttpRequestWorker;
+class Instrument;
 
 // Journal Source Definition
 class JournalSource
@@ -61,18 +62,12 @@ class JournalSource
     QString name_;
     // Type
     IndexingType type_;
-    // Whether this source has instrument subdirectories
-    bool instrumentSubdirectories_{true};
 
     public:
     // Return name (used for display)
     const QString &name() const;
     // Return type
     IndexingType type() const;
-    // Set whether this source has instrument subdirectories
-    void setInstrumentSubdirectories(bool b);
-    // Return whether this source has instrument subdirectories
-    bool instrumentSubdirectories() const;
 
     /*
      * Journal Data
@@ -90,6 +85,25 @@ class JournalSource
     const QString &journalRootUrl() const;
     // Return journal index filename
     const QString &journalIndexFilename() const;
+
+    /*
+     * Instrument Subdirectories
+     */
+    private:
+    // Whether this source has instrument subdirectories
+    bool instrumentSubdirectories_{true};
+    // Currently selected instrument (if any)
+    OptionalReferenceWrapper<const Instrument> currentInstrument_;
+
+    public:
+    // Set whether this source has instrument subdirectories
+    void setInstrumentSubdirectories(bool b);
+    // Return whether this source has instrument subdirectories
+    bool instrumentSubdirectories() const;
+    // Set current instrument
+    void setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst);
+    // Return current instrument
+    OptionalReferenceWrapper<const Instrument> currentInstrument() const;
 
     /*
      * Associated Run Data

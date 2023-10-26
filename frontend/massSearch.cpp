@@ -14,9 +14,9 @@
 // Perform mass search across cycles
 void MainWindow::massSearch(QString name, QString value)
 {
-    if (!currentInstrument_)
+    if (!currentInstrument())
         return;
-    auto &inst = currentInstrument_->get();
+    auto &inst = currentInstrument()->get();
 
     const char *prompt;
     QString textInput;

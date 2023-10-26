@@ -81,35 +81,34 @@ void MainWindow::fillInstruments()
 // Set current instrument
 void MainWindow::setCurrentInstrument(QString name)
 {
+    // Need a valid journal source
+    if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
+        return;
+    auto &source = currentJournalSource();
+
     // Find the instrument specified
     auto instIt =
         std::find_if(instruments_.begin(), instruments_.end(), [name](const auto &inst) { return inst.name() == name; });
     if (instIt == instruments_.end())
         throw(std::runtime_error("Selected instrument does not exist!\n"));
 
-    currentInstrument_ = *instIt;
-
     ui_.instrumentButton->setText(name);
 
     // Clear any mass search results since they're instrument-specific
     cachedMassSearch_.clear();
 
-    // Make sure we have a valid journal source before we request any data
-    if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
-        return;
+    source.setCurrentInstrument(*instIt);
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
-    backend_.listJournals(currentJournalSource(),
-                          currentJournalSource().instrumentSubdirectories() ? currentInstrument().journalDirectory() : "",
-                          [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.listJournals(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
-// Return current instrument
-const Instrument &MainWindow::currentInstrument() const
+// Return current instrument from active source
+OptionalReferenceWrapper<const Instrument> MainWindow::currentInstrument() const
 {
-    if (currentInstrument_)
-        return currentInstrument_->get();
+    if (!currentJournalSource_)
+        return {};
 
-    throw(std::runtime_error("No current instrument defined.\n"));
+    return currentJournalSource().currentInstrument();
 }

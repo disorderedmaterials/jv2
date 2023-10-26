@@ -53,7 +53,8 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
         ui_.GroupRunsButton->setChecked(false);
 
     // Get desired fields and titles from config files
-    runDataColumns_ = currentInstrument().runDataColumns();
+    runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
+                                          : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
     runData_ = worker->jsonArray;
 
     // Set table data

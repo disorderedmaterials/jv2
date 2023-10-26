@@ -129,23 +129,15 @@ void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createReques
  */
 
 // List available journals in the specified directory
-void Backend::listJournals(const JournalSource &source, const QString &journalDirectory,
-                           HttpRequestWorker::HttpRequestHandler handler)
+void Backend::listJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    auto data = source.sourceObjectData();
-    data["directory"] = journalDirectory; // TODO
-
-    postRequest(createRoute("journals/list"), data, handler);
+    postRequest(createRoute("journals/list"), source.sourceObjectData(), handler);
 }
 
 // Get current journal file for the specified source
-void Backend::getJournal(const JournalSource &source, const QString &journalDirectory,
-                         HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    auto data = source.currentJournalObjectData();
-    data["directory"] = journalDirectory;
-
-    postRequest(createRoute("journals/get"), data, handler);
+    postRequest(createRoute("journals/get"), source.currentJournalObjectData(), handler);
 }
 
 // Get any updates to the specified journal
@@ -281,15 +273,9 @@ void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpR
  */
 
 // List data directory for the specified source
-void Backend::listDataDirectory(const JournalSource &source, const QString &journalDirectory,
-                                HttpRequestWorker::HttpRequestHandler handler)
+void Backend::listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = source.journalRootUrl();
-    data["directory"] = journalDirectory;
-    data["runDataRootUrl"] = source.runDataRootUrl();
-
-    postRequest(createRoute("generate/list"), data, handler);
+    postRequest(createRoute("generate/list"), source.sourceObjectData(), handler);
 }
 
 // Generate journals for the specified source

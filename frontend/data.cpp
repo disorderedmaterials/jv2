@@ -152,9 +152,9 @@ void MainWindow::on_actionRefresh_triggered()
 // Jump to run number
 void MainWindow::on_actionJumpTo_triggered()
 {
-    if (!currentInstrument_)
+    if (!currentInstrument())
         return;
-    auto &inst = currentInstrument_->get();
+    auto &inst = currentInstrument()->get();
 
     auto ok = false;
     int runNo = QInputDialog::getInt(this, tr("Jump To"), tr("Run number to jump to:"), 0, 1, 2147483647, 1, &ok);

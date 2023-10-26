@@ -2,6 +2,7 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "journalSource.h"
+#include "instrument.h"
 
 // Return text string for specified IndexingType type
 QString JournalSource::indexingType(JournalSource::IndexingType type)
@@ -65,12 +66,6 @@ const QString &JournalSource::name() const { return name_; }
 // Return type
 JournalSource::IndexingType JournalSource::type() const { return type_; }
 
-// Set whether this source has instrument subdirectories
-void JournalSource::setInstrumentSubdirectories(bool b) { instrumentSubdirectories_ = b; }
-
-// Return whether this source has instrument subdirectories
-bool JournalSource::instrumentSubdirectories() const { return instrumentSubdirectories_; }
-
 /*
  * Journal Data
  */
@@ -87,6 +82,22 @@ const QString &JournalSource::journalRootUrl() const { return journalRootUrl_; }
 
 // Return name of the index file in the main directories, if known
 const QString &JournalSource::journalIndexFilename() const { return journalIndexFilename_; }
+
+/*
+ * Instrument Subdirectories
+ */
+
+// Set whether this source has instrument subdirectories
+void JournalSource::setInstrumentSubdirectories(bool b) { instrumentSubdirectories_ = b; }
+
+// Return whether this source has instrument subdirectories
+bool JournalSource::instrumentSubdirectories() const { return instrumentSubdirectories_; }
+
+// Set current instrument
+void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst) { currentInstrument_ = optInst; }
+
+// Return current instrument
+OptionalReferenceWrapper<const Instrument> JournalSource::currentInstrument() const { return currentInstrument_; }
 
 /*
  * Associated Run Data
@@ -127,7 +138,8 @@ QJsonObject JournalSource::sourceObjectData() const
     data["sourceType"] = indexingType(type_);
     data["journalRootUrl"] = journalRootUrl_;
     data["journalFilename"] = journalIndexFilename_;
-    data["directory"] = "TODO";
+    if (instrumentSubdirectories_)
+        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
     data["runDataRootUrl"] = runDataRootUrl_;
     return data;
 }
@@ -140,7 +152,8 @@ QJsonObject JournalSource::currentJournalObjectData() const
     data["sourceType"] = indexingType(type_);
     data["journalRootUrl"] = journalRootUrl_;
     data["journalFilename"] = currentJournal_ ? currentJournal_->get().location().filename() : "UNKNOWN";
-    data["directory"] = "TODO";
+    if (instrumentSubdirectories_)
+        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
     data["runDataRootUrl"] = runDataRootUrl_;
     return data;
 }
