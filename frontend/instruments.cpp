@@ -30,7 +30,7 @@ bool MainWindow::parseInstruments(const QDomDocument &source)
 
         // Data locations
         inst.setJournalDirectory(instElement.attribute("journalDirectory"));
-        inst.setDataDirectory(instElement.attribute("dataDirectory"));
+        inst.setDataDirectory(instElement.attribute("runDataRootUrl"));
 
         // If display columns are defined parse them now, otherwise assign defaults based on instrument
         auto columns = instElement.elementsByTagName("columns");
@@ -55,61 +55,40 @@ void MainWindow::getDefaultInstruments()
         throw(std::runtime_error("Couldn't parse internal instrument data.\n"));
 }
 
-// Fill instrument list
-void MainWindow::fillInstruments()
-{
-    // Only allow calls after initial population
-    instrumentsMenu_ = new QMenu("instrumentsMenu");
-    journalsMenu_ = new QMenu("cyclesMenu");
-
-    connect(ui_.instrumentButton, &QPushButton::clicked,
-            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
-    connect(ui_.journalButton, &QPushButton::clicked,
-            [=]() { journalsMenu_->exec(ui_.journalButton->mapToGlobal(QPoint(0, ui_.journalButton->height()))); });
-    for (auto &inst : instruments_)
-    {
-        auto *action = new QAction(inst.name(), this);
-        connect(action, &QAction::triggered, [=]() { setCurrentInstrument(inst.name()); });
-        instrumentsMenu_->addAction(action);
-    }
-}
-
 /*
  * UI
  */
 
 // Set current instrument
-void MainWindow::setCurrentInstrument(QString name)
+void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
 {
-    // Find the instrument specified
-    auto instIt =
-        std::find_if(instruments_.begin(), instruments_.end(), [name](const auto &inst) { return inst.name() == name; });
-    if (instIt == instruments_.end())
-        throw(std::runtime_error("Selected instrument does not exist!\n"));
+    // Need a valid journal source
+    if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
+        return;
+    auto &source = currentJournalSource();
 
-    currentInstrument_ = *instIt;
-
-    ui_.instrumentButton->setText(name);
+    // Get the selected instrument
+    if (index == -1)
+    {
+        source.setCurrentInstrument(std::nullopt);
+        return;
+    }
+    else
+        source.setCurrentInstrument(instruments_[index]);
 
     // Clear any mass search results since they're instrument-specific
     cachedMassSearch_.clear();
 
-    // Make sure we have a valid journal source before we request any data
-    if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
-        return;
-
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
-    backend_.listJournals(currentJournalSource(),
-                          currentJournalSource().instrumentSubdirectories() ? currentInstrument().journalDirectory() : "",
-                          [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.listJournals(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
-// Return current instrument
-const Instrument &MainWindow::currentInstrument() const
+// Return current instrument from active source
+OptionalReferenceWrapper<const Instrument> MainWindow::currentInstrument() const
 {
-    if (currentInstrument_)
-        return currentInstrument_->get();
+    if (!currentJournalSource_)
+        return {};
 
-    throw(std::runtime_error("No current instrument defined.\n"));
+    return currentJournalSource().currentInstrument();
 }

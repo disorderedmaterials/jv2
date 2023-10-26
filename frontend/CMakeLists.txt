@@ -57,7 +57,6 @@ qt6_add_executable(
   httpRequestWorker.h
   instruments.cpp
   journalSources.cpp
-  journals.cpp
   massSearch.cpp
   mainWindow.cpp
   mainWindow.cpp
@@ -72,6 +71,10 @@ qt6_add_executable(
   # Models
   genericTreeModel.cpp
   genericTreeModel.h
+  instrumentModel.cpp
+  instrumentModel.h
+  journalModel.cpp
+  journalModel.h
   jsonTableModel.cpp
   jsonTableModel.h
   jsonTableFilterProxy.cpp

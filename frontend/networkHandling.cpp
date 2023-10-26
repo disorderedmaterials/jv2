@@ -11,7 +11,7 @@
 // Perform error check on http result
 bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription)
 {
-    // Network error?
+    // Communications error with the backend?
     if (worker->errorType != QNetworkReply::NoError)
     {
         statusBar()->showMessage(QString("Network error for source %1").arg(currentJournalSource().name()), 3000);
@@ -22,13 +22,13 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     }
 
     // Response error?
-    auto response = worker->response;
+    auto response = worker->jsonResponse.object();
     if (response.contains("Error"))
     {
         statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource().name()), 3000);
-        QMessageBox::warning(
-            this, "Response Error",
-            QString("The backend failed while %1.\nThe response returned was: %2").arg(taskDescription, response));
+        QMessageBox::warning(this, "Response Error",
+                             QString("The backend failed while %1.\nThe response returned was: %2")
+                                 .arg(taskDescription, response["Error"].toString()));
         return true;
     }
 
@@ -53,7 +53,8 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
         ui_.GroupRunsButton->setChecked(false);
 
     // Get desired fields and titles from config files
-    runDataColumns_ = currentInstrument().runDataColumns();
+    runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
+                                          : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
     runData_ = worker->jsonArray;
 
     // Set table data
@@ -82,18 +83,22 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
         statusBar()->showMessage("Search query not found", 5000);
         return;
     }
-    if (currentJournal_ && currentJournal_->get().name() == worker->response)
+
+    // Locate the journal returned
+    auto optJournal = currentJournalSource().findJournal(worker->response);
+
+    if (optJournal && optJournal->get().name() == worker->response)
     {
         highlightRunNumber(runNumber);
         return;
     }
 
-    for (auto i = 0; i < journalsMenu_->actions().count(); i++)
-    {
-        if (currentJournal_ && currentJournal_->get().name() == worker->response)
-        {
-            setCurrentJournal(journalsMenu_->actions()[i]->text());
-            highlightRunNumber(runNumber);
-        }
-    }
+    //    for (auto i = 0; i < journalsMenu_->actions().count(); i++)
+    //    {
+    //        if (journalsMenu_->actions()[i]->text() == worker->response)
+    //        {
+    //            setCurrentJournal(journalsMenu_->actions()[i]->text());
+    //            highlightRunNumber(runNumber);
+    //        }
+    //    }
 }

@@ -4,14 +4,15 @@
 from typing import Optional, List
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 import pandas as pd
 import datetime
 import requests
 import logging
 import os.path
+import lxml
 
-from jv2backend.requestData import RequestData
+from jv2backend.requestData import RequestData, SourceType
 from jv2backend.journals import JournalCollection, JournalFile
 from jv2backend.journals import JournalData, JournalLibrary, concatenate
 from jv2backend.utils import jsonify, json_response
@@ -21,27 +22,56 @@ class JournalLocator:
     """Journal file locator"""
 
     @classmethod
-    def _get_file(cls, requestData: RequestData) -> BytesIO:
-        """Get the content of the file"""
-        if requestData.is_http:
-            response = requests.get(requestData.file_url, timeout=3)
+    def _get_journal_file_xml(cls, requestData: RequestData) -> ElementTree:
+        """Get the content of the file and create an ElementTree"""
+        if requestData.source_type == SourceType.Network:
+            response = requests.get(requestData.journal_file_url(), timeout=3)
             response.raise_for_status()
-            return BytesIO(response.content)
-        else:
+            return ElementTree.parse(BytesIO(response.content))
+        elif requestData.source_type == SourceType.Cached:
+            if requestData.journal_collection is None:
+                return ElementTree.parse("{}")
+        elif requestData.source_type == SourceType.File:
             with open(requestData.file_url, "rb") as file:
                 buffer = BytesIO(file.read())
-            return buffer
+            return ElementTree.parse(buffer)
+        else:
+            raise RuntimeError("Error: No source type set.")
 
     @classmethod
-    def _get_modification_time(cls,
-                               requestData: RequestData) -> datetime.datetime:
-        """Get the modification time of the file"""
-        if requestData.is_http:
-            response = requests.head(requestData.file_url, timeout=3)
+    def _get_journal_modification_time(cls,
+                                       requestData: RequestData
+                                       ) -> datetime.datetime:
+        """Get the modification time of the journal"""
+        if requestData.source_type == SourceType.Network:
+            response = requests.head(requestData.journal_file_url(), timeout=3)
             response.raise_for_status()
             return lm_to_datetime(response.headers["Last-Modified"])
+        elif requestData.source_type == SourceType.Cached:
+            return datetime.datetime.now()
+        elif requestData.source_type == SourceType.Disk:
+            return datetime.datetime.fromtimestamp(
+                os.path.getmtime(requestData.file_url),
+                datetime.timezone.utc
+             )
         else:
-            return os.path.getmtime(requestData.file_url)
+            raise RuntimeError("No source type set.")
+
+    @classmethod
+    def _get_journal_run_data(cls, requestData: RequestData) -> pd.DataFrame:
+        """Get the content of the file and parse it with Pandas"""
+        if requestData.source_type == SourceType.Network:
+            response = requests.get(requestData.journal_file_url(), timeout=3)
+            response.raise_for_status()
+            return pd.read_xml(BytesIO(response.content), dtype=str)
+        elif requestData.source_type == SourceType.Cached:
+            if requestData.journal_collection is None:
+                return pd.DataFrame
+        elif requestData.source_type == SourceType.File:
+            with open(requestData.file_url, "rb") as file:
+                return pd.read_xml(BytesIO(file.read()), dtype=str)
+        else:
+            raise RuntimeError("No source type set.")
 
     def get_index(self, requestData: RequestData,
                   journalLibrary: JournalLibrary) -> List[JournalFile]:
@@ -85,16 +115,16 @@ class JournalLocator:
         The 'instrument' in this case is expected to be the `directory`
         parameter passed in the requestData object.
         """
-        # Retrieve the specified file, assumed to be an xml index file
+        # Retrieve the specified index as ElementTree data
         try:
-            fileBytes = self._get_file(requestData)
-        except (requests.HTTPError, requests.ConnectionError) as exc:
-            return jsonify(f"Error: {str(exc)}")
+            indexTree = self._get_journal_file_xml(requestData)
         except FileNotFoundError:
             return jsonify("Index File Not Found")
+        except (requests.HTTPError, requests.ConnectionError) as exc:
+            return jsonify({"Error": str(exc)})
+        except lxml.etree.XMLSyntaxError as exc:
+            return jsonify({"Error": str(exc)})
 
-        # Parse the journal index file
-        indexTree = ET.parse(fileBytes)
         indexRoot = indexTree.getroot()
 
         # Construct list of valid journal files for return
@@ -128,14 +158,14 @@ class JournalLocator:
             journals.append(
                 JournalFile(
                     displayName,
-                    requestData.root_url,
+                    requestData.journal_root_url,
                     requestData.directory,
                     j.attrib["name"], dataDirectory))
 
         # Store as a new collection in the library
-        journalLibrary[requestData.url] = JournalCollection(journals)
+        journalLibrary[requestData.library_key()] = JournalCollection(journals)
 
-        return jsonify(journalLibrary[requestData.url].to_basic())
+        return jsonify(journalLibrary[requestData.library_key()].to_basic())
 
     def get_journal_data(self, requestData: RequestData) -> JournalData:
         """Retrieve run data contained in a journal file
@@ -145,24 +175,30 @@ class JournalLocator:
         """
         # If we already have this journal file in the collection, check its
         # modification time
-        j = requestData.journal_collection.get_info(requestData.filename)
+        j = requestData.journal_collection.get_info(
+            requestData.journal_filename
+        )
         if j is not None:
             # Return current data if the file still has the same modtime
-            current_last_modified = self._get_modification_time(requestData)
+            current_last_modified = self._get_journal_modification_time(
+                requestData
+            )
             if current_last_modified == j.last_modified:
                 return json_response(j.run_data)
 
         # Not up-to-date, so get the full file content and update modtime
         try:
-            fileBytes = self._get_file(requestData)
+            runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return jsonify(f"Error: {str(exc)}")
-        j.last_modified = current_last_modified
+            return jsonify({"Error": str(exc)})
+        except lxml.etree.XMLSyntaxError as exc:
+            return jsonify({"Error": str(exc)})
 
-        # Read in the run data from the journal file
+        # Store the updated run data and modtime
         j.run_data = JournalData(
-            requestData.filename, data=pd.read_xml(fileBytes, dtype=str))
+            requestData.journal_filename, runData)
+        j.last_modified = current_last_modified
 
         # Store the most-recent (highest) run number in the journal for future
         # reference
@@ -193,7 +229,9 @@ class JournalLocator:
         """
         # If we already have this journal file in the collection, check its
         # modification time
-        j = requestData.journal_collection.get_info(requestData.filename)
+        j = requestData.journal_collection.get_info(
+            requestData.journal_filename
+        )
         if j is not None:
             # Compare modification times - if the same, return existing data
             current_last_modified = self._get_modification_time(requestData)
@@ -210,7 +248,8 @@ class JournalLocator:
 
         # Read in the run data from the journal file and store the whole thing
         j.run_data = JournalData(
-            requestData.filename, data=pd.read_xml(fileBytes, dtype=str))
+            requestData.journal_filename,
+            data=pd.read_xml(fileBytes, dtype=str))
 
         # Get the last run number
         old_last_run_number = j.last_run_number

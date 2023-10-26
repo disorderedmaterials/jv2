@@ -62,7 +62,9 @@ class Instrument
     // Return whether the instrument has a custom column definition
     bool hasCustomColumns() const;
     // Get run data columns to use for this instrument
-    const std::vector<RunDataColumn> &runDataColumns() const;
+    const RunDataColumns &runDataColumns() const;
+    // Return default columns for specified instrument type
+    static const RunDataColumns &runDataColumns(InstrumentType type);
 
     /*
      * Data Locations

@@ -26,8 +26,8 @@ def add_routes(
         """Return the list of journal files in a specified location
 
         The POST data should contain:
-              rootUrl: The root network or disk location for the journals
-            directory: The directory in rootUrl to probe for journals
+          journalRoot: The root network or disk location for the journals
+            directory: The directory in journalRoot to probe for journals
         dataDirectory: Associated run data location
              filename: Name of the index file in the directory
 
@@ -36,19 +36,18 @@ def add_routes(
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_data_directory=True,
-                                   require_filename=True)
+                                   require_journal_file=True)
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(f"Listing journals at {postData.url}")
+        logging.debug(f"Listing journals for {postData.source_id}: "
+                      f"{postData.journal_file_url()}")
 
         # If we already have a library collection for the specified
-        # rootUrl/directory, just return it
+        # source, just return it
         if postData.journal_collection is not None:
-            logging.debug(
-                f"Returning existing journal collection for \
-                    {postData.library_key}")
+            logging.debug(f"Returning existing journal collection for "
+                          f"'{postData.library_key()}'")
             return postData.journal_collection.to_basic()
 
         # Parse the journal index
@@ -59,21 +58,20 @@ def add_routes(
         """Return the specified journal contents
 
         The POST data should contain:
-             rootUrl: The root network or disk location for the journal
-           directory: The directory in rootUrl containing the journal
+         journalRoot: The root network or disk location for the journal
+           directory: The directory in journalRoot containing the journal
             filename: Name of the target journal file
 
         :return: A JSON reponse containing the journal data, or an error
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_filename=True)
+                                   require_journal_file=True)
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(
-            f"Get journal {postData.filename} from {postData.url}"
-        )
+        logging.debug(f"Get journal {postData.journal_file_url()} "
+                      f"from '{postData.library_key()}'")
 
         return journalLocator.get_journal_data(postData)
 
@@ -83,15 +81,15 @@ def add_routes(
         run data
 
         The POST data should contain:
-             rootUrl: The root network or disk location for the journal
-           directory: The directory in rootUrl containing the journal
+         journalRoot: The root network or disk location for the journal
+           directory: The directory in journalRoot containing the journal
             filename: Name of the target journal file
 
         :return: A JSON-formatted list of new run data, or None
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_filename=True)
+                                   require_journal_file=True)
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 

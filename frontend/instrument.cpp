@@ -100,6 +100,9 @@ const Instrument::RunDataColumns &Instrument::runDataColumns() const
     return customColumns_.empty() ? defaultColumns_[type_] : customColumns_;
 }
 
+// Return default columns for specified instrument type
+const Instrument::RunDataColumns &Instrument::runDataColumns(Instrument::InstrumentType type) { return defaultColumns_[type]; }
+
 /*
  * Additional Information
  */

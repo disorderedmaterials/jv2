@@ -278,7 +278,7 @@ void MainWindow::handleCreateSELogPlot(HttpRequestWorker *worker)
     for (auto series : dateTimeChart->series())
         runs.append(series->name() + ", ");
     runs.chop(2);
-    QString toolTip = currentInstrument().name() + "\n" + tabName + "\n" + runs;
+    QString toolTip = tabName + "\n" + runs;
     ui_.MainTabs->setTabToolTip(ui_.MainTabs->count() - 1, toolTip);
     ui_.MainTabs->setCurrentIndex(ui_.MainTabs->count() - 1);
     dateTimeChartView->setFocus();

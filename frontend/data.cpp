@@ -123,11 +123,11 @@ bool MainWindow::highlightRunNumber(int runNumber)
             ui_.RunDataTable->selectionModel()->setCurrentIndex(
                 runDataModel_.index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
 
-            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + ui_.journalButton->text(), 5000);
+            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + currentJournal().name(), 5000);
             return true;
         }
 
-    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + ui_.journalButton->text(), 5000);
+    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + currentJournal().name(), 5000);
 
     return false;
 }
@@ -138,19 +138,23 @@ bool MainWindow::highlightRunNumber(int runNumber)
 
 void MainWindow::on_actionRefresh_triggered()
 {
-    if (!currentJournal_)
+    if (!currentJournalSource_)
         return;
-    auto &journal = currentJournal_->get();
+    auto &journalSource = currentJournalSource();
+    auto optJournal = journalSource.currentJournal();
+    if (!optJournal)
+        return;
 
-    backend_.getJournalUpdates(journal.location(), [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    backend_.getJournalUpdates(optJournal->get().location(),
+                               [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
 // Jump to run number
 void MainWindow::on_actionJumpTo_triggered()
 {
-    if (!currentInstrument_)
+    if (!currentInstrument())
         return;
-    auto &inst = currentInstrument_->get();
+    auto &inst = currentInstrument()->get();
 
     auto ok = false;
     int runNo = QInputDialog::getInt(this, tr("Jump To"), tr("Run number to jump to:"), 0, 1, 2147483647, 1, &ok);

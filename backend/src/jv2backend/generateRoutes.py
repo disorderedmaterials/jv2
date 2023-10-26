@@ -24,7 +24,7 @@ def add_routes(
         """List available NeXuS files in a target directory
 
         The POST data should contain:
-              rootUrl: The root network or disk location for journals [UNUSED]
+          journalRoot: The root network or disk location for journals [UNUSED]
         dataDirectory: The data file directory to list
 
         :return: The number of NeXuS files found
@@ -45,8 +45,8 @@ def add_routes(
         """Generates journals and accompanying index file for a target dir
 
         The POST data should contain:
-                 rootUrl: The root network or disk location for the journal
-               directory: The directory in rootUrl containing the journal
+             journalRoot: Unique identifier for the journal set
+               directory: The directory in journalRoot containing the journal
            dataDirectory: Location of the run data to scan
         dataOrganisation: How the data is to be organised
                 filename: Name of the target index file to generate

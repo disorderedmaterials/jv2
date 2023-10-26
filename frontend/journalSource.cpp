@@ -2,30 +2,32 @@
 // Copyright (c) 2023 Team JournalViewer and contributors
 
 #include "journalSource.h"
+#include "instrument.h"
+#include <QJsonArray>
 
-// Return text string for specified JournalSource type
-QString JournalSource::journalSourceType(JournalSource::JournalSourceType type)
+// Return text string for specified IndexingType type
+QString JournalSource::indexingType(JournalSource::IndexingType type)
 {
     switch (type)
     {
-        case (JournalSourceType::ISISNetwork):
-            return "ISISArchive";
-        case (JournalSourceType::Disk):
-            return "Disk";
+        case (IndexingType::Network):
+            return "Network";
+        case (IndexingType::Cached):
+            return "Cached";
         default:
-            throw(std::runtime_error("JournalSource type not known and can't be converted to a QString.\n"));
+            throw(std::runtime_error("IndexingType type not known and can't be converted to a QString.\n"));
     }
 }
 
-// Convert text string to JournalSource type
-JournalSource::JournalSourceType JournalSource::journalSourceType(QString typeString)
+// Convert text string to IndexingType type
+JournalSource::IndexingType JournalSource::indexingType(const QString &typeString)
 {
-    if (typeString.toLower() == "isisnetwork")
-        return JournalSourceType::ISISNetwork;
-    else if (typeString.toLower() == "disk")
-        return JournalSourceType::Disk;
+    if (typeString.toLower() == "network")
+        return IndexingType::Network;
+    else if (typeString.toLower() == "cached")
+        return IndexingType::Cached;
     else
-        throw(std::runtime_error("JournalSource string can't be converted to a JournalSourceType.\n"));
+        throw(std::runtime_error("IndexingType string can't be converted to a IndexingType.\n"));
 }
 
 // Return text string for specified DataOrganisationType
@@ -53,12 +55,7 @@ JournalSource::DataOrganisationType JournalSource::dataOrganisationType(QString 
         throw(std::runtime_error("DataOrganisationType string can't be converted to a DataOrganisationType.\n"));
 }
 
-JournalSource::JournalSource(QString name, JournalSourceType type, QString rootUrl, QString runDataDirectory, QString indexFile,
-                             bool instrumentSubdirectories, DataOrganisationType runDataOrganisation)
-    : name_(name), type_(type), rootUrl_(rootUrl), runDataDirectory_(runDataDirectory), indexFile_(indexFile),
-      instrumentSubdirectories_(instrumentSubdirectories), runDataOrganisation_(runDataOrganisation)
-{
-}
+JournalSource::JournalSource(QString name, IndexingType type) : name_(name), type_(type) {}
 
 /*
  * Basic Data
@@ -68,19 +65,117 @@ JournalSource::JournalSource(QString name, JournalSourceType type, QString rootU
 const QString &JournalSource::name() const { return name_; }
 
 // Return type
-JournalSource::JournalSourceType JournalSource::type() const { return type_; }
+JournalSource::IndexingType JournalSource::type() const { return type_; }
 
-// Return root URL for the source
-const QString &JournalSource::rootUrl() const { return rootUrl_; }
+/*
+ * Journal Data
+ */
 
-// Return directory containing associated run data
-const QString &JournalSource::runDataDirectory() const { return runDataDirectory_; }
+// Set journal data
+void JournalSource::setJournalData(const QString &journalRootUrl, const QString &indexFilename)
+{
+    journalRootUrl_ = journalRootUrl;
+    journalIndexFilename_ = indexFilename;
+}
+
+// Root URL for the journal source (if available)
+const QString &JournalSource::journalRootUrl() const { return journalRootUrl_; }
 
 // Return name of the index file in the main directories, if known
-const QString &JournalSource::indexFile() const { return indexFile_; }
+const QString &JournalSource::journalIndexFilename() const { return journalIndexFilename_; }
+
+// Clear current journals
+void JournalSource::clearJournals()
+{
+    journals_.clear();
+    currentJournal_ = std::nullopt;
+}
+
+// Set journals
+void JournalSource::setJournals(const QJsonArray &journalData)
+{
+    clearJournals();
+
+    for (auto i = journalData.count() - 1; i >= 0; i--)
+    {
+        auto value = journalData[i].toObject();
+
+        auto &journal = journals_.emplace_back(value["display_name"].toString());
+        journal.setLocation({value["server_root"].toString(), value["directory"].toString(), value["filename"].toString()});
+    }
+
+    // Set a current journal
+    if (!journals_.empty())
+        currentJournal_ = journals_.front();
+}
+
+// Return available journals
+std::vector<Journal> &JournalSource::journals() { return journals_; }
+
+// Find named journal
+OptionalReferenceWrapper<Journal> JournalSource::findJournal(const QString &name)
+{
+    auto journalIt =
+        std::find_if(journals_.begin(), journals_.end(), [name](const auto &journal) { return journal.name() == name; });
+
+    if (journalIt == journals_.end())
+        return std::nullopt;
+
+    return *journalIt;
+}
+
+// Set current journal being displayed
+void JournalSource::setCurrentJournal(QString name)
+{
+    // Find the journal specified
+    auto optJournal = findJournal(name);
+    if (!optJournal)
+        throw(std::runtime_error("Selected journal does not exist!\n"));
+
+    currentJournal_ = *optJournal;
+}
+
+// Set current journal being displayed by index
+void JournalSource::setCurrentJournal(int index)
+{
+    if (index == -1 || index >= journals_.size())
+        currentJournal_ = std::nullopt;
+    else
+        currentJournal_ = journals_[index];
+}
+
+// Return current journal
+OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return currentJournal_; }
+
+/*
+ * Instrument Subdirectories
+ */
+
+// Set whether this source has instrument subdirectories
+void JournalSource::setInstrumentSubdirectories(bool b) { instrumentSubdirectories_ = b; }
 
 // Return whether this source has instrument subdirectories
 bool JournalSource::instrumentSubdirectories() const { return instrumentSubdirectories_; }
+
+// Set current instrument
+void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst) { currentInstrument_ = optInst; }
+
+// Return current instrument
+OptionalReferenceWrapper<const Instrument> JournalSource::currentInstrument() const { return currentInstrument_; }
+
+/*
+ * Associated Run Data
+ */
+
+// Set run data location
+void JournalSource::setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType orgType)
+{
+    runDataRootUrl_ = runDataRootUrl;
+    runDataOrganisation_ = orgType;
+}
+
+// Return root URL containing associated run data
+const QString &JournalSource::runDataRootUrl() const { return runDataRootUrl_; }
 
 // Return run data organisation
 JournalSource::DataOrganisationType JournalSource::runDataOrganisation() const { return runDataOrganisation_; }
@@ -94,3 +189,35 @@ void JournalSource::setState(JournalSourceState state) { state_ = state; }
 
 // Return current state of the journal source
 JournalSource::JournalSourceState JournalSource::state() const { return state_; }
+
+/*
+ * Object Data
+ */
+
+// Return basic object data ready for network request
+QJsonObject JournalSource::sourceObjectData() const
+{
+    QJsonObject data;
+    data["sourceID"] = name_;
+    data["sourceType"] = indexingType(type_);
+    data["journalRootUrl"] = journalRootUrl_;
+    data["journalFilename"] = journalIndexFilename_;
+    if (instrumentSubdirectories_)
+        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
+    data["runDataRootUrl"] = runDataRootUrl_;
+    return data;
+}
+
+// Return current journal data read for network request
+QJsonObject JournalSource::currentJournalObjectData() const
+{
+    QJsonObject data;
+    data["sourceID"] = name_;
+    data["sourceType"] = indexingType(type_);
+    data["journalRootUrl"] = journalRootUrl_;
+    data["journalFilename"] = currentJournal_ ? currentJournal_->get().location().filename() : "UNKNOWN";
+    if (instrumentSubdirectories_)
+        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
+    data["runDataRootUrl"] = runDataRootUrl_;
+    return data;
+}

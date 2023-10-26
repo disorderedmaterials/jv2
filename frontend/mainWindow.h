@@ -5,8 +5,8 @@
 
 #include "backend.h"
 #include "httpRequestWorker.h"
-#include "instrument.h"
-#include "journal.h"
+#include "instrumentModel.h"
+#include "journalModel.h"
 #include "journalSource.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
@@ -31,9 +31,9 @@ class MainWindow : public QMainWindow
      */
     private:
     Ui::MainWindow ui_;
-    QMenu *instrumentsMenu_;
-    QMenu *journalsMenu_;
     bool init_;
+    // Whether UI controls are currently being updated with new data
+    bool controlsUpdating_{false};
     // Main backend class
     Backend backend_;
 
@@ -57,8 +57,10 @@ class MainWindow : public QMainWindow
     private:
     // Known journal sources
     std::vector<JournalSource> journalSources_;
-    // Currently selected instjournal source (if any)
+    // Currently selected journal source (if any)
     OptionalReferenceWrapper<JournalSource> currentJournalSource_;
+    // Model for available journals
+    JournalModel journalModel_;
 
     private:
     // Parse journal source from specified source
@@ -68,10 +70,19 @@ class MainWindow : public QMainWindow
     // Set current journal source
     void setCurrentJournalSource(std::optional<QString> optName);
     // Return current journal source
-    const JournalSource &currentJournalSource() const;
+    JournalSource &currentJournalSource() const;
+    // Return selected journal in current source (assuming one is selected)
+    Journal &currentJournal() const;
 
     private slots:
     void on_JournalSourceComboBox_currentIndexChanged(int index);
+    void on_JournalComboBox_currentIndexChanged(int index);
+
+    private:
+    // Handle get journal updates result
+    void handleGetJournalUpdates(HttpRequestWorker *workers);
+    // Handle returned journal information for an instrument
+    void handleListJournals(HttpRequestWorker *worker);
 
     /*
      * Instruments
@@ -79,50 +90,19 @@ class MainWindow : public QMainWindow
     private:
     // Available instruments
     std::vector<Instrument> instruments_;
-    // Currently selected instrument (if any)
-    OptionalReferenceWrapper<Instrument> currentInstrument_;
+    // Model for instruments
+    InstrumentModel instrumentModel_;
 
     private:
     // Parse instruments from specified source
     bool parseInstruments(const QDomDocument &source);
     // Get default instrument complement
     void getDefaultInstruments();
-    // Fill instrument list
-    void fillInstruments();
 
     private slots:
-    // Set current instrument
-    void setCurrentInstrument(QString name);
-    // Return current instrument
-    const Instrument &currentInstrument() const;
-
-    /*
-     * Journals
-     */
-    private:
-    // Available journals
-    std::vector<Journal> journals_;
-    // Currently selected journal (if any)
-    OptionalReferenceWrapper<Journal> currentJournal_;
-
-    private:
-    // Clear current journals
-    void clearJournals();
-    // Add new journal
-    Journal &addJournal(const QString &name, const Locator &location);
-    // Find named journal
-    OptionalReferenceWrapper<Journal> findJournal(const QString &name);
-    // Set current journal being displayed
-    void setCurrentJournal(QString name);
-    void setCurrentJournal(Journal &journal);
-    // Return current journal
-    const Journal &currentJournal() const;
-
-    private:
-    // Handle get journal updates result
-    void handleGetJournalUpdates(HttpRequestWorker *workers);
-    // Handle returned journal information for an instrument
-    void handleListJournals(HttpRequestWorker *worker);
+    void on_InstrumentComboBox_currentIndexChanged(int index);
+    // Return current instrument from active source
+    OptionalReferenceWrapper<const Instrument> currentInstrument() const;
 
     /*
      * Run Data

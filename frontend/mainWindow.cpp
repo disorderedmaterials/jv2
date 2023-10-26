@@ -20,6 +20,7 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
 
     // Get available instrument data
     getDefaultInstruments();
+    instrumentModel_.setData(instruments_);
 
     // Define initial variable states
     init_ = true;
@@ -27,6 +28,10 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     groupedRunDataColumns_.emplace_back("Run Numbers", "run_number");
     groupedRunDataColumns_.emplace_back("Title", "title");
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
+
+    // Connect models
+    ui_.InstrumentComboBox->setModel(&instrumentModel_);
+    ui_.JournalComboBox->setModel(&journalModel_);
 
     // Set up the main data table
     ui_.RunDataTable->setModel(&runDataFilterProxy_);
@@ -65,8 +70,9 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     // Do we actually have a current source?
     if (!currentJournalSource_)
     {
-        ui_.instrumentButton->setEnabled(false);
-        ui_.journalButton->setEnabled(false);
+        ui_.InstrumentComboBox->setEnabled(false);
+        ui_.JournalComboBox->setEnabled(false);
+        journalModel_.setData(std::nullopt);
 
         ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoBackendError);
     }
@@ -75,16 +81,22 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     if (newState)
         source.setState(*newState);
 
+    // Set the current instrument
+    if (source.instrumentSubdirectories() && source.currentInstrument())
+        ui_.InstrumentComboBox->setCurrentText(source.currentInstrument()->get().name());
+    else
+        ui_.InstrumentComboBox->setCurrentIndex(-1);
+
     // If the source is OK, we enable relevant controls
     if (source.state() == JournalSource::JournalSourceState::OK)
     {
-        ui_.instrumentButton->setEnabled(source.instrumentSubdirectories());
-        ui_.journalButton->setEnabled(true);
+        ui_.InstrumentComboBox->setEnabled(source.instrumentSubdirectories());
+        ui_.JournalComboBox->setEnabled(true);
     }
     else
     {
-        ui_.instrumentButton->setEnabled(false);
-        ui_.journalButton->setEnabled(false);
+        ui_.InstrumentComboBox->setEnabled(false);
+        ui_.JournalComboBox->setEnabled(false);
     }
 
     // Set the main stack page to correspond to the state enum
@@ -101,10 +113,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     // Update history on close
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (currentInstrument_)
+    if (currentJournalSource_)
     {
-        settings.setValue("recentInstrument", currentInstrument().name());
-        settings.setValue("recentJournal", ui_.journalButton->text());
+        settings.setValue("recentSource", currentJournalSource().name());
+        settings.setValue("recentInstrument", currentInstrument()->get().name());
+        settings.setValue("recentJournal", currentInstrument()->get().name());
     }
 
     // Shut down backend
@@ -155,14 +168,6 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
         QTimer *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
         timer->start(30000);
-
-        // Update the GUI
-        fillInstruments();
-
-        // Last used instrument?
-        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-        auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
-        setCurrentInstrument(recentInstrument);
 
         // Get default journal sources
         getDefaultJournalSources();
