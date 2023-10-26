@@ -73,6 +73,8 @@ qt6_add_executable(
   genericTreeModel.h
   instrumentModel.cpp
   instrumentModel.h
+  journalModel.cpp
+  journalModel.h
   jsonTableModel.cpp
   jsonTableModel.h
   jsonTableFilterProxy.cpp
