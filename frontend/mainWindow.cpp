@@ -20,6 +20,8 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
 
     // Get available instrument data
     getDefaultInstruments();
+    instrumentModel_.setData(instruments_);
+    ui_.InstrumentComboBox->setModel(&instrumentModel_);
 
     // Define initial variable states
     init_ = true;
@@ -65,7 +67,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     // Do we actually have a current source?
     if (!currentJournalSource_)
     {
-        ui_.instrumentButton->setEnabled(false);
+        ui_.InstrumentComboBox->setEnabled(false);
         ui_.journalButton->setEnabled(false);
 
         ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoBackendError);
@@ -75,15 +77,21 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     if (newState)
         source.setState(*newState);
 
+    // Set the current instrument
+    if (source.instrumentSubdirectories() && source.currentInstrument())
+        ui_.InstrumentComboBox->setCurrentText(source.currentInstrument()->get().name());
+    else
+        ui_.InstrumentComboBox->setCurrentIndex(-1);
+
     // If the source is OK, we enable relevant controls
     if (source.state() == JournalSource::JournalSourceState::OK)
     {
-        ui_.instrumentButton->setEnabled(source.instrumentSubdirectories());
+        ui_.InstrumentComboBox->setEnabled(source.instrumentSubdirectories());
         ui_.journalButton->setEnabled(true);
     }
     else
     {
-        ui_.instrumentButton->setEnabled(false);
+        ui_.InstrumentComboBox->setEnabled(false);
         ui_.journalButton->setEnabled(false);
     }
 
@@ -158,11 +166,6 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
 
         // Update the GUI
         fillInstruments();
-
-        // Last used instrument?
-        QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-        auto recentInstrument = settings.value("recentInstrument", instruments_.front().name()).toString();
-        setCurrentInstrument(recentInstrument);
 
         // Get default journal sources
         getDefaultJournalSources();

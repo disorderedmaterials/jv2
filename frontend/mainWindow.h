@@ -5,7 +5,7 @@
 
 #include "backend.h"
 #include "httpRequestWorker.h"
-#include "instrument.h"
+#include "instrumentModel.h"
 #include "journal.h"
 #include "journalSource.h"
 #include "jsonTableFilterProxy.h"
@@ -31,7 +31,6 @@ class MainWindow : public QMainWindow
      */
     private:
     Ui::MainWindow ui_;
-    QMenu *instrumentsMenu_;
     QMenu *journalsMenu_;
     bool init_;
     // Main backend class
@@ -89,6 +88,8 @@ class MainWindow : public QMainWindow
     private:
     // Available instruments
     std::vector<Instrument> instruments_;
+    // Model for instruments
+    InstrumentModel instrumentModel_;
 
     private:
     // Parse instruments from specified source
@@ -99,8 +100,7 @@ class MainWindow : public QMainWindow
     void fillInstruments();
 
     private slots:
-    // Set current instrument in the active source
-    void setCurrentInstrument(QString name);
+    void on_InstrumentComboBox_currentIndexChanged(int index);
     // Return current instrument from active source
     OptionalReferenceWrapper<const Instrument> currentInstrument() const;
 

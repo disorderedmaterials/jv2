@@ -97,15 +97,20 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     if (sourceIt == journalSources_.end())
         throw(std::runtime_error("Selected journal source does not exist!\n"));
 
-    currentJournalSource_ = *sourceIt;
+    auto &source = *sourceIt;
+    currentJournalSource_ = source;
 
     // Clear any mass search results since they're source-specific
     cachedMassSearch_.clear();
 
-    // Reset the state of the source since we can't assume the result of the index request
-    currentJournalSource_->get().setState(JournalSource::JournalSourceState::Loading);
+    // Make sure we have a default instrument set if one is required
+    if (source.instrumentSubdirectories() && !source.currentInstrument())
+        source.setCurrentInstrument(instruments_.front());
 
-    backend_.listJournals(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    // Reset the state of the source since we can't assume the result of the index request
+    source.setState(JournalSource::JournalSourceState::Loading);
+
+    backend_.listJournals(source, [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
 // Return current journal source

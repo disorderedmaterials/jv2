@@ -109,14 +109,7 @@
                   <widget class="QComboBox" name="JournalSourceComboBox"/>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="instrumentButton">
-                   <property name="contextMenuPolicy">
-                    <enum>Qt::CustomContextMenu</enum>
-                   </property>
-                   <property name="text">
-                    <string>&lt;INSTRUMENT&gt;</string>
-                   </property>
-                  </widget>
+                  <widget class="QComboBox" name="InstrumentComboBox"/>
                  </item>
                 </layout>
                </item>

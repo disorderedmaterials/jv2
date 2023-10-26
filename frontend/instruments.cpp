@@ -59,19 +59,10 @@ void MainWindow::getDefaultInstruments()
 void MainWindow::fillInstruments()
 {
     // Only allow calls after initial population
-    instrumentsMenu_ = new QMenu("instrumentsMenu");
     journalsMenu_ = new QMenu("cyclesMenu");
 
-    connect(ui_.instrumentButton, &QPushButton::clicked,
-            [=]() { instrumentsMenu_->exec(ui_.instrumentButton->mapToGlobal(QPoint(0, ui_.instrumentButton->height()))); });
     connect(ui_.journalButton, &QPushButton::clicked,
             [=]() { journalsMenu_->exec(ui_.journalButton->mapToGlobal(QPoint(0, ui_.journalButton->height()))); });
-    for (auto &inst : instruments_)
-    {
-        auto *action = new QAction(inst.name(), this);
-        connect(action, &QAction::triggered, [=]() { setCurrentInstrument(inst.name()); });
-        instrumentsMenu_->addAction(action);
-    }
 }
 
 /*
@@ -79,25 +70,24 @@ void MainWindow::fillInstruments()
  */
 
 // Set current instrument
-void MainWindow::setCurrentInstrument(QString name)
+void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
 {
     // Need a valid journal source
     if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
         return;
     auto &source = currentJournalSource();
 
-    // Find the instrument specified
-    auto instIt =
-        std::find_if(instruments_.begin(), instruments_.end(), [name](const auto &inst) { return inst.name() == name; });
-    if (instIt == instruments_.end())
-        throw(std::runtime_error("Selected instrument does not exist!\n"));
-
-    ui_.instrumentButton->setText(name);
+    // Get the selected instrument
+    if (index == -1)
+    {
+        source.setCurrentInstrument(std::nullopt);
+        return;
+    }
+    else
+        source.setCurrentInstrument(instruments_[index]);
 
     // Clear any mass search results since they're instrument-specific
     cachedMassSearch_.clear();
-
-    source.setCurrentInstrument(*instIt);
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
