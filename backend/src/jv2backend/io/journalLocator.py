@@ -10,6 +10,7 @@ import datetime
 import requests
 import logging
 import os.path
+import lxml
 
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.journals import JournalCollection, JournalFile
@@ -54,7 +55,7 @@ class JournalLocator:
                 datetime.timezone.utc
              )
         else:
-            raise RuntimeError("Error: No source type set.")
+            raise RuntimeError("No source type set.")
 
     @classmethod
     def _get_journal_run_data(cls, requestData: RequestData) -> pd.DataFrame:
@@ -70,7 +71,7 @@ class JournalLocator:
             with open(requestData.file_url, "rb") as file:
                 return pd.read_xml(BytesIO(file.read()), dtype=str)
         else:
-            raise RuntimeError("Error: No source type set.")
+            raise RuntimeError("No source type set.")
 
     def get_index(self, requestData: RequestData,
                   journalLibrary: JournalLibrary) -> List[JournalFile]:
@@ -117,10 +118,12 @@ class JournalLocator:
         # Retrieve the specified index as ElementTree data
         try:
             indexTree = self._get_journal_file_xml(requestData)
-        except (requests.HTTPError, requests.ConnectionError) as exc:
-            return jsonify(f"Error: {str(exc)}")
         except FileNotFoundError:
             return jsonify("Index File Not Found")
+        except (requests.HTTPError, requests.ConnectionError) as exc:
+            return jsonify({"Error": str(exc)})
+        except lxml.etree.XMLSyntaxError as exc:
+            return jsonify({"Error": str(exc)})
 
         indexRoot = indexTree.getroot()
 
@@ -188,7 +191,9 @@ class JournalLocator:
             runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
+        except lxml.etree.XMLSyntaxError as exc:
+            return jsonify({"Error": str(exc)})
 
         # Store the updated run data and modtime
         j.run_data = JournalData(
