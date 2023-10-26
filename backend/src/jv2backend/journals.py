@@ -290,8 +290,6 @@ class JournalCollection:
         return result
 
     def get_info(self, filename: str):
-        for jf in self.journalFiles:
-            logging.debug(jf.filename)
         return next(
             (jf for jf in self.journalFiles if jf.filename == filename),
             None)
