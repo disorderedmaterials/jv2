@@ -76,6 +76,9 @@ void MainWindow::getDefaultJournalSources()
 // Set current journal source
 void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
 {
+    if (controlsUpdating_)
+        return;
+
     // Clear any existing data
     clearRunData();
     journalModel_.setData(std::nullopt);
