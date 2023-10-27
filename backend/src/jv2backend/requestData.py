@@ -35,13 +35,9 @@ class RequestData:
                  require_data_directory=False,
                  require_run_numbers=False,
                  require_parameter=None) -> None:
-        """Set up the class. The POST data contains the following:
-          journalRoot: The main, root URL path (http or file)
-            directory: [OPTIONAL] Directory within the journalRoot to consider
-        dataDirectory: [OPTIONAL] Associated run data directory
-             filename: [OPTIONAL] Target filename
+        """Store recognised items in the POST data. We can make various
+         stipulations on the contents:
 
-        We can make various stipulations on the provided POST data:
           require_journal_file: Whether a full journal index/file must be
                                 given
             require_in_library: Whether a collection matching the library_key
