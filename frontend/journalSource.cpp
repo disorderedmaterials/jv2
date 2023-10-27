@@ -205,6 +205,7 @@ QJsonObject JournalSource::sourceObjectData() const
     if (instrumentSubdirectories_)
         data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
     data["runDataRootUrl"] = runDataRootUrl_;
+    data["dataOrganisation"] = dataOrganisationType(runDataOrganisation_);
     return data;
 }
 

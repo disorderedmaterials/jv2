@@ -285,11 +285,5 @@ void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::H
     if (source.type() == JournalSource::IndexingType::Network)
         throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
-    QJsonObject data;
-    data["journalRootUrl"] = source.journalRootUrl();
-    data["runDataRootUrl"] = source.runDataRootUrl();
-    data["filename"] = source.journalIndexFilename();
-    data["dataOrganisation"] = JournalSource::dataOrganisationType(source.runDataOrganisation());
-
-    postRequest(createRoute("generate/scan"), data, handler);
+    postRequest(createRoute("generate/scan"), source.sourceObjectData(), handler);
 }
