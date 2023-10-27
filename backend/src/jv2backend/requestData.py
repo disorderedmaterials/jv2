@@ -155,7 +155,7 @@ class RequestData:
             return url_join(self._journal_root_url, self._journal_filename)
 
     @property
-    def directory(self) -> bool:
+    def directory(self) -> str:
         """Return the directory (if given)"""
         return self._directory
 
