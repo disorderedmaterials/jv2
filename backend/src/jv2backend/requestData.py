@@ -7,7 +7,6 @@ from jv2backend.utils import url_join
 from enum import Enum
 
 class InvalidRequest(Exception):
-    status_code = 400
 
     def __init__(self, message):
         Exception.__init__(self)
