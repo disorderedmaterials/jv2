@@ -36,9 +36,9 @@ def add_routes(
             return jsonify(f"Error: {str(exc)}")
 
         logging.debug(f"Scan for NeXuS files in data directory \
-                      {postData.data_directory}...")
+                      {postData.run_data_url}...")
 
-        return journalGenerator.list_files(postData.data_directory)
+        return journalGenerator.list_files(postData.run_data_url)
 
     @app.post("/generate/scan")
     def scan() -> FlaskResponse:
@@ -55,14 +55,14 @@ def add_routes(
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_filename=True,
+                                   require_journal_file=True,
                                    require_data_directory=True,
                                    require_parameter="dataOrganisation")
         except InvalidRequest as exc:
             return jsonify(f"Error: {str(exc)}")
 
-        logging.debug(f"Generate journal {postData.filename} from \
-                      {postData.url}")
+        logging.debug(f"Generate journal {postData.journal_filename} from \
+                      {postData.run_data_url}")
 
         return journalGenerator.scan_files(postData)
 

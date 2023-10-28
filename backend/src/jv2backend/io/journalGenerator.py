@@ -8,7 +8,7 @@ import h5py
 import xml.etree.ElementTree as ET
 import hashlib
 
-from jv2backend.requestData import RequestData
+from jv2backend.requestData import RequestData, SourceType
 from jv2backend.utils import jsonify, url_join
 
 
@@ -127,7 +127,7 @@ class JournalGenerator:
                 journals[run[sortKey]] = []
             journals[run[sortKey]].append(run)
 
-        # Create and write index and journal files
+        # Create index and journal files
         indexRoot = ET.Element("journal")
         for j in journals:
             logging.debug(f"Journal for {j} has {len(journals[j])} runs")
@@ -138,6 +138,7 @@ class JournalGenerator:
 
             # Construct the child journal data
             journalRoot = ET.Element("NXroot")
+            journalRoot.set("filename", journalFilename)
             for run in journals[j]:
                 runEntry = ET.SubElement(journalRoot, "NXentry")
                 runEntry.set("name", run["filename"].replace(".nxs", ""))
@@ -145,25 +146,27 @@ class JournalGenerator:
                     dataEntry = ET.SubElement(runEntry, d)
                     dataEntry.text = run[d]
 
-            # Write the child journal file
-            try:
-                with open(url_join(requestData.url,
-                                   journalFilename), "wb") as f:
-                    ET.ElementTree(journalRoot).write(f)
-            except Exception as exc:
-                return jsonify(f"Error: {str(exc)}")
-
             # Add an entry in the index file
             indexEntry = ET.SubElement(indexRoot, "file")
             indexEntry.set("name", journalFilename)
             indexEntry.set("data_directory", j)
             indexEntry.set("display_name",
                            j.removeprefix(
-                               requestData.data_directory
+                               requestData.run_data_url
                                ).lstrip("/"))
 
-        # Write the index file
-        with open(requestData.file_url, "wb") as f:
-            ET.ElementTree(indexRoot).write(f)
+        # Write the index and journal files for a "Disk" source
+        if requestData.source_type == SourceType.File:
+            # Index file
+            with open(requestData.journal_file_url, "wb") as f:
+                ET.ElementTree(indexRoot).write(f)
+            # Journal files
+            for j in journals:
+                try:
+                    with open(url_join(requestData.url,
+                                       j["filename"]), "wb") as f:
+                        ET.ElementTree(journalRoot).write(f)
+                except Exception as exc:
+                    return jsonify(f"Error: {str(exc)}")
 
         return jsonify("SUCCESS")

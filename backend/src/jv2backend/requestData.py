@@ -92,8 +92,9 @@ class RequestData:
 
         # Was a data directory provided / required?
         self._run_data_root_url = (requestData["runDataRootUrl"]
-                                if "runDataRootUrl" in requestData else None)
-        if require_run_data_root_url and self._run_data_root_url is None:
+                                   if "runDataRootUrl" in requestData
+                                   else None)
+        if require_data_directory and self._run_data_root_url is None:
             raise InvalidRequest("Data directory required but not given.")
 
         # Were run number(s) provided / required?
