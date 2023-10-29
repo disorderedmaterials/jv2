@@ -73,6 +73,8 @@ def add_routes(
         logging.debug(f"Get journal {postData.journal_file_url()} "
                       f"from '{postData.library_key()}'")
 
+        journalLibrary.list()
+
         return journalLocator.get_journal_data(postData)
 
     @app.post("/journals/getUpdates")
