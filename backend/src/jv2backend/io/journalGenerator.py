@@ -8,8 +8,13 @@ import h5py
 import xml.etree.ElementTree as ET
 import hashlib
 
+import datetime
+import pandas as pd
+from io import BytesIO
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.utils import jsonify, url_join
+from jv2backend.journals import JournalLibrary, JournalCollection, JournalFile
+from jv2backend.journals import JournalData
 
 
 class JournalGenerator:
@@ -96,7 +101,8 @@ class JournalGenerator:
 
         return data
 
-    def scan_files(self, requestData: RequestData):
+    def scan_files(self, requestData: RequestData,
+                   journalLibrary: JournalLibrary):
         """Generate an index file containing journal information
 
         :param requestData: RequestData object containing the necessary info
@@ -127,14 +133,16 @@ class JournalGenerator:
                 journals[run[sortKey]] = []
             journals[run[sortKey]].append(run)
 
-        # Create index and journal files
+        # Create index and journal files, and assemble a list of journals
         indexRoot = ET.Element("journal")
+        jc = []
         for j in journals:
             logging.debug(f"Journal for {j} has {len(journals[j])} runs")
 
             # Create hash and journal filename
             hash = hashlib.sha256(j.encode('utf-8'))
             journalFilename = hash.hexdigest() + ".xml"
+            displayName = j.removeprefix(requestData.run_data_url).lstrip("/")
 
             # Construct the child journal data
             journalRoot = ET.Element("NXroot")
@@ -150,15 +158,28 @@ class JournalGenerator:
             indexEntry = ET.SubElement(indexRoot, "file")
             indexEntry.set("name", journalFilename)
             indexEntry.set("data_directory", j)
-            indexEntry.set("display_name",
-                           j.removeprefix(
-                               requestData.run_data_url
-                               ).lstrip("/"))
+            indexEntry.set("display_name", displayName)
+
+            # Push a new Journal on to the list
+            jf = JournalFile(displayName,
+                             requestData.journal_root_url,
+                             requestData.directory,
+                             journalFilename, j)
+            # TODO / FIXME Generate a DataFrame containing the run information
+            runData = pd.read_xml(BytesIO(ET.tostring(journalRoot)), dtype=str)
+            jf.run_data = JournalData(journalFilename, runData)
+            jf.last_modified = datetime.datetime.now()
+
+            # Store the most-recent (highest) run number in the journal for future
+            # reference
+            jf.last_run_number = jf.run_data.get_last_run_number
+
+            jc.append(jf)
 
         # Write the index and journal files for a "Disk" source
         if requestData.source_type == SourceType.File:
             # Index file
-            with open(requestData.journal_file_url, "wb") as f:
+            with open(requestData.journal_file_url(), "wb") as f:
                 ET.ElementTree(indexRoot).write(f)
             # Journal files
             for j in journals:
@@ -168,5 +189,8 @@ class JournalGenerator:
                         ET.ElementTree(journalRoot).write(f)
                 except Exception as exc:
                     return jsonify(f"Error: {str(exc)}")
+
+        # Finally, create a library entry
+        journalLibrary[requestData.library_key()] = JournalCollection(jc)
 
         return jsonify("SUCCESS")

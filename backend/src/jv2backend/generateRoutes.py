@@ -64,6 +64,6 @@ def add_routes(
         logging.debug(f"Generate journal {postData.journal_filename} from \
                       {postData.run_data_url}")
 
-        return journalGenerator.scan_files(postData)
+        return journalGenerator.scan_files(postData, journalLibrary)
 
     return app
