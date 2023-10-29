@@ -79,7 +79,7 @@ void JournalSource::setJournalData(const QString &journalRootUrl, const QString 
 }
 
 // Root URL for the journal source (if available)
-QString JournalSource::journalRootUrl() const { return type_ == IndexingType::Cached ? "@cache" : journalRootUrl_; }
+QString JournalSource::journalRootUrl() const { return journalRootUrl_; }
 
 // Return name of the index file in the main directories, if known
 QString JournalSource::journalIndexFilename() const
@@ -203,7 +203,7 @@ QJsonObject JournalSource::sourceObjectData() const
     QJsonObject data;
     data["sourceID"] = name_;
     data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] = journalRootUrl();
+    data["journalRootUrl"] = journalRootUrl_;
     data["journalFilename"] = journalIndexFilename();
     if (instrumentSubdirectories_)
         data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
@@ -218,7 +218,7 @@ QJsonObject JournalSource::currentJournalObjectData() const
     QJsonObject data;
     data["sourceID"] = name_;
     data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] = journalRootUrl();
+    data["journalRootUrl"] = journalRootUrl_;
     data["journalFilename"] = currentJournal_ ? currentJournal_->get().location().filename() : "UNKNOWN";
     if (instrumentSubdirectories_)
         data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
