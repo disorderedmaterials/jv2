@@ -188,7 +188,7 @@ class JournalGenerator:
                                        j["filename"]), "wb") as f:
                         ET.ElementTree(journalRoot).write(f)
                 except Exception as exc:
-                    return jsonify(f"Error: {str(exc)}")
+                    return jsonify({"Error": str(exc)})
 
         # Finally, create a library entry
         journalLibrary[requestData.library_key()] = JournalCollection(jc)

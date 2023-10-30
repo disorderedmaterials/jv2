@@ -33,7 +33,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_data_directory=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         logging.debug(f"Scan for NeXuS files in data directory \
                       {postData.run_data_url}...")
@@ -59,7 +59,7 @@ def add_routes(
                                    require_data_directory=True,
                                    require_parameter="dataOrganisation")
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         logging.debug(f"Generate journal {postData.journal_filename} from \
                       {postData.run_data_url}")
