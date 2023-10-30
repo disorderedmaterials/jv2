@@ -33,23 +33,4 @@ class Journal
     void setLocation(const Locator &location);
     // Return location
     const Locator &location() const;
-
-    /*
-     * Associated Run Data
-     */
-    public:
-    // Run Data Range Typedef
-    using RunDataRange = std::pair<int, std::optional<int>>;
-
-    private:
-    // Available run number information
-    std::vector<RunDataRange> runData_;
-    // Run data directory
-    QString dataDirectory_;
-
-    public:
-    // Set data directory location
-    void setDataDirectory(QString dataDir);
-    // Return data directory
-    const QString &dataDirectory() const;
 };
