@@ -261,8 +261,8 @@ class JournalCollection:
         jf = self.journal_for_run(run_number)
         if jf is None:
             return None
-        logging.debug(f"Run number {run_number} exists in journal \
-                      {jf.filename}")
+        logging.debug(f"Run number {run_number} exists in journal "
+                      f"{jf.filename}")
 
         # Get the data for the specified run number
         data = jf.get_data(run_number)
