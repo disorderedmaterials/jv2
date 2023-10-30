@@ -83,7 +83,7 @@ class Backend : public QObject
      */
     public:
     // Get NeXuS log values present in specified run files
-    void getNexusFields(const Locator &location, const std::vector<int> &runNos,
+    void getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
                         HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log value data for specified run files
     void getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,

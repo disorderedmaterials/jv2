@@ -202,7 +202,7 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotSELog)
     {
-        backend_.getNexusFields(currentJournal().location(), selectedRunNumbers(),
+        backend_.getNexusFields(currentJournalSource(), selectedRunNumbers(),
                                 [=](HttpRequestWorker *worker) { handlePlotSELogValue(worker); });
     }
     else if (selectedAction == plotDetector)
