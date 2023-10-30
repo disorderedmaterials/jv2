@@ -86,9 +86,9 @@ class JournalSource
     // Set journal data
     void setJournalData(const QString &journalRootUrl, const QString &indexFilename);
     // Root URL for the journal source (if available)
-    const QString &journalRootUrl() const;
+    QString journalRootUrl() const;
     // Return journal index filename
-    const QString &journalIndexFilename() const;
+    QString journalIndexFilename() const;
     // Clear current journals
     void clearJournals();
     // Set journals

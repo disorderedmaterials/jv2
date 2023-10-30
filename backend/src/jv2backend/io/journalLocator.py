@@ -173,11 +173,21 @@ class JournalLocator:
         :param requestData: RequestData object containing journal details
         :return: Array of run data information
         """
-        # If we already have this journal file in the collection, check its
-        # modification time
+        # Search the collection for the specified journal file
         j = requestData.journal_collection.get_info(
             requestData.journal_filename
         )
+
+        # For cached sources, we either return the found data immediately or
+        # raise an error
+        if requestData.source_type == SourceType.Cached:
+            if j is not None:
+                return json_response(j.run_data)
+            else:
+                return jsonify({"Error": "Cached journal not found."})
+
+        # If we already have this journal file in the collection, check its
+        # modification time
         if j is not None:
             # Return current data if the file still has the same modtime
             current_last_modified = self._get_journal_modification_time(

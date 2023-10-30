@@ -319,3 +319,12 @@ class JournalLibrary:
 
     def __contains__(self, key):
         return key in self.collections
+
+    def list(self):
+        """List contents of library"""
+        for c in self.collections:
+            logging.debug(f"Collection '{c}' contains "
+                          f"{len(self.collections[c].journalFiles)} "
+                          f"journal files:")
+            for j in self.collections[c].journalFiles:
+                logging.debug(f"     {j} ({j.run_data.run_count} run data)")

@@ -1,4 +1,4 @@
-    # SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import typing
@@ -7,7 +7,6 @@ from jv2backend.utils import url_join
 from enum import Enum
 
 class InvalidRequest(Exception):
-    status_code = 400
 
     def __init__(self, message):
         Exception.__init__(self)
@@ -36,18 +35,14 @@ class RequestData:
                  require_data_directory=False,
                  require_run_numbers=False,
                  require_parameter=None) -> None:
-        """Set up the class. The POST data contains the following:
-          journalRoot: The main, root URL path (http or file)
-            directory: [OPTIONAL] Directory within the journalRoot to consider
-        dataDirectory: [OPTIONAL] Associated run data directory
-             filename: [OPTIONAL] Target filename
+        """Store recognised items in the POST data. We can make various
+         stipulations on the contents:
 
-        We can make various stipulations on the provided POST data:
           require_journal_file: Whether a full journal index/file must be
                                 given
             require_in_library: Whether a collection matching the library_key
                                 must already exist
-        require_data_directory: Whether a 'dataDirectory' must be provided
+        require_data_directory: Whether a 'runDataRootUrl' must be provided
               require_filename: Whether a 'filename' must be provided
            require_run_numbers: Whether one or more run numbers are expected
              require_parameter: Name of an additional parameter to expect
@@ -57,8 +52,7 @@ class RequestData:
         self._journal_root_url: str = None
         self._journal_filename: str = None
         self._directory: str = None
-        # OLD
-        self._data_directory: str = None
+        self._run_data_root_url: str = None
         self._parameter: str = None
         self._journal_collection: jv2backend.journals.JournalCollection = None
         self._run_numbers: typing.List[int] = []
@@ -97,9 +91,10 @@ class RequestData:
                                  f"in library.")
 
         # Was a data directory provided / required?
-        self._data_directory = (requestData["runDataRootUrl"]
-                                if "runDataRootUrl" in requestData else None)
-        if require_data_directory and self._data_directory is None:
+        self._run_data_root_url = (requestData["runDataRootUrl"]
+                                   if "runDataRootUrl" in requestData
+                                   else None)
+        if require_data_directory and self._run_data_root_url is None:
             raise InvalidRequest("Data directory required but not given.")
 
         # Were run number(s) provided / required?
@@ -156,14 +151,22 @@ class RequestData:
             return url_join(self._journal_root_url, self._journal_filename)
 
     @property
-    def directory(self) -> bool:
+    def directory(self) -> str:
         """Return the directory (if given)"""
         return self._directory
 
     @property
-    def data_directory(self) -> str:
-        """Return the data directory (if given)"""
-        return self._data_directory
+    def run_data_root_url(self) -> str:
+        """Return the root of the data directory (if given)"""
+        return self._run_data_root_url
+
+    @property
+    def run_data_url(self) -> str:
+        """Return the full path to the data directory (if given)"""
+        if self._directory:
+            return url_join(self._run_data_root_url, self._directory)
+        else:
+            return self._run_data_root_url
 
     @property
     def run_numbers(self) -> typing.List[int]:

@@ -76,6 +76,9 @@ void MainWindow::getDefaultJournalSources()
 // Set current journal source
 void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
 {
+    if (controlsUpdating_)
+        return;
+
     // Clear any existing data
     clearRunData();
     journalModel_.setData(std::nullopt);
@@ -173,13 +176,14 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     {
         ui_.NetworkErrorInfoLabel->setText(worker->response);
         updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+        controlsUpdating_ = false;
         return;
     }
 
     auto &journalSource = currentJournalSource();
     journalSource.clearJournals();
 
-    // Special case - for disk-based sources we may get an error stating that the index file was not found.
+    // Special case - for cache or disk-based sources we may get an error stating that the index file was not found.
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
     if (worker->response.startsWith("\"Index File Not Found\""))
     {
@@ -190,14 +194,15 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
             orgByInst ? QString("%1/%2").arg(journalSource.journalRootUrl(), journalSource.currentInstrument()->get().name())
                       : journalSource.journalRootUrl();
 
-        if (QMessageBox::question(this, "Index File Doesn't Exist",
-                                  QString("No index file %1/%2 currently exists.\nWould you like to generate it now?")
-                                      .arg(rootUrl, currentJournalSource().journalIndexFilename())) ==
+        if (QMessageBox::question(
+                this, "Index File Doesn't Exist",
+                QString("No index file '%1/%2' currently exists in the source '%3'.\nWould you like to generate it now?")
+                    .arg(rootUrl, journalSource.journalIndexFilename(), journalSource.name())) ==
             QMessageBox::StandardButton::Yes)
         {
             backend_.listDataDirectory(currentJournalSource(),
                                        [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
-
+            controlsUpdating_ = false;
             return;
         }
     }

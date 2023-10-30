@@ -36,7 +36,12 @@ def split(input: str, delimiter: str, discard_empty=True) -> Sequence[str]:
 
 def _join_slash(a: str, b: str):
     """Join two strings together with a forward slash"""
-    return a.rstrip('/') + '/' + b.lstrip('/')
+    if len(a) is 0:
+        return b
+    elif len(b) is 0:
+        return a
+    else:
+        return a.rstrip('/') + '/' + b.lstrip('/')
 
 
 def url_join(*args):
