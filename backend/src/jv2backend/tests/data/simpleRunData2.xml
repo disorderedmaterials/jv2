@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <NXroot NeXus_version="4.3.0" XML_version="mxml">
+    <NXentry name="JVTEST00000004">
+      <title NAPItype="NX_CHAR[35]">Ultra Mega Science 1</title>
+      <user_name NAPItype="NX_CHAR[14]">Devlin</user_name>
+      <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
+      <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
+      <run_number NAPItype="NX_INT32">4</run_number>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-02T09:17:19</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-02T10:25:03</end_time>
+      <duration NAPItype="NX_INT64">3973</duration>
+      <proton_charge NAPItype="NX_FLOAT32">3.6494</proton_charge>
+      <raw_frames NAPItype="NX_UINT32">198600</raw_frames>
+      <good_frames NAPItype="NX_UINT32">198600</good_frames>
+      <number_spectra NAPItype="NX_INT32">2337</number_spectra>
+      <number_detectors NAPItype="NX_INT32">2337</number_detectors>
+      <frame_sync NAPItype="NX_CHAR[16]">InternalTest50Hz</frame_sync>
+      <monitor_spectrum NAPItype="NX_INT32">4</monitor_spectrum>
+      <monitor_sum NAPItype="NX_UINT32">0</monitor_sum>
+      <isis_cycle NAPItype="NX_CHAR[4]">22_5</isis_cycle>
+    </NXentry>
+  <NXentry name="JVTEST00000005">
+      <title NAPItype="NX_CHAR[67]">Ultra Mega Science 2</title>
+      <user_name NAPItype="NX_CHAR[14]">Devlin</user_name>
+      <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
+      <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
+      <run_number NAPItype="NX_INT32">5</run_number>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-02T10:30:32</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-02T11:00:01</end_time>
+      <duration NAPItype="NX_INT64">1769</duration>
+      <proton_charge NAPItype="NX_FLOAT32">1.8668</proton_charge>
+      <raw_frames NAPItype="NX_UINT32">88470</raw_frames>
+      <good_frames NAPItype="NX_UINT32">88470</good_frames>
+      <number_spectra NAPItype="NX_INT32">2337</number_spectra>
+      <number_detectors NAPItype="NX_INT32">2337</number_detectors>
+      <frame_sync NAPItype="NX_CHAR[16]">InternalTest50Hz</frame_sync>
+      <monitor_spectrum NAPItype="NX_INT32">4</monitor_spectrum>
+      <monitor_sum NAPItype="NX_UINT32">0</monitor_sum>
+      <isis_cycle NAPItype="NX_CHAR[4]">22_5</isis_cycle>
+    </NXentry>
+  <NXentry name="JVTEST00000007">
+      <title NAPItype="NX_CHAR[67]">Ultra Mega Science 1 (again)</title>
+      <user_name NAPItype="NX_CHAR[14]">Devlin</user_name>
+      <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
+      <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
+      <run_number NAPItype="NX_INT32">7</run_number>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-02T11:00:14</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-03T10:22:09</end_time>
+      <duration NAPItype="NX_INT64">84115</duration>
+      <proton_charge NAPItype="NX_FLOAT32">35.1753</proton_charge>
+      <raw_frames NAPItype="NX_UINT32">4205742</raw_frames>
+      <good_frames NAPItype="NX_UINT32">4205742</good_frames>
+      <number_spectra NAPItype="NX_INT32">2337</number_spectra>
+      <number_detectors NAPItype="NX_INT32">2337</number_detectors>
+      <frame_sync NAPItype="NX_CHAR[16]">InternalTest50Hz</frame_sync>
+      <monitor_spectrum NAPItype="NX_INT32">4</monitor_spectrum>
+      <monitor_sum NAPItype="NX_UINT32">15</monitor_sum>
+      <isis_cycle NAPItype="NX_CHAR[4]">22_5</isis_cycle>
+    </NXentry>
+  <NXentry name="JVTEST00000099">
+      <title NAPItype="NX_CHAR[67]">Not Very Ultra Mega Science</title>
+      <user_name NAPItype="NX_CHAR[14]">Devlin</user_name>
+      <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
+      <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
+      <run_number NAPItype="NX_INT32">99</run_number>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-03T10:22:25</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-03T11:57:45</end_time>
+      <duration NAPItype="NX_INT64">5720</duration>
+      <proton_charge NAPItype="NX_FLOAT32">6.2177</proton_charge>
+      <raw_frames NAPItype="NX_UINT32">285999</raw_frames>
+      <good_frames NAPItype="NX_UINT32">285999</good_frames>
+      <number_spectra NAPItype="NX_INT32">2337</number_spectra>
+      <number_detectors NAPItype="NX_INT32">2337</number_detectors>
+      <frame_sync NAPItype="NX_CHAR[16]">InternalTest50Hz</frame_sync>
+      <monitor_spectrum NAPItype="NX_INT32">4</monitor_spectrum>
+      <monitor_sum NAPItype="NX_UINT32">0</monitor_sum>
+      <isis_cycle NAPItype="NX_CHAR[4]">22_5</isis_cycle>
+    </NXentry>
+  </NXroot>
