@@ -534,25 +534,15 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuRunData">
+   <widget class="QMenu" name="menuEdit">
     <property name="font">
      <font>
       <pointsize>10</pointsize>
      </font>
     </property>
     <property name="title">
-     <string>&amp;Run Data</string>
+     <string>&amp;Edit</string>
     </property>
-    <widget class="QMenu" name="menuSearch_across_cycles">
-     <property name="title">
-      <string>Search Across Cycles</string>
-     </property>
-     <addaction name="actionMassSearchRBNo"/>
-     <addaction name="actionMassSearchTitle"/>
-     <addaction name="actionMassSearchUser"/>
-     <addaction name="actionMassSearchRunRange"/>
-     <addaction name="actionMassSearchDateRange"/>
-    </widget>
     <addaction name="actionRefresh"/>
     <addaction name="separator"/>
     <addaction name="actionFind"/>
@@ -560,19 +550,22 @@
     <addaction name="actionFindPrevious"/>
     <addaction name="actionSelectAllFound"/>
     <addaction name="separator"/>
-    <addaction name="menuSearch_across_cycles"/>
-    <addaction name="actionClearCachedSearches"/>
-    <addaction name="separator"/>
     <addaction name="actionJumpTo"/>
    </widget>
-   <widget class="QMenu" name="menuSettings">
-    <property name="title">
-     <string>&amp;Settings</string>
+   <widget class="QMenu" name="menuSearch">
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
+    <property name="title">
+     <string>&amp;Search</string>
+    </property>
+    <addaction name="actionSearchInTitle"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuRunData"/>
-   <addaction name="menuSettings"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuSearch"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionMassSearchRBNo">
@@ -656,6 +649,11 @@
    </property>
    <property name="shortcut">
     <string>F5</string>
+   </property>
+  </action>
+  <action name="actionSearchInTitle">
+   <property name="text">
+    <string>Search in &amp;Title...</string>
    </property>
   </action>
  </widget>
