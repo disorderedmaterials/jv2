@@ -15,6 +15,6 @@ def add_routes(
     def ping() -> FlaskResponse:
         """Return that we are ready
         """
-        return jsonify('READY')
+        return jsonify('READY', 200)
 
     return app

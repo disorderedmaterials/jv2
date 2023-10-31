@@ -43,7 +43,7 @@ def add_routes(
         for run in dataFiles:
             if dataFiles[run] is None:
                 return jsonify({"Error": f"Unable to find data file for run "
-                                "{run}"})
+                                "{run}"}, 400)
             logpaths.extend(nxs.logpaths_from_path(dataFiles[run]))
 
         return json_response(logpaths)
@@ -77,7 +77,7 @@ def add_routes(
         for run in dataFiles:
             if dataFiles[run] is None:
                 return jsonify({"Error": f"Unable to find data file for run "
-                                         "{run}"})
+                                         "{run}"}, 400)
 
             runData = {}
             nxsfile, first_group = nxs.open_at(dataFiles[run], 0)
@@ -119,7 +119,7 @@ def add_routes(
         dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
             return jsonify({"Error": f"Unable to find data file for run "
-                                     f"{run_number}"})
+                                     f"{run_number}"}, 400)
 
         return str(nxs.spectra_count(dataFile))
 
@@ -146,7 +146,7 @@ def add_routes(
         dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
             return jsonify({"Error": f"Unable to find data file for run "
-                                     f"{run_number}"})
+                                     f"{run_number}"}, 400)
 
         return str(nxs.monitor_count(dataFile))
 
@@ -239,7 +239,7 @@ def add_routes(
         dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
             return jsonify({"Error": f"Unable to find data file for run "
-                                     f"{run_number}"})
+                                     f"{run_number}"}, 400)
 
         return nxs.nonzero_spectra_ratio(dataFile)
 

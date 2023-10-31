@@ -127,7 +127,7 @@ def add_routes(
                 instrument, field, search, case_sensitive))
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to complete search '{search}': {str(exc)}")
+                f"Error: Unable to complete search '{search}': {str(exc)}", 400)
 
     @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):
@@ -141,7 +141,7 @@ def add_routes(
         try:
             result = journalLocator.filename_for_run(instrument, run)
         except Exception as exc:
-            return jsonify(f"Error finding {run} for {instrument}: {exc}")
+            return jsonify(f"Error finding {run} for {instrument}: {exc}", 400)
 
         if result is not None:
             return result

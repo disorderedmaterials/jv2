@@ -70,7 +70,7 @@ class JournalGenerator:
         response["num_files"] = num_files
         response["data_directory"] = data_directory
 
-        return jsonify(response)
+        return jsonify(response, 200)
 
     def create_journal_entry(self, data_directory: str, filename: str) -> {}:
         """Extract values from the supplied NeXuS file to form a journal
@@ -193,4 +193,4 @@ class JournalGenerator:
         # Finally, create a library entry
         journalLibrary[requestData.library_key()] = JournalCollection(jc)
 
-        return jsonify("SUCCESS")
+        return jsonify("SUCCESS", 200)

@@ -119,7 +119,7 @@ class JournalLocator:
         try:
             indexTree = self._get_journal_file_xml(requestData)
         except FileNotFoundError:
-            return jsonify("Index File Not Found")
+            return jsonify("Index File Not Found", 400)
         except (requests.HTTPError, requests.ConnectionError) as exc:
             return jsonify({"Error": str(exc)}, 400)
         except lxml.etree.XMLSyntaxError as exc:
@@ -165,7 +165,7 @@ class JournalLocator:
         # Store as a new collection in the library
         journalLibrary[requestData.library_key()] = JournalCollection(journals)
 
-        return jsonify(journalLibrary[requestData.library_key()].to_basic())
+        return jsonify(journalLibrary[requestData.library_key()].to_basic(), 200)
 
     def get_journal_data(self, requestData: RequestData) -> JournalData:
         """Retrieve run data contained in a journal file
@@ -184,7 +184,7 @@ class JournalLocator:
             if j is not None:
                 return json_response(j.run_data)
             else:
-                return jsonify({"Error": "Cached journal not found."})
+                return jsonify({"Error": "Cached journal not found."}, 400)
 
         # If we already have this journal file in the collection, check its
         # modification time
@@ -246,7 +246,7 @@ class JournalLocator:
             # Compare modification times - if the same, return existing data
             current_last_modified = self._get_modification_time(requestData)
             if current_last_modified == j.last_modified:
-                return jsonify(None)
+                return jsonify(None, 200)
 
         # Changed, so read full data
         try:
