@@ -182,13 +182,13 @@ class JournalData:
         """Return the run number of the last run in the journal"""
         return self._run_number_ranges[-1].last
 
-    def run(self, run_number: str) -> Optional[dict]:
+    def run(self, run_number: int) -> Optional[dict]:
         """Return a dictionary describing the given run number
 
         :param run_number: Run number to select
         :return: A dict describing the Run or None if the run does not exist
         """
-        matches = self._data[self._data["run_number"] == run_number]
+        matches = self._data[self._data["run_number"] == str(run_number)]
         if len(matches) == 0:
             return None
         else:
@@ -253,7 +253,7 @@ class JournalFile(BasicJournalFile):
         :param run_number: Run number of interest
         :return: A Dict describing the run, or None if not found
         """
-        return self.run_data.run(str(run_number))
+        return self.run_data.run(run_number)
 
     def __contains__(self, run_number: int):
         """Return whether the run_number exists in the journal file"""
