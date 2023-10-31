@@ -147,11 +147,7 @@ class RunRange:
 class JournalData:
     """JournalData captures all run information from a given journal file"""
 
-    def __init__(self, source: str, data: pd.DataFrame) -> None:
-        """
-        :param source: Defines the source filename
-        """
-        self._source = source
+    def __init__(self, data: pd.DataFrame) -> None:
         self._data = data
         self._run_number_ranges: List[RunRange] = []
         self.__create_run_ranges()
@@ -170,10 +166,6 @@ class JournalData:
 
         # Sort the ranges so that the highest run number appears in the last one
         self._run_number_ranges.sort(key=lambda range: range.last)
-
-    @property
-    def instrument(self) -> str:
-        return self._source
 
     @property
     def run_count(self) -> int:
