@@ -83,11 +83,11 @@ class RequestData:
         if "directory" in requestData:
             self._directory = requestData["directory"]
 
-        # Try to find the library corresponding to the library key
+        # Try to find the collection corresponding to the library key
         self._journal_collection = (library[self.library_key()] if
                                     self.library_key() in library else None)
         if require_in_library and self._journal_collection is None:
-            raise InvalidRequest(f"No collection '{self.library_key}' "
+            raise InvalidRequest(f"No collection '{self.library_key()}' "
                                  f"in library.")
 
         # Was a data directory provided / required?
