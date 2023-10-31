@@ -83,6 +83,9 @@ qt6_add_executable(
   graphWidget.cpp
   graphWidget.h
   graphWidget.ui
+  searchDialog.cpp
+  searchDialog.h
+  searchDialog.ui
   seLogChooserDialog.cpp
   seLogChooserDialog.h
   seLogChooserDialog.ui

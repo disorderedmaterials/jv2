@@ -195,15 +195,11 @@ class MainWindow : public QMainWindow
     void on_GroupRunsButton_clicked(bool checked);
 
     /*
-     * Search in Source
+     * Search Everywhere
      */
     private:
     // Cached mass search results
     QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
-
-    private:
-    // Perform mass search across cycles
-    void massSearch(QString name, QString value);
 
     private slots:
     void on_actionSearchEverywhere_triggered();
