@@ -21,7 +21,6 @@ runs:
       key: ${{ runner.os }}-nix-cache
 
   - name: Import Nix Store Cache
-    if: "steps.nix-cache.outputs.cache-hit == 'true'"
     shell: bash
     run: nix-store --import < /tmp/nixcache
 
