@@ -119,6 +119,30 @@ _SPECIAL_QUERY_HANDLERS = {
 }
 
 
+@dataclass
+class RunRange:
+    """Specifies a range of run numbers"""
+    first: int = None
+    last: int = None
+
+    def contains(self, value: int) -> bool:
+        """Return whether the range contains the specified value"""
+        return self.first <= value <= self.last
+
+    def extend(self, value: int) -> bool:
+        """Attempt to extend the current range with the supplied number.
+        We will only do so if it results in another continuous range.
+        """
+        if (value+1) == self.first:
+            self.first = value
+            return True
+        elif (value-1) == self.last:
+            self.last = value
+            return True
+
+        return False
+
+
 # JournalData class
 class JournalData:
     """JournalData captures all run information from a given journal file"""
@@ -129,6 +153,23 @@ class JournalData:
         """
         self._source = source
         self._data = data
+        self._run_number_ranges: List[RunRange] = []
+        self.__create_run_ranges()
+
+    def __create_run_ranges(self):
+        """Create run ranges from the current data"""
+        self._ranges = []
+        for index, row in self._data.iterrows():
+            run_number = int(row["run_number"])
+            rnr = next((r for r in self._run_number_ranges
+                        if r.extend(run_number)), None)
+            if not rnr:
+                self._run_number_ranges.append(
+                    RunRange(first=run_number, last=run_number)
+                )
+
+        # Sort the ranges so that the highest run number appears in the last one
+        self._run_number_ranges.sort(key=lambda range: range.last)
 
     @property
     def instrument(self) -> str:
@@ -139,11 +180,15 @@ class JournalData:
         """Return the number of runs listed within this Journal"""
         return len(self._data)
 
+    def contains_run_number(self, run_number: int) -> bool:
+        rnr = next((r for r in self._run_number_ranges
+                    if r.contains(run_number)), None)
+        return rnr is not None
+
     @property
     def get_last_run_number(self) -> int:
         """Return the run number of the last run in the journal"""
-        run_numbers = self._data["run_number"]
-        return int(run_numbers.max())
+        return self._run_number_ranges[-1].last
 
     def run(self, run_number: str) -> Optional[dict]:
         """Return a dictionary describing the given run number
@@ -195,19 +240,13 @@ class BasicJournalFile:
     directory: str
     filename: str
     data_directory: str
-    _: KW_ONLY
     last_modified: dt.datetime = None
-    first_run_number: int = -1
-    last_run_number: int = -1
 
     @classmethod
     def from_derived(cls, derived):
         basic = cls(derived.display_name, derived.server_root,
                     derived.directory, derived.filename,
-                    derived.data_directory,
-                    last_modified=derived.last_modified,
-                    first_run_number=derived.first_run_number,
-                    last_run_number=derived.last_run_number)
+                    derived.data_directory, derived.last_modified)
         return basic
 
 
@@ -226,8 +265,7 @@ class JournalFile(BasicJournalFile):
 
     def __contains__(self, run_number: int):
         """Return whether the run_number exists in the journal file"""
-        return (run_number >= self.first_run_number and
-                run_number <= self.last_run_number)
+        return self.run_data.contains_run_number(run_number)
 
 
 @dataclass
