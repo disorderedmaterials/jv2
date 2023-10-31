@@ -21,7 +21,7 @@ def test_basic_constructor():
 def test_run_data_ranges():
     data = JournalData(runData)
 
-    assert data.get_last_run_number() == 9
+    assert data.get_last_run_number == 9
 
 
 @pytest.mark.parametrize("run_number", [1, 2, 3, 6, 8, 9])
