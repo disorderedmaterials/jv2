@@ -86,20 +86,20 @@ class Backend : public QObject
     void getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
                         HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log value data for specified run files
-    void getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
+    void getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
                               HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor range for specified run number
-    void getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor spectrum for specified run numbers
-    void getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
+    void getNexusMonitor(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
                          HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS spectrum range for specified run numbers
-    void getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra for specified run numbers
-    void getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
+    void getNexusDetector(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra analysis for specified run number
-    void getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 
     /*
      * Generation Endpoints

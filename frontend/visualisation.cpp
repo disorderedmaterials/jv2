@@ -48,7 +48,7 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
         return;
 
     // Request the log value data
-    backend_.getNexusLogValueData(currentJournal().location(), selectedRunNumbers(), logValue,
+    backend_.getNexusLogValueData(currentJournalSource(), selectedRunNumbers(), logValue,
                                   [=](HttpRequestWorker *worker) { handleCreateSELogPlot(worker); });
 }
 
