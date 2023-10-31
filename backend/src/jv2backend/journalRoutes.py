@@ -38,7 +38,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         logging.debug(f"Listing journals for {postData.source_id}: "
                       f"{postData.journal_file_url()}")
@@ -68,7 +68,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         logging.debug(f"Get journal {postData.journal_file_url()} "
                       f"from '{postData.library_key()}'")
@@ -93,7 +93,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         logging.debug(f"Get journal {postData.filename} from {postData.url}")
 
@@ -127,7 +127,7 @@ def add_routes(
                 instrument, field, search, case_sensitive))
         except Exception as exc:
             return jsonify(
-                f"Error: Unable to complete search '{search}': {str(exc)}")
+                f"Error: Unable to complete search '{search}': {str(exc)}", 400)
 
     @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):
@@ -141,7 +141,7 @@ def add_routes(
         try:
             result = journalLocator.filename_for_run(instrument, run)
         except Exception as exc:
-            return jsonify(f"Error finding {run} for {instrument}: {exc}")
+            return jsonify(f"Error finding {run} for {instrument}: {exc}", 400)
 
         if result is not None:
             return result
