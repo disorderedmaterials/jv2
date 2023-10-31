@@ -174,7 +174,7 @@ class JournalLocator:
         :return: Array of run data information
         """
         # Search the collection for the specified journal file
-        j = requestData.journal_collection.get_info(
+        j = requestData.journal_collection.get_journal(
             requestData.journal_filename
         )
 
@@ -239,7 +239,7 @@ class JournalLocator:
         """
         # If we already have this journal file in the collection, check its
         # modification time
-        j = requestData.journal_collection.get_info(
+        j = requestData.journal_collection.get_journal(
             requestData.journal_filename
         )
         if j is not None:

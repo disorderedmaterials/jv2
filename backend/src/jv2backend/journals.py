@@ -319,7 +319,7 @@ class JournalCollection:
             result[i] = self.locate_data_file(i)
         return result
 
-    def get_info(self, filename: str):
+    def get_journal(self, filename: str) -> JournalFile:
         return next(
             (jf for jf in self.journalFiles if jf.filename == filename),
             None)
