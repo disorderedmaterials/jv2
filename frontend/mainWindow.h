@@ -165,7 +165,7 @@ class MainWindow : public QMainWindow
     void loadSettings();
 
     /*
-     * Searching
+     * Find in Current Journal
      */
     private:
     QString searchString_;
