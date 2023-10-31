@@ -32,6 +32,7 @@ def test_derived_constructor():
     _test_journal_data(derived)
     assert derived.run_data.run_count == 0
 
+
 def test_basic_from_derived():
     derived = JournalFile(JOURNAL_NAME, JOURNAL_ROOT_URL,
                           JOURNAL_DIRECTORY, JOURNAL_FILENAME,
@@ -41,7 +42,9 @@ def test_basic_from_derived():
 
     _test_journal_data(basic)
 
+
 # Helpers
+
 
 def _test_journal_data(journal_data: typing.Any):
     assert journal_data.display_name == JOURNAL_NAME
