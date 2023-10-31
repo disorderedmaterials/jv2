@@ -195,7 +195,7 @@ class MainWindow : public QMainWindow
     void on_GroupRunsButton_clicked(bool checked);
 
     /*
-     * Mass Search
+     * Search in Source
      */
     private:
     // Cached mass search results
@@ -206,12 +206,7 @@ class MainWindow : public QMainWindow
     void massSearch(QString name, QString value);
 
     private slots:
-    void on_actionMassSearchRBNo_triggered();
-    void on_actionMassSearchTitle_triggered();
-    void on_actionMassSearchUser_triggered();
-    void on_actionMassSearchRunRange_triggered();
-    void on_actionMassSearchDateRange_triggered();
-    void on_actionClearCachedSearches_triggered();
+    void on_actionSearchEverywhere_triggered();
 
     /*
      * Visualisation

@@ -551,21 +551,11 @@
     <addaction name="actionSelectAllFound"/>
     <addaction name="separator"/>
     <addaction name="actionJumpTo"/>
-   </widget>
-   <widget class="QMenu" name="menuSearch">
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="title">
-     <string>&amp;Search</string>
-    </property>
-    <addaction name="actionSearchInTitle"/>
+    <addaction name="separator"/>
+    <addaction name="actionSearchEverywhere"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
-   <addaction name="menuSearch"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionMassSearchRBNo">
@@ -654,6 +644,11 @@
   <action name="actionSearchInTitle">
    <property name="text">
     <string>Search in &amp;Title...</string>
+   </property>
+  </action>
+  <action name="actionSearchEverywhere">
+   <property name="text">
+    <string>&amp;Search Everywhere...</string>
    </property>
   </action>
  </widget>
