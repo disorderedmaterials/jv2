@@ -10,7 +10,6 @@
 
 // Forward-declarations
 class JournalSource;
-class Locator;
 class QCommandLineParser;
 
 // Backend Process
@@ -70,8 +69,8 @@ class Backend : public QObject
     void listJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get journal file at the specified location
     void getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get any updates to the specified journal
-    void getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get any updates to the specified current journal in the specified source
+    void getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Search all journals for matching runs
     void findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
                   HttpRequestWorker::HttpRequestHandler handler = {});

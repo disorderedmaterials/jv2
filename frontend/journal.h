@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "locator.h"
 #include <QString>
 #include <map>
 
@@ -21,16 +20,16 @@ class Journal
     QString name_;
     // Description
     QString description_;
-    // Location
-    Locator location_;
+    // Filename
+    QString filename_;
 
     public:
     // Return name (used for display)
     const QString &name() const;
     // Return description
     const QString &description() const;
-    // Set location
-    void setLocation(const Locator &location);
-    // Return location
-    const Locator &location() const;
+    // Set filename
+    void setFilename(const QString &filename);
+    // Return filename
+    const QString &filename() const;
 };

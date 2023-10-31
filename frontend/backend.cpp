@@ -5,7 +5,6 @@
 #include "args.h"
 #include "httpRequestWorker.h"
 #include "journalSource.h"
-#include "locator.h"
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
@@ -140,15 +139,10 @@ void Backend::getJournal(const JournalSource &source, HttpRequestWorker::HttpReq
     postRequest(createRoute("journals/get"), source.currentJournalObjectData(), handler);
 }
 
-// Get any updates to the specified journal
-void Backend::getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
+// Get any updates to the specified current journal in the specified source
+void Backend::getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
-    data["filename"] = location.filename();
-
-    postRequest(createRoute("journals/getUpdates"), data, handler);
+    postRequest(createRoute("journals/getUpdates"), source.currentJournalObjectData(), handler);
 }
 
 // Search all journals for matching runs

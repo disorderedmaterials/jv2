@@ -145,8 +145,7 @@ void MainWindow::on_actionRefresh_triggered()
     if (!optJournal)
         return;
 
-    backend_.getJournalUpdates(optJournal->get().location(),
-                               [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    backend_.getJournalUpdates(journalSource, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
 // Jump to run number

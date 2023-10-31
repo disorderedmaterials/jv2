@@ -44,8 +44,6 @@ qt6_add_executable(
   instrument.h
   journal.cpp
   journal.h
-  locator.cpp
-  locator.h
   optionalRef.h
   # Backend
   backend.cpp
