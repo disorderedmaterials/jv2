@@ -69,8 +69,8 @@ def test_journal_file_required_and_provided():
     except Exception as exc:
         pytest.fail(f"Unexpected exception: {exc}")
 
-    assert data.journal_root_url() == POST_JOURNAL_ROOT_URL
-    assert data.journal_filename() == POST_JOURNAL_FILENAME
+    assert data.journal_root_url == POST_JOURNAL_ROOT_URL
+    assert data.journal_filename == POST_JOURNAL_FILENAME
     assert data.journal_file_url() == POST_JOURNAL_ROOT_URL + "/" + POST_JOURNAL_FILENAME
 
 
