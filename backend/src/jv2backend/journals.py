@@ -147,11 +147,7 @@ class RunRange:
 class JournalData:
     """JournalData captures all run information from a given journal file"""
 
-    def __init__(self, source: str, data: pd.DataFrame) -> None:
-        """
-        :param source: Defines the source filename
-        """
-        self._source = source
+    def __init__(self, data: pd.DataFrame) -> None:
         self._data = data
         self._run_number_ranges: List[RunRange] = []
         self.__create_run_ranges()
@@ -171,32 +167,28 @@ class JournalData:
         # Sort the ranges so that the highest run number appears in the last one
         self._run_number_ranges.sort(key=lambda range: range.last)
 
-    @property
-    def instrument(self) -> str:
-        return self._source
+    def __contains__(self, run_number: int) -> bool:
+        rnr = next((r for r in self._run_number_ranges
+                    if r.contains(run_number)), None)
+        return rnr is not None
 
     @property
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return len(self._data)
 
-    def contains_run_number(self, run_number: int) -> bool:
-        rnr = next((r for r in self._run_number_ranges
-                    if r.contains(run_number)), None)
-        return rnr is not None
-
     @property
     def get_last_run_number(self) -> int:
         """Return the run number of the last run in the journal"""
         return self._run_number_ranges[-1].last
 
-    def run(self, run_number: str) -> Optional[dict]:
+    def run(self, run_number: int) -> Optional[dict]:
         """Return a dictionary describing the given run number
 
         :param run_number: Run number to select
         :return: A dict describing the Run or None if the run does not exist
         """
-        matches = self._data[self._data["run_number"] == run_number]
+        matches = self._data[self._data["run_number"] == str(run_number)]
         if len(matches) == 0:
             return None
         else:
@@ -211,7 +203,6 @@ class JournalData:
         query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
 
         return JournalData(
-            self.source,
             query_handle(self._data, run_field, user_input, case_sensitive),
         )
 
@@ -227,9 +218,7 @@ def concatenate(journals: Sequence[JournalData]) -> JournalData:
     :param journals: Sequence of Journal objects
     :return: A new JournalData, the result of concatenating the input data
     """
-    return JournalData(
-        journals[0].source, pd.concat([journal._data for journal in journals])
-    )
+    return JournalData(pd.concat([journal._data for journal in journals]))
 
 
 @dataclass
@@ -261,11 +250,11 @@ class JournalFile(BasicJournalFile):
         :param run_number: Run number of interest
         :return: A Dict describing the run, or None if not found
         """
-        return self.run_data.run(str(run_number))
+        return self.run_data.run(run_number)
 
     def __contains__(self, run_number: int):
         """Return whether the run_number exists in the journal file"""
-        return self.run_data.contains_run_number(run_number)
+        return run_number in self.run_data
 
 
 @dataclass
@@ -327,7 +316,7 @@ class JournalCollection:
             result[i] = self.locate_data_file(i)
         return result
 
-    def get_info(self, filename: str):
+    def get_journal(self, filename: str) -> JournalFile:
         return next(
             (jf for jf in self.journalFiles if jf.filename == filename),
             None)

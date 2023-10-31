@@ -167,7 +167,7 @@ class JournalGenerator:
                              journalFilename, j)
             # TODO / FIXME Generate a DataFrame containing the run information
             runData = pd.read_xml(BytesIO(ET.tostring(journalRoot)), dtype=str)
-            jf.run_data = JournalData(journalFilename, runData)
+            jf.run_data = JournalData(runData)
             jf.last_modified = datetime.datetime.now()
 
             # Store the most-recent (highest) run number in the journal for future
