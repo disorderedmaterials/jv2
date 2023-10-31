@@ -121,9 +121,9 @@ class JournalLocator:
         except FileNotFoundError:
             return jsonify("Index File Not Found")
         except (requests.HTTPError, requests.ConnectionError) as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
         except lxml.etree.XMLSyntaxError as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         indexRoot = indexTree.getroot()
 
@@ -201,9 +201,9 @@ class JournalLocator:
             runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
         except lxml.etree.XMLSyntaxError as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Store the updated run data and modtime
         j.run_data = JournalData(
@@ -253,7 +253,7 @@ class JournalLocator:
             fileBytes = self._get_file(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
         j.last_modified = current_last_modified
 
         # Read in the run data from the journal file and store the whole thing

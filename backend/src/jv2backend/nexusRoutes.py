@@ -33,7 +33,7 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -66,7 +66,7 @@ def add_routes(
                                    require_in_library=True,
                                    require_parameter="logValue")
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -112,7 +112,7 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
@@ -139,7 +139,7 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
@@ -168,7 +168,7 @@ def add_routes(
                                    require_in_library=True,
                                    require_parameter="spectrumId")
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -201,7 +201,7 @@ def add_routes(
                                    require_in_library=True,
                                    require_parameter="spectrumId")
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -232,7 +232,7 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return jsonify({"Error": str(exc)}, 400)
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
