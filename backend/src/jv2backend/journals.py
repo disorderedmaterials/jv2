@@ -167,15 +167,15 @@ class JournalData:
         # Sort the ranges so that the highest run number appears in the last one
         self._run_number_ranges.sort(key=lambda range: range.last)
 
+    def __contains__(self, run_number: int) -> bool:
+        rnr = next((r for r in self._run_number_ranges
+                    if r.contains(run_number)), None)
+        return rnr is not None
+
     @property
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return len(self._data)
-
-    def contains_run_number(self, run_number: int) -> bool:
-        rnr = next((r for r in self._run_number_ranges
-                    if r.contains(run_number)), None)
-        return rnr is not None
 
     @property
     def get_last_run_number(self) -> int:
@@ -257,7 +257,7 @@ class JournalFile(BasicJournalFile):
 
     def __contains__(self, run_number: int):
         """Return whether the run_number exists in the journal file"""
-        return self.run_data.contains_run_number(run_number)
+        return run_number in self.run_data
 
 
 @dataclass
