@@ -203,7 +203,6 @@ class JournalData:
         query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
 
         return JournalData(
-            self.source,
             query_handle(self._data, run_field, user_input, case_sensitive),
         )
 
@@ -219,9 +218,7 @@ def concatenate(journals: Sequence[JournalData]) -> JournalData:
     :param journals: Sequence of Journal objects
     :return: A new JournalData, the result of concatenating the input data
     """
-    return JournalData(
-        journals[0].source, pd.concat([journal._data for journal in journals])
-    )
+    return JournalData(pd.concat([journal._data for journal in journals]))
 
 
 @dataclass
