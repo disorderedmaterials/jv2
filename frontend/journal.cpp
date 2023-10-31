@@ -15,8 +15,8 @@ const QString &Journal::name() const { return name_; }
 // Return description
 const QString &Journal::description() const { return description_; }
 
-// Set location
-void Journal::setLocation(const Locator &location) { location_ = location; }
+// Set filename
+void Journal::setFilename(const QString &filename) { filename_ = filename; }
 
-// Return location
-const Locator &Journal::location() const { return location_; }
+// Return filename
+const QString &Journal::filename() const { return filename_; }

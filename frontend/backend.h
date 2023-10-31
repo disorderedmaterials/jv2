@@ -10,7 +10,6 @@
 
 // Forward-declarations
 class JournalSource;
-class Locator;
 class QCommandLineParser;
 
 // Backend Process
@@ -70,8 +69,8 @@ class Backend : public QObject
     void listJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get journal file at the specified location
     void getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get any updates to the specified journal
-    void getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get any updates to the specified current journal in the specified source
+    void getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Search all journals for matching runs
     void findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
                   HttpRequestWorker::HttpRequestHandler handler = {});
@@ -83,23 +82,23 @@ class Backend : public QObject
      */
     public:
     // Get NeXuS log values present in specified run files
-    void getNexusFields(const Locator &location, const std::vector<int> &runNos,
+    void getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
                         HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS log value data for specified run files
-    void getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
+    void getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
                               HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor range for specified run number
-    void getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS monitor spectrum for specified run numbers
-    void getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
+    void getNexusMonitor(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
                          HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS spectrum range for specified run numbers
-    void getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra for specified run numbers
-    void getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
+    void getNexusDetector(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
                           HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra analysis for specified run number
-    void getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 
     /*
      * Generation Endpoints

@@ -145,8 +145,7 @@ void MainWindow::on_actionRefresh_triggered()
     if (!optJournal)
         return;
 
-    backend_.getJournalUpdates(optJournal->get().location(),
-                               [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    backend_.getJournalUpdates(journalSource, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
 // Jump to run number
@@ -202,7 +201,7 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotSELog)
     {
-        backend_.getNexusFields(currentJournal().location(), selectedRunNumbers(),
+        backend_.getNexusFields(currentJournalSource(), selectedRunNumbers(),
                                 [=](HttpRequestWorker *worker) { handlePlotSELogValue(worker); });
     }
     else if (selectedAction == plotDetector)

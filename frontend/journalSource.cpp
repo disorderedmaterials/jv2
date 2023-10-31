@@ -104,7 +104,7 @@ void JournalSource::setJournals(const QJsonArray &journalData)
         auto value = journalData[i].toObject();
 
         auto &journal = journals_.emplace_back(value["display_name"].toString());
-        journal.setLocation({value["server_root"].toString(), value["directory"].toString(), value["filename"].toString()});
+        journal.setFilename(value["filename"].toString());
     }
 
     // Set a current journal
@@ -219,7 +219,7 @@ QJsonObject JournalSource::currentJournalObjectData() const
     data["sourceID"] = name_;
     data["sourceType"] = indexingType(type_);
     data["journalRootUrl"] = journalRootUrl_;
-    data["journalFilename"] = currentJournal_ ? currentJournal_->get().location().filename() : "UNKNOWN";
+    data["journalFilename"] = currentJournal_ ? currentJournal_->get().filename() : "UNKNOWN";
     if (instrumentSubdirectories_)
         data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
     data["runDataRootUrl"] = runDataRootUrl_;

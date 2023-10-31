@@ -38,7 +38,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         logging.debug(f"Listing journals for {postData.source_id}: "
                       f"{postData.journal_file_url()}")
@@ -68,7 +68,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         logging.debug(f"Get journal {postData.journal_file_url()} "
                       f"from '{postData.library_key()}'")
@@ -93,7 +93,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         logging.debug(f"Get journal {postData.filename} from {postData.url}")
 

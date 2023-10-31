@@ -5,7 +5,6 @@
 #include "args.h"
 #include "httpRequestWorker.h"
 #include "journalSource.h"
-#include "locator.h"
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
@@ -140,15 +139,10 @@ void Backend::getJournal(const JournalSource &source, HttpRequestWorker::HttpReq
     postRequest(createRoute("journals/get"), source.currentJournalObjectData(), handler);
 }
 
-// Get any updates to the specified journal
-void Backend::getJournalUpdates(const Locator &location, HttpRequestWorker::HttpRequestHandler handler)
+// Get any updates to the specified current journal in the specified source
+void Backend::getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
-    data["filename"] = location.filename();
-
-    postRequest(createRoute("journals/getUpdates"), data, handler);
+    postRequest(createRoute("journals/getUpdates"), source.currentJournalObjectData(), handler);
 }
 
 // Search all journals for matching runs
@@ -169,12 +163,10 @@ void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, H
  */
 
 // Get NeXuS log values present in specified run files
-void Backend::getNexusFields(const Locator &location, const std::vector<int> &runNos,
+void Backend::getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
                              HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
+    auto data = source.sourceObjectData();
 
     QJsonArray runNumbers;
     for (auto i : runNos)
@@ -185,40 +177,34 @@ void Backend::getNexusFields(const Locator &location, const std::vector<int> &ru
 }
 
 // Get NeXuS log value data for specified run files
-void Backend::getNexusLogValueData(const Locator &location, const std::vector<int> &runNos, const QString &logValue,
+void Backend::getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
                                    HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
-    data["logValue"] = logValue;
+    auto data = source.sourceObjectData();
 
     QJsonArray runNumbers;
     for (auto i : runNos)
         runNumbers.append(i);
     data["runNumbers"] = runNumbers;
+    data["logValue"] = logValue;
 
     postRequest(createRoute("runData/nexus/getLogValueData"), data, handler);
 }
 
 // Get NeXuS monitor range for specified run numbers in the given cycle
-void Backend::getNexusMonitorRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
+    auto data = source.sourceObjectData();
     data["runNumber"] = runNo;
 
     postRequest(createRoute("runData/nexus/getMonitorRange"), data, handler);
 }
 
 // Get NeXuS monitor spectrum for specified run numbers in the given cycle
-void Backend::getNexusMonitor(const Locator &location, const std::vector<int> &runNos, int monitorId,
+void Backend::getNexusMonitor(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
                               HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
+    auto data = source.sourceObjectData();
     data["spectrumId"] = monitorId;
 
     QJsonArray runNumbers;
@@ -230,23 +216,19 @@ void Backend::getNexusMonitor(const Locator &location, const std::vector<int> &r
 }
 
 // Get NeXuS spectrum range for specified run number
-void Backend::getNexusSpectrumRange(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
+    auto data = source.sourceObjectData();
     data["runNumber"] = runNo;
 
     postRequest(createRoute("runData/nexus/getSpectrumRange"), data, handler);
 }
 
 // Get NeXuS detector spectra for specified run numbers in the given cycle
-void Backend::getNexusDetector(const Locator &location, const std::vector<int> &runNos, int monitorId,
+void Backend::getNexusDetector(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
                                HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
+    auto data = source.sourceObjectData();
     data["spectrumId"] = monitorId;
 
     QJsonArray runNumbers;
@@ -258,11 +240,9 @@ void Backend::getNexusDetector(const Locator &location, const std::vector<int> &
 }
 
 // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-void Backend::getNexusDetectorAnalysis(const Locator &location, int runNo, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
-    QJsonObject data;
-    data["journalRootUrl"] = location.rootUrl();
-    data["directory"] = location.directory();
+    auto data = source.sourceObjectData();
     data["runNumber"] = runNo;
 
     postRequest(createRoute("runData/nexus/getDetectorAnalysis"), data, handler);

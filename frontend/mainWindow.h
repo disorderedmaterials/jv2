@@ -10,7 +10,6 @@
 #include "journalSource.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
-#include "locator.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>

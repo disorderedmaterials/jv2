@@ -33,7 +33,7 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -42,8 +42,8 @@ def add_routes(
         logpaths = []
         for run in dataFiles:
             if dataFiles[run] is None:
-                return jsonify(f"Error: Unable to find run file for run \
-                               '{run}'")
+                return jsonify({"Error": f"Unable to find data file for run "
+                                "{run}"})
             logpaths.extend(nxs.logpaths_from_path(dataFiles[run]))
 
         return json_response(logpaths)
@@ -66,7 +66,7 @@ def add_routes(
                                    require_in_library=True,
                                    require_parameter="logValue")
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -76,8 +76,8 @@ def add_routes(
         log_value_data = {}
         for run in dataFiles:
             if dataFiles[run] is None:
-                return jsonify(f"Error: Unable to find run file for run \
-                               '{run}'")
+                return jsonify({"Error": f"Unable to find data file for run "
+                                         "{run}"})
 
             runData = {}
             nxsfile, first_group = nxs.open_at(dataFiles[run], 0)
@@ -112,14 +112,14 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
         dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
-            return jsonify(f"Error: Unable to find data file for run \
-                           {run_number}")
+            return jsonify({"Error": f"Unable to find data file for run "
+                                     f"{run_number}"})
 
         return str(nxs.spectra_count(dataFile))
 
@@ -139,14 +139,14 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
         dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
-            return jsonify(f"Error: Unable to find data file for run \
-                           {run_number}")
+            return jsonify({"Error": f"Unable to find data file for run "
+                                     f"{run_number}"})
 
         return str(nxs.monitor_count(dataFile))
 
@@ -168,7 +168,7 @@ def add_routes(
                                    require_in_library=True,
                                    require_parameter="spectrumId")
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -201,7 +201,7 @@ def add_routes(
                                    require_in_library=True,
                                    require_parameter="spectrumId")
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         # Locate data files for the specified run numbers in the collection
         dataFiles = postData.journal_collection.locate_data_files(
@@ -232,14 +232,14 @@ def add_routes(
                                    require_run_numbers=True,
                                    require_in_library=True)
         except InvalidRequest as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
 
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
         dataFile = postData.journal_collection.locate_data_file(run_number)
         if dataFile is None:
-            return jsonify(f"Error: Unable to find data file for run \
-                           {run_number}")
+            return jsonify({"Error": f"Unable to find data file for run "
+                                     f"{run_number}"})
 
         return nxs.nonzero_spectra_ratio(dataFile)
 

@@ -36,7 +36,7 @@ class JournalLocator:
                 buffer = BytesIO(file.read())
             return ElementTree.parse(buffer)
         else:
-            raise RuntimeError("Error: No source type set.")
+            raise RuntimeError("No source type set.")
 
     @classmethod
     def _get_journal_modification_time(cls,
@@ -253,7 +253,7 @@ class JournalLocator:
             fileBytes = self._get_file(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return jsonify(f"Error: {str(exc)}")
+            return jsonify({"Error": str(exc)})
         j.last_modified = current_last_modified
 
         # Read in the run data from the journal file and store the whole thing
