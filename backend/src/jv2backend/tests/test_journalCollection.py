@@ -7,12 +7,12 @@ import pandas
 import pytest
 
 # Construct two test journals
-with open("data/simpleRunData1.xml", "rb") as f1:
+with open("jv2backend/tests/data/simpleRunData1.xml", "rb") as f1:
     journal1 = JournalFile("Journal A", "/a/local/disk",
                            "data", "simpleRunData1.xml",
                            "/fake/data/root", datetime.datetime.now(),
                            JournalData(pandas.read_xml(f1, dtype=str)))
-with open("data/simpleRunData2.xml", "rb") as f2:
+with open("jv2backend/tests/data/simpleRunData2.xml", "rb") as f2:
     journal2 = JournalFile("Journal B", "/a/local/disk",
                            "data", "simpleRunData2.xml",
                            "/fake/data/root", datetime.datetime.now(),

@@ -7,7 +7,7 @@ import pandas
 import pytest
 
 # Load test run data
-with open("data/simpleRunData1.xml", "rb") as f:
+with open("jv2backend/tests/data/simpleRunData1.xml", "rb") as f:
     runData = pandas.read_xml(f, dtype=str)
 #    runData = ET.parse(f)
 
