@@ -273,9 +273,9 @@ class JournalCollection:
     """Defines a collection of journal files"""
 
     # The available journal files within a collection
-    journalFiles: List(JournalFile)
+    journalFiles: List[JournalFile]
 
-    def __init__(self, journalFiles: List(JournalFile)) -> None:
+    def __init__(self, journalFiles: List[JournalFile]) -> None:
         self.journalFiles = journalFiles
 
     def journal_for_run(self, run_number: int) -> JournalFile:
@@ -332,7 +332,7 @@ class JournalCollection:
             (jf for jf in self.journalFiles if jf.filename == filename),
             None)
 
-    def to_basic(self) -> List(BasicJournalFile):
+    def to_basic(self) -> List[BasicJournalFile]:
         basic = []
         for x in self.journalFiles:
             basic.append(x.from_derived(x))
@@ -344,7 +344,7 @@ class JournalLibrary:
     """Defines one or more data source rootURL/directory and their associated
     journal collections.
     """
-    collections: Dict(str, JournalCollection)
+    collections: Dict[str, JournalCollection]
 
     def __setitem__(self, key, value):
         self.collections[key] = value
