@@ -20,4 +20,4 @@ runs:
       if: always()
       uses: EnricoMi/publish-unit-test-result-action/composite@v2
       with:
-        junit_files: 'backend/test-results.xml'
+        junit_files: 'backend/src/test-results.xml'
