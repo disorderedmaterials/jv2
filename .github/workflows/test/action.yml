@@ -12,8 +12,9 @@ runs:
     - name: Build and Test Backend
       shell: bash
       run: |
-        cd backend/src
+        cd backend
         python3 -mpip install ".[test]"
+        cd src/
         python3 -mpytest ./ --junitxml=test-results.xml
 
     - name: Publish Test Results
