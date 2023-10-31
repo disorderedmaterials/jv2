@@ -21,6 +21,7 @@ runs:
       key: ${{ runner.os }}-nix-cache
 
   - name: Import Nix Store Cache
+    if: "steps.nix-cache.outputs.cache-hit == 'true'"
     shell: bash
     run: nix-store --import < /tmp/nixcache
 
@@ -47,7 +48,7 @@ runs:
   - name: Export Nix Store Cache
     if: ${{ inputs.cacheOnly == 'true' }}
     shell: bash
-    run: nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nixcache
+    run: /nix/var/nix/profiles/default/bin/nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nixcache
 
   - name: Upload Package Artifacts
     if: ${{ inputs.cacheOnly == 'false' }}
