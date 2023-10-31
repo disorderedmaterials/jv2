@@ -523,6 +523,11 @@
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string>&amp;File</string>
     </property>
@@ -530,6 +535,11 @@
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuRunData">
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string>&amp;Run Data</string>
     </property>
