@@ -59,7 +59,7 @@ def add_routes(
         In addition to basic source information the POST data should contain
         full journal file location (the target of the 'get' operation).
 
-        :return: A JSON reponse containing the journal data, or an error
+        :return: A JSON response containing the journal data, or an error
         """
         try:
             postData = RequestData(request.json, journalLibrary,
