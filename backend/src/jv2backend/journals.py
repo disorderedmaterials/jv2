@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 from dataclasses import dataclass, KW_ONLY
-from typing import List, Dict
+import typing
 import datetime as dt
 from typing import Optional, Sequence
 from jv2backend.utils import url_join
 import pandas as pd
+import xml.etree.ElementTree as ElementTree
+import json
 import logging
 
 # Format of start time search string
@@ -147,16 +149,36 @@ class RunRange:
 class JournalData:
     """JournalData captures all run information from a given journal file"""
 
-    def __init__(self, data: pd.DataFrame) -> None:
+    def __init__(self, data: {}) -> None:
         self._data = data
-        self._run_number_ranges: List[RunRange] = []
+        self._run_number_ranges: typing.List[RunRange] = []
         self.__create_run_ranges()
+
+    @classmethod
+    def from_element_tree(cls, treeRoot: ElementTree.Element):
+        """Create an instance from the supplied ElementTree data.
+        We assume that "interesting" entries are those keyed 'NXentry'
+        """
+        data = {}
+
+        for run in treeRoot.findall("NXentry"):
+            children = list(run)
+            run_number_element = run.find("run_number")
+            if run_number_element is None:
+                raise RuntimeError("A run_number entry is missing in the data.")
+            run_number = int(run_number_element.text)
+
+            # Convert our XML tree to a dict for storage
+            data[run_number] = {}
+            for child in children:
+                data[run_number][child.tag] = child.text
+
+        return cls(data)
 
     def __create_run_ranges(self):
         """Create run ranges from the current data"""
         self._ranges = []
-        for index, row in self._data.iterrows():
-            run_number = int(row["run_number"])
+        for run_number in self._data:
             rnr = next((r for r in self._run_number_ranges
                         if r.extend(run_number)), None)
             if not rnr:
@@ -178,9 +200,12 @@ class JournalData:
         return len(self._data)
 
     @property
-    def get_last_run_number(self) -> int:
+    def get_last_run_number(self) -> Optional[int]:
         """Return the run number of the last run in the journal"""
-        return self._run_number_ranges[-1].last
+        if len(self._run_number_ranges) == 0:
+            return None
+        else:
+            return self._run_number_ranges[-1].last
 
     def run(self, run_number: int) -> Optional[dict]:
         """Return a dictionary describing the given run number
@@ -208,7 +233,10 @@ class JournalData:
 
     # Output formats
     def to_json(self) -> str:
-        return self._data.to_json(orient="records")
+        items = []
+        for key in self._data:
+            items.append(self._data[key])
+        return json.dumps(items)
 
 
 # Operations on multiple journal data
@@ -244,7 +272,7 @@ class JournalFile(BasicJournalFile):
     """Defines a single journal file, including run data"""
     run_data: JournalData = None
 
-    def get_data(self, run_number: int) -> Dict:
+    def get_data(self, run_number: int) -> typing.Dict:
         """Return the data for the specified run number.
 
         :param run_number: Run number of interest
@@ -262,9 +290,9 @@ class JournalCollection:
     """Defines a collection of journal files"""
 
     # The available journal files within a collection
-    journalFiles: List[JournalFile]
+    journalFiles: typing.List[JournalFile]
 
-    def __init__(self, journalFiles: List[JournalFile]) -> None:
+    def __init__(self, journalFiles: typing.List[JournalFile]) -> None:
         self.journalFiles = journalFiles
 
     def journal_for_run(self, run_number: int) -> JournalFile:
@@ -302,7 +330,9 @@ class JournalCollection:
         else:
             return url_join(jf.data_directory, data["name"] + ".nxs")
 
-    def locate_data_files(self, run_numbers: List[int]) -> Dict[int, str]:
+    def locate_data_files(
+            self, run_numbers: typing.List[int]
+    ) -> typing.Dict[int, str]:
         """Return a dict of run number/paths to NeXuS data files
         If a run number is not locatable, return None for that entry
 
@@ -321,7 +351,7 @@ class JournalCollection:
             (jf for jf in self.journalFiles if jf.filename == filename),
             None)
 
-    def to_basic(self) -> List[BasicJournalFile]:
+    def to_basic(self) -> typing.List[BasicJournalFile]:
         basic = []
         for x in self.journalFiles:
             basic.append(x.from_derived(x))
@@ -333,7 +363,7 @@ class JournalLibrary:
     """Defines one or more data source rootURL/directory and their associated
     journal collections.
     """
-    collections: Dict[str, JournalCollection]
+    collections: typing.Dict[str, JournalCollection]
 
     def __setitem__(self, key, value):
         self.collections[key] = value

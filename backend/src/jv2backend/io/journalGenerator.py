@@ -5,11 +5,10 @@ import typing
 import logging
 import os.path
 import h5py
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 import hashlib
 
 import datetime
-import pandas as pd
 from io import BytesIO
 from flask import make_response
 from jv2backend.requestData import RequestData, SourceType
@@ -135,7 +134,7 @@ class JournalGenerator:
             journals[run[sortKey]].append(run)
 
         # Create index and journal files, and assemble a list of journals
-        indexRoot = ET.Element("journal")
+        indexRoot = ElementTree.Element("journal")
         jc = []
         for j in journals:
             logging.debug(f"Journal for {j} has {len(journals[j])} runs")
@@ -146,17 +145,17 @@ class JournalGenerator:
             displayName = j.removeprefix(requestData.run_data_url).lstrip("/")
 
             # Construct the child journal data
-            journalRoot = ET.Element("NXroot")
+            journalRoot = ElementTree.Element("NXroot")
             journalRoot.set("filename", journalFilename)
             for run in journals[j]:
-                runEntry = ET.SubElement(journalRoot, "NXentry")
+                runEntry = ElementTree.SubElement(journalRoot, "NXentry")
                 runEntry.set("name", run["filename"].replace(".nxs", ""))
                 for d in run:
-                    dataEntry = ET.SubElement(runEntry, d)
+                    dataEntry = ElementTree.SubElement(runEntry, d)
                     dataEntry.text = run[d]
 
             # Add an entry in the index file
-            indexEntry = ET.SubElement(indexRoot, "file")
+            indexEntry = ElementTree.SubElement(indexRoot, "file")
             indexEntry.set("name", journalFilename)
             indexEntry.set("data_directory", j)
             indexEntry.set("display_name", displayName)
@@ -167,8 +166,7 @@ class JournalGenerator:
                              requestData.directory,
                              journalFilename, j)
             # TODO / FIXME Generate a DataFrame containing the run information
-            runData = pd.read_xml(BytesIO(ET.tostring(journalRoot)), dtype=str)
-            jf.run_data = JournalData(runData)
+            jf.run_data = JournalData.from_element_tree(journalRoot)
             jf.last_modified = datetime.datetime.now()
 
             # Store the most-recent (highest) run number in the journal for future
@@ -181,7 +179,7 @@ class JournalGenerator:
         if requestData.source_type == SourceType.File:
             # Index file
             with open(requestData.journal_file_url(), "wb") as f:
-                ET.ElementTree(indexRoot).write(f)
+                ElementTree.ElementTree(indexRoot).write(f)
             # Journal files
             for j in journals:
                 try:
