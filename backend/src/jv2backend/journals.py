@@ -213,11 +213,10 @@ class JournalData:
         :param run_number: Run number to select
         :return: A dict describing the Run or None if the run does not exist
         """
-        matches = self._data[self._data["run_number"] == str(run_number)]
-        if len(matches) == 0:
-            return None
+        if run_number in self._data:
+            return self._data[run_number]
         else:
-            return matches.to_dict(orient="records")[0]
+            return None
 
     def search(
         self, run_field: str, user_input: str, case_sensitive: bool = False
