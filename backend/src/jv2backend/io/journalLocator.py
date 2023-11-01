@@ -5,6 +5,8 @@ from typing import Optional, List
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import xml.etree.ElementTree as ElementTree
+from flask import make_response
+from flask.wrappers import Response as FlaskResponse
 import pandas as pd
 import datetime
 import requests
@@ -74,7 +76,7 @@ class JournalLocator:
             raise RuntimeError("No source type set.")
 
     def get_index(self, requestData: RequestData,
-                  journalLibrary: JournalLibrary) -> List[JournalFile]:
+                  journalLibrary: JournalLibrary) -> FlaskResponse:
         """Retrieve an index file containing journal information
 
         :param requestData: RequestData object containing index file details
@@ -119,11 +121,11 @@ class JournalLocator:
         try:
             indexTree = self._get_journal_file_xml(requestData)
         except FileNotFoundError:
-            return jsonify("Index File Not Found", 400)
+            return make_response(jsonify("Index File Not Found"), 400)
         except (requests.HTTPError, requests.ConnectionError) as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_response(jsonify({"Error": str(exc)}), 400)
         except lxml.etree.XMLSyntaxError as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_response(jsonify({"Error": str(exc)}), 400)
 
         indexRoot = indexTree.getroot()
 
@@ -165,9 +167,11 @@ class JournalLocator:
         # Store as a new collection in the library
         journalLibrary[requestData.library_key()] = JournalCollection(journals)
 
-        return jsonify(journalLibrary[requestData.library_key()].to_basic(), 200)
+        return make_response(
+            jsonify(journalLibrary[requestData.library_key()].to_basic()), 200
+        )
 
-    def get_journal_data(self, requestData: RequestData) -> JournalData:
+    def get_journal_data(self, requestData: RequestData) -> FlaskResponse:
         """Retrieve run data contained in a journal file
 
         :param requestData: RequestData object containing journal details
@@ -184,7 +188,9 @@ class JournalLocator:
             if j is not None:
                 return json_response(j.run_data)
             else:
-                return jsonify({"Error": "Cached journal not found."}, 400)
+                return make_response(
+                    jsonify({"Error":"Cached journal not found."}), 400
+                )
 
         # If we already have this journal file in the collection, check its
         # modification time
@@ -201,9 +207,9 @@ class JournalLocator:
             runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_response(jsonify({"Error": str(exc)}), 400)
         except lxml.etree.XMLSyntaxError as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_response(jsonify({"Error": str(exc)}), 400)
 
         # Store the updated run data and modtime
         j.run_data = JournalData(runData)
@@ -213,7 +219,7 @@ class JournalLocator:
         # reference
         j.last_run_number = j.run_data.get_last_run_number
 
-        return json_response(j.run_data)
+        return make_response(json_response(j.run_data), 200)
 
     def get_all_journal_data(self, collection: JournalCollection) -> None:
         """Retrieve all run data for all journals listed in the collection
@@ -245,14 +251,14 @@ class JournalLocator:
             # Compare modification times - if the same, return existing data
             current_last_modified = self._get_modification_time(requestData)
             if current_last_modified == j.last_modified:
-                return jsonify(None, 200)
+                return make_response(jsonify(None), 200)
 
         # Changed, so read full data and store the whole thing
         try:
             runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_response(jsonify({"Error": str(exc)}), 400)
         j.last_modified = current_last_modified
         j.run_data = JournalData(runData)
 
@@ -264,8 +270,8 @@ class JournalLocator:
         j.last_run_number = current_last_run_number
 
         # Get new run data
-        return json_response(j.run_data.search("run_number",
-                                               f">{old_last_run_number}"))
+        return make_response(json_response(j.run_data.search("run_number",
+                                               f">{old_last_run_number}")), 200)
 
     def filename_for_run(self, instrument: str, run: str) -> Optional[str]:
         """Find the journal file that contains the given run
