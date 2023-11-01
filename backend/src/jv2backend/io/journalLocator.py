@@ -121,11 +121,11 @@ class JournalLocator:
         try:
             indexTree = self._get_journal_file_xml(requestData)
         except FileNotFoundError:
-            return make_response(jsonify("Index File Not Found"), 400)
+            return make_response(jsonify("Index File Not Found"), 200)
         except (requests.HTTPError, requests.ConnectionError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 400)
+            return make_response(jsonify({"Error": str(exc)}), 200)
         except lxml.etree.XMLSyntaxError as exc:
-            return make_response(jsonify({"Error": str(exc)}), 400)
+            return make_response(jsonify({"Error": str(exc)}), 200)
 
         indexRoot = indexTree.getroot()
 
@@ -189,7 +189,7 @@ class JournalLocator:
                 return json_response(j.run_data)
             else:
                 return make_response(
-                    jsonify({"Error":"Cached journal not found."}), 400
+                    jsonify({"Error":"Cached journal not found."}), 200
                 )
 
         # If we already have this journal file in the collection, check its
@@ -207,9 +207,9 @@ class JournalLocator:
             runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 400)
+            return make_response(jsonify({"Error": str(exc)}), 200)
         except lxml.etree.XMLSyntaxError as exc:
-            return make_response(jsonify({"Error": str(exc)}), 400)
+            return make_response(jsonify({"Error": str(exc)}), 200)
 
         # Store the updated run data and modtime
         j.run_data = JournalData(runData)
@@ -260,7 +260,7 @@ class JournalLocator:
             runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 400)
+            return make_response(jsonify({"Error": str(exc)}), 200)
         j.last_modified = current_last_modified
         j.run_data = JournalData(runData)
 

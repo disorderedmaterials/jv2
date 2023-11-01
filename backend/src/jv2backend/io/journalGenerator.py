@@ -11,6 +11,7 @@ import hashlib
 import datetime
 import pandas as pd
 from io import BytesIO
+from flask import make_response
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journals import JournalLibrary, JournalCollection, JournalFile
@@ -188,7 +189,7 @@ class JournalGenerator:
                                        j["filename"]), "wb") as f:
                         ET.ElementTree(journalRoot).write(f)
                 except Exception as exc:
-                    return make_response(jsonify({"Error": str(exc)}), 400)
+                    return make_response(jsonify({"Error": str(exc)}), 200)
 
         # Finally, create a library entry
         journalLibrary[requestData.library_key()] = JournalCollection(jc)

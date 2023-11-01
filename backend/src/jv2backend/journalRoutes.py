@@ -3,7 +3,7 @@
 
 """Defines the Flask endpoints that only access journal information"""
 import logging
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
@@ -37,7 +37,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_response(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Listing journals for {postData.source_id}: "
                       f"{postData.journal_file_url()}")
@@ -65,7 +65,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_response(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Get journal {postData.journal_file_url()} "
                       f"from '{postData.library_key()}'")
@@ -88,7 +88,7 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)}, 400)
+            return make_request(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Get journal {postData.journal_file_url()} from source "
                       f"{postData.source_id}")
@@ -122,8 +122,9 @@ def add_routes(
             return json_response(journalLocator.search(
                 instrument, field, search, case_sensitive))
         except Exception as exc:
-            return jsonify(
-                f"Error: Unable to complete search '{search}': {str(exc)}", 400)
+            return make_response(jsonify(
+                f"Error: Unable to complete search '{search}': {str(exc)}"), 200
+            )
 
     @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):
@@ -137,7 +138,9 @@ def add_routes(
         try:
             result = journalLocator.filename_for_run(instrument, run)
         except Exception as exc:
-            return jsonify(f"Error finding {run} for {instrument}: {exc}", 400)
+            return make_response(
+                jsonify(f"Error finding {run} for {instrument}: {exc}"), 200
+            )
 
         if result is not None:
             return result
