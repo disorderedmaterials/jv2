@@ -148,7 +148,7 @@ class JournalLocator:
                 cycleDir = j.attrib["name"].replace("journal", "cycle")
                 cycleDir.replace(".xml", "")
                 dataDirectory = url_join(
-                    requestData.data_directory,
+                    requestData.run_data_root_url,
                     requestData.directory,
                     "Instrument",
                     "data",
