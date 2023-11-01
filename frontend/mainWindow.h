@@ -204,6 +204,10 @@ class MainWindow : public QMainWindow
     private slots:
     void on_actionSearchEverywhere_triggered();
 
+    private:
+    // Handle search result
+    void handleSearchResult(HttpRequestWorker *worker);
+
     /*
      * Visualisation
      */

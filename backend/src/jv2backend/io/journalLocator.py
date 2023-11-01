@@ -298,13 +298,7 @@ class JournalLocator:
 
         return filename
 
-    def search(
-        self,
-        instrument_name: str,
-        run_field: str,
-        user_input: str,
-        case_sensitive: bool = False,
-    ) -> JournalData:
+    def search(self, requestData: RequestData, journalLibrary: JournalLibrary) -> JournalData:
         """
         Search across all journals for the given user input against the given
         field in the journals
@@ -317,6 +311,11 @@ class JournalLocator:
                  An empty object indicates nothing could be found
         """
         results = []
+
+        # First, make sure all journals in the collection are ready for searching
+        self.get_all_journal_data(requestData.journal_collection)
+
+
         for filename in self.journal_filenames(instrument_name):
             journal = self.journal(instrument_name, filename=filename)
             results.append(

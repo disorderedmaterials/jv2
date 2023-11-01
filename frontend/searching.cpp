@@ -14,19 +14,11 @@ void MainWindow::on_actionSearchEverywhere_triggered()
 
     auto queryParameters = searchDialog.getQuery();
 
-
-
-    // mass search for data
-    QString searchOptions;
-    QString sensitivityText = "caseSensitivity=";
-    sensitivityText.append(caseSensitivity ? "true" : "false");
-    searchOptions.append(sensitivityText);
-
-    backend_.findRuns(inst.journalDirectory(), value, textInput, searchOptions,
-                      [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+    backend_.search(currentJournalSource(), queryParameters,
+                      [=](HttpRequestWorker *worker) { handleSearchResult(worker); });
 
     // configure caching [FIXME]
-    cachedMassSearch_.append(std::make_tuple(nullptr, text));
+//    cachedMassSearch_.append(std::make_tuple(nullptr, text));
 }
 //    massSearch("RB No.", "experiment_identifier");
 
@@ -37,3 +29,40 @@ void MainWindow::on_actionSearchEverywhere_triggered()
 //void MainWindow::on_actionMassSearchRunRange_triggered() { massSearch("Run Range", "run_number"); }
 //
 //void MainWindow::on_actionMassSearchDateRange_triggered() { massSearch("Date Range", "start_date"); }
+
+/*
+ * Network Handlers
+ */
+
+// Handle search result
+void MainWindow::handleSearchResult(HttpRequestWorker *worker)
+{
+//    runData_ = QJsonArray();
+//    runDataModel_.setData(runData_);
+//
+//    // Check network reply
+//    if (networkRequestHasError(worker, "trying to search across journals"))
+//    {
+//        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+//        return;
+//    }
+//
+//    // Turn off grouping
+//    if (ui_.GroupRunsButton->isChecked())
+//        ui_.GroupRunsButton->setChecked(false);
+//
+//    // Get desired fields and titles from config files
+//    runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
+//                                          : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
+//    runData_ = worker->jsonArray;
+//
+//    // Set table data
+//    runDataModel_.setHorizontalHeaders(runDataColumns_);
+//    runDataModel_.setData(runData_);
+//
+//    ui_.RunDataTable->resizeColumnsToContents();
+//    updateSearch(searchString_);
+//    ui_.RunFilterEdit->clear();
+
+    updateForCurrentSource(JournalSource::JournalSourceState::OK);
+}
