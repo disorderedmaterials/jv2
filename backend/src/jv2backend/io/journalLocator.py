@@ -247,18 +247,14 @@ class JournalLocator:
             if current_last_modified == j.last_modified:
                 return jsonify(None, 200)
 
-        # Changed, so read full data
+        # Changed, so read full data and store the whole thing
         try:
-            fileBytes = self._get_file(requestData)
+            runData = self._get_journal_run_data(requestData)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return jsonify({"Error": str(exc)}, 400)
         j.last_modified = current_last_modified
-
-        # Read in the run data from the journal file and store the whole thing
-        j.run_data = JournalData(
-            requestData.journal_filename,
-            data=pd.read_xml(fileBytes, dtype=str))
+        j.run_data = JournalData(runData)
 
         # Get the last run number
         old_last_run_number = j.last_run_number
