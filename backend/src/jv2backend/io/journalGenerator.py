@@ -11,6 +11,7 @@ import hashlib
 import datetime
 import pandas as pd
 from io import BytesIO
+from flask import make_response
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journals import JournalLibrary, JournalCollection, JournalFile
@@ -70,7 +71,7 @@ class JournalGenerator:
         response["num_files"] = num_files
         response["data_directory"] = data_directory
 
-        return jsonify(response, 200)
+        return make_response(jsonify(response), 200)
 
     def create_journal_entry(self, data_directory: str, filename: str) -> {}:
         """Extract values from the supplied NeXuS file to form a journal
@@ -188,9 +189,9 @@ class JournalGenerator:
                                        j["filename"]), "wb") as f:
                         ET.ElementTree(journalRoot).write(f)
                 except Exception as exc:
-                    return jsonify({"Error": str(exc)}, 400)
+                    return make_response(jsonify({"Error": str(exc)}), 200)
 
         # Finally, create a library entry
         journalLibrary[requestData.library_key()] = JournalCollection(jc)
 
-        return jsonify("SUCCESS", 200)
+        return make_response(jsonify("SUCCESS"), 200)
