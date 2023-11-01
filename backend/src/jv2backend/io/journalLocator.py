@@ -148,7 +148,7 @@ class JournalLocator:
                 cycleDir = j.attrib["name"].replace("journal", "cycle")
                 cycleDir.replace(".xml", "")
                 dataDirectory = url_join(
-                    requestData.data_directory,
+                    requestData.run_data_root_url,
                     requestData.directory,
                     "Instrument",
                     "data",
@@ -206,8 +206,7 @@ class JournalLocator:
             return jsonify({"Error": str(exc)}, 400)
 
         # Store the updated run data and modtime
-        j.run_data = JournalData(
-            requestData.journal_filename, runData)
+        j.run_data = JournalData(runData)
         j.last_modified = current_last_modified
 
         # Store the most-recent (highest) run number in the journal for future
