@@ -4,7 +4,6 @@
 from jv2backend.journals import JournalCollection, JournalFile, JournalData
 import xml.etree.ElementTree as ElementTree
 import datetime
-import pandas
 import pytest
 
 # Construct two test journals

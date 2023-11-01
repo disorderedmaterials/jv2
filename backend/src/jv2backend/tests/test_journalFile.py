@@ -3,7 +3,6 @@
 
 from jv2backend.journals import BasicJournalFile, JournalFile, JournalData
 import datetime
-import pandas
 import typing
 
 # Journal Data
@@ -27,7 +26,7 @@ def test_derived_constructor():
     derived = JournalFile(JOURNAL_NAME, JOURNAL_ROOT_URL,
                           JOURNAL_DIRECTORY, JOURNAL_FILENAME,
                           JOURNAL_DATA_ROOT, JOURNAL_MODTIME,
-                          JournalData(pandas.DataFrame()))
+                          JournalData({}))
 
     _test_journal_data(derived)
     assert derived.run_data.run_count == 0
@@ -37,7 +36,7 @@ def test_basic_from_derived():
     derived = JournalFile(JOURNAL_NAME, JOURNAL_ROOT_URL,
                           JOURNAL_DIRECTORY, JOURNAL_FILENAME,
                           JOURNAL_DATA_ROOT, JOURNAL_MODTIME,
-                          JournalData(pandas.DataFrame()))
+                          JournalData({}))
     basic = JournalFile.from_derived(derived)
 
     _test_journal_data(basic)

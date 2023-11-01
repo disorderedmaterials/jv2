@@ -4,8 +4,6 @@
 # """Provide common test fixtures for pytest"""
 from typing import Callable
 from pathlib import Path
-
-import pandas as pd
 import pytest
 
 
@@ -32,18 +30,6 @@ def sample_journallist_xml(test_data_dir) -> bytes:
     """Provide a sample XML list of journal files data"""
     with open(test_data_dir / "journal_main.xml") as handle:
         return handle.read().encode("utf-8")
-
-
-@pytest.fixture()
-def sample_journal_dataframe(sample_journal_xml) -> pd.DataFrame:
-    """Provide a sample dataframe"""
-    return pd.read_xml(sample_journal_xml(), dtype=str)
-
-
-@pytest.fixture()
-def sample_run(sample_journal_dataframe) -> dict:
-    """Provide a sample Run dict"""
-    return sample_journal_dataframe.iloc[0].to_dict()
 
 
 @pytest.fixture()

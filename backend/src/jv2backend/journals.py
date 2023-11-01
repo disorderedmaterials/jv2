@@ -7,7 +7,6 @@ import typing
 import datetime as dt
 from typing import Optional, Sequence
 from jv2backend.utils import url_join
-import pandas as pd
 import xml.etree.ElementTree as ElementTree
 import json
 import logging
