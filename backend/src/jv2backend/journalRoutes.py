@@ -111,9 +111,13 @@ def add_routes(
         """
         try:
             postData = RequestData(request.json, journalLibrary,
-                                   require_in_library=True)
+                                   require_in_library=True,
+                                   require_value_map=True)
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)})
+
+        # First, make sure all journals in the collection are ready for searching
+        journalLocator.get_all_journal_data(postData.journal_collection)
 
         # Also
         # if field in ("start_time", "start_date"):
@@ -123,7 +127,7 @@ def add_routes(
         #     # start_date maps to start_time in the run_fields
         #     field = "start_time" if field.endswith("date") else field
         try:
-            runs = journalLocator.search(postData, journalLibrary)
+            runs = postData.journal_collection.search(postData)
         except Exception as exc:
             return make_response(jsonify(
                 f"Error: Unable to complete search '{search}': {str(exc)}"), 200

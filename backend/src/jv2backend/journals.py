@@ -369,6 +369,30 @@ class JournalCollection:
             basic.append(x.from_derived(x))
         return basic
 
+    def search(self, search_terms: typing.Dict[str,str]) -> JournalData:
+        """
+        Search across all journals for the given user input against the given
+        field in the journals
+
+        :param instrument_name: The instrument name
+        :param run_field: Field to search over from all runs
+        :param user_input: Search query
+        :param case_sensitive: If True, use case sensitive searching
+        :return: A JournalData object of the runs matching the search query.
+                 An empty object indicates nothing could be found
+        """
+        results = JournalData([])
+
+        for jf in self.journalFiles:
+            if jf.run_data is not None:
+                results.append(
+                    jf.run_data.search(
+                        run_field,
+                        user_input,
+                        case_sensitive))
+
+        return concatenate(results)
+
 
 @dataclass
 class JournalLibrary:

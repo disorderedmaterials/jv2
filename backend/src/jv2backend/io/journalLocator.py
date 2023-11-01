@@ -15,7 +15,7 @@ import lxml
 
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.journals import JournalCollection, JournalFile
-from jv2backend.journals import JournalData, JournalLibrary, concatenate
+from jv2backend.journals import JournalData, JournalLibrary
 from jv2backend.utils import jsonify, json_response
 
 
@@ -297,31 +297,3 @@ class JournalLocator:
                 break
 
         return filename
-
-    def search(self, requestData: RequestData, journalLibrary: JournalLibrary) -> JournalData:
-        """
-        Search across all journals for the given user input against the given
-        field in the journals
-
-        :param instrument_name: The instrument name
-        :param run_field: Field to search over from all runs
-        :param user_input: Search query
-        :param case_sensitive: If True, use case sensitive searching
-        :return: A JournalData object of the runs matching the search query.
-                 An empty object indicates nothing could be found
-        """
-        results = []
-
-        # First, make sure all journals in the collection are ready for searching
-        self.get_all_journal_data(requestData.journal_collection)
-
-
-        for filename in self.journal_filenames(instrument_name):
-            journal = self.journal(instrument_name, filename=filename)
-            results.append(
-                journal.search(
-                    run_field,
-                    user_input,
-                    case_sensitive))
-
-        return concatenate(results)

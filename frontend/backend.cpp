@@ -154,7 +154,7 @@ void Backend::search(const JournalSource &source ,const std::map<QString,QString
     QJsonObject query;
     query["caseSensitive"] = "false";
 
-    data["searchTerms"] = query;
+    data["valueMap"] = query;
 
     postRequest(createRoute("journals/search"), data, handler);
 }
