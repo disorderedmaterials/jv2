@@ -354,4 +354,7 @@ class JournalLibrary:
                           f"{len(self.collections[c].journalFiles)} "
                           f"journal files:")
             for j in self.collections[c].journalFiles:
-                logging.debug(f"     {j} ({j.run_data.run_count} run data)")
+                if j.run_data is None:
+                    logging.debug(f"     {j} (not yet loaded)")
+                else:
+                    logging.debug(f"     {j} ({j.run_data.run_count} run data)")
