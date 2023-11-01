@@ -249,7 +249,9 @@ class JournalLocator:
         )
         if j is not None:
             # Compare modification times - if the same, return existing data
-            current_last_modified = self._get_modification_time(requestData)
+            current_last_modified = self._get_journal_modification_time(
+                requestData
+            )
             if current_last_modified == j.last_modified:
                 return make_response(jsonify(None), 200)
 
