@@ -90,7 +90,8 @@ def add_routes(
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)}, 400)
 
-        logging.debug(f"Get journal {postData.filename} from {postData.url}")
+        logging.debug(f"Get journal {postData.journal_file_url()} from source "
+                      f"{postData.source_id}")
 
         return journalLocator.get_updates(postData)
 
