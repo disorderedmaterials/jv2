@@ -25,11 +25,10 @@ def add_routes(
     def listJournals() -> FlaskResponse:
         """Return the list of journal files in a specified location
 
-        The POST data should contain:
-          journalRoot: The root network or disk location for the journals
-            directory: The directory in journalRoot to probe for journals
-        dataDirectory: Associated run data location
-             filename: Name of the index file in the directory
+        In addition to basic source information the POST data should contain
+        full journal file location (the target of the 'list' operation) as well
+        as an associated run data location for use if the target file will be
+        parsed for the first time.
 
         :return: A JSON response containing available journals in a
                  list(BasicJournalFile), or an error
@@ -57,10 +56,8 @@ def add_routes(
     def getJournalData() -> FlaskResponse:
         """Return the specified journal contents
 
-        The POST data should contain:
-         journalRoot: The root network or disk location for the journal
-           directory: The directory in journalRoot containing the journal
-            filename: Name of the target journal file
+        In addition to basic source information the POST data should contain
+        full journal file location (the target of the 'get' operation).
 
         :return: A JSON reponse containing the journal data, or an error
         """
@@ -82,10 +79,8 @@ def add_routes(
         """Checks the specified journal file for updates, returning any new
         run data
 
-        The POST data should contain:
-         journalRoot: The root network or disk location for the journal
-           directory: The directory in journalRoot containing the journal
-            filename: Name of the target journal file
+        In addition to basic source information the POST data should contain
+        full journal file location (the target of the 'get' operation).
 
         :return: A JSON-formatted list of new run data, or None
         """
