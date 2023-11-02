@@ -286,16 +286,6 @@ class JournalData:
         return json.dumps(items)
 
 
-# Operations on multiple journal data
-def concatenate(journals: Sequence[JournalData]) -> JournalData:
-    """Concatenate the Journals to a single Journal
-
-    :param journals: Sequence of Journal objects
-    :return: A new JournalData, the result of concatenating the input data
-    """
-    return JournalData(pd.concat([journal._data for journal in journals]))
-
-
 @dataclass
 class BasicJournalFile:
     """Defines basic properties of a single journal file"""
