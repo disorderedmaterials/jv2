@@ -249,6 +249,11 @@ class JournalData:
         return rnr is not None
 
     @property
+    def data(self) -> {}:
+        """Return the contained run data dictionary"""
+        return self._data
+
+    @property
     def run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return len(self._data)
@@ -271,17 +276,6 @@ class JournalData:
             return self._data[run_number]
         else:
             return None
-
-    def search(
-        self, run_field: str, user_input: str, case_sensitive: bool = False
-    ) -> {}:
-        """Search data for runs whose run_field matches the user_input"""
-        # Different fields need handling differently but we will fallback to a
-        # basic "is in string check"
-        query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field,
-                                                   _query_string_contains)
-
-        return query_handle(self._data, run_field, user_input, case_sensitive)
 
     # Output formats
     def to_json(self) -> str:
