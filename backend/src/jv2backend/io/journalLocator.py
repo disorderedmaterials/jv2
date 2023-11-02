@@ -204,7 +204,7 @@ class JournalLocator:
                 requestData
             )
             if current_last_modified == j.last_modified:
-                return json_response(j.run_data)
+                return make_response(j.run_data.to_json(), 200)
 
         # Not up-to-date, so get the full file content and update modtime
         try:
@@ -223,7 +223,7 @@ class JournalLocator:
         # reference
         j.last_run_number = j.run_data.get_last_run_number
 
-        return make_response(json_response(j.run_data), 200)
+        return make_response(j.run_data.to_json(), 200)
 
     def get_all_journal_data(self, collection: JournalCollection) -> None:
         """Retrieve all run data for all journals listed in the collection
