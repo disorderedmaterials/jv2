@@ -156,23 +156,37 @@ class JournalData:
     @classmethod
     def from_element_tree(cls, treeRoot: ElementTree.Element):
         """Create an instance from the supplied ElementTree data.
-        We assume that "interesting" entries are those keyed 'NXentry'
+        We assume that "interesting" entries are those keyed 'NXentry', but we
+        need to account for namespaces added into element tags by the
+        ElementTree parser (an issue with ISIS journal files but not our own
+        generated ones since we don't use namespacing).
         """
         data = {}
 
-        for run in treeRoot.findall("NXentry"):
-            children = list(run)
-            run_number_element = run.find("run_number")
-            if run_number_element is None:
-                raise RuntimeError("A run_number entry is missing in the data.")
-            run_number = int(run_number_element.text)
-
-            # Convert our XML tree to a dict for storage
-            data[run_number] = {}
-            for child in children:
-                data[run_number][child.tag] = child.text
+        for prefix in [None, "{http://definition.nexusformat.org/schema/3.0}"]:
+            for run in treeRoot.findall("NXentry" if prefix is None
+                                        else prefix + "NXentry"):
+                cls.__make_run_data_entry(run, data, prefix)
 
         return cls(data)
+
+    @classmethod
+    def __make_run_data_entry(cls, run: ElementTree.Element, target_data: {},
+                              namespace_prefix: str = None):
+        """Create a dict for the specified run"""
+        children = list(run)
+        run_number_element = run.find("run_number" if namespace_prefix is None
+                                      else namespace_prefix + "run_number")
+        if run_number_element is None:
+            raise RuntimeError("A run_number entry is missing in the data.")
+        run_number = int(run_number_element.text)
+
+        # Convert our XML tree to a dict for storage
+        target_data[run_number] = {}
+        for child in children:
+            tag = (child.tag if namespace_prefix is None
+                   else child.tag.removeprefix(namespace_prefix))
+            target_data[run_number][tag] = str(child.text).strip()
 
     def __create_run_ranges(self):
         """Create run ranges from the current data"""
