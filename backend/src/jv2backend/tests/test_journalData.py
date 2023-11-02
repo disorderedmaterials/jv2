@@ -46,9 +46,9 @@ def test_search_by_user_name_field_uses_a_contains_check_not_exact_match(case_se
     search_results = data.search("user_name", "devlin", case_sensitive)
 
     if case_sensitive:
-        assert search_results.run_count == 0
+        assert len(search_results) == 0
     else:
-        assert search_results.run_count == 6
+        assert len(search_results) == 6
 
 
 @pytest.mark.parametrize("case_sensitive", [True, False])

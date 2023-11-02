@@ -23,20 +23,27 @@ def _to_datetime(user_input: str) -> dt.datetime:
 # Query handlers
 # A handler should have the form Callable[[pd.DataFrame, str, bool],
 # pd.DataFrame]
-def contains(
-    data: pd.DataFrame, column: str, text: str, case_sensitive: bool
-) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where the text string is
-    in the column values
+def _query_string_contains(
+    data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field contains the text
+    string provided.
 
-    :param data: The input data
-    :param column: The name of the column that should be matched
-    :param text: Text to search
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Text to search
     :param case_sensitive: If True the case of the data must match the query
-    :return: A new DataFrame with the selected rows
+    :return: A dict with matching runs
     """
-    return data[data[column].str.contains(text, case=case_sensitive)]
-
+    results = {}
+    search_value = value if case_sensitive else value.lower()
+    for run in data:
+        if field not in data[run]:
+            continue
+        text = data[run][field] if case_sensitive else data[run][field].lower()
+        if search_value in text:
+            results[run] = data[run]
+    return results
 
 def equals(
     data: pd.DataFrame, column: str, text: str, case_sensitive: bool
@@ -233,15 +240,14 @@ class JournalData:
 
     def search(
         self, run_field: str, user_input: str, case_sensitive: bool = False
-    ) -> JournalData:
+    ) -> {}:
         """Search data for runs whose run_field matches the user_input"""
         # Different fields need handling differently but we will fallback to a
         # basic "is in string check"
-        query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
+        query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field,
+                                                   _query_string_contains)
 
-        return JournalData(
-            query_handle(self._data, run_field, user_input, case_sensitive),
-        )
+        return query_handle(self._data, run_field, user_input, case_sensitive)
 
     # Output formats
     def to_json(self) -> str:
