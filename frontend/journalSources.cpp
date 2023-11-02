@@ -158,6 +158,17 @@ void MainWindow::on_JournalComboBox_currentIndexChanged(int index)
     backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
 }
 
+void MainWindow::on_JournalComboBackToJournalsButton_clicked(bool checked)
+{
+    currentJournalSource().stopShowingSearchedData();
+
+    ui_.JournalComboStack->setCurrentIndex(0);
+
+    updateForCurrentSource(JournalSource::JournalSourceState::Loading);
+
+    backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+}
+
 /*
  * Network Handling
  */

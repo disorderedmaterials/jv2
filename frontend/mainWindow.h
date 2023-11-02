@@ -76,6 +76,7 @@ class MainWindow : public QMainWindow
     private slots:
     void on_JournalSourceComboBox_currentIndexChanged(int index);
     void on_JournalComboBox_currentIndexChanged(int index);
+    void on_JournalComboBackToJournalsButton_clicked(bool checked);
 
     private:
     // Handle get journal updates result

@@ -146,13 +146,15 @@ void Backend::getJournalUpdates(const JournalSource &source, HttpRequestWorker::
 }
 
 // Search across all journals for matching runs
-void Backend::search(const JournalSource &source ,const std::map<QString,QString> &searchTerms,
-                       HttpRequestWorker::HttpRequestHandler handler)
+void Backend::search(const JournalSource &source, const std::map<QString, QString> &searchTerms,
+                     HttpRequestWorker::HttpRequestHandler handler)
 {
     auto data = source.sourceObjectData();
 
     QJsonObject query;
     query["caseSensitive"] = "false";
+    for (const auto &[key, value] : searchTerms)
+        query[key] = value;
 
     data["valueMap"] = query;
 

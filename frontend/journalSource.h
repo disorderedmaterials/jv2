@@ -155,10 +155,18 @@ class JournalSource
     private:
     // Current state of the journal source
     JournalSourceState state_{JournalSourceState::Loading};
+    // Last journal displayed before showing searched data
+    OptionalReferenceWrapper<Journal> journalBeforeSearchedData_;
 
     public:
     // Set current state of the journal source
     void setState(JournalSourceState state);
     // Return current state of the journal source
     JournalSourceState state() const;
+    // Flag that the source is showing searched data
+    void setShowingSearchedData();
+    // Flag that the source should return to showing journal data
+    void stopShowingSearchedData();
+    // Return whether the source is currently showing searched data
+    bool showingSearchedData() const;
 };

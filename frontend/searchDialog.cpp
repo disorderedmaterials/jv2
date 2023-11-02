@@ -3,10 +3,7 @@
 
 #include "searchDialog.h"
 
-SearchDialog::SearchDialog(QWidget *parent) : QDialog(parent)
-{
-    ui_.setupUi(this);
-}
+SearchDialog::SearchDialog(QWidget *parent) : QDialog(parent) { ui_.setupUi(this); }
 
 void SearchDialog::on_CancelButton_clicked(bool checked) { reject(); }
 
@@ -20,6 +17,8 @@ std::map<QString, QString> SearchDialog::getQuery()
 
     // Assemble the search query parameters
     std::map<QString, QString> parameters;
+    if (ui_.RunTitleCheckBox->isChecked() && !ui_.RunTitleEdit->text().isEmpty())
+        parameters["title"] = ui_.RunTitleEdit->text();
 
     return parameters;
 }
