@@ -68,34 +68,58 @@ def _query_string_equals(
             results[run] = data[run]
     return results
 
-def inrange_int(data: pd.DataFrame, column: str,
-                text: str, _: bool) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where range provided in the
-    text is included. It is assumed the column
-    can be converted to an integer and the search is insclusive
+def _query_integer_in_range(
+        data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field, when converted to an
+    int, falls within the range specified in the value parameter. It is
+    assumed that the field can be reliably converted to an int, and the search
+    is inclusive.
 
-    :param data: The input data
-    :param column: The name of the column that should be matched. It should be
-                   convertible to an integer
-    :param text: Input query:
-                   - Use a "start-end" to indicate an inclusive range
-                   - or "(OP)value" where (OP) is one of "<,>"
-                 An empty result is returned if the format is incorrect
-    :param _: Ignored in this case. Required by API
-    :return: A new DataFrame with the selected rows
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Integer range, which can be of the following construction:
+                   N-M - A range of N to M inclusive
+                   <N  - Any number less than N
+                   >N  - Any number greater than N
+    :param case_sensitive: <Unused, required by API>
+    :return: A dict with matching runs
     """
-    try:
-        column_values = data[column].astype(int)
-        if "-" in text:
-            start, end = text.split("-")
-            start, end = int(start.strip()), int(end.strip())
-            return data[column_values.between(start, end, inclusive="both")]
-        else:
-            op, value = text[0], text[1:]
-            return data.query(f"@column_values {op} {value}")
+    results = {}
 
-    except ValueError:  # bad format
-        return pd.DataFrame()
+    if "-" in value:
+        # Range search
+        try:
+            irange = IntegerRange.from_string(value)
+        except ValueError:
+            return {}
+
+        for run in data:
+            if field in data[run] and int(data[run][field]) in irange:
+                results[run] = data[run]
+
+    elif value.startswith("<"):
+        # Less than
+        ivalue = int(value.lstrip("<>"))
+        for run in data:
+            if field in data[run] and int(data[run][field]) < ivalue:
+                results[run] = data[run]
+
+    elif value.startswith(">"):
+        # Greater than
+        ivalue = int(value.lstrip("<>"))
+        for run in data:
+            if field in data[run] and int(data[run][field]) > ivalue:
+                results[run] = data[run]
+
+    else:
+        # Equal to
+        ivalue = int(value)
+        for run in data:
+            if field in data[run] and int(data[run][field]) == ivalue:
+                results[run] = data[run]
+
+    return results
 
 
 def inrange_datetime(

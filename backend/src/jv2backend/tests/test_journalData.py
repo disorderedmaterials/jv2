@@ -68,36 +68,33 @@ def test_search_by_title_uses_a_contains_check_and_not_exact_match(case_sensitiv
 
     search_results = data.search("title", "science", case_sensitive)
     if case_sensitive:
-        assert search_results.run_count == 0
+        assert len(search_results) == 0
     else:
-        assert search_results.run_count == 5
+        assert len(search_results) == 5
 
 
 def test_search_by_run_number_uses_a_range_check_assuming_user_gives_start_end():
     data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("run_number", "10-1000")
-    assert search_results.run_count == 0
+    assert len(search_results) == 0
 
     search_results = data.search("run_number", "1-5")
-    assert search_results.run_count == 3
+    assert len(search_results) == 3
 
-    runs = json.loads(search_results.to_json())
-
-    assert runs[0]["run_number"] == "1"
-    assert runs[1]["run_number"] == "2"
-    assert runs[2]["run_number"] == "3"
+    assert 1 in search_results
+    assert 2 in search_results
+    assert 3 in search_results
 
 
 def test_search_by_run_number_uses_a_range_check_given_range_operator():
     data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("run_number", ">6")
-    assert search_results.run_count == 2
+    assert len(search_results) == 2
 
-    runs = json.loads(search_results.to_json())
-    assert runs[0]["run_number"] == "8"
-    assert runs[1]["run_number"] == "9"
+    assert 8 in search_results
+    assert 9 in search_results
 
 
 def test_search_by_start_time_treating_input_as_datetime_and_equivalent_to_start_date():
