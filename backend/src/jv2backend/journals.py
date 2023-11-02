@@ -45,23 +45,27 @@ def _query_string_contains(
             results[run] = data[run]
     return results
 
-def equals(
-    data: pd.DataFrame, column: str, text: str, case_sensitive: bool
-) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where the text string matches
-    the column value.
+def _query_string_equals(
+        data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field exactly matches the
+    string provided.
 
-    :param data: The input data
-    :param column: The name of the column that should be matched
-    :param text: Text to search
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Text to search
     :param case_sensitive: If True the case of the data must match the query
-    :return: A new DataFrame with the selected rows
+    :return: A dict with matching runs
     """
-    if case_sensitive:
-        return data[data[column] == text]
-    else:
-        return data[data[column].str.lower() == text.lower()]
-
+    results = {}
+    search_value = value if case_sensitive else value.lower()
+    for run in data:
+        if field not in data[run]:
+            continue
+        text = data[run][field] if case_sensitive else data[run][field].lower()
+        if search_value == text:
+            results[run] = data[run]
+    return results
 
 def inrange_int(data: pd.DataFrame, column: str,
                 text: str, _: bool) -> pd.DataFrame:
@@ -121,7 +125,7 @@ def inrange_datetime(
 # Map a field name to a handler for that query if it should have special
 # handling
 _SPECIAL_QUERY_HANDLERS = {
-    "experiment_identifier": equals,
+    "experiment_identifier": _query_string_equals,
     "run_number": inrange_int,
     "start_time": inrange_datetime,
 }

@@ -56,10 +56,10 @@ def test_search_by_experiment_identifier_uses_exact_string_matching(case_sensiti
     data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("experiment_identifier", "123456", case_sensitive)
-    assert search_results.run_count == 0
+    assert len(search_results) == 0
 
     search_results = data.search("experiment_identifier", "1234567", case_sensitive)
-    assert search_results.run_count == 3
+    assert len(search_results) == 3
 
 
 @pytest.mark.parametrize("case_sensitive", [True, False])
