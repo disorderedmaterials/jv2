@@ -40,19 +40,20 @@ class JournalLocator:
             raise RuntimeError("No source type set.")
 
     @classmethod
-    def _get_journal_modification_time(cls,
-                                       requestData: RequestData
-                                       ) -> datetime.datetime:
+    def _get_journal_modification_time(
+            cls, source_type: SourceType, journal_file_url: str
+) -> datetime.datetime:
         """Get the modification time of the journal"""
-        if requestData.source_type == SourceType.Network:
-            response = requests.head(requestData.journal_file_url(), timeout=3)
+        if source_type == SourceType.Network:
+            response = requests.head(journal_file_url, timeout=3)
             response.raise_for_status()
             return lm_to_datetime(response.headers["Last-Modified"])
-        elif requestData.source_type == SourceType.Cached:
+        elif source_type == SourceType.Cached:
+            # TODO / FIXME Need to handle this in a better way
             return datetime.datetime.now()
-        elif requestData.source_type == SourceType.Disk:
+        elif source_type == SourceType.Disk:
             return datetime.datetime.fromtimestamp(
-                os.path.getmtime(requestData.file_url),
+                os.path.getmtime(journal_file_url),
                 datetime.timezone.utc
              )
         else:
@@ -60,19 +61,19 @@ class JournalLocator:
 
     @classmethod
     def _get_journal_run_data(
-            cls, requestData: RequestData
+            cls, source_type: SourceType, journal_file_url: str
     ) -> ElementTree.Element:
         """Get the content of the file and parse it with ElementTree"""
         tree = ElementTree
-        if requestData.source_type == SourceType.Network:
-            response = requests.get(requestData.journal_file_url(), timeout=3)
+        if source_type == SourceType.Network:
+            response = requests.get(journal_file_url, timeout=3)
             response.raise_for_status()
             tree = ElementTree.parse(BytesIO(response.content))
-        elif requestData.source_type == SourceType.Cached:
-            if requestData.journal_collection is None:
-                tree = ElementTree
-        elif requestData.source_type == SourceType.File:
-            with open(requestData.file_url, "rb") as file:
+        elif source_type == SourceType.Cached:
+            # TODO / FIXME Need to handle this in a better way
+            tree = ElementTree
+        elif source_type == SourceType.File:
+            with open(journal_file_url, "rb") as file:
                 tree = ElementTree.parse(BytesIO(file.read()))
         else:
             raise RuntimeError("No source type set.")
@@ -201,14 +202,16 @@ class JournalLocator:
         if j is not None:
             # Return current data if the file still has the same modtime
             current_last_modified = self._get_journal_modification_time(
-                requestData
+                requestData.source_type,
+                requestData.journal_file_url()
             )
             if current_last_modified == j.last_modified:
                 return make_response(j.run_data.to_json(), 200)
 
         # Not up-to-date, so get the full file content and update modtime
         try:
-            treeRoot = self._get_journal_run_data(requestData)
+            treeRoot = self._get_journal_run_data(requestData.source_type,
+                                                  requestData.journal_file_url())
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -254,14 +257,16 @@ class JournalLocator:
         if j is not None:
             # Compare modification times - if the same, return existing data
             current_last_modified = self._get_journal_modification_time(
-                requestData
+                requestData.source_type,
+                requestData.journal_file_url()
             )
             if current_last_modified == j.last_modified:
                 return make_response(jsonify(None), 200)
 
         # Changed, so read full data and store the whole thing
         try:
-            treeRoot = self._get_journal_run_data(requestData)
+            treeRoot = self._get_journal_run_data(requestData.source_type,
+                                                  requestData.journal_file_url())
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
