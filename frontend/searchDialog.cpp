@@ -19,6 +19,16 @@ std::map<QString, QString> SearchDialog::getQuery()
     std::map<QString, QString> parameters;
     if (ui_.RunTitleCheckBox->isChecked() && !ui_.RunTitleEdit->text().isEmpty())
         parameters["title"] = ui_.RunTitleEdit->text();
+    if (ui_.RunNumberCheckBox->isChecked())
+    {
+        if (ui_.RunNumberRangeRadio->isChecked())
+            parameters["run_number"] =
+                QString("%1-%2").arg(ui_.RunNumberFromSpinBox->value()).arg(ui_.RunNumberToSpinBox->value());
+        else if (ui_.RunNumberBeforeRadio->isChecked())
+            parameters["run_number"] = QString("<%1").arg(ui_.RunNumberBeforeSpinBox->value());
+        else if (ui_.RunNumberAfterRadio->isChecked())
+            parameters["run_number"] = QString(">%1").arg(ui_.RunNumberAfterSpinBox->value());
+    }
 
     return parameters;
 }
