@@ -7,6 +7,7 @@ import typing
 import datetime as dt
 from typing import Optional, Sequence
 from jv2backend.utils import url_join
+from jv2backend.integerRange import IntegerRange
 import xml.etree.ElementTree as ElementTree
 import json
 import logging
@@ -126,33 +127,9 @@ def inrange_datetime(
 # handling
 _SPECIAL_QUERY_HANDLERS = {
     "experiment_identifier": _query_string_equals,
-    "run_number": inrange_int,
+    "run_number": _query_integer_in_range,
     "start_time": inrange_datetime,
 }
-
-
-@dataclass
-class RunRange:
-    """Specifies a range of run numbers"""
-    first: int = None
-    last: int = None
-
-    def contains(self, value: int) -> bool:
-        """Return whether the range contains the specified value"""
-        return self.first <= value <= self.last
-
-    def extend(self, value: int) -> bool:
-        """Attempt to extend the current range with the supplied number.
-        We will only do so if it results in another continuous range.
-        """
-        if (value+1) == self.first:
-            self.first = value
-            return True
-        elif (value-1) == self.last:
-            self.last = value
-            return True
-
-        return False
 
 
 # JournalData class
@@ -161,7 +138,7 @@ class JournalData:
 
     def __init__(self, data: {}) -> None:
         self._data = data
-        self._run_number_ranges: typing.List[RunRange] = []
+        self._run_number_ranges: typing.List[IntegerRange] = []
         self.__create_run_ranges()
 
     @classmethod
@@ -207,7 +184,7 @@ class JournalData:
                         if r.extend(run_number)), None)
             if not rnr:
                 self._run_number_ranges.append(
-                    RunRange(first=run_number, last=run_number)
+                    IntegerRange(first=run_number, last=run_number)
                 )
 
         # Sort the ranges so that the highest run number appears in the last one
@@ -215,7 +192,7 @@ class JournalData:
 
     def __contains__(self, run_number: int) -> bool:
         rnr = next((r for r in self._run_number_ranges
-                    if r.contains(run_number)), None)
+                    if run_number in r), None)
         return rnr is not None
 
     @property
