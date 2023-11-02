@@ -303,7 +303,7 @@ class BasicJournalFile:
     directory: str
     filename: str
     data_directory: str
-    last_modified: dt.datetime = None
+    last_modified: datetime.datetime = None
 
     @classmethod
     def from_derived(cls, derived):
