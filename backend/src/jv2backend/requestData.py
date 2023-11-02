@@ -194,3 +194,8 @@ class RequestData:
     def journal_collection(self) -> jv2backend.journals.JournalCollection:
         """Return the associated JournalCollection object (if any)"""
         return self._journal_collection
+
+    @property
+    def value_map(self) -> {}:
+        """Return the value map (if given)"""
+        return self._value_map

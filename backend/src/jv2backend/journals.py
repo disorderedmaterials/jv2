@@ -422,6 +422,7 @@ class JournalCollection:
             del search_terms["caseSensitive"]
 
         for jf in self.journalFiles:
+            logging.debug(f"Journal {jf.filename} .....")
             if jf.run_data is None:
                 continue
             matches = None
@@ -429,18 +430,22 @@ class JournalCollection:
             # If the current 'matches' is None then search the whole run data
             # If it is not, then search it instead (chaining searches)
             # If it is ever a size of zero we have excluded all runs
+            logging.debug("Starting loop over run data...")
             for field in search_terms:
                 matches = Selector.select(jf.run_data.data if matches is None
                                           else matches,
                                           field,
                                           search_terms[field],
                                           case_sensitive)
+                logging.debug(f"...after checking '{field}' there are "
+                              f"{len(matches)} matches...")
                 if len(matches) == 0:
                     break
 
-            if len(matches) == 0:
-                break
+            if matches is None:
+                continue
 
+            logging.debug(f"Journal {jf.filename} matched {len(matches)} runs.")
             results.update(matches)
 
         return results

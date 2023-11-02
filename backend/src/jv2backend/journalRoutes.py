@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary
+from jv2backend.journals import JournalLibrary, JournalData
 import jv2backend.io.journalLocator
 import jv2backend.io.journalGenerator
 from jv2backend.utils import json_response
@@ -95,8 +95,6 @@ def add_routes(
 
         return journalLocator.get_updates(postData)
 
-    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
-
     @app.post("/journals/search")
     def search() -> FlaskResponse:
         """Search over all available journals in a target source for any runs
@@ -119,22 +117,18 @@ def add_routes(
         # First, make sure all journals in the collection are ready for searching
         journalLocator.get_all_journal_data(postData.journal_collection)
 
-        # Also
-        # if field in ("start_time", "start_date"):
-        #     # keep compatible with frontend sending semi-colon separated date
-        #     # fields
-        #     search = search.replace(";", "/")
-        #     # start_date maps to start_time in the run_fields
-        #     field = "start_time" if field.endswith("date") else field
         try:
-            runs = postData.journal_collection.search(postData)
+            runs = postData.journal_collection.search(postData.value_map)
         except Exception as exc:
             return make_response(jsonify(
-                f"Error: Unable to complete search '{search}': {str(exc)}"), 200
+                {"Error": f"Unable to complete search: {str(exc)}"}), 200
             )
 
-        # Do something with the data....
-        return make_response(jsonify("All good here."), 200)
+        # Return the data
+        return make_response(JournalData(runs).to_json(), 200)
+
+    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
+
 
     @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):
