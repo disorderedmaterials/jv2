@@ -13,6 +13,7 @@ import jv2backend.serverRoutes
 import jv2backend.journals
 import jv2backend.io.journalLocator
 import jv2backend.io.journalGenerator
+import xml.etree.ElementTree as ElementTree
 
 
 def create_app(inside_gunicorn: bool = True) -> Flask:
@@ -25,14 +26,20 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
     app = Flask(__name__)
     configure_logging(app, inside_gunicorn)
 
+    # Create our main objects
     journalLocator = jv2backend.io.journalLocator.JournalLocator()
     journalGenerator = jv2backend.io.journalGenerator.JournalGenerator()
     journalLibrary = jv2backend.journals.JournalLibrary({})
 
+    # Register Flask routes
     jv2backend.serverRoutes.add_routes(app)
     jv2backend.journalRoutes.add_routes(app, journalLocator, journalLibrary)
     jv2backend.generateRoutes.add_routes(app, journalGenerator, journalLibrary)
     jv2backend.nexusRoutes.add_routes(app, journalLibrary)
+
+    # Register XML namespaces
+    ElementTree.register_namespace( '', "http://definition.nexusformat.org/schema/3.0")
+    ElementTree.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
 
     return app
 
