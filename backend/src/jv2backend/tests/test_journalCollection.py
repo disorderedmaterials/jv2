@@ -49,3 +49,31 @@ def test_retrieve_invalid_journal():
 
     journal = collection.get_journal("simpleRunData99.xml")
     assert journal is None
+
+
+@pytest.mark.parametrize("case_sensitive", ["true", "false", "notEither"])
+def test_search_across_journals_for_title(case_sensitive):
+    collection = JournalCollection([journal1, journal2])
+    matches = collection.search({"title": "science", "caseSensitive": case_sensitive})
+
+    if case_sensitive == "true":
+        assert len(matches) == 0
+    else:
+        assert len(matches) == 9
+
+
+def test_search_across_journals_for_title_and_run_number_range():
+    collection = JournalCollection([journal1, journal2])
+    matches = collection.search({"title": "science", "run_number": "6-10"})
+
+    assert len(matches) == 3
+    for run in [6, 7, 8]:
+        assert run in matches
+
+
+def test_search_across_journals_for_title_and_start_date():
+    collection = JournalCollection([journal1, journal2])
+    matches = collection.search({"title": "again", "start_time": "<2023/02/05"})
+
+    assert len(matches) == 1
+    assert 3 in matches

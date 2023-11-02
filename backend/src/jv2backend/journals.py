@@ -8,6 +8,7 @@ import datetime
 from typing import Optional, Sequence
 from jv2backend.utils import url_join
 from jv2backend.integerRange import IntegerRange
+import jv2backend.select as Selector
 import xml.etree.ElementTree as ElementTree
 import json
 import logging
@@ -403,29 +404,46 @@ class JournalCollection:
             basic.append(x.from_derived(x))
         return basic
 
-    def search(self, search_terms: typing.Dict[str,str]) -> JournalData:
+    def search(self, search_terms: {}) -> {}:
         """
-        Search across all journals for the given user input against the given
-        field in the journals
+        Search across all journals in the collection, selecting those which
+        match _all_ of the specified search_terms. The search terms are
+        applied sequentially in the order they appear in the dict.
 
-        :param instrument_name: The instrument name
-        :param run_field: Field to search over from all runs
-        :param user_input: Search query
-        :param case_sensitive: If True, use case sensitive searching
-        :return: A JournalData object of the runs matching the search query.
-                 An empty object indicates nothing could be found
+        :param search_terms: Dict of search field/values
+        :return: A dict of runs matching the search query.
         """
-        results = JournalData([])
+        results = {}
+
+        # See if we have a case-sensitive flag
+        case_sensitive = ("caseSensitive" in search_terms and
+                          search_terms["caseSensitive"] == "true")
+        if "caseSensitive" in search_terms:
+            del search_terms["caseSensitive"]
 
         for jf in self.journalFiles:
-            if jf.run_data is not None:
-                results.append(
-                    jf.run_data.search(
-                        run_field,
-                        user_input,
-                        case_sensitive))
+            if jf.run_data is None:
+                continue
+            matches = None
+            # Cycle over search terms
+            # If the current 'matches' is None then search the whole run data
+            # If it is not, then search it instead (chaining searches)
+            # If it is ever a size of zero we have excluded all runs
+            for field in search_terms:
+                matches = Selector.select(jf.run_data.data if matches is None
+                                          else matches,
+                                          field,
+                                          search_terms[field],
+                                          case_sensitive)
+                if len(matches) == 0:
+                    break
 
-        return concatenate(results)
+            if len(matches) == 0:
+                break
+
+            results.update(matches)
+
+        return results
 
 
 @dataclass
