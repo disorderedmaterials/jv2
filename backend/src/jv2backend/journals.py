@@ -4,7 +4,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, KW_ONLY
 import typing
-import datetime as dt
+import datetime
 from typing import Optional, Sequence
 from jv2backend.utils import url_join
 from jv2backend.integerRange import IntegerRange
@@ -14,12 +14,11 @@ import logging
 
 # Format of start time search string
 USERINPUT_DT_FORMAT_STR = "%Y/%m/%d"
+UNIX_DT_FORMAT_STR = "%Y-%m-%dT%H:%M:%S"
 
-
-def _to_datetime(user_input: str) -> dt.datetime:
-    """Convert from a string of format YYY/MM/DD to a datetime object"""
-    return dt.datetime.strptime(user_input, USERINPUT_DT_FORMAT_STR)
-
+def _to_datetime(user_input: str, input_format: str) -> datetime.datetime:
+    """Convert from a string of specified format to a datetime object"""
+    return datetime.datetime.strptime(user_input, input_format)
 
 # Query handlers
 # A handler should have the form Callable[[pd.DataFrame, str, bool],
@@ -122,37 +121,67 @@ def _query_integer_in_range(
     return results
 
 
-def inrange_datetime(
-    data: pd.DataFrame, column: str, text: str, _: bool
-) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where datetime provided in the
-    text (using a "-" separator) is included. It is assumed the column
-    can be converted to an datetime and the search is insclusive
+def _query_datetime_in_range(
+        data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field, when converted to an
+    datetime, falls within the range specified in the value parameter. It is
+    assumed that the field can be reliably converted to a datetime, and the
+    search is inclusive.
 
-    :param data: The input data
-    :param column: The name of the column that should be matched. It should be
-                   convertible to an datetime object
-    :param text: Text to search in the format "YYYY/MM/DD-YYYY/MM/DD". An
-                 empty result is returned if the format is incorrect
-    :param _: Ignored in this case. Required by API
-    :return: A new DataFrame with the selected rows
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Datetime range, which can be of the following construction:
+                   N-M - A range of N to M inclusive
+                   <N  - Any datetime before N
+                   >N  - Any datetime after N
+    :param case_sensitive: <Unused, required by API>
+    :return: A dict with matching runs
     """
-    try:
-        start, end = text.split("-")
-        start, end = _to_datetime(start.strip()), _to_datetime(end.strip())
-    except ValueError:  # bad format
-        return pd.DataFrame()
+    results = {}
 
-    column_values = pd.to_datetime(data[column])
-    return data[column_values.between(start, end, inclusive="both")]
+    if "-" in value:
+        # Range search
+        try:
+            start, end = value.split("-")
+            start = _to_datetime(start.strip(), USERINPUT_DT_FORMAT_STR)
+            end = _to_datetime(end.strip(), USERINPUT_DT_FORMAT_STR)
+        except ValueError:
+            return {}
 
+        for run in data:
+            if (field in data[run] and
+                start <= _to_datetime(data[run][field], UNIX_DT_FORMAT_STR)
+                <= end):
+                results[run] = data[run]
+
+    elif value.startswith("<"):
+        # Less than
+        mark = _to_datetime(value.lstrip("<>"), USERINPUT_DT_FORMAT_STR)
+        for run in data:
+            if (field in data[run] and
+                _to_datetime(data[run][field], UNIX_DT_FORMAT_STR) < mark):
+                results[run] = data[run]
+
+    elif value.startswith(">"):
+        # Greater than
+        mark = _to_datetime(value.lstrip("<>"), USERINPUT_DT_FORMAT_STR)
+        for run in data:
+            if (field in data[run] and
+                    _to_datetime(data[run][field], UNIX_DT_FORMAT_STR) > mark):
+                results[run] = data[run]
+
+    else:
+        raise RuntimeError("Can't perform a literal time comparison.")
+
+    return results
 
 # Map a field name to a handler for that query if it should have special
 # handling
 _SPECIAL_QUERY_HANDLERS = {
     "experiment_identifier": _query_string_equals,
     "run_number": _query_integer_in_range,
-    "start_time": inrange_datetime,
+    "start_time": _query_datetime_in_range,
 }
 
 

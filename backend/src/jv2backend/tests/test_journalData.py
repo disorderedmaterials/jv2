@@ -102,7 +102,7 @@ def test_search_by_start_time_treating_input_as_datetime_and_equivalent_to_start
 
     search_results = data.search("start_time", "2023/02/03-2023/02/04")
 
-    assert search_results.run_count == 2
-    runs = json.loads(search_results.to_json())
-    assert runs[0]["run_number"] == "2"
-    assert runs[1]["run_number"] == "3"
+    assert len(search_results) == 2
+
+    assert 2 in search_results
+    assert 3 in search_results
