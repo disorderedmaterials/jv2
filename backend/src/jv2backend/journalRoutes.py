@@ -31,8 +31,8 @@ def add_routes(
         as an associated run data location for use if the target file will be
         parsed for the first time.
 
-        :return: A JSON response containing available journals in a
-                 list(BasicJournal), or an error
+        :return: A JSON response containing basic information on available
+                 journals
         """
         try:
             postData = RequestData(request.json, journalLibrary,

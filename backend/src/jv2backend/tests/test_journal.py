@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2backend.journal import BasicJournal, Journal, JournalData
+from jv2backend.journal import Journal, JournalData
 from jv2backend.utils import url_join
 import datetime
 
@@ -14,34 +14,19 @@ JOURNAL_DATA_ROOT = "/my/data/directory"
 JOURNAL_MODTIME = datetime.datetime.now()
 
 
-def test_basic_constructor():
-    journal = BasicJournal(JOURNAL_NAME, JOURNAL_DIRECTORY, JOURNAL_FILENAME,
-                               JOURNAL_DATA_ROOT, JOURNAL_MODTIME)
-
-    _test_journal_data(journal)
-
-
-def test_derived_constructor():
+def test_constructor():
     derived = Journal(JOURNAL_NAME, JOURNAL_DIRECTORY, JOURNAL_FILENAME,
-                          JOURNAL_DATA_ROOT, JOURNAL_MODTIME,
-                          JournalData({}))
+                      JOURNAL_DATA_ROOT, JOURNAL_MODTIME,
+                      JournalData({}))
 
     _test_journal_data(derived)
     assert derived.run_data.run_count == 0
 
 
-def test_basic_from_derived():
-    derived = Journal(JOURNAL_NAME, JOURNAL_DIRECTORY, JOURNAL_FILENAME,
-                          JOURNAL_DATA_ROOT, JOURNAL_MODTIME,
-                          JournalData({}))
-
-    _test_journal_data(derived.to_basic())
-
-
 # Helpers
 
 
-def _test_journal_data(journal: BasicJournal):
+def _test_journal_data(journal: Journal):
     assert journal.display_name == JOURNAL_NAME
     assert journal.filename == JOURNAL_FILENAME
     assert journal.get_file_url() == JOURNAL_FILE_URL

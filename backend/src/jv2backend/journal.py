@@ -5,7 +5,6 @@ from __future__ import annotations
 import typing
 import datetime
 from typing import Optional
-from dataclasses import dataclass
 from jv2backend.utils import url_join
 from jv2backend.integerRange import IntegerRange
 import xml.etree.ElementTree as ElementTree
@@ -112,20 +111,21 @@ class JournalData:
         return json.dumps(items)
 
 
-@dataclass
-class BasicJournal:
-    """Defines basic properties of a single journal"""
+class Journal:
+    """Defines a full journal, including run data"""
 
     def __init__(self, display_name: str = None,
                  journal_directory: str = None,
                  filename: str = None,
                  data_directory: str = None,
-                 last_modified: datetime.datetime = None):
+                 last_modified: datetime.datetime = None,
+                 run_data: JournalData = None):
         self._display_name = display_name
         self._journal_directory = journal_directory
         self._filename = filename
         self._data_directory = data_directory
         self._last_modified = last_modified
+        self._run_data = run_data
 
     @property
     def display_name(self) -> str:
@@ -155,20 +155,6 @@ class BasicJournal:
     def last_modified(self) -> datetime.datetime:
         """Return the last modification time for the journal"""
         return self._last_modified
-
-
-class Journal(BasicJournal):
-    """Defines a full journal, including run data"""
-
-    def __init__(self, display_name: str = None,
-                 journal_directory: str = None,
-                 filename: str = None,
-                 data_directory: str = None,
-                 last_modified: datetime.datetime = None,
-                 run_data: JournalData = None):
-        BasicJournal.__init__(self, display_name, journal_directory,
-                                  filename, data_directory, last_modified)
-        self._run_data = run_data
 
     def to_basic_json(self) -> {}:
         return {

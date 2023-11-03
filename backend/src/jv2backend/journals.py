@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import typing
 from jv2backend.utils import url_join
 import jv2backend.select as Selector
-from jv2backend.journal import Journal, BasicJournal
+from jv2backend.journal import Journal
 import logging
 import json
 
