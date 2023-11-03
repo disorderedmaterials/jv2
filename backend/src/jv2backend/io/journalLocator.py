@@ -15,7 +15,7 @@ import lxml.etree as etree
 
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.journals import JournalCollection, JournalLibrary
-from jv2backend.journalFile import JournalFile, JournalData
+from jv2backend.journal import Journal, JournalData
 from jv2backend.utils import jsonify, json_response
 
 
@@ -163,17 +163,16 @@ class JournalLocator:
 
             # Append to our list
             journals.append(
-                JournalFile(
+                Journal(
                     displayName,
-                    requestData.journal_root_url,
-                    requestData.directory,
+                    url_join(requestData.journal_root_url, requestData.directory),
                     j.attrib["name"], dataDirectory))
 
         # Store as a new collection in the library
         journalLibrary[requestData.library_key()] = JournalCollection(journals)
 
         return make_response(
-            jsonify(journalLibrary[requestData.library_key()].to_basic()), 200
+            journalLibrary[requestData.library_key()].to_basic_json(), 200
         )
 
     def get_journal_data(self, requestData: RequestData) -> FlaskResponse:

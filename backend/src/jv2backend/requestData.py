@@ -153,8 +153,10 @@ class RequestData:
 
     def journal_file_url(self) -> str:
         """Return the full URL (journalRoot plus any optional directory)"""
-        if self._journal_root_url is None or self._journal_filename is None:
-            raise ValueError("No journal location is set.")
+        if self._journal_root_url is None or len(self._journal_root_url) == 0:
+            raise ValueError("No journal root URL is set.")
+        if self._journal_filename is None or len(self._journal_filename) == 0:
+            raise ValueError("No journal filename is set.")
 
         if self._directory:
             return url_join(self._journal_root_url, self._directory,

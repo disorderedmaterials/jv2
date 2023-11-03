@@ -6,8 +6,9 @@ from dataclasses import dataclass
 import typing
 from jv2backend.utils import url_join
 import jv2backend.select as Selector
-from jv2backend.journalFile import JournalFile
+from jv2backend.journal import Journal, BasicJournal
 import logging
+import json
 
 
 @dataclass
@@ -15,17 +16,17 @@ class JournalCollection:
     """Defines a collection of journal files"""
 
     # The available journal files within a collection
-    journalFiles: typing.List[JournalFile]
+    journalFiles: typing.List[Journal]
 
-    def __init__(self, journalFiles: typing.List[JournalFile]) -> None:
+    def __init__(self, journalFiles: typing.List[Journal]) -> None:
         self.journalFiles = journalFiles
 
-    def journal_for_run(self, run_number: int) -> JournalFile:
+    def journal_for_run(self, run_number: int) -> Journal:
         """Find the journal in the collection that contains the specified run
         number.
 
         :param run_number: Run number to locate
-        :return: JournalFile containing the run number, or None if not found
+        :return: Journal containing the run number, or None if not found
         """
         return next(
             (jf for jf in self.journalFiles if run_number in jf),
@@ -71,16 +72,17 @@ class JournalCollection:
             result[i] = self.locate_data_file(i)
         return result
 
-    def get_journal(self, filename: str) -> JournalFile:
+    def get_journal(self, filename: str) -> Journal:
         return next(
             (jf for jf in self.journalFiles if jf.filename == filename),
             None)
 
-    def to_basic(self) -> typing.List[BasicJournalFile]:
+    def to_basic_json(self) -> str:
+        """Return basic journal information as formatted JSON"""
         basic = []
         for x in self.journalFiles:
-            basic.append(x.from_derived(x))
-        return basic
+            basic.append(x.to_basic_json())
+        return json.dumps(basic)
 
     def search(self, search_terms: {}) -> {}:
         """
@@ -155,7 +157,8 @@ class JournalLibrary:
                           f"{len(self.collections[c].journalFiles)} "
                           f"journal files:")
             for j in self.collections[c].journalFiles:
-                if j.run_data is None:
-                    logging.debug(f"     {j} (not yet loaded)")
+                if j.has_run_data():
+                    logging.debug(f"     {j.get_file_url()} "
+                                   "({j.run_data.data.run_count} run data)")
                 else:
-                    logging.debug(f"     {j} ({j.run_data.run_count} run data)")
+                    logging.debug(f"     {j.get_file_url()} (not yet loaded)")

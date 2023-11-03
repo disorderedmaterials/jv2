@@ -14,7 +14,7 @@ from flask import make_response
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journals import JournalLibrary, JournalCollection
-from jv2backend.journalFile import JournalFile, JournalData
+from jv2backend.journal import Journal, JournalData
 
 
 class JournalGenerator:
@@ -161,7 +161,7 @@ class JournalGenerator:
             indexEntry.set("display_name", displayName)
 
             # Push a new Journal on to the list
-            jf = JournalFile(displayName,
+            jf = Journal(displayName,
                              requestData.journal_root_url,
                              requestData.directory,
                              journalFilename, j)

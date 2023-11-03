@@ -2,10 +2,11 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from __future__ import annotations
-from dataclasses import dataclass
 import typing
 import datetime
 from typing import Optional
+from dataclasses import dataclass
+from jv2backend.utils import url_join
 from jv2backend.integerRange import IntegerRange
 import xml.etree.ElementTree as ElementTree
 import json
@@ -111,7 +112,8 @@ class JournalData:
         return json.dumps(items)
 
 
-class BasicJournalFile:
+@dataclass
+class BasicJournal:
     """Defines basic properties of a single journal"""
 
     def __init__(self, display_name: str = None,
@@ -120,8 +122,8 @@ class BasicJournalFile:
                  data_directory: str = None,
                  last_modified: datetime.datetime = None):
         self._display_name = display_name
+        self._journal_directory = journal_directory
         self._filename = filename
-        self._file_url = url_join(journal_directory, filename)
         self._data_directory = data_directory
         self._last_modified = last_modified
 
@@ -131,14 +133,18 @@ class BasicJournalFile:
         return self._display_name
 
     @property
-    def filename(self) -> str:
-        """Return the filename of the journal, excluding the path"""
-        return self._filename
+    def journal_directory(self) -> str:
+        """Return the directory location for the journal"""
+        return self._journal_directory
 
     @property
-    def file_url(self) -> str:
+    def filename(self) -> str:
+        """Return the filename for the journal, without its path"""
+        return self._filename
+
+    def get_file_url(self) -> str:
         """Return the full URL to the journal"""
-        return self._file_url
+        return url_join(self._journal_directory, self._filename)
 
     @property
     def data_directory(self) -> str:
@@ -146,12 +152,12 @@ class BasicJournalFile:
         return self._data_directory
 
     @property
-    def last_modified(self) -> str:
+    def last_modified(self) -> datetime.datetime:
         """Return the last modification time for the journal"""
         return self._last_modified
 
 
-class JournalFile(BasicJournalFile):
+class Journal(BasicJournal):
     """Defines a full journal, including run data"""
 
     def __init__(self, display_name: str = None,
@@ -160,18 +166,18 @@ class JournalFile(BasicJournalFile):
                  data_directory: str = None,
                  last_modified: datetime.datetime = None,
                  run_data: JournalData = None):
-        BasicJournalFile.__init__(self, display_name, journal_directory,
+        BasicJournal.__init__(self, display_name, journal_directory,
                                   filename, data_directory, last_modified)
         self._run_data = run_data
 
-    def to_basic(self):
-        basic = BasicJournalFile()
-        basic._display_name = self.display_name
-        basic._filename = self.filename
-        basic._file_url = self.file_url
-        basic._data_directory = self.data_directory
-        basic._last_modified = self.last_modified
-        return basic
+    def to_basic_json(self) -> {}:
+        return {
+            "display_name": self.display_name,
+            "journal_directory": self.journal_directory,
+            "filename": self.filename,
+            "data_directory": self.data_directory,
+            "last_modified": str(self.last_modified)
+        }
 
     def get_data(self, run_number: int) -> typing.Dict:
         """Return the data for the specified run number.
@@ -187,7 +193,7 @@ class JournalFile(BasicJournalFile):
 
     def has_run_data(self):
         """Return whether any run data is defined"""
-        return self._run_data is not None
+        return self._run_data is not None and self._run_data.run_count > 0
 
     @property
     def run_data(self):

@@ -3,7 +3,7 @@
 
 from jv2backend.requestData import RequestData, InvalidRequest, SourceType
 from jv2backend.journals import JournalLibrary, JournalCollection
-from jv2backend.journalFile import JournalFile, JournalData
+from jv2backend.journal import Journal, JournalData
 import datetime
 import pytest
 
@@ -134,7 +134,7 @@ def test_journal_required_to_be_already_in_collection():
         "journalRootUrl": POST_JOURNAL_ROOT_URL,
         "journalFilename": POST_JOURNAL_FILENAME
     }
-    journals = [JournalFile("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
+    journals = [Journal("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
                             filename=POST_JOURNAL_FILENAME,
                             last_modified=datetime.datetime.now(),
                             run_data=JournalData({}))]
@@ -152,7 +152,7 @@ def test_journal_required_to_be_already_in_collection_but_is_not():
         "journalRootUrl": POST_JOURNAL_ROOT_URL,
         "journalFilename": POST_JOURNAL_FILENAME
     }
-    journals = [JournalFile("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
+    journals = [Journal("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
                             filename=POST_JOURNAL_FILENAME,
                             last_modified=datetime.datetime.now(),
                             run_data=JournalData({}))]
