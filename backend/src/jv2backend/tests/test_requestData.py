@@ -3,7 +3,7 @@
 
 from jv2backend.requestData import RequestData, InvalidRequest, SourceType
 from jv2backend.journals import JournalLibrary, JournalCollection
-from jv2backend.journal import Journal, JournalData
+from jv2backend.journal import Journal
 import datetime
 import pytest
 
@@ -136,8 +136,7 @@ def test_journal_required_to_be_already_in_collection():
     }
     journals = [Journal("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
                             filename=POST_JOURNAL_FILENAME,
-                            last_modified=datetime.datetime.now(),
-                            run_data=JournalData({}))]
+                            last_modified=datetime.datetime.now())]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     try:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)
@@ -154,8 +153,7 @@ def test_journal_required_to_be_already_in_collection_but_is_not():
     }
     journals = [Journal("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
                             filename=POST_JOURNAL_FILENAME,
-                            last_modified=datetime.datetime.now(),
-                            run_data=JournalData({}))]
+                            last_modified=datetime.datetime.now())]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     with pytest.raises(InvalidRequest) as exc:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)

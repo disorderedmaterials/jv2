@@ -112,7 +112,7 @@ class JournalCollection:
             # If it is ever a size of zero we have excluded all runs
             logging.debug("Starting loop over run data...")
             for field in search_terms:
-                matches = Selector.select(jf.run_data.data if matches is None
+                matches = Selector.select(jf.run_data if matches is None
                                           else matches,
                                           field,
                                           search_terms[field],

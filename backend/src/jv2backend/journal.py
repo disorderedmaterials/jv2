@@ -11,106 +11,6 @@ import xml.etree.ElementTree as ElementTree
 import json
 
 
-# JournalData class
-class JournalData:
-    """JournalData captures all run information from a given journal file"""
-
-    def __init__(self, data: {}) -> None:
-        self._data = data
-        self._run_number_ranges: typing.List[IntegerRange] = []
-        self.__create_run_ranges()
-
-    @classmethod
-    def from_element_tree(cls, treeRoot: ElementTree.Element):
-        """Create an instance from the supplied ElementTree data.
-        We assume that "interesting" entries are those keyed 'NXentry', but we
-        need to account for namespaces added into element tags by the
-        ElementTree parser (an issue with ISIS journal files but not our own
-        generated ones since we don't use namespacing).
-        """
-        data = {}
-
-        for prefix in [None, "{http://definition.nexusformat.org/schema/3.0}"]:
-            for run in treeRoot.findall("NXentry" if prefix is None
-                                        else prefix + "NXentry"):
-                cls.__make_run_data_entry(run, data, prefix)
-
-        return cls(data)
-
-    @classmethod
-    def __make_run_data_entry(cls, run: ElementTree.Element, target_data: {},
-                              namespace_prefix: str = None):
-        """Create a dict for the specified run"""
-        children = list(run)
-        run_number_element = run.find("run_number" if namespace_prefix is None
-                                      else namespace_prefix + "run_number")
-        if run_number_element is None:
-            raise RuntimeError("A run_number entry is missing in the data.")
-        run_number = int(run_number_element.text)
-
-        # Convert our XML tree to a dict for storage
-        target_data[run_number] = {}
-        for child in children:
-            tag = (child.tag if namespace_prefix is None
-                   else child.tag.removeprefix(namespace_prefix))
-            target_data[run_number][tag] = str(child.text).strip()
-
-    def __create_run_ranges(self):
-        """Create run ranges from the current data"""
-        self._ranges = []
-        for run_number in self._data:
-            rnr = next((r for r in self._run_number_ranges
-                        if r.extend(run_number)), None)
-            if not rnr:
-                self._run_number_ranges.append(
-                    IntegerRange(first=run_number, last=run_number)
-                )
-
-        # Sort the ranges so that the highest run number appears in the last one
-        self._run_number_ranges.sort(key=lambda range: range.last)
-
-    def __contains__(self, run_number: int) -> bool:
-        rnr = next((r for r in self._run_number_ranges
-                    if run_number in r), None)
-        return rnr is not None
-
-    @property
-    def data(self) -> {}:
-        """Return the contained run data dictionary"""
-        return self._data
-
-    @property
-    def run_count(self) -> int:
-        """Return the number of runs listed within this Journal"""
-        return len(self._data)
-
-    @property
-    def get_last_run_number(self) -> Optional[int]:
-        """Return the run number of the last run in the journal"""
-        if len(self._run_number_ranges) == 0:
-            return None
-        else:
-            return self._run_number_ranges[-1].last
-
-    def run(self, run_number: int) -> Optional[dict]:
-        """Return a dictionary describing the given run number
-
-        :param run_number: Run number to select
-        :return: A dict describing the Run or None if the run does not exist
-        """
-        if run_number in self._data:
-            return self._data[run_number]
-        else:
-            return None
-
-    # Output formats
-    def to_json(self) -> str:
-        items = []
-        for key in self._data:
-            items.append(self._data[key])
-        return json.dumps(items)
-
-
 class Journal:
     """Defines a full journal, including run data"""
 
@@ -119,13 +19,20 @@ class Journal:
                  filename: str = None,
                  data_directory: str = None,
                  last_modified: datetime.datetime = None,
-                 run_data: JournalData = None):
+                 run_data: {} = None):
         self._display_name = display_name
         self._journal_directory = journal_directory
         self._filename = filename
         self._data_directory = data_directory
         self._last_modified = last_modified
         self._run_data = run_data
+        self._run_number_ranges: typing.List[IntegerRange] = []
+
+        # Initialise run data information if we were provided some run data
+        if self._run_data is not None:
+            self.__create_run_ranges()
+
+    # ---------------- Basic Journal Information
 
     @property
     def display_name(self) -> str:
@@ -156,26 +63,62 @@ class Journal:
         """Return the last modification time for the journal"""
         return self._last_modified
 
-    def to_basic_json(self) -> {}:
-        return {
-            "display_name": self.display_name,
-            "journal_directory": self.journal_directory,
-            "filename": self.filename,
-            "data_directory": self.data_directory,
-            "last_modified": str(self.last_modified)
-        }
+    # ---------------- Run Data
 
-    def get_data(self, run_number: int) -> typing.Dict:
-        """Return the data for the specified run number.
+    def __make_run_data_entry(self, run: ElementTree.Element,
+                              namespace_prefix: str = None):
+        """Create a dict for the specified run"""
+        children = list(run)
+        run_number_element = run.find("run_number" if namespace_prefix is None
+                                      else namespace_prefix + "run_number")
+        if run_number_element is None:
+            raise RuntimeError("A run_number entry is missing in the data.")
+        run_number = int(run_number_element.text)
 
-        :param run_number: Run number of interest
-        :return: A Dict describing the run, or None if not found
+        # Convert our XML tree to a dict for storage
+        self._run_data[run_number] = {}
+        for child in children:
+            tag = (child.tag if namespace_prefix is None
+                   else child.tag.removeprefix(namespace_prefix))
+            self._run_data[run_number][tag] = str(child.text).strip()
+
+    def __create_run_ranges(self):
+        """Create run ranges from the current data"""
+        self._run_number_ranges = []
+
+        for run_number in self._run_data:
+            rnr = next((r for r in self._run_number_ranges
+                        if r.extend(run_number)), None)
+            if not rnr:
+                self._run_number_ranges.append(
+                    IntegerRange(first=run_number, last=run_number)
+                )
+
+        # Sort the ranges so that the highest run number appears in the last one
+        self._run_number_ranges.sort(key=lambda r: r.last)
+
+    def set_run_data_from_element_tree(self, treeRoot: ElementTree.Element):
+        """Create run data from the supplied ElementTree data.
+
+        We assume that "interesting" entries are those keyed 'NXentry', but we
+        need to account for namespaces added into element tags by the
+        ElementTree parser (an issue with ISIS journal files but not our own
+        generated ones since we don't use namespacing).
         """
-        return self._run_data.run(run_number)
+        self._run_data = {}
+
+        for prefix in [None, "{http://definition.nexusformat.org/schema/3.0}"]:
+            for run in treeRoot.findall("NXentry" if prefix is None
+                                        else prefix + "NXentry"):
+                self.__make_run_data_entry(run, prefix)
+
+        self.__create_run_ranges()
 
     def __contains__(self, run_number: int) -> bool:
         """Return whether the run_number exists in the journal file"""
-        return run_number in self._run_data
+        rnr = next((r for r in self._run_number_ranges
+                    if run_number in r), None)
+        return rnr is not None
 
     def has_run_data(self):
         """Return whether any run data is defined"""
@@ -185,3 +128,43 @@ class Journal:
     def run_data(self):
         """Return the entire run data for the journal"""
         return self._run_data
+
+    def get_run_count(self) -> int:
+        """Return the number of runs listed within this Journal"""
+        return len(self._run_data)
+
+    def get_last_run_number(self) -> Optional[int]:
+        """Return the run number of the last run in the journal"""
+        if len(self._run_number_ranges) == 0:
+            return None
+        else:
+            return self._run_number_ranges[-1].last
+
+    def get_run(self, run_number: int) -> typing.Dict:
+        """Return the data for the specified run number.
+
+        :param run_number: Run number of interest
+        :return: A Dict describing the run, or None if not found
+        """
+        if run_number in self._run_data:
+            return self._run_data[run_number]
+        else:
+            return None
+
+    # ---------------- Conversion
+
+    def get_journal_as_dict(self) -> {}:
+        """Returns the basic journal data in a dict"""
+        return {
+            "display_name": self.display_name,
+            "journal_directory": self.journal_directory,
+            "filename": self.filename,
+            "data_directory": self.data_directory,
+            "last_modified": str(self.last_modified)
+        }
+
+    def get_run_data_as_json(self) -> str:
+        items = []
+        for key in self._run_data:
+            items.append(self._run_data[key])
+        return json.dumps(items)

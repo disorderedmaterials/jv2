@@ -15,7 +15,7 @@ import lxml.etree as etree
 
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.journals import JournalCollection, JournalLibrary
-from jv2backend.journal import Journal, JournalData
+from jv2backend.journal import Journal
 from jv2backend.utils import jsonify, json_response
 
 
@@ -241,7 +241,7 @@ class JournalLocator:
             self.get_journal_data(collection, journal.server_root,
                                   journal.directory, journal.filename)
 
-    def get_updates(self, requestData: RequestData) -> JournalData:
+    def get_updates(self, requestData: RequestData) -> FlaskResponse:
         """Check if the journal index files has been modified since the last
         retrieval and return new runs added after the last known.
 
