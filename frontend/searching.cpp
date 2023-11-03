@@ -15,19 +15,7 @@ void MainWindow::on_actionSearchEverywhere_triggered()
     auto queryParameters = searchDialog.getQuery();
 
     backend_.search(currentJournalSource(), queryParameters, [=](HttpRequestWorker *worker) { handleSearchResult(worker); });
-
-    // configure caching [FIXME]
-    //    cachedMassSearch_.append(std::make_tuple(nullptr, text));
 }
-//    massSearch("RB No.", "experiment_identifier");
-
-// void MainWindow::on_actionMassSearchTitle_triggered() { massSearch("Title", "title"); }
-//
-// void MainWindow::on_actionMassSearchUser_triggered() { massSearch("User name", "user_name"); }
-//
-// void MainWindow::on_actionMassSearchRunRange_triggered() { massSearch("Run Range", "run_number"); }
-//
-// void MainWindow::on_actionMassSearchDateRange_triggered() { massSearch("Date Range", "start_date"); }
 
 /*
  * Network Handlers
