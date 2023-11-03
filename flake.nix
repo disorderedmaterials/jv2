@@ -17,7 +17,6 @@
           gunicorn
           h5py
           lxml
-          pandas
           requests
           setuptools
           virtualenv

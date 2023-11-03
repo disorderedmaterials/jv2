@@ -2,32 +2,30 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from jv2backend.journals import JournalData
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 import json
-import pandas
 import pytest
 
 # Load test run data
 with open("jv2backend/tests/data/simpleRunData1.xml", "rb") as f:
-    runData = pandas.read_xml(f, dtype=str)
-#    runData = ET.parse(f)
+    runDataTree = ElementTree.parse(f)
 
 
 def test_basic_constructor():
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     assert data.run_count == 6
 
 
 def test_run_data_ranges():
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     assert data.get_last_run_number == 9
 
 
 @pytest.mark.parametrize("run_number", [1, 2, 3, 6, 8, 9])
 def test_run_data_contains_run_number(run_number):
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     assert run_number in data
     assert data.run(run_number) is not None
@@ -35,7 +33,7 @@ def test_run_data_contains_run_number(run_number):
 
 @pytest.mark.parametrize("run_number", [0, 4, 5, 7, 99, 12301])
 def test_run_data_does_not_contain_run_number(run_number):
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     assert run_number not in data
     assert data.run(run_number) is None
@@ -43,7 +41,7 @@ def test_run_data_does_not_contain_run_number(run_number):
 
 @pytest.mark.parametrize("case_sensitive", [True, False])
 def test_search_by_user_name_field_uses_a_contains_check_not_exact_match(case_sensitive):
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("user_name", "devlin", case_sensitive)
 
@@ -55,7 +53,7 @@ def test_search_by_user_name_field_uses_a_contains_check_not_exact_match(case_se
 
 @pytest.mark.parametrize("case_sensitive", [True, False])
 def test_search_by_experiment_identifier_uses_exact_string_matching(case_sensitive):
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("experiment_identifier", "123456", case_sensitive)
     assert search_results.run_count == 0
@@ -66,7 +64,7 @@ def test_search_by_experiment_identifier_uses_exact_string_matching(case_sensiti
 
 @pytest.mark.parametrize("case_sensitive", [True, False])
 def test_search_by_title_uses_a_contains_check_and_not_exact_match(case_sensitive):
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("title", "science", case_sensitive)
     if case_sensitive:
@@ -76,7 +74,7 @@ def test_search_by_title_uses_a_contains_check_and_not_exact_match(case_sensitiv
 
 
 def test_search_by_run_number_uses_a_range_check_assuming_user_gives_start_end():
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("run_number", "10-1000")
     assert search_results.run_count == 0
@@ -92,7 +90,7 @@ def test_search_by_run_number_uses_a_range_check_assuming_user_gives_start_end()
 
 
 def test_search_by_run_number_uses_a_range_check_given_range_operator():
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("run_number", ">6")
     assert search_results.run_count == 2
@@ -103,7 +101,7 @@ def test_search_by_run_number_uses_a_range_check_given_range_operator():
 
 
 def test_search_by_start_time_treating_input_as_datetime_and_equivalent_to_start_date():
-    data = JournalData(runData)
+    data = JournalData.from_element_tree(runDataTree)
 
     search_results = data.search("start_time", "2023/02/03-2023/02/04")
 

@@ -5,7 +5,6 @@ from jv2backend.requestData import RequestData, InvalidRequest, SourceType
 from jv2backend.journals import JournalLibrary, JournalCollection, JournalFile, JournalData
 import datetime
 import pytest
-import pandas
 
 # Test Data
 POST_SOURCE_ID = "/my/source/id"
@@ -137,7 +136,7 @@ def test_journal_required_to_be_already_in_collection():
     journals = [JournalFile("Mr Journal", POST_JOURNAL_ROOT_URL,
                             "", POST_JOURNAL_FILENAME,
                             "", datetime.datetime.now(),
-                            JournalData(pandas.DataFrame()))]
+                            JournalData({}))]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     try:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)
@@ -155,7 +154,7 @@ def test_journal_required_to_be_already_in_collection_but_is_not():
     journals = [JournalFile("Mr Journal", POST_JOURNAL_ROOT_URL,
                             "", POST_JOURNAL_FILENAME,
                             "", datetime.datetime.now(),
-                            JournalData(pandas.DataFrame()))]
+                            JournalData({}))]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     with pytest.raises(InvalidRequest) as exc:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)
