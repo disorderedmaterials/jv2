@@ -13,8 +13,8 @@ from io import BytesIO
 from flask import make_response
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.utils import jsonify, url_join
-from jv2backend.journals import JournalLibrary, JournalCollection, JournalFile
-from jv2backend.journals import JournalData
+from jv2backend.journals import JournalLibrary, JournalCollection
+from jv2backend.journalFile import JournalFile, JournalData
 
 
 class JournalGenerator:

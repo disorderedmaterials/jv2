@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2backend.journals import BasicJournalFile, JournalFile, JournalData
+from jv2backend.journalFile import BasicJournalFile, JournalFile, JournalData
 import datetime
 import typing
 

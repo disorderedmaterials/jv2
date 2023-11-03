@@ -14,8 +14,8 @@ import os.path
 import lxml
 
 from jv2backend.requestData import RequestData, SourceType
-from jv2backend.journals import JournalCollection, JournalFile
-from jv2backend.journals import JournalData, JournalLibrary
+from jv2backend.journals import JournalCollection, JournalLibrary
+from jv2backend.journalFile import JournalFile, JournalData
 from jv2backend.utils import jsonify, json_response
 
 
