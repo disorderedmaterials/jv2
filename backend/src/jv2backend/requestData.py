@@ -73,10 +73,8 @@ class RequestData:
 
         # Full journal location required?
         if require_journal_file:
-            if "journalRootUrl" not in requestData:
-                raise InvalidRequest("No journal root URL provided in "
-                                     "request.")
-            self._journal_root_url = requestData["journalRootUrl"]
+            if "journalRootUrl" in requestData:
+                self._journal_root_url = requestData["journalRootUrl"]
             if "journalFilename" not in requestData:
                 raise InvalidRequest("No journal filename provided in "
                                      "request.")
