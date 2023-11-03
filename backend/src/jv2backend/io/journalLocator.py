@@ -11,7 +11,7 @@ import datetime
 import requests
 import logging
 import os.path
-import lxml
+import lxml.etree as etree
 
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.journals import JournalCollection, JournalLibrary
@@ -129,7 +129,7 @@ class JournalLocator:
             return make_response(jsonify("Index File Not Found"), 200)
         except (requests.HTTPError, requests.ConnectionError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-        except lxml.etree.XMLSyntaxError as exc:
+        except etree.XMLSyntaxError as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         indexRoot = indexTree.getroot()
@@ -215,7 +215,7 @@ class JournalLocator:
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-        except lxml.etree.XMLSyntaxError as exc:
+        except etree.XMLSyntaxError as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         # Store the updated run data and modtime
