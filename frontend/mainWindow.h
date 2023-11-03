@@ -198,10 +198,6 @@ class MainWindow : public QMainWindow
     /*
      * Search Everywhere
      */
-    private:
-    // Cached mass search results
-    QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
-
     private slots:
     void on_actionSearchEverywhere_triggered();
 

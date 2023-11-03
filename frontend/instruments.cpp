@@ -76,9 +76,6 @@ void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
     else
         source.setCurrentInstrument(instruments_[index]);
 
-    // Clear any mass search results since they're instrument-specific
-    cachedMassSearch_.clear();
-
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
     backend_.listJournals(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });

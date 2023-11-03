@@ -103,9 +103,6 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     auto &source = *sourceIt;
     currentJournalSource_ = source;
 
-    // Clear any mass search results since they're source-specific
-    cachedMassSearch_.clear();
-
     // Make sure we have a default instrument set if one is required
     if (source.instrumentSubdirectories() && !source.currentInstrument())
         source.setCurrentInstrument(instruments_.front());
