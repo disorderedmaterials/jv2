@@ -111,28 +111,67 @@ class JournalData:
         return json.dumps(items)
 
 
-@dataclass
 class BasicJournalFile:
-    """Defines basic properties of a single journal file"""
-    display_name: str
-    server_root: str
-    directory: str
-    filename: str
-    data_directory: str
-    last_modified: datetime.datetime = None
+    """Defines basic properties of a single journal"""
 
-    @classmethod
-    def from_derived(cls, derived):
-        basic = cls(derived.display_name, derived.server_root,
-                    derived.directory, derived.filename,
-                    derived.data_directory, derived.last_modified)
-        return basic
+    def __init__(self, display_name: str = None,
+                 journal_directory: str = None,
+                 filename: str = None,
+                 data_directory: str = None,
+                 last_modified: datetime.datetime = None):
+        self._display_name = display_name
+        self._filename = filename
+        self._file_url = url_join(journal_directory, filename)
+        self._data_directory = data_directory
+        self._last_modified = last_modified
+
+    @property
+    def display_name(self) -> str:
+        """Return the display name for the journal"""
+        return self._display_name
+
+    @property
+    def filename(self) -> str:
+        """Return the filename of the journal, excluding the path"""
+        return self._filename
+
+    @property
+    def file_url(self) -> str:
+        """Return the full URL to the journal"""
+        return self._file_url
+
+    @property
+    def data_directory(self) -> str:
+        """Return the general data directory for the journal file"""
+        return self._data_directory
+
+    @property
+    def last_modified(self) -> str:
+        """Return the last modification time for the journal"""
+        return self._last_modified
 
 
-@dataclass
 class JournalFile(BasicJournalFile):
-    """Defines a single journal file, including run data"""
-    run_data: JournalData = None
+    """Defines a full journal, including run data"""
+
+    def __init__(self, display_name: str = None,
+                 journal_directory: str = None,
+                 filename: str = None,
+                 data_directory: str = None,
+                 last_modified: datetime.datetime = None,
+                 run_data: JournalData = None):
+        BasicJournalFile.__init__(self, display_name, journal_directory,
+                                  filename, data_directory, last_modified)
+        self._run_data = run_data
+
+    def to_basic(self):
+        basic = BasicJournalFile()
+        basic._display_name = self.display_name
+        basic._filename = self.filename
+        basic._file_url = self.file_url
+        basic._data_directory = self.data_directory
+        basic._last_modified = self.last_modified
+        return basic
 
     def get_data(self, run_number: int) -> typing.Dict:
         """Return the data for the specified run number.
@@ -140,8 +179,17 @@ class JournalFile(BasicJournalFile):
         :param run_number: Run number of interest
         :return: A Dict describing the run, or None if not found
         """
-        return self.run_data.run(run_number)
+        return self._run_data.run(run_number)
 
-    def __contains__(self, run_number: int):
+    def __contains__(self, run_number: int) -> bool:
         """Return whether the run_number exists in the journal file"""
-        return run_number in self.run_data
+        return run_number in self._run_data
+
+    def has_run_data(self):
+        """Return whether any run data is defined"""
+        return self._run_data is not None
+
+    @property
+    def run_data(self):
+        """Return the entire run data for the journal"""
+        return self._run_data

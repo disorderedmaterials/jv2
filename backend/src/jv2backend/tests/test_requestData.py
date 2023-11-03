@@ -134,10 +134,10 @@ def test_journal_required_to_be_already_in_collection():
         "journalRootUrl": POST_JOURNAL_ROOT_URL,
         "journalFilename": POST_JOURNAL_FILENAME
     }
-    journals = [JournalFile("Mr Journal", POST_JOURNAL_ROOT_URL,
-                            "", POST_JOURNAL_FILENAME,
-                            "", datetime.datetime.now(),
-                            JournalData({}))]
+    journals = [JournalFile("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
+                            filename=POST_JOURNAL_FILENAME,
+                            last_modified=datetime.datetime.now(),
+                            run_data=JournalData({}))]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     try:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)
@@ -152,10 +152,10 @@ def test_journal_required_to_be_already_in_collection_but_is_not():
         "journalRootUrl": POST_JOURNAL_ROOT_URL,
         "journalFilename": POST_JOURNAL_FILENAME
     }
-    journals = [JournalFile("Mr Journal", POST_JOURNAL_ROOT_URL,
-                            "", POST_JOURNAL_FILENAME,
-                            "", datetime.datetime.now(),
-                            JournalData({}))]
+    journals = [JournalFile("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
+                            filename=POST_JOURNAL_FILENAME,
+                            last_modified=datetime.datetime.now(),
+                            run_data=JournalData({}))]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     with pytest.raises(InvalidRequest) as exc:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)

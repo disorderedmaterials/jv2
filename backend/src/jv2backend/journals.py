@@ -101,7 +101,7 @@ class JournalCollection:
 
         for jf in self.journalFiles:
             logging.debug(f"Journal {jf.filename} .....")
-            if jf.run_data is None:
+            if not jf.has_run_data:
                 continue
             matches = None
             # Cycle over search terms
