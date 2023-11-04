@@ -190,7 +190,7 @@ class JournalLocator:
         # raise an error
         if requestData.source_type == SourceType.Cached:
             if j is not None:
-                return make_response(j.run_data.to_json(), 200)
+                return make_response(j.get_run_data_as_json(), 200)
             else:
                 return make_response(
                     jsonify({"Error": "Cached journal not found."}), 200
@@ -205,7 +205,7 @@ class JournalLocator:
                 requestData.journal_file_url()
             )
             if current_last_modified == j.last_modified:
-                return make_response(j.run_data.to_json(), 200)
+                return make_response(j.get_run_data_as_json(), 200)
 
         # Not up-to-date, so get the full file content and update modtime
         try:

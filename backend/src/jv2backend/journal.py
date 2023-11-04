@@ -121,8 +121,8 @@ class Journal:
         return rnr is not None
 
     def has_run_data(self):
-        """Return whether any run data is defined"""
-        return self._run_data is not None and self._run_data.run_count > 0
+        """Return whether any run data are defined"""
+        return self._run_data is not None and len(self._run_data) > 0
 
     @property
     def run_data(self):

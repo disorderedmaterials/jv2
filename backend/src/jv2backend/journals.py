@@ -80,8 +80,8 @@ class JournalCollection:
     def to_basic_json(self) -> str:
         """Return basic journal information as formatted JSON"""
         basic = []
-        for x in self.journalFiles:
-            basic.append(x.to_basic_json())
+        for journal in self.journalFiles:
+            basic.append(journal.get_journal_as_dict())
         return json.dumps(basic)
 
     def search(self, search_terms: {}) -> {}:
@@ -159,6 +159,6 @@ class JournalLibrary:
             for j in self.collections[c].journalFiles:
                 if j.has_run_data():
                     logging.debug(f"     {j.get_file_url()} "
-                                   "({j.run_data.data.run_count} run data)")
+                                  f"({j.get_run_count()} run data)")
                 else:
                     logging.debug(f"     {j.get_file_url()} (not yet loaded)")

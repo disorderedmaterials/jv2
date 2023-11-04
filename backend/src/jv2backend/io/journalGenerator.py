@@ -161,17 +161,15 @@ class JournalGenerator:
             index_entry.set("display_name", displayName)
 
             # Push a new Journal on to the list
-            jf = Journal(displayName,
-                         requestData.journal_root_url,
-                         requestData.directory,
-                         journal_filename, j)
+            jf = Journal(
+                displayName,
+                url_join(requestData.journal_root_url, requestData.directory),
+                journal_filename,
+                j,
+                datetime.datetime.now()
+            )
 
             jf.set_run_data_from_element_tree(journal_root)
-            jf.last_modified = datetime.datetime.now()
-
-            # Store the most-recent (highest) run number in the journal for future
-            # reference
-            jf.last_run_number = jf.run_data.get_last_run_number
 
             jc.append(jf)
 
