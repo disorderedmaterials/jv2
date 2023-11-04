@@ -46,7 +46,7 @@ class JournalCollection:
                       f"{jf.filename}")
 
         # Get the data for the specified run number
-        data = jf.get_data(run_number)
+        data = jf.get_run(run_number)
 
         # The journal entry may contain the full data_directory and filename
         # information if we generated it. Otherwise we have to assume the
