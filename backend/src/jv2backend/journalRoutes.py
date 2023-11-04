@@ -7,10 +7,9 @@ from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary
+from jv2backend.journals import JournalLibrary, Journal
 import jv2backend.io.journalLocator
 import jv2backend.io.journalGenerator
-from jv2backend.utils import json_response
 
 
 def add_routes(
@@ -125,7 +124,7 @@ def add_routes(
             )
 
         # Return the data
-        return make_response(JournalData(runs).to_json(), 200)
+        return make_response(Journal.run_data_as_json(runs), 200)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 

@@ -168,8 +168,15 @@ class Journal:
             "last_modified": str(self.last_modified)
         }
 
-    def get_run_data_as_json(self) -> str:
+    @classmethod
+    def convert_run_data_to_json(cls, runs: {}) -> str:
+        """Convert the given run data to JSON. The input dict is assumed to
+        map run numbers to Dicts of fields/values
+        """
         items = []
-        for key in self._run_data:
-            items.append(self._run_data[key])
+        for key in runs:
+            items.append(runs[key])
         return json.dumps(items)
+
+    def get_run_data_as_json(self) -> str:
+        return self.convert_run_data_to_json(self._run_data)
