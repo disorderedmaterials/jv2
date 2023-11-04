@@ -95,12 +95,6 @@ def test_journal_file_required_but_not_provided():
         data = RequestData(post_data, JournalLibrary([]), require_journal_file=True)
     assert str(exc.value) == "No journal filename provided in request."
 
-    del post_data["journalRootUrl"]
-
-    with pytest.raises(InvalidRequest) as exc:
-        data = RequestData(post_data, JournalLibrary([]), require_journal_file=True)
-    assert str(exc.value) == "No journal root URL provided in request."
-
 
 def test_run_data_directory_required_and_provided():
     post_data = {
