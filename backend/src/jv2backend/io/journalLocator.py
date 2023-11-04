@@ -11,11 +11,11 @@ import datetime
 import requests
 import logging
 import os.path
-import lxml
+import lxml.etree as etree
 
 from jv2backend.requestData import RequestData, SourceType
-from jv2backend.journals import JournalCollection, JournalFile
-from jv2backend.journals import JournalData, JournalLibrary
+from jv2backend.journals import JournalCollection, JournalLibrary
+from jv2backend.journal import Journal
 from jv2backend.utils import jsonify, json_response
 
 
@@ -42,43 +42,39 @@ class JournalLocator:
     @classmethod
     def _get_journal_modification_time(
             cls, source_type: SourceType, journal_file_url: str
-) -> datetime.datetime:
+    ) -> datetime.datetime:
         """Get the modification time of the journal"""
         if source_type == SourceType.Network:
             response = requests.head(journal_file_url, timeout=3)
             response.raise_for_status()
             return lm_to_datetime(response.headers["Last-Modified"])
-        elif source_type == SourceType.Cached:
-            # TODO / FIXME Need to handle this in a better way
-            return datetime.datetime.now()
         elif source_type == SourceType.Disk:
             return datetime.datetime.fromtimestamp(
                 os.path.getmtime(journal_file_url),
                 datetime.timezone.utc
              )
         else:
-            raise RuntimeError("No source type set.")
+            raise RuntimeError(f"Can't handle source type {str(source_type)}.")
 
     @classmethod
     def _get_journal_run_data(
             cls, source_type: SourceType, journal_file_url: str
-    ) -> ElementTree.Element:
+    ) -> (ElementTree.Element, datetime.datetime):
         """Get the content of the file and parse it with ElementTree"""
         tree = ElementTree
+        modtime = None
         if source_type == SourceType.Network:
             response = requests.get(journal_file_url, timeout=3)
             response.raise_for_status()
             tree = ElementTree.parse(BytesIO(response.content))
-        elif source_type == SourceType.Cached:
-            # TODO / FIXME Need to handle this in a better way
-            tree = ElementTree
+            modtime = lm_to_datetime(response.headers["Last-Modified"])
         elif source_type == SourceType.File:
             with open(journal_file_url, "rb") as file:
                 tree = ElementTree.parse(BytesIO(file.read()))
         else:
-            raise RuntimeError("No source type set.")
+            raise RuntimeError(f"Can't handle source type {str(source_type)}.")
 
-        return tree.getroot()
+        return tree.getroot(), modtime
 
     def get_index(self, requestData: RequestData,
                   journalLibrary: JournalLibrary) -> FlaskResponse:
@@ -129,7 +125,7 @@ class JournalLocator:
             return make_response(jsonify("Index File Not Found"), 200)
         except (requests.HTTPError, requests.ConnectionError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-        except lxml.etree.XMLSyntaxError as exc:
+        except etree.XMLSyntaxError as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         indexRoot = indexTree.getroot()
@@ -163,17 +159,16 @@ class JournalLocator:
 
             # Append to our list
             journals.append(
-                JournalFile(
+                Journal(
                     displayName,
-                    requestData.journal_root_url,
-                    requestData.directory,
+                    url_join(requestData.journal_root_url, requestData.directory),
                     j.attrib["name"], dataDirectory))
 
         # Store as a new collection in the library
         journalLibrary[requestData.library_key()] = JournalCollection(journals)
 
         return make_response(
-            jsonify(journalLibrary[requestData.library_key()].to_basic()), 200
+            journalLibrary[requestData.library_key()].to_basic_json(), 200
         )
 
     def get_journal_data(self, requestData: RequestData) -> FlaskResponse:
@@ -191,7 +186,7 @@ class JournalLocator:
         # raise an error
         if requestData.source_type == SourceType.Cached:
             if j is not None:
-                return make_response(j.run_data.to_json(), 200)
+                return make_response(j.get_run_data_as_json(), 200)
             else:
                 return make_response(
                     jsonify({"Error": "Cached journal not found."}), 200
@@ -206,27 +201,25 @@ class JournalLocator:
                 requestData.journal_file_url()
             )
             if current_last_modified == j.last_modified:
-                return make_response(j.run_data.to_json(), 200)
+                return make_response(j.get_run_data_as_json(), 200)
 
         # Not up-to-date, so get the full file content and update modtime
         try:
-            treeRoot = self._get_journal_run_data(requestData.source_type,
-                                                  requestData.journal_file_url())
+            tree_root, modtime = self._get_journal_run_data(
+                requestData.source_type,
+                requestData.journal_file_url()
+            )
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-        except lxml.etree.XMLSyntaxError as exc:
+        except etree.XMLSyntaxError as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         # Store the updated run data and modtime
-        j.run_data = JournalData.from_element_tree(treeRoot)
-        j.last_modified = current_last_modified
+        j.set_run_data_from_element_tree(tree_root)
+        j.last_modified = modtime
 
-        # Store the most-recent (highest) run number in the journal for future
-        # reference
-        j.last_run_number = j.run_data.get_last_run_number
-
-        return make_response(j.run_data.to_json(), 200)
+        return make_response(j.get_run_data_as_json(), 200)
 
     def get_all_journal_data(self, collection: JournalCollection) -> None:
         """Retrieve all run data for all journals listed in the collection
@@ -242,7 +235,7 @@ class JournalLocator:
             self.get_journal_data(collection, journal.server_root,
                                   journal.directory, journal.filename)
 
-    def get_updates(self, requestData: RequestData) -> JournalData:
+    def get_updates(self, requestData: RequestData) -> FlaskResponse:
         """Check if the journal index files has been modified since the last
         retrieval and return new runs added after the last known.
 
@@ -254,8 +247,18 @@ class JournalLocator:
         j = requestData.journal_collection.get_journal(
             requestData.journal_filename
         )
+
+        # For cached sources, we return immediately either way
+        if requestData.source_type == SourceType.Cached:
+            if j is not None:
+                return make_response(jsonify(None), 200)
+            else:
+                return make_response(
+                    jsonify({"Error": "Cached journal not found."}), 200
+                )
+
+        # Compare modification times - if the same, return existing data
         if j is not None:
-            # Compare modification times - if the same, return existing data
             current_last_modified = self._get_journal_modification_time(
                 requestData.source_type,
                 requestData.journal_file_url()
@@ -263,26 +266,29 @@ class JournalLocator:
             if current_last_modified == j.last_modified:
                 return make_response(jsonify(None), 200)
 
-        # Changed, so read full data and store the whole thing
+        # Changed, so read full data and store the whole thing, storing the
+        # current last run number before we set the new data
+        old_last_run_number = j.get_last_run_number()
         try:
-            treeRoot = self._get_journal_run_data(requestData.source_type,
-                                                  requestData.journal_file_url())
+            tree_root, modtime = self._get_journal_run_data(
+                requestData.source_type,
+                requestData.journal_file_url()
+            )
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-        j.last_modified = current_last_modified
-        j.run_data = JournalData.from_element_tree(treeRoot)
+        j.set_run_data_from_element_tree(tree_root)
+        j.last_modified = modtime
 
-        # Get the last run number
-        old_last_run_number = j.last_run_number
-        current_last_run_number = j.run_data.get_last_run_number
-        if old_last_run_number == current_last_run_number:
-            return None
-        j.last_run_number = current_last_run_number
+        # If the old run numbers are the same
+        if old_last_run_number == j.get_last_run_number():
+            return make_response(jsonify(None), 200)
 
-        # Get new run data
-        return make_response(json_response(j.run_data.search("run_number",
-                                               f">{old_last_run_number}")), 200)
+        # Return any new runs after the previous last known run number
+        return make_response(
+            Journal.convert_run_data_to_json(
+                j.get_run_numbers_after(old_last_run_number)), 200
+        )
 
     def filename_for_run(self, instrument: str, run: str) -> typing.Optional[str]:
         """Find the journal file that contains the given run

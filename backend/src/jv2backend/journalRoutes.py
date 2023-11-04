@@ -7,10 +7,9 @@ from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary, JournalData
+from jv2backend.journals import JournalLibrary, Journal
 import jv2backend.io.journalLocator
 import jv2backend.io.journalGenerator
-from jv2backend.utils import json_response
 
 
 def add_routes(
@@ -30,8 +29,8 @@ def add_routes(
         as an associated run data location for use if the target file will be
         parsed for the first time.
 
-        :return: A JSON response containing available journals in a
-                 list(BasicJournalFile), or an error
+        :return: A JSON response containing basic information on available
+                 journals
         """
         try:
             postData = RequestData(request.json, journalLibrary,
@@ -47,7 +46,7 @@ def add_routes(
         if postData.journal_collection is not None:
             logging.debug(f"Returning existing journal collection for "
                           f"'{postData.library_key()}'")
-            return postData.journal_collection.to_basic()
+            return make_response(postData.journal_collection.to_basic_json(), 200)
 
         # Parse the journal index
         return journalLocator.get_index(postData, journalLibrary)
@@ -125,7 +124,7 @@ def add_routes(
             )
 
         # Return the data
-        return make_response(JournalData(runs).to_json(), 200)
+        return make_response(Journal.convert_run_data_to_json(runs), 200)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 

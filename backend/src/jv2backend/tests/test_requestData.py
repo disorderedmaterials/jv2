@@ -2,7 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from jv2backend.requestData import RequestData, InvalidRequest, SourceType
-from jv2backend.journals import JournalLibrary, JournalCollection, JournalFile, JournalData
+from jv2backend.journals import JournalLibrary, JournalCollection
+from jv2backend.journal import Journal
 import datetime
 import pytest
 
@@ -94,12 +95,6 @@ def test_journal_file_required_but_not_provided():
         data = RequestData(post_data, JournalLibrary([]), require_journal_file=True)
     assert str(exc.value) == "No journal filename provided in request."
 
-    del post_data["journalRootUrl"]
-
-    with pytest.raises(InvalidRequest) as exc:
-        data = RequestData(post_data, JournalLibrary([]), require_journal_file=True)
-    assert str(exc.value) == "No journal root URL provided in request."
-
 
 def test_run_data_directory_required_and_provided():
     post_data = {
@@ -133,10 +128,9 @@ def test_journal_required_to_be_already_in_collection():
         "journalRootUrl": POST_JOURNAL_ROOT_URL,
         "journalFilename": POST_JOURNAL_FILENAME
     }
-    journals = [JournalFile("Mr Journal", POST_JOURNAL_ROOT_URL,
-                            "", POST_JOURNAL_FILENAME,
-                            "", datetime.datetime.now(),
-                            JournalData({}))]
+    journals = [Journal("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
+                            filename=POST_JOURNAL_FILENAME,
+                            last_modified=datetime.datetime.now())]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     try:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)
@@ -151,10 +145,9 @@ def test_journal_required_to_be_already_in_collection_but_is_not():
         "journalRootUrl": POST_JOURNAL_ROOT_URL,
         "journalFilename": POST_JOURNAL_FILENAME
     }
-    journals = [JournalFile("Mr Journal", POST_JOURNAL_ROOT_URL,
-                            "", POST_JOURNAL_FILENAME,
-                            "", datetime.datetime.now(),
-                            JournalData({}))]
+    journals = [Journal("Mr Journal", journal_directory=POST_JOURNAL_ROOT_URL,
+                            filename=POST_JOURNAL_FILENAME,
+                            last_modified=datetime.datetime.now())]
     library = JournalLibrary({POST_SOURCE_ID: JournalCollection(journals)})
     with pytest.raises(InvalidRequest) as exc:
         data = RequestData(post_data, library, require_journal_file=True, require_in_library=True)

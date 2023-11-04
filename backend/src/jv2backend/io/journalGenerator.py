@@ -13,8 +13,8 @@ from io import BytesIO
 from flask import make_response
 from jv2backend.requestData import RequestData, SourceType
 from jv2backend.utils import jsonify, url_join
-from jv2backend.journals import JournalLibrary, JournalCollection, JournalFile
-from jv2backend.journals import JournalData
+from jv2backend.journals import JournalLibrary, JournalCollection
+from jv2backend.journal import Journal
 
 
 class JournalGenerator:
@@ -111,13 +111,13 @@ class JournalGenerator:
         journal files and an accompanying index file describing the contents.
         """
         # Iterate over available data files and get their journal attributes
-        runData = []
+        run_data = []
         for dir in self._discovered_files:
             logging.debug(f"Probing files in directory {dir}...")
             for f in self._discovered_files[dir]:
                 logging.debug(f"... {f}")
                 # Get attributes from the file
-                runData.append(self.create_journal_entry(dir, f))
+                run_data.append(self.create_journal_entry(dir, f))
 
         # Create organised journals for the run data
         journals = {}
@@ -127,67 +127,65 @@ class JournalGenerator:
             sortKey = "experiment_identifier"
         logging.debug(f"Sorting key is {sortKey}")
 
-        for run in runData:
+        for run in run_data:
             # If the sorting key isn't already in the dict, add it now
             if run[sortKey] not in journals:
                 journals[run[sortKey]] = []
             journals[run[sortKey]].append(run)
 
         # Create index and journal files, and assemble a list of journals
-        indexRoot = ElementTree.Element("journal")
+        index_root = ElementTree.Element("journal")
         jc = []
         for j in journals:
             logging.debug(f"Journal for {j} has {len(journals[j])} runs")
 
             # Create hash and journal filename
             hash = hashlib.sha256(j.encode('utf-8'))
-            journalFilename = hash.hexdigest() + ".xml"
+            journal_filename = hash.hexdigest() + ".xml"
             displayName = j.removeprefix(requestData.run_data_url).lstrip("/")
 
             # Construct the child journal data
-            journalRoot = ElementTree.Element("NXroot")
-            journalRoot.set("filename", journalFilename)
+            journal_root = ElementTree.Element("NXroot")
+            journal_root.set("filename", journal_filename)
             for run in journals[j]:
-                runEntry = ElementTree.SubElement(journalRoot, "NXentry")
-                runEntry.set("name", run["filename"].replace(".nxs", ""))
+                run_entry = ElementTree.SubElement(journal_root, "NXentry")
+                run_entry.set("name", run["filename"].replace(".nxs", ""))
                 for d in run:
-                    dataEntry = ElementTree.SubElement(runEntry, d)
-                    dataEntry.text = run[d]
+                    data_entry = ElementTree.SubElement(run_entry, d)
+                    data_entry.text = run[d]
 
             # Add an entry in the index file
-            indexEntry = ElementTree.SubElement(indexRoot, "file")
-            indexEntry.set("name", journalFilename)
-            indexEntry.set("data_directory", j)
-            indexEntry.set("display_name", displayName)
+            index_entry = ElementTree.SubElement(index_root, "file")
+            index_entry.set("name", journal_filename)
+            index_entry.set("data_directory", j)
+            index_entry.set("display_name", displayName)
 
             # Push a new Journal on to the list
-            jf = JournalFile(displayName,
-                             requestData.journal_root_url,
-                             requestData.directory,
-                             journalFilename, j)
-            # TODO / FIXME Generate a DataFrame containing the run information
-            jf.run_data = JournalData.from_element_tree(journalRoot)
-            jf.last_modified = datetime.datetime.now()
+            jf = Journal(
+                displayName,
+                url_join(requestData.journal_root_url, requestData.directory),
+                journal_filename,
+                j,
+                datetime.datetime.now()
+            )
 
-            # Store the most-recent (highest) run number in the journal for future
-            # reference
-            jf.last_run_number = jf.run_data.get_last_run_number
+            jf.set_run_data_from_element_tree(journal_root)
 
             jc.append(jf)
 
-        # Write the index and journal files for a "Disk" source
-        if requestData.source_type == SourceType.File:
-            # Index file
-            with open(requestData.journal_file_url(), "wb") as f:
-                ElementTree.ElementTree(indexRoot).write(f)
-            # Journal files
-            for j in journals:
-                try:
-                    with open(url_join(requestData.url,
-                                       j["filename"]), "wb") as f:
-                        ET.ElementTree(journalRoot).write(f)
-                except Exception as exc:
-                    return make_response(jsonify({"Error": str(exc)}), 200)
+            # Write the index and journal files for a "Disk" source
+            if requestData.source_type == SourceType.File:
+                # Index file
+                with open(requestData.journal_file_url(), "wb") as f:
+                    ElementTree.ElementTree(index_root).write(f)
+                # Journal files
+                for j in journals:
+                    try:
+                        with open(url_join(requestData.url,
+                                           j["filename"]), "wb") as f:
+                            ElementTree.ElementTree(journal_root).write(f)
+                    except Exception as exc:
+                        return make_response(jsonify({"Error": str(exc)}), 200)
 
         # Finally, create a library entry
         journalLibrary[requestData.library_key()] = JournalCollection(jc)

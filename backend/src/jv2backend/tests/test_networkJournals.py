@@ -36,7 +36,7 @@ def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
 #     "sourceType": "Network"}, library)
 #     index = server.get_index(data, library)
 #
-#     assert isinstance(journal_filenames, JournalFileList)
+#     assert isinstance(journal_filenames, JournalList)
 #     assert len(journal_filenames) == 2
 
 

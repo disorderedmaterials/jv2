@@ -73,10 +73,8 @@ class RequestData:
 
         # Full journal location required?
         if require_journal_file:
-            if "journalRootUrl" not in requestData:
-                raise InvalidRequest("No journal root URL provided in "
-                                     "request.")
-            self._journal_root_url = requestData["journalRootUrl"]
+            if "journalRootUrl" in requestData:
+                self._journal_root_url = requestData["journalRootUrl"]
             if "journalFilename" not in requestData:
                 raise InvalidRequest("No journal filename provided in "
                                      "request.")
@@ -153,14 +151,9 @@ class RequestData:
 
     def journal_file_url(self) -> str:
         """Return the full URL (journalRoot plus any optional directory)"""
-        if self._journal_root_url is None or self._journal_filename is None:
-            raise ValueError("No journal location is set.")
-
-        if self._directory:
-            return url_join(self._journal_root_url, self._directory,
-                            self._journal_filename)
-        else:
-            return url_join(self._journal_root_url, self._journal_filename)
+        # Try to join everything we have - url_join will handle any empty data
+        return url_join(self._journal_root_url, self._directory,
+                        self._journal_filename)
 
     @property
     def directory(self) -> str:
