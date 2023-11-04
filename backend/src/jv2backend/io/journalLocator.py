@@ -62,13 +62,15 @@ class JournalLocator:
     @classmethod
     def _get_journal_run_data(
             cls, source_type: SourceType, journal_file_url: str
-    ) -> ElementTree.Element:
+    ) -> (ElementTree.Element, datetime.datetime):
         """Get the content of the file and parse it with ElementTree"""
         tree = ElementTree
+        modtime = None
         if source_type == SourceType.Network:
             response = requests.get(journal_file_url, timeout=3)
             response.raise_for_status()
             tree = ElementTree.parse(BytesIO(response.content))
+            modtime = lm_to_datetime(response.headers["Last-Modified"])
         elif source_type == SourceType.Cached:
             # TODO / FIXME Need to handle this in a better way
             tree = ElementTree
@@ -78,7 +80,7 @@ class JournalLocator:
         else:
             raise RuntimeError("No source type set.")
 
-        return tree.getroot()
+        return tree.getroot(), modtime
 
     def get_index(self, requestData: RequestData,
                   journalLibrary: JournalLibrary) -> FlaskResponse:
@@ -209,8 +211,10 @@ class JournalLocator:
 
         # Not up-to-date, so get the full file content and update modtime
         try:
-            treeRoot = self._get_journal_run_data(requestData.source_type,
-                                                  requestData.journal_file_url())
+            tree_root, modtime = self._get_journal_run_data(
+                requestData.source_type,
+                requestData.journal_file_url()
+            )
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -218,14 +222,10 @@ class JournalLocator:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         # Store the updated run data and modtime
-        j.run_data = JournalData.from_element_tree(treeRoot)
-        j.last_modified = current_last_modified
+        j.set_run_data_from_element_tree(tree_root)
+        j.last_modified = modtime
 
-        # Store the most-recent (highest) run number in the journal for future
-        # reference
-        j.last_run_number = j.run_data.get_last_run_number
-
-        return make_response(j.run_data.to_json(), 200)
+        return make_response(j.get_run_data_as_json(), 200)
 
     def get_all_journal_data(self, collection: JournalCollection) -> None:
         """Retrieve all run data for all journals listed in the collection
@@ -264,13 +264,15 @@ class JournalLocator:
 
         # Changed, so read full data and store the whole thing
         try:
-            treeRoot = self._get_journal_run_data(requestData.source_type,
-                                                  requestData.journal_file_url())
+            tree_root, modtime = self._get_journal_run_data(
+                requestData.source_type,
+                requestData.journal_file_url()
+            )
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-        j.last_modified = current_last_modified
-        j.run_data = JournalData.from_element_tree(treeRoot)
+        j.set_run_data_from_element_tree(tree_root)
+        j.last_modified = modtime
 
         # Get the last run number
         old_last_run_number = j.last_run_number

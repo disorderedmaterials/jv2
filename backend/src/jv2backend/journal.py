@@ -63,6 +63,11 @@ class Journal:
         """Return the last modification time for the journal"""
         return self._last_modified
 
+    @last_modified.setter
+    def last_modified(self, value: datetime.datetime):
+        """Set the last modification time"""
+        self._last_modified = value
+
     # ---------------- Run Data
 
     def __make_run_data_entry(self, run: ElementTree.Element,
