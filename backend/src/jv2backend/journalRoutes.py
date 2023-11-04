@@ -124,7 +124,7 @@ def add_routes(
             )
 
         # Return the data
-        return make_response(Journal.run_data_as_json(runs), 200)
+        return make_response(Journal.convert_run_data_to_json(runs), 200)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 

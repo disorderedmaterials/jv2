@@ -156,6 +156,13 @@ class Journal:
         else:
             return None
 
+    def get_run_data_after(self, run_number: int) -> {}:
+        """Return data for all run numbers after the supplied run number
+        (i.e. with higher numbers)
+        """
+        return {run_no: data for run_no, data in self._run_data.items()
+                if run_no > run_number}
+
     # ---------------- Conversion
 
     def get_journal_as_dict(self) -> {}:
