@@ -99,6 +99,9 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         ui_.JournalComboBox->setEnabled(false);
     }
 
+    // Set the journal combo stack page according to the current source search state
+    ui_.JournalComboStack->setCurrentIndex(source.showingSearchedData() ? 1 : 0);
+
     // Set the main stack page to correspond to the state enum
     ui_.MainStack->setCurrentIndex(source.state());
 }

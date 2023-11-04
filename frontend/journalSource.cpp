@@ -193,6 +193,21 @@ void JournalSource::setState(JournalSourceState state) { state_ = state; }
 // Return current state of the journal source
 JournalSource::JournalSourceState JournalSource::state() const { return state_; }
 
+// Flag that the source is showing searched data
+void JournalSource::setShowingSearchedData() { journalBeforeSearchedData_ = currentJournal_; }
+
+// Flag that the source should return to showing journal data
+void JournalSource::stopShowingSearchedData()
+{
+    if (journalBeforeSearchedData_)
+        currentJournal_ = findJournal(journalBeforeSearchedData_->get().name());
+
+    journalBeforeSearchedData_ = std::nullopt;
+}
+
+// Return whether the source is currently showing searched data
+bool JournalSource::showingSearchedData() const { return journalBeforeSearchedData_.has_value(); }
+
 /*
  * Object Data
  */

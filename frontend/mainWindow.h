@@ -76,6 +76,7 @@ class MainWindow : public QMainWindow
     private slots:
     void on_JournalSourceComboBox_currentIndexChanged(int index);
     void on_JournalComboBox_currentIndexChanged(int index);
+    void on_JournalComboBackToJournalsButton_clicked(bool checked);
 
     private:
     // Handle get journal updates result
@@ -165,7 +166,7 @@ class MainWindow : public QMainWindow
     void loadSettings();
 
     /*
-     * Searching
+     * Find in Current Journal
      */
     private:
     QString searchString_;
@@ -195,23 +196,14 @@ class MainWindow : public QMainWindow
     void on_GroupRunsButton_clicked(bool checked);
 
     /*
-     * Mass Search
+     * Search Everywhere
      */
-    private:
-    // Cached mass search results
-    QList<std::tuple<HttpRequestWorker *, QString>> cachedMassSearch_;
-
-    private:
-    // Perform mass search across cycles
-    void massSearch(QString name, QString value);
-
     private slots:
-    void on_actionMassSearchRBNo_triggered();
-    void on_actionMassSearchTitle_triggered();
-    void on_actionMassSearchUser_triggered();
-    void on_actionMassSearchRunRange_triggered();
-    void on_actionMassSearchDateRange_triggered();
-    void on_actionClearCachedSearches_triggered();
+    void on_actionSearchEverywhere_triggered();
+
+    private:
+    // Handle search result
+    void handleSearchResult(HttpRequestWorker *worker);
 
     /*
      * Visualisation

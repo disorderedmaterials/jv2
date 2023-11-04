@@ -5,6 +5,7 @@ import typing
 import jv2backend.journals
 from jv2backend.utils import url_join
 from enum import Enum
+import logging
 
 class InvalidRequest(Exception):
 
@@ -34,7 +35,8 @@ class RequestData:
                  require_in_library=False,
                  require_data_directory=False,
                  require_run_numbers=False,
-                 require_parameter=None) -> None:
+                 require_parameter=None,
+                 require_value_map=False) -> None:
         """Store recognised items in the POST data. We can make various
          stipulations on the contents:
 
@@ -46,6 +48,7 @@ class RequestData:
               require_filename: Whether a 'filename' must be provided
            require_run_numbers: Whether one or more run numbers are expected
              require_parameter: Name of an additional parameter to expect
+             require_value_map: Whether a map of key=value is expected
         """
         self._source_id: str = None
         self._source_type: SourceType = SourceType.Unknown
@@ -56,6 +59,7 @@ class RequestData:
         self._parameter: str = None
         self._journal_collection: jv2backend.journals.JournalCollection = None
         self._run_numbers: typing.List[int] = []
+        self._value_map: typing.Dict[str, str]
 
         # Source ID / type always required - ID in conjunction with the
         # optional 'directory' makes up our unique library key for the
@@ -111,6 +115,14 @@ class RequestData:
                 raise InvalidRequest(f"Additional parameter "
                                      f"'{require_parameter}' "
                                      f"required but was not provided.")
+
+        # Was a value map provided / required?
+        if "valueMap" in requestData:
+            self._value_map = requestData["valueMap"]
+            logging.debug(self._value_map)
+        elif require_value_map:
+            raise InvalidRequest("Value map was required but was not "
+                                 "provided.")
 
     def library_key(self) -> str:
         """Return the library key (same as full URL)"""
@@ -182,3 +194,8 @@ class RequestData:
     def journal_collection(self) -> jv2backend.journals.JournalCollection:
         """Return the associated JournalCollection object (if any)"""
         return self._journal_collection
+
+    @property
+    def value_map(self) -> {}:
+        """Return the value map (if given)"""
+        return self._value_map

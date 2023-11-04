@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary
+from jv2backend.journals import JournalLibrary, JournalData
 import jv2backend.io.journalLocator
 import jv2backend.io.journalGenerator
 from jv2backend.utils import json_response
@@ -88,43 +88,47 @@ def add_routes(
             postData = RequestData(request.json, journalLibrary,
                                    require_journal_file=True)
         except InvalidRequest as exc:
-            return make_request(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Get journal {postData.journal_file_url()} from source "
                       f"{postData.source_id}")
 
         return journalLocator.get_updates(postData)
 
-    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
+    @app.post("/journals/search")
+    def search() -> FlaskResponse:
+        """Search over all available journals in a target source for any runs
+        matching the specified search parameters
 
-    @app.route("/journals/findRuns/<instrument>/<field>/<search>/<options>")
-    def findRuns(
-        instrument: str, field: str, search: str, options: str
-    ) -> FlaskResponse:
-        """Search over all available journals for any runs matching the
-        specified search parameters
+        In addition to basic source information the POST data should contain
+        one or more parameters on which to search the data. The search will
+        generate a new journal containing matching run data - this is stored
+        in the library for future retrieval.
 
-        :param instrument: The instrument name
-        :param field: The field to search
-        :param search: The search text
-        :param options: Options to control the search. Current recognizes
-                        caseSensitivity=true|false
-        :return: The runs matching the search
+        :return: A JSON-formatted list of run data, or None
         """
-        case_sensitive = "caseSensitivity=true" in options
-        if field in ("start_time", "start_date"):
-            # keep compatible with frontend sending semi-colon separated date
-            # fields
-            search = search.replace(";", "/")
-            # start_date maps to start_time in the run_fields
-            field = "start_time" if field.endswith("date") else field
         try:
-            return json_response(journalLocator.search(
-                instrument, field, search, case_sensitive))
+            postData = RequestData(request.json, journalLibrary,
+                                   require_in_library=True,
+                                   require_value_map=True)
+        except InvalidRequest as exc:
+            return jsonify({"Error": str(exc)})
+
+        # First, make sure all journals in the collection are ready for searching
+        journalLocator.get_all_journal_data(postData.journal_collection)
+
+        try:
+            runs = postData.journal_collection.search(postData.value_map)
         except Exception as exc:
             return make_response(jsonify(
-                f"Error: Unable to complete search '{search}': {str(exc)}"), 200
+                {"Error": f"Unable to complete search: {str(exc)}"}), 200
             )
+
+        # Return the data
+        return make_response(JournalData(runs).to_json(), 200)
+
+    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
+
 
     @app.route("/journals/goToCycle/<instrument>/<run>")
     def getGoToCycle(instrument, run):

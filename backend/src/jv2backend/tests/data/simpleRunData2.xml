@@ -6,8 +6,8 @@
       <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
       <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
       <run_number NAPItype="NX_INT32">4</run_number>
-      <start_time NAPItype="NX_CHAR[19]">2023-02-02T09:17:19</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2023-02-02T10:25:03</end_time>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-07T09:17:19</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-07T10:25:03</end_time>
       <duration NAPItype="NX_INT64">3973</duration>
       <proton_charge NAPItype="NX_FLOAT32">3.6494</proton_charge>
       <raw_frames NAPItype="NX_UINT32">198600</raw_frames>
@@ -25,8 +25,8 @@
       <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
       <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
       <run_number NAPItype="NX_INT32">5</run_number>
-      <start_time NAPItype="NX_CHAR[19]">2023-02-02T10:30:32</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2023-02-02T11:00:01</end_time>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-07T10:30:32</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-07T11:00:01</end_time>
       <duration NAPItype="NX_INT64">1769</duration>
       <proton_charge NAPItype="NX_FLOAT32">1.8668</proton_charge>
       <raw_frames NAPItype="NX_UINT32">88470</raw_frames>
@@ -44,8 +44,8 @@
       <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
       <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
       <run_number NAPItype="NX_INT32">7</run_number>
-      <start_time NAPItype="NX_CHAR[19]">2023-02-02T11:00:14</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2023-02-03T10:22:09</end_time>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-08T11:00:14</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-09T10:22:09</end_time>
       <duration NAPItype="NX_INT64">84115</duration>
       <proton_charge NAPItype="NX_FLOAT32">35.1753</proton_charge>
       <raw_frames NAPItype="NX_UINT32">4205742</raw_frames>
@@ -63,8 +63,8 @@
       <experiment_identifier NAPItype="NX_CHAR[1]">0</experiment_identifier>
       <instrument_name NAPItype="NX_CHAR[6]">JVTEST</instrument_name>
       <run_number NAPItype="NX_INT32">99</run_number>
-      <start_time NAPItype="NX_CHAR[19]">2023-02-03T10:22:25</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2023-02-03T11:57:45</end_time>
+      <start_time NAPItype="NX_CHAR[19]">2023-02-09T10:22:25</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2023-02-09T11:57:45</end_time>
       <duration NAPItype="NX_INT64">5720</duration>
       <proton_charge NAPItype="NX_FLOAT32">6.2177</proton_charge>
       <raw_frames NAPItype="NX_UINT32">285999</raw_frames>

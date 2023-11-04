@@ -4,144 +4,186 @@
 from __future__ import annotations
 from dataclasses import dataclass, KW_ONLY
 import typing
-import datetime as dt
+import datetime
 from typing import Optional, Sequence
 from jv2backend.utils import url_join
+from jv2backend.integerRange import IntegerRange
+import jv2backend.select as Selector
 import xml.etree.ElementTree as ElementTree
 import json
 import logging
 
 # Format of start time search string
 USERINPUT_DT_FORMAT_STR = "%Y/%m/%d"
+UNIX_DT_FORMAT_STR = "%Y-%m-%dT%H:%M:%S"
 
-
-def _to_datetime(user_input: str) -> dt.datetime:
-    """Convert from a string of format YYY/MM/DD to a datetime object"""
-    return dt.datetime.strptime(user_input, USERINPUT_DT_FORMAT_STR)
-
+def _to_datetime(user_input: str, input_format: str) -> datetime.datetime:
+    """Convert from a string of specified format to a datetime object"""
+    return datetime.datetime.strptime(user_input, input_format)
 
 # Query handlers
 # A handler should have the form Callable[[pd.DataFrame, str, bool],
 # pd.DataFrame]
-def contains(
-    data: pd.DataFrame, column: str, text: str, case_sensitive: bool
-) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where the text string is
-    in the column values
+def _query_string_contains(
+    data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field contains the text
+    string provided.
 
-    :param data: The input data
-    :param column: The name of the column that should be matched
-    :param text: Text to search
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Text to search
     :param case_sensitive: If True the case of the data must match the query
-    :return: A new DataFrame with the selected rows
+    :return: A dict with matching runs
     """
-    return data[data[column].str.contains(text, case=case_sensitive)]
+    results = {}
+    search_value = value if case_sensitive else value.lower()
+    for run in data:
+        if field not in data[run]:
+            continue
+        text = data[run][field] if case_sensitive else data[run][field].lower()
+        if search_value in text:
+            results[run] = data[run]
+    return results
 
+def _query_string_equals(
+        data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field exactly matches the
+    string provided.
 
-def equals(
-    data: pd.DataFrame, column: str, text: str, case_sensitive: bool
-) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where the text string matches
-    the column value.
-
-    :param data: The input data
-    :param column: The name of the column that should be matched
-    :param text: Text to search
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Text to search
     :param case_sensitive: If True the case of the data must match the query
-    :return: A new DataFrame with the selected rows
+    :return: A dict with matching runs
     """
-    if case_sensitive:
-        return data[data[column] == text]
+    results = {}
+    search_value = value if case_sensitive else value.lower()
+    for run in data:
+        if field not in data[run]:
+            continue
+        text = data[run][field] if case_sensitive else data[run][field].lower()
+        if search_value == text:
+            results[run] = data[run]
+    return results
+
+def _query_integer_in_range(
+        data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field, when converted to an
+    int, falls within the range specified in the value parameter. It is
+    assumed that the field can be reliably converted to an int, and the search
+    is inclusive.
+
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Integer range, which can be of the following construction:
+                   N-M - A range of N to M inclusive
+                   <N  - Any number less than N
+                   >N  - Any number greater than N
+    :param case_sensitive: <Unused, required by API>
+    :return: A dict with matching runs
+    """
+    results = {}
+
+    if "-" in value:
+        # Range search
+        try:
+            irange = IntegerRange.from_string(value)
+        except ValueError:
+            return {}
+
+        for run in data:
+            if field in data[run] and int(data[run][field]) in irange:
+                results[run] = data[run]
+
+    elif value.startswith("<"):
+        # Less than
+        ivalue = int(value.lstrip("<>"))
+        for run in data:
+            if field in data[run] and int(data[run][field]) < ivalue:
+                results[run] = data[run]
+
+    elif value.startswith(">"):
+        # Greater than
+        ivalue = int(value.lstrip("<>"))
+        for run in data:
+            if field in data[run] and int(data[run][field]) > ivalue:
+                results[run] = data[run]
+
     else:
-        return data[data[column].str.lower() == text.lower()]
+        # Equal to
+        ivalue = int(value)
+        for run in data:
+            if field in data[run] and int(data[run][field]) == ivalue:
+                results[run] = data[run]
+
+    return results
 
 
-def inrange_int(data: pd.DataFrame, column: str,
-                text: str, _: bool) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where range provided in the
-    text is included. It is assumed the column
-    can be converted to an integer and the search is insclusive
+def _query_datetime_in_range(
+        data: {}, field: str, value: str, case_sensitive: bool
+) -> {}:
+    """Return a dict of run data whose specified field, when converted to an
+    datetime, falls within the range specified in the value parameter. It is
+    assumed that the field can be reliably converted to a datetime, and the
+    search is inclusive.
 
-    :param data: The input data
-    :param column: The name of the column that should be matched. It should be
-                   convertible to an integer
-    :param text: Input query:
-                   - Use a "start-end" to indicate an inclusive range
-                   - or "(OP)value" where (OP) is one of "<,>"
-                 An empty result is returned if the format is incorrect
-    :param _: Ignored in this case. Required by API
-    :return: A new DataFrame with the selected rows
+    :param data: A dict of input run data
+    :param field: The name of the field that should be matched
+    :param value: Datetime range, which can be of the following construction:
+                   N-M - A range of N to M inclusive
+                   <N  - Any datetime before N
+                   >N  - Any datetime after N
+    :param case_sensitive: <Unused, required by API>
+    :return: A dict with matching runs
     """
-    try:
-        column_values = data[column].astype(int)
-        if "-" in text:
-            start, end = text.split("-")
-            start, end = int(start.strip()), int(end.strip())
-            return data[column_values.between(start, end, inclusive="both")]
-        else:
-            op, value = text[0], text[1:]
-            return data.query(f"@column_values {op} {value}")
+    results = {}
 
-    except ValueError:  # bad format
-        return pd.DataFrame()
+    if "-" in value:
+        # Range search
+        try:
+            start, end = value.split("-")
+            start = _to_datetime(start.strip(), USERINPUT_DT_FORMAT_STR)
+            end = _to_datetime(end.strip(), USERINPUT_DT_FORMAT_STR)
+        except ValueError:
+            return {}
 
+        for run in data:
+            if (field in data[run] and
+                start <= _to_datetime(data[run][field], UNIX_DT_FORMAT_STR)
+                <= end):
+                results[run] = data[run]
 
-def inrange_datetime(
-    data: pd.DataFrame, column: str, text: str, _: bool
-) -> pd.DataFrame:
-    """Return the rows of the input DataFrame where datetime provided in the
-    text (using a "-" separator) is included. It is assumed the column
-    can be converted to an datetime and the search is insclusive
+    elif value.startswith("<"):
+        # Less than
+        mark = _to_datetime(value.lstrip("<>"), USERINPUT_DT_FORMAT_STR)
+        for run in data:
+            if (field in data[run] and
+                _to_datetime(data[run][field], UNIX_DT_FORMAT_STR) < mark):
+                results[run] = data[run]
 
-    :param data: The input data
-    :param column: The name of the column that should be matched. It should be
-                   convertible to an datetime object
-    :param text: Text to search in the format "YYYY/MM/DD-YYYY/MM/DD". An
-                 empty result is returned if the format is incorrect
-    :param _: Ignored in this case. Required by API
-    :return: A new DataFrame with the selected rows
-    """
-    try:
-        start, end = text.split("-")
-        start, end = _to_datetime(start.strip()), _to_datetime(end.strip())
-    except ValueError:  # bad format
-        return pd.DataFrame()
+    elif value.startswith(">"):
+        # Greater than
+        mark = _to_datetime(value.lstrip("<>"), USERINPUT_DT_FORMAT_STR)
+        for run in data:
+            if (field in data[run] and
+                    _to_datetime(data[run][field], UNIX_DT_FORMAT_STR) > mark):
+                results[run] = data[run]
 
-    column_values = pd.to_datetime(data[column])
-    return data[column_values.between(start, end, inclusive="both")]
+    else:
+        raise RuntimeError("Can't perform a literal time comparison.")
 
+    return results
 
 # Map a field name to a handler for that query if it should have special
 # handling
 _SPECIAL_QUERY_HANDLERS = {
-    "experiment_identifier": equals,
-    "run_number": inrange_int,
-    "start_time": inrange_datetime,
+    "experiment_identifier": _query_string_equals,
+    "run_number": _query_integer_in_range,
+    "start_time": _query_datetime_in_range,
 }
-
-
-@dataclass
-class RunRange:
-    """Specifies a range of run numbers"""
-    first: int = None
-    last: int = None
-
-    def contains(self, value: int) -> bool:
-        """Return whether the range contains the specified value"""
-        return self.first <= value <= self.last
-
-    def extend(self, value: int) -> bool:
-        """Attempt to extend the current range with the supplied number.
-        We will only do so if it results in another continuous range.
-        """
-        if (value+1) == self.first:
-            self.first = value
-            return True
-        elif (value-1) == self.last:
-            self.last = value
-            return True
-
-        return False
 
 
 # JournalData class
@@ -150,7 +192,7 @@ class JournalData:
 
     def __init__(self, data: {}) -> None:
         self._data = data
-        self._run_number_ranges: typing.List[RunRange] = []
+        self._run_number_ranges: typing.List[IntegerRange] = []
         self.__create_run_ranges()
 
     @classmethod
@@ -196,7 +238,7 @@ class JournalData:
                         if r.extend(run_number)), None)
             if not rnr:
                 self._run_number_ranges.append(
-                    RunRange(first=run_number, last=run_number)
+                    IntegerRange(first=run_number, last=run_number)
                 )
 
         # Sort the ranges so that the highest run number appears in the last one
@@ -204,8 +246,13 @@ class JournalData:
 
     def __contains__(self, run_number: int) -> bool:
         rnr = next((r for r in self._run_number_ranges
-                    if r.contains(run_number)), None)
+                    if run_number in r), None)
         return rnr is not None
+
+    @property
+    def data(self) -> {}:
+        """Return the contained run data dictionary"""
+        return self._data
 
     @property
     def run_count(self) -> int:
@@ -231,34 +278,12 @@ class JournalData:
         else:
             return None
 
-    def search(
-        self, run_field: str, user_input: str, case_sensitive: bool = False
-    ) -> JournalData:
-        """Search data for runs whose run_field matches the user_input"""
-        # Different fields need handling differently but we will fallback to a
-        # basic "is in string check"
-        query_handle = _SPECIAL_QUERY_HANDLERS.get(run_field, contains)
-
-        return JournalData(
-            query_handle(self._data, run_field, user_input, case_sensitive),
-        )
-
     # Output formats
     def to_json(self) -> str:
         items = []
         for key in self._data:
             items.append(self._data[key])
         return json.dumps(items)
-
-
-# Operations on multiple journal data
-def concatenate(journals: Sequence[JournalData]) -> JournalData:
-    """Concatenate the Journals to a single Journal
-
-    :param journals: Sequence of Journal objects
-    :return: A new JournalData, the result of concatenating the input data
-    """
-    return JournalData(pd.concat([journal._data for journal in journals]))
 
 
 @dataclass
@@ -269,7 +294,7 @@ class BasicJournalFile:
     directory: str
     filename: str
     data_directory: str
-    last_modified: dt.datetime = None
+    last_modified: datetime.datetime = None
 
     @classmethod
     def from_derived(cls, derived):
@@ -368,6 +393,52 @@ class JournalCollection:
         for x in self.journalFiles:
             basic.append(x.from_derived(x))
         return basic
+
+    def search(self, search_terms: {}) -> {}:
+        """
+        Search across all journals in the collection, selecting those which
+        match _all_ of the specified search_terms. The search terms are
+        applied sequentially in the order they appear in the dict.
+
+        :param search_terms: Dict of search field/values
+        :return: A dict of runs matching the search query.
+        """
+        results = {}
+
+        # See if we have a case-sensitive flag
+        case_sensitive = ("caseSensitive" in search_terms and
+                          search_terms["caseSensitive"] == "true")
+        if "caseSensitive" in search_terms:
+            del search_terms["caseSensitive"]
+
+        for jf in self.journalFiles:
+            logging.debug(f"Journal {jf.filename} .....")
+            if jf.run_data is None:
+                continue
+            matches = None
+            # Cycle over search terms
+            # If the current 'matches' is None then search the whole run data
+            # If it is not, then search it instead (chaining searches)
+            # If it is ever a size of zero we have excluded all runs
+            logging.debug("Starting loop over run data...")
+            for field in search_terms:
+                matches = Selector.select(jf.run_data.data if matches is None
+                                          else matches,
+                                          field,
+                                          search_terms[field],
+                                          case_sensitive)
+                logging.debug(f"...after checking '{field}' there are "
+                              f"{len(matches)} matches...")
+                if len(matches) == 0:
+                    break
+
+            if matches is None:
+                continue
+
+            logging.debug(f"Journal {jf.filename} matched {len(matches)} runs.")
+            results.update(matches)
+
+        return results
 
 
 @dataclass

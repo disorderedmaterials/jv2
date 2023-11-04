@@ -50,12 +50,12 @@ qt6_add_executable(
   # Main Window
   data.cpp
   filtering.cpp
+  finding.cpp
   generation.cpp
   httpRequestWorker.cpp
   httpRequestWorker.h
   instruments.cpp
   journalSources.cpp
-  massSearch.cpp
   mainWindow.cpp
   mainWindow.cpp
   mainWindow.h
@@ -83,6 +83,9 @@ qt6_add_executable(
   graphWidget.cpp
   graphWidget.h
   graphWidget.ui
+  searchDialog.cpp
+  searchDialog.h
+  searchDialog.ui
   seLogChooserDialog.cpp
   seLogChooserDialog.h
   seLogChooserDialog.ui

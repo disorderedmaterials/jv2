@@ -145,11 +145,20 @@ void Backend::getJournalUpdates(const JournalSource &source, HttpRequestWorker::
     postRequest(createRoute("journals/getUpdates"), source.currentJournalObjectData(), handler);
 }
 
-// Search all journals for matching runs
-void Backend::findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
-                       HttpRequestWorker::HttpRequestHandler handler)
+// Search across all journals for matching runs
+void Backend::search(const JournalSource &source, const std::map<QString, QString> &searchTerms,
+                     HttpRequestWorker::HttpRequestHandler handler)
 {
-    createRequest(createRoute("journals/findRuns", journalDirectory, value, textInput, options), handler);
+    auto data = source.sourceObjectData();
+
+    QJsonObject query;
+    query["caseSensitive"] = "false";
+    for (const auto &[key, value] : searchTerms)
+        query[key] = value;
+
+    data["valueMap"] = query;
+
+    postRequest(createRoute("journals/search"), data, handler);
 }
 
 // Go to cycle containing specified run number

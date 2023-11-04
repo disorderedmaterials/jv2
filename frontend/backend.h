@@ -71,9 +71,9 @@ class Backend : public QObject
     void getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get any updates to the specified current journal in the specified source
     void getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Search all journals for matching runs
-    void findRuns(const QString &journalDirectory, const QString &value, const QString &textInput, const QString options,
-                  HttpRequestWorker::HttpRequestHandler handler = {});
+    // Search across all journals for matching runs
+    void search(const JournalSource &source, const std::map<QString, QString> &searchTerms,
+                HttpRequestWorker::HttpRequestHandler handler = {});
     // Go to cycle containing specified run number
     void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 

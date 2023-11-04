@@ -103,9 +103,6 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     auto &source = *sourceIt;
     currentJournalSource_ = source;
 
-    // Clear any mass search results since they're source-specific
-    cachedMassSearch_.clear();
-
     // Make sure we have a default instrument set if one is required
     if (source.instrumentSubdirectories() && !source.currentInstrument())
         source.setCurrentInstrument(instruments_.front());
@@ -152,6 +149,17 @@ void MainWindow::on_JournalComboBox_currentIndexChanged(int index)
         return;
 
     currentJournalSource().setCurrentJournal(index);
+
+    updateForCurrentSource(JournalSource::JournalSourceState::Loading);
+
+    backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+}
+
+void MainWindow::on_JournalComboBackToJournalsButton_clicked(bool checked)
+{
+    currentJournalSource().stopShowingSearchedData();
+
+    ui_.JournalComboStack->setCurrentIndex(0);
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
