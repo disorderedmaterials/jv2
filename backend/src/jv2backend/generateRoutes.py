@@ -6,15 +6,14 @@ from flask import Flask, jsonify, request
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-import jv2backend.journals
-import jv2backend.io.journalLocator
+import jv2backend.journalLibrary
 import jv2backend.io.journalGenerator
 
 
 def add_routes(
     app: Flask,
     journalGenerator: jv2backend.io.journalGenerator.JournalGenerator,
-    journalLibrary: jv2backend.journals.JournalLibrary
+    journalLibrary: jv2backend.journalLibrary.JournalLibrary
 ) -> Flask:
     """Add journal generation routes to the given Flask application."""
 

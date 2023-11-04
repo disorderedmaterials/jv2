@@ -2,7 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import typing
-import jv2backend.journals
+import jv2backend.journalLibrary
+import jv2backend.journalCollection
 from jv2backend.utils import url_join
 from enum import Enum
 import logging
@@ -30,7 +31,7 @@ class RequestData:
     route"""
 
     def __init__(self, requestData: typing.Any,
-                 library: jv2backend.journals.JournalLibrary,
+                 library: jv2backend.journalLibrary,
                  require_journal_file=False,
                  require_in_library=False,
                  require_data_directory=False,
@@ -57,7 +58,7 @@ class RequestData:
         self._directory: str = None
         self._run_data_root_url: str = None
         self._parameter: str = None
-        self._journal_collection: jv2backend.journals.JournalCollection = None
+        self._journal_collection: jv2backend.journalCollection = None
         self._run_numbers: typing.List[int] = []
         self._value_map: typing.Dict[str, str]
 
@@ -184,7 +185,7 @@ class RequestData:
         return self._parameter
 
     @property
-    def journal_collection(self) -> jv2backend.journals.JournalCollection:
+    def journal_collection(self) -> jv2backend.journalCollection:
         """Return the associated JournalCollection object (if any)"""
         return self._journal_collection
 

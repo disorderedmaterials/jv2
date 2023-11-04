@@ -4,7 +4,6 @@
 import pytest
 from jv2backend.io.journalLocator import JournalLocator
 from jv2backend.requestData import RequestData
-from jv2backend.journals import JournalLibrary
 
 FAKE_SERVER_ADDRESS = "http://fake.url/testing"
 FAKE_INSTRUMENT_NAME = "FAKE"

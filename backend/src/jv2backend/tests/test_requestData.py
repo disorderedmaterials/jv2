@@ -2,7 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from jv2backend.requestData import RequestData, InvalidRequest, SourceType
-from jv2backend.journals import JournalLibrary, JournalCollection
+from jv2backend.journalLibrary import JournalLibrary
+from jv2backend.journalCollection import JournalCollection
 from jv2backend.journal import Journal
 import datetime
 import pytest

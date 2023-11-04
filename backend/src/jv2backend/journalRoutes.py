@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary, Journal
+from jv2backend.journalLibrary import JournalLibrary
 import jv2backend.io.journalLocator
 import jv2backend.io.journalGenerator
 

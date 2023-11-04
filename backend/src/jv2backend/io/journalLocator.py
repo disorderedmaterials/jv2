@@ -14,7 +14,8 @@ import os.path
 import lxml.etree as etree
 
 from jv2backend.requestData import RequestData, SourceType
-from jv2backend.journals import JournalCollection, JournalLibrary
+from jv2backend.journalCollection import JournalCollection
+from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journal import Journal
 from jv2backend.utils import jsonify, json_response
 
