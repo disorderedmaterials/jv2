@@ -41,15 +41,8 @@ def add_routes(
         logging.debug(f"Listing journals for {postData.source_id}: "
                       f"{postData.journal_file_url()}")
 
-        # If we already have a library collection for the specified
-        # source, just return it
-        if postData.journal_collection is not None:
-            logging.debug(f"Returning existing journal collection for "
-                          f"'{postData.library_key()}'")
-            return make_response(postData.journal_collection.to_basic_json(), 200)
-
         # Parse the journal index
-        return journalLocator.get_index(postData, journalLibrary)
+        return journalLibrary.get_index(postData)
 
     @app.post("/journals/get")
     def getJournalData() -> FlaskResponse:
@@ -71,7 +64,7 @@ def add_routes(
 
         journalLibrary.list()
 
-        return journalLocator.get_journal_data(postData)
+        return journalLibrary.get_journal_data(postData)
 
     @app.post("/journals/getUpdates")
     def getUpdates():
