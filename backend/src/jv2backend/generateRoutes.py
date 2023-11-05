@@ -29,7 +29,7 @@ def add_routes(
         :return: The number of NeXuS files found
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_data_directory=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -53,7 +53,7 @@ def add_routes(
         :return: A JSON-formatted list of new run data, or None
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_journal_file=True,
                                    require_data_directory=True,
                                    require_parameter="dataOrganisation")

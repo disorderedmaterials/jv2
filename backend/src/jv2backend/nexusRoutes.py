@@ -29,9 +29,8 @@ def add_routes(
         :return: A JSON response with the list of full paths to log fields
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
-                                   require_run_numbers=True,
-                                   require_in_library=True)
+            postData = RequestData(request.json,
+                                   require_run_numbers=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -63,9 +62,8 @@ def add_routes(
         :return: A list of the log data
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_run_numbers=True,
-                                   require_in_library=True,
                                    require_parameter="logValue")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -112,9 +110,8 @@ def add_routes(
         :return: The number of available detectors
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
-                                   require_run_numbers=True,
-                                   require_in_library=True)
+            postData = RequestData(request.json,
+                                   require_run_numbers=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -141,9 +138,8 @@ def add_routes(
         :return: The number of available monitors
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
-                                   require_run_numbers=True,
-                                   require_in_library=True)
+            postData = RequestData(request.json,
+                                   require_run_numbers=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -171,9 +167,8 @@ def add_routes(
         :return: A list of the detector spectra
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_run_numbers=True,
-                                   require_in_library=True,
                                    require_parameter="spectrumId")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -204,9 +199,8 @@ def add_routes(
         :return: A list of the monitor spectra
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_run_numbers=True,
-                                   require_in_library=True,
                                    require_parameter="spectrumId")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -236,9 +230,8 @@ def add_routes(
         :return: A string of the form "count(non_zero)/count(all_spectra)"
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
-                                   require_run_numbers=True,
-                                   require_in_library=True)
+            postData = RequestData(request.json,
+                                   require_run_numbers=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 

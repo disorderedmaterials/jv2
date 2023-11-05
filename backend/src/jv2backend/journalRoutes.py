@@ -33,7 +33,7 @@ def add_routes(
                  journals
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -61,7 +61,7 @@ def add_routes(
         :return: A JSON response containing the journal data, or an error
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -84,7 +84,7 @@ def add_routes(
         :return: A JSON-formatted list of new run data, or None
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -107,8 +107,7 @@ def add_routes(
         :return: A JSON-formatted list of run data, or None
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
-                                   require_in_library=True,
+            postData = RequestData(request.json,
                                    require_value_map=True)
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)})
