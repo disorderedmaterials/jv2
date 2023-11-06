@@ -8,13 +8,11 @@ from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journalLibrary import JournalLibrary
-import jv2backend.io.journalLocator
 import jv2backend.io.journalGenerator
 
 
 def add_routes(
     app: Flask,
-    journalLocator: jv2backend.io.journalLocator.JournalLocator,
     journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
@@ -85,7 +83,7 @@ def add_routes(
         logging.debug(f"Get journal {postData.journal_file_url()} from source "
                       f"{postData.source_id}")
 
-        return journalLocator.get_updates(postData)
+        return journalLibrary.get_journal_data_updates(postData)
 
     @app.post("/journals/search")
     def search() -> FlaskResponse:
