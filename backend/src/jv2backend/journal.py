@@ -5,10 +5,13 @@ from __future__ import annotations
 import typing
 import datetime
 from typing import Optional
-from jv2backend.utils import url_join
+from io import BytesIO
+from jv2backend.utils import url_join, lm_to_datetime
 from jv2backend.integerRange import IntegerRange
 import xml.etree.ElementTree as ElementTree
 from enum import Enum
+import requests
+import os.path
 import json
 
 
@@ -83,6 +86,41 @@ class Journal:
     def last_modified(self, value: datetime.datetime):
         """Set the last modification time"""
         self._last_modified = value
+
+    # ---------------- File Operations
+
+    def get_modification_time(self) -> datetime.datetime:
+        """Get the modification time of the journal"""
+        if self._source_type == SourceType.Network:
+            response = requests.head(self.get_file_url(), timeout=3)
+            response.raise_for_status()
+            return lm_to_datetime(response.headers["Last-Modified"])
+        elif self._source_type == SourceType.File:
+            return datetime.datetime.fromtimestamp(
+                os.path.getmtime(self.get_file_url()),
+                datetime.timezone.utc
+            )
+        else:
+            raise RuntimeError(f"Can't handle source type "
+                               f"{str(self._source_type)}.")
+
+    def get_run_data(self) -> (ElementTree.Element, datetime.datetime):
+        """Get the content of the file and parse it with ElementTree"""
+        tree = ElementTree
+        modtime = None
+        if self._source_type == SourceType.Network:
+            response = requests.get(self.get_file_url(), timeout=3)
+            response.raise_for_status()
+            tree = ElementTree.parse(BytesIO(response.content))
+            modtime = lm_to_datetime(response.headers["Last-Modified"])
+        elif self._source_type == SourceType.File:
+            with open(self.get_file_url(), "rb") as file:
+                tree = ElementTree.parse(BytesIO(file.read()))
+        else:
+            raise RuntimeError(f"Can't handle source type "
+                               f"{str(self._source_type)}.")
+
+        return tree.getroot(), modtime
 
     # ---------------- Run Data
 
