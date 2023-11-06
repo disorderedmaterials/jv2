@@ -8,7 +8,6 @@ from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journalLibrary import JournalLibrary
-import jv2backend.io.journalGenerator
 
 
 def add_routes(

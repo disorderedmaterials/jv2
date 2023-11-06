@@ -6,9 +6,8 @@ import logging
 
 from flask import Flask, jsonify, request, make_response
 from jv2backend.requestData import RequestData, InvalidRequest
-import jv2backend.journalLibrary
 from jv2backend.utils import json_response
-import jv2backend.io.nexus as nxs
+import jv2backend.nexus
 
 
 def add_routes(
@@ -45,7 +44,7 @@ def add_routes(
                     jsonify({"Error": f"Unable to find data file for run "
                              "{run}"}), 200
                 )
-            logpaths.extend(nxs.logpaths_from_path(dataFiles[run]))
+            logpaths.extend(jv2backend.nexus.logpaths_from_path(dataFiles[run]))
 
         return json_response(logpaths)
 
@@ -82,11 +81,11 @@ def add_routes(
                 )
 
             runData = {}
-            nxsfile, first_group = nxs.open_at(dataFiles[run], 0)
+            nxsfile, first_group = jv2backend.nexus.open_at(dataFiles[run], 0)
 
             runData["runNumber"] = str(run)
-            runData["timeRange"] = [nxs.timerange(first_group)]
-            runData["data"] = nxs.logvalues(first_group[postData.parameter])
+            runData["timeRange"] = [jv2backend.nexus.timerange(first_group)]
+            runData["data"] = jv2backend.nexus.logvalues(first_group[postData.parameter])
 
             log_value_data[run] = runData
 
@@ -124,7 +123,7 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return str(nxs.spectra_count(dataFile))
+        return str(jv2backend.nexus.spectra_count(dataFile))
 
     @app.post("/runData/nexus/getMonitorRange")
     def getMonitorRange():
@@ -152,7 +151,7 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return str(nxs.monitor_count(dataFile))
+        return str(jv2backend.nexus.monitor_count(dataFile))
 
     @app.post("/runData/nexus/getSpectrum")
     def getSpectrum():
@@ -181,7 +180,7 @@ def add_routes(
         spectra = [[postData.run_numbers, postData.parameter, "detector"]]
         for run in dataFiles:
             if run is not None:
-                spectra.append(nxs.spectrum(dataFiles[run],
+                spectra.append(jv2backend.nexus.spectrum(dataFiles[run],
                                             int(postData.parameter)))
 
         return json_response(spectra)
@@ -213,7 +212,7 @@ def add_routes(
         spectra = [[postData.run_numbers, postData.parameter, "monitor"]]
         for run in dataFiles:
             if run is not None:
-                spectra.append(nxs.monitor_spectrum(dataFiles[run],
+                spectra.append(jv2backend.nexus.monitor_spectrum(dataFiles[run],
                                                     int(postData.parameter)))
 
         return json_response(spectra)
@@ -244,7 +243,7 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return nxs.nonzero_spectra_ratio(dataFile)
+        return jv2backend.nexus.nonzero_spectra_ratio(dataFile)
 
     # ------------------------ End Routes -------------------------
 

@@ -7,12 +7,12 @@ from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
 import jv2backend.journalLibrary
-import jv2backend.io.journalGenerator
+import jv2backend.generator
 
 
 def add_routes(
     app: Flask,
-    journalGenerator: jv2backend.io.journalGenerator.JournalGenerator,
+    journalGenerator: jv2backend.generator.JournalGenerator,
     journalLibrary: jv2backend.journalLibrary.JournalLibrary
 ) -> Flask:
     """Add journal generation routes to the given Flask application."""

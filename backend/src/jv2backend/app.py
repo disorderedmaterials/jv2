@@ -11,7 +11,7 @@ import jv2backend.generateRoutes
 import jv2backend.nexusRoutes
 import jv2backend.serverRoutes
 import jv2backend.journalLibrary
-import jv2backend.io.journalGenerator
+import jv2backend.generator
 import xml.etree.ElementTree as ElementTree
 
 
@@ -26,7 +26,7 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
     configure_logging(app, inside_gunicorn)
 
     # Create our main objects
-    journalGenerator = jv2backend.io.journalGenerator.JournalGenerator()
+    journalGenerator = jv2backend.generator.JournalGenerator()
     journalLibrary = jv2backend.journalLibrary.JournalLibrary({})
 
     # Register Flask routes
