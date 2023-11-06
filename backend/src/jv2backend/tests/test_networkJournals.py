@@ -83,23 +83,36 @@ def test_parse_isis_journal_index(app):
     data = RequestData(_create_request_dict(), require_journal_file=True)
 
     with app.app_context():
-        try:
-            index = library.get_index(data)
-            journals = json.loads(index.data)
-        except Exception as exc:
-            pytest.fail(f"Unexpected exception: {exc}")
+        index = library.get_index(data)
+        response = json.loads(index.data)
 
+    assert "Error" not in response
     assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
-    assert len(journals) == 3
-    assert journals[0]["display_name"] == "Cycle 21 1"
-    assert journals[1]["display_name"] == "Cycle 20 2"
-    assert journals[2]["display_name"] == "Cycle 11 1"
+    assert len(response) == 3
+    assert response[0]["display_name"] == "Cycle 21 1"
+    assert response[1]["display_name"] == "Cycle 20 2"
+    assert response[2]["display_name"] == "Cycle 11 1"
 
+@pytest.mark.parametrize("journal_file", ["journal_21_1.xml", "journal_20_2.xml"])
+def test_parse_isis_journal_file(app, journal_file):
+    library = jv2backend.journalLibrary.JournalLibrary({})
+    postData = _create_request_dict()
+    postData["journalFilename"] = journal_file
+    data = RequestData(_create_request_dict(), require_journal_file=True)
 
+    with app.app_context():
+        index = library.get_index(data)
+        indexResponse = json.loads(index.data)
 
+        assert "Error" not in indexResponse
+        assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
+        journal = library.get_journal_data(data)
+        journalResponse = json.loads(journal.data)
 
+        assert "Error" not in journalResponse
+        assert len(journalResponse) == 3
 
 #
 # def test_journal_filenames_raises_Exception_on_http_error(requests_mock):
