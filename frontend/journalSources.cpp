@@ -110,7 +110,7 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     // Reset the state of the source since we can't assume the result of the index request
     source.setState(JournalSource::JournalSourceState::Loading);
 
-    backend_.listJournals(source, [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.getJournalIndex(source, [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
 // Return current journal source

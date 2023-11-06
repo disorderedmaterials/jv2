@@ -65,8 +65,8 @@ class Backend : public QObject
      * Journal Endpoints
      */
     public:
-    // List available journals in the specified source and directory
-    void listJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get journal index for the specified source
+    void getJournalIndex(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get journal file at the specified location
     void getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get any updates to the specified current journal in the specified source

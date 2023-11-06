@@ -37,6 +37,20 @@ class JournalLibrary:
     def __contains__(self, key):
         return key in self.collections
 
+
+    def list(self):
+        """List contents of library"""
+        for c in self.collections:
+            logging.debug(f"Collection '{c}' contains "
+                          f"{len(self.collections[c].journalFiles)} "
+                          f"journal files:")
+            for j in self.collections[c].journalFiles:
+                if j.has_run_data():
+                    logging.debug(f"     {j.get_file_url()} "
+                                  f"({j.get_run_count()} run data)")
+                else:
+                    logging.debug(f"     {j.get_file_url()} (not yet loaded)")
+
     # ---------------- File Operations
 
     @classmethod
@@ -57,19 +71,6 @@ class JournalLibrary:
             raise RuntimeError("No source type set.")
 
     # ---------------- Work Functions
-
-    def list(self):
-        """List contents of library"""
-        for c in self.collections:
-            logging.debug(f"Collection '{c}' contains "
-                          f"{len(self.collections[c].journalFiles)} "
-                          f"journal files:")
-            for j in self.collections[c].journalFiles:
-                if j.has_run_data():
-                    logging.debug(f"     {j.get_file_url()} "
-                                  f"({j.get_run_count()} run data)")
-                else:
-                    logging.debug(f"     {j.get_file_url()} (not yet loaded)")
 
     def get_index(self, request_data: RequestData) -> FlaskResponse:
         """Retrieve an index file containing journal information, creating a

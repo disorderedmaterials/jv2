@@ -18,8 +18,8 @@ def add_routes(
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
-    @app.post("/journals/list")
-    def listJournals() -> FlaskResponse:
+    @app.post("/journals/index")
+    def get_journal_index() -> FlaskResponse:
         """Return the list of journal files in a specified location
 
         In addition to basic source information the POST data should contain
@@ -43,7 +43,7 @@ def add_routes(
         return journalLibrary.get_index(postData)
 
     @app.post("/journals/get")
-    def getJournalData() -> FlaskResponse:
+    def get_journal_data() -> FlaskResponse:
         """Return the specified journal contents
 
         In addition to basic source information the POST data should contain
@@ -65,7 +65,7 @@ def add_routes(
         return journalLibrary.get_journal_data(postData)
 
     @app.post("/journals/getUpdates")
-    def getUpdates():
+    def get_journal_updates():
         """Checks the specified journal file for updates, returning any new
         run data
 
@@ -81,7 +81,7 @@ def add_routes(
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Get journal {postData.journal_file_url()} from source "
-                      f"{postData.source_id}")
+                      f"{postData.library_key()}")
 
         return journalLibrary.get_journal_data_updates(postData)
 
