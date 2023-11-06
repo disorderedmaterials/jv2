@@ -103,18 +103,9 @@ def add_routes(
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)})
 
-        # First, make sure all journals in the collection are ready for searching
-        journalLocator.get_all_journal_data(postData.journal_collection)
+        logging.debug(f"Search {postData.library_key()} from...")
 
-        try:
-            runs = postData.journal_collection.search(postData.value_map)
-        except Exception as exc:
-            return make_response(jsonify(
-                {"Error": f"Unable to complete search: {str(exc)}"}), 200
-            )
-
-        # Return the data
-        return make_response(Journal.convert_run_data_to_json(runs), 200)
+        return journalLibrary.search_collection(postData)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 

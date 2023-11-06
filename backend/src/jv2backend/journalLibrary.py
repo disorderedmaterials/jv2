@@ -191,7 +191,7 @@ class JournalLibrary:
         # Check whether the specified collection exists
         if request_data.library_key() not in self.collections:
             return make_response(
-                jsonify({"Error": f"No library f{request_data.library_key()} "
+                jsonify({"Error": f"No library '{request_data.library_key()}' "
                                   f"currently exists."}), 200
             )
 
@@ -207,9 +207,30 @@ class JournalLibrary:
         # Check whether the specified collection exists
         if request_data.library_key() not in self.collections:
             return make_response(
-                jsonify({"Error": f"No library f{request_data.library_key()} "
+                jsonify({"Error": f"No library '{request_data.library_key()}' "
                                   f"currently exists."}), 200
             )
 
         collection = self.collections[request_data.library_key()]
         return collection.get_updates(request_data)
+
+    def search_collection(self, request_data: RequestData) -> FlaskResponse:
+        """Retrieve run data contained in a collection where it matches all of
+        the specified search query parameters.
+
+        :param request_data: RequestData object containing target source
+        :return: A JSON response with the journal list or an error string
+        """
+        # Check whether the specified collection exists
+        if request_data.library_key() not in self.collections:
+            return make_response(
+                jsonify({"Error": f"No library '{request_data.library_key()}' "
+                                  f"currently exists."}), 200
+            )
+
+        # Get the collection and make sure we have all data for all journals
+        collection = self.collections[request_data.library_key()]
+        collection.get_all_journal_data()
+
+        results = collection.search(request_data.value_map)
+        return make_response(Journal.convert_run_data_to_json(results), 200)

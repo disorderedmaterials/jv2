@@ -69,19 +69,27 @@ class JournalCollection:
 
         return make_response(j.get_run_data_as_json(), 200)
 
-    def get_all_journal_data(self, collection: JournalCollection) -> None:
+    def get_all_journal_data(self) -> None:
         """Retrieve all run data for all journals listed in the collection
 
-        :param collection: JournalCollection in which the data should be stored
+        :param requestData: RequestData object containing source details
         :return: None
         """
         # Loop over defined journal files. If run_data is already present we
         # assume it's up-to-date.
-        for journal in [j for j in collection.journalFiles
-                        if j.run_data is None]:
+        for journal in [j for j in self.journalFiles if j.run_data is None]:
             logging.debug(f"Obtaining journal {journal.filename}")
-            self.get_journal_data(collection, journal.server_root,
-                                  journal.directory, journal.filename)
+            try:
+                tree_root, modtime = journal.get_run_data()
+            except (requests.HTTPError, requests.ConnectionError,
+                    FileNotFoundError) as exc:
+                return make_response(jsonify({"Error": str(exc)}), 200)
+            except etree.XMLSyntaxError as exc:
+                return make_response(jsonify({"Error": str(exc)}), 200)
+
+            # Store the updated run data and modtime
+            journal.set_run_data_from_element_tree(tree_root)
+            journal.last_modified = modtime
 
     def get_updates(self, requestData: RequestData) -> FlaskResponse:
         """Check if the journal index files has been modified since the last
@@ -130,6 +138,8 @@ class JournalCollection:
                 j.get_run_numbers_after(old_last_run_number)), 200
         )
 
+    # ---------------- Helpers
+
     def filename_for_run(self, instrument: str, run: str) -> typing.Optional[str]:
         """Find the journal file that contains the given run
 
@@ -148,8 +158,6 @@ class JournalCollection:
                 break
 
         return filename
-
-    # ---------------- Helpers
 
     def journal_for_run(self, run_number: int) -> Journal:
         """Find the journal in the collection that contains the specified run
