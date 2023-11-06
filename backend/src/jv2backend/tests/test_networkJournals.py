@@ -2,40 +2,96 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import pytest
+from flask import Flask
+from typing import Callable
+import logging
+from pathlib import Path
+from jv2backend.utils import url_join
+from jv2backend.app import create_app
 from jv2backend.requestData import RequestData
+import jv2backend.journalLibrary
+import requests_mock
+import json
 
 FAKE_SERVER_ADDRESS = "http://fake.url/testing"
 FAKE_INSTRUMENT_NAME = "FAKE"
 
 
+# Private
+
+def _fake_index_url() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), "journal_main.xml")
+
+def _fake_journal_url_a() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), "journal_21_1.xml")
+
+def _fake_journal_url_b() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), "journal_20_2.xml")
+
+def _fake_journal_url_missing() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), "journal_11_1.xml")
+
+def _fake_server_data_dir() -> Path:
+    """Return the path to the test data"""
+    return Path(__file__).parent / "data/fake_server"
+
+def _fake_server_data_file(filename: str) -> bytes:
+    """Provide a function to return sample journal data.
+    The fixture accepts a filename for the journal"""
+    with open(_fake_server_data_dir() / filename) as handle:
+        return handle.read().encode("utf-8")
+
 @pytest.fixture()
-def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
-    def _fixture(instrument_name):
-        server = JournalLocator()
-        requests_mock.get(
-            _fake_instrument_journallist_url(instrument_name),
-            content=sample_journallist_xml,
-            headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
-        )
-        for journal_filename in server.journal_filenames(instrument_name):
-            requests_mock.get(
-                _fake_instrument_journal_url(instrument_name, journal_filename),
-                content=sample_journal_xml(journal_filename),
-            )
+def app(requests_mock):
+    app = create_app()
+    logging.basicConfig(level=logging.DEBUG)
+    requests_mock.get(
+        _fake_index_url(),
+        content=_fake_server_data_file("journal_main.xml"),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 00:00:00 GMT"},
+    )
+    requests_mock.get(
+        _fake_journal_url_a(),
+        content=_fake_server_data_file("journal_21_1.xml"),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 00:00:00 GMT"},
+    )
+    requests_mock.get(
+        _fake_journal_url_b(),
+        content=_fake_server_data_file("journal_20_2.xml"),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 00:00:00 GMT"},
+    )
+    requests_mock.get(
+        _fake_journal_url_missing(),
+        status_code=400
+    )
 
-        return server
+    yield app
 
-    return _fixture
 
-# def test_journal_index_parsed_as_expected_on_successful_response(server_faker):
-#     server = server_faker(FAKE_INSTRUMENT_NAME)
-#     library = JournalLibrary({})
-#     data = RequestData(      {  "sourceID": "TestID",
-#     "sourceType": "Network"}, library)
-#     index = server.get_index(data, library)
-#
-#     assert isinstance(journal_filenames, JournalList)
-#     assert len(journal_filenames) == 2
+def test_parse_isis_journal_index(app):
+    library = jv2backend.journalLibrary.JournalLibrary({})
+    data = RequestData(
+        {"sourceID": "TestID",
+         "sourceType": "Network",
+         "journalRootUrl": FAKE_SERVER_ADDRESS,
+         "directory": FAKE_INSTRUMENT_NAME,
+         "journalFilename": "journal_main.xml"},
+        require_journal_file=True)
+
+    with app.app_context():
+        try:
+            index = library.get_index(data)
+            journals = json.loads(index.data)
+        except Exception as exc:
+            pytest.fail(f"Unexpected exception: {exc}")
+
+    assert "TestID/" + FAKE_INSTRUMENT_NAME in library
+
+    assert len(journals) == 3
+    assert journals[0]["display_name"] == "Cycle 21 1"
+    assert journals[1]["display_name"] == "Cycle 20 2"
+    assert journals[2]["display_name"] == "Cycle 11 1"
+
 
 
 
@@ -171,11 +227,3 @@ def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
 #
 #     assert search_results.run_count == 4
 #
-
-# private
-def _fake_instrument_journallist_url(instrument_name: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/journal_main.xml"
-
-
-def _fake_instrument_journal_url(instrument_name: str, journal_filename: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/{journal_filename}"
