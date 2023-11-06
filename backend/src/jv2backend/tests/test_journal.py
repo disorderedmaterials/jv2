@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2backend.journal import Journal
+from jv2backend.journal import Journal, SourceType
 from jv2backend.utils import url_join
 import jv2backend.select as Selector
 import datetime
@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ElementTree
 
 # Journal Data
 JOURNAL_NAME = "MyName"
+JOURNAL_SOURCE_TYPE = SourceType.File
 JOURNAL_DIRECTORY = "/my/root/location/directory"
 JOURNAL_FILENAME = "file.name.xml"
 JOURNAL_FILE_URL = url_join(JOURNAL_DIRECTORY, JOURNAL_FILENAME)
@@ -19,7 +20,8 @@ JOURNAL_MODTIME = datetime.datetime.now()
 
 @pytest.fixture
 def _example_journal():
-    journal = Journal(JOURNAL_NAME, JOURNAL_DIRECTORY, JOURNAL_FILENAME,
+    journal = Journal(JOURNAL_NAME, JOURNAL_SOURCE_TYPE,
+                      JOURNAL_DIRECTORY, JOURNAL_FILENAME,
                       JOURNAL_DATA_ROOT, JOURNAL_MODTIME)
 
     # Load test run data

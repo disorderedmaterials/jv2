@@ -163,6 +163,7 @@ class JournalGenerator:
             # Push a new Journal on to the list
             jf = Journal(
                 displayName,
+                SourceType.Cached,
                 url_join(requestData.journal_root_url, requestData.directory),
                 journal_filename,
                 j,

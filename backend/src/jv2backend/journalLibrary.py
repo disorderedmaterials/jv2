@@ -170,6 +170,7 @@ class JournalLibrary:
             journals.append(
                 Journal(
                     display_name,
+                    request_data.source_type,
                     url_join(request_data.journal_root_url,
                              request_data.directory),
                     j.attrib["name"], data_directory))

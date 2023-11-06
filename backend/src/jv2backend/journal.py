@@ -24,12 +24,14 @@ class Journal:
     """Defines a full journal, including run data"""
 
     def __init__(self, display_name: str = None,
+                 source_type: SourceType = SourceType.Unknown,
                  journal_directory: str = None,
                  filename: str = None,
                  data_directory: str = None,
                  last_modified: datetime.datetime = None,
                  run_data: {} = None):
         self._display_name = display_name
+        self._source_type = source_type
         self._journal_directory = journal_directory
         self._filename = filename
         self._data_directory = data_directory
@@ -47,6 +49,11 @@ class Journal:
     def display_name(self) -> str:
         """Return the display name for the journal"""
         return self._display_name
+
+    @property
+    def source_type(self) -> SourceType:
+        """Return the source type for the journal"""
+        return self._source_type
 
     @property
     def journal_directory(self) -> str:
