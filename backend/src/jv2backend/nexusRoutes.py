@@ -33,9 +33,16 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
+        # Check for valid collection
+        if postData.library_key() not in journalLibrary:
+            return make_response(
+                jsonify({"Error": f"Collection {postData.library_key()} "
+                                  f"does not exist."}), 200
+            )
+        collection = journalLibrary[postData.library_key()]
+
         # Locate data files for the specified run numbers in the collection
-        dataFiles = postData.journal_collection.locate_data_files(
-            postData.run_numbers)
+        dataFiles = collection.locate_data_files(postData.run_numbers)
         logging.debug(dataFiles)
         logpaths = []
         for run in dataFiles:
@@ -67,9 +74,16 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
+        # Check for valid collection
+        if postData.library_key() not in journalLibrary:
+            return make_response(
+                jsonify({"Error": f"Collection {postData.library_key()} "
+                                  f"does not exist."}), 200
+            )
+        collection = journalLibrary[postData.library_key()]
+
         # Locate data files for the specified run numbers in the collection
-        dataFiles = postData.journal_collection.locate_data_files(
-            postData.run_numbers)
+        dataFiles = collection.locate_data_files(postData.run_numbers)
 
         # Retrieve the log value data
         log_value_data = {}
@@ -114,9 +128,17 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
+        # Check for valid collection
+        if postData.library_key() not in journalLibrary:
+            return make_response(
+                jsonify({"Error": f"Collection {postData.library_key()} "
+                                  f"does not exist."}), 200
+            )
+        collection = journalLibrary[postData.library_key()]
+
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
-        dataFile = postData.journal_collection.locate_data_file(run_number)
+        dataFile = collection.locate_data_file(run_number)
         if dataFile is None:
             return make_response(
                 jsonify({"Error": f"Unable to find data file for run "
@@ -142,9 +164,17 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
+        # Check for valid collection
+        if postData.library_key() not in journalLibrary:
+            return make_response(
+                jsonify({"Error": f"Collection {postData.library_key()} "
+                                  f"does not exist."}), 200
+            )
+        collection = journalLibrary[postData.library_key()]
+
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
-        dataFile = postData.journal_collection.locate_data_file(run_number)
+        dataFile = collection.locate_data_file(run_number)
         if dataFile is None:
             return make_response(
                 jsonify({"Error": f"Unable to find data file for run "
@@ -172,9 +202,16 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
+        # Check for valid collection
+        if postData.library_key() not in journalLibrary:
+            return make_response(
+                jsonify({"Error": f"Collection {postData.library_key()} "
+                                  f"does not exist."}), 200
+            )
+        collection = journalLibrary[postData.library_key()]
+
         # Locate data files for the specified run numbers in the collection
-        dataFiles = postData.journal_collection.locate_data_files(
-            postData.run_numbers)
+        dataFiles = collection.locate_data_files(postData.run_numbers)
 
         # first entry matches sata expectation of the frontend
         spectra = [[postData.run_numbers, postData.parameter, "detector"]]
@@ -204,9 +241,16 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
+        # Check for valid collection
+        if postData.library_key() not in journalLibrary:
+            return make_response(
+                jsonify({"Error": f"Collection {postData.library_key()} "
+                                  f"does not exist."}), 200
+            )
+        collection = journalLibrary[postData.library_key()]
+
         # Locate data files for the specified run numbers in the collection
-        dataFiles = postData.journal_collection.locate_data_files(
-            postData.run_numbers)
+        dataFiles = collection.locate_data_files(postData.run_numbers)
 
         # first entry matches data expectation of the frontend
         spectra = [[postData.run_numbers, postData.parameter, "monitor"]]
@@ -234,9 +278,17 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
+        # Check for valid collection
+        if postData.library_key() not in journalLibrary:
+            return make_response(
+                jsonify({"Error": f"Collection {postData.library_key()} "
+                                  f"does not exist."}), 200
+            )
+        collection = journalLibrary[postData.library_key()]
+
         # Locate data file for the specified run number in the collection
         run_number = postData.run_numbers[0]
-        dataFile = postData.journal_collection.locate_data_file(run_number)
+        dataFile = collection.locate_data_file(run_number)
         if dataFile is None:
             return make_response(
                 jsonify({"Error": f"Unable to find data file for run "
