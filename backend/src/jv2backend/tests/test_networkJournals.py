@@ -41,15 +41,17 @@ def _fake_server_data_file(filename: str) -> bytes:
     with open(_fake_server_data_dir() / filename) as handle:
         return handle.read().encode("utf-8")
 
-def _create_request_dict() -> {}:
+def _create_request_dict(updated_keys: {} = {}) -> {}:
     """Create a dictionary containing basic data for initialising RequestData"""
-    return {
+    result = {
         "sourceID": "TestID",
         "sourceType": "Network",
         "journalRootUrl": FAKE_SERVER_ADDRESS,
         "directory": FAKE_INSTRUMENT_NAME,
         "journalFilename": "journal_main.xml"
     }
+    result.update(updated_keys)
+    return result
 
 @pytest.fixture()
 def app(requests_mock):
