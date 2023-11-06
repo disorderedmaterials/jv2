@@ -127,10 +127,10 @@ void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createReques
  * Journal Endpoints
  */
 
-// List available journals in the specified directory
-void Backend::listJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+// Get journal index for the specified source
+void Backend::getJournalIndex(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    postRequest(createRoute("journals/list"), source.sourceObjectData(), handler);
+    postRequest(createRoute("journals/index"), source.sourceObjectData(), handler);
 }
 
 // Get current journal file for the specified source

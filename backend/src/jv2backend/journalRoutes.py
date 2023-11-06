@@ -7,21 +7,18 @@ from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journals import JournalLibrary, Journal
-import jv2backend.io.journalLocator
-import jv2backend.io.journalGenerator
+from jv2backend.journalLibrary import JournalLibrary
 
 
 def add_routes(
     app: Flask,
-    journalLocator: jv2backend.io.journalLocator.JournalLocator,
     journalLibrary: JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
-    @app.post("/journals/list")
-    def listJournals() -> FlaskResponse:
+    @app.post("/journals/index")
+    def get_journal_index() -> FlaskResponse:
         """Return the list of journal files in a specified location
 
         In addition to basic source information the POST data should contain
@@ -33,7 +30,7 @@ def add_routes(
                  journals
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -41,18 +38,11 @@ def add_routes(
         logging.debug(f"Listing journals for {postData.source_id}: "
                       f"{postData.journal_file_url()}")
 
-        # If we already have a library collection for the specified
-        # source, just return it
-        if postData.journal_collection is not None:
-            logging.debug(f"Returning existing journal collection for "
-                          f"'{postData.library_key()}'")
-            return make_response(postData.journal_collection.to_basic_json(), 200)
-
         # Parse the journal index
-        return journalLocator.get_index(postData, journalLibrary)
+        return journalLibrary.get_index(postData)
 
     @app.post("/journals/get")
-    def getJournalData() -> FlaskResponse:
+    def get_journal_data() -> FlaskResponse:
         """Return the specified journal contents
 
         In addition to basic source information the POST data should contain
@@ -61,7 +51,7 @@ def add_routes(
         :return: A JSON response containing the journal data, or an error
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
@@ -71,10 +61,10 @@ def add_routes(
 
         journalLibrary.list()
 
-        return journalLocator.get_journal_data(postData)
+        return journalLibrary.get_journal_data(postData)
 
     @app.post("/journals/getUpdates")
-    def getUpdates():
+    def get_journal_updates():
         """Checks the specified journal file for updates, returning any new
         run data
 
@@ -84,15 +74,15 @@ def add_routes(
         :return: A JSON-formatted list of new run data, or None
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
+            postData = RequestData(request.json,
                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Get journal {postData.journal_file_url()} from source "
-                      f"{postData.source_id}")
+                      f"{postData.library_key()}")
 
-        return journalLocator.get_updates(postData)
+        return journalLibrary.get_journal_data_updates(postData)
 
     @app.post("/journals/search")
     def search() -> FlaskResponse:
@@ -107,24 +97,14 @@ def add_routes(
         :return: A JSON-formatted list of run data, or None
         """
         try:
-            postData = RequestData(request.json, journalLibrary,
-                                   require_in_library=True,
+            postData = RequestData(request.json,
                                    require_value_map=True)
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)})
 
-        # First, make sure all journals in the collection are ready for searching
-        journalLocator.get_all_journal_data(postData.journal_collection)
+        logging.debug(f"Search {postData.library_key()} from...")
 
-        try:
-            runs = postData.journal_collection.search(postData.value_map)
-        except Exception as exc:
-            return make_response(jsonify(
-                {"Error": f"Unable to complete search: {str(exc)}"}), 200
-            )
-
-        # Return the data
-        return make_response(Journal.convert_run_data_to_json(runs), 200)
+        return journalLibrary.search_collection(postData)
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 

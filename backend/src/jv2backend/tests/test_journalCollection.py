@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2backend.journals import JournalCollection
-from jv2backend.journal import Journal
+from jv2backend.journalCollection import JournalCollection
+from jv2backend.journal import Journal, SourceType
 import xml.etree.ElementTree as ElementTree
 import datetime
 import pytest
@@ -11,13 +11,15 @@ import pytest
 @pytest.fixture
 def _example_collection():
     # Construct two example journals and make a collection
-    journal1 = Journal("Journal A", "/a/local/disk", "simpleRunData1.xml",
+    journal1 = Journal("Journal A", SourceType.File,
+                       "/a/local/disk", "simpleRunData1.xml",
                        "/fake/data/root", datetime.datetime.now())
     with open("jv2backend/tests/data/simpleRunData1.xml", "rb") as f1:
         runDataTree1 = ElementTree.parse(f1)
         journal1.set_run_data_from_element_tree(runDataTree1)
 
-    journal2 = Journal("Journal B", "/a/local/disk", "simpleRunData2.xml",
+    journal2 = Journal("Journal B", SourceType.File,
+                       "/a/local/disk", "simpleRunData2.xml",
                        "/fake/data/root", datetime.datetime.now())
     with open("jv2backend/tests/data/simpleRunData2.xml", "rb") as f2:
         runDataTree2 = ElementTree.parse(f2)

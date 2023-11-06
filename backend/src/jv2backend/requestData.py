@@ -2,9 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import typing
-import jv2backend.journals
 from jv2backend.utils import url_join
-from enum import Enum
+from jv2backend.journal import SourceType
 import logging
 
 class InvalidRequest(Exception):
@@ -17,22 +16,12 @@ class InvalidRequest(Exception):
         return self._message
 
 
-class SourceType(Enum):
-    """Source types"""
-    Unknown = 0
-    Network = 1
-    Cached = 2
-    File = 3
-
-
 class RequestData:
     """Simple class for checking / handling POST data supplied to a Flask
     route"""
 
     def __init__(self, requestData: typing.Any,
-                 library: jv2backend.journals.JournalLibrary,
                  require_journal_file=False,
-                 require_in_library=False,
                  require_data_directory=False,
                  require_run_numbers=False,
                  require_parameter=None,
@@ -42,8 +31,6 @@ class RequestData:
 
           require_journal_file: Whether a full journal index/file must be
                                 given
-            require_in_library: Whether a collection matching the library_key
-                                must already exist
         require_data_directory: Whether a 'runDataRootUrl' must be provided
               require_filename: Whether a 'filename' must be provided
            require_run_numbers: Whether one or more run numbers are expected
@@ -57,7 +44,6 @@ class RequestData:
         self._directory: str = None
         self._run_data_root_url: str = None
         self._parameter: str = None
-        self._journal_collection: jv2backend.journals.JournalCollection = None
         self._run_numbers: typing.List[int] = []
         self._value_map: typing.Dict[str, str]
 
@@ -84,13 +70,6 @@ class RequestData:
         # the library key and the journal url (if relevant)
         if "directory" in requestData:
             self._directory = requestData["directory"]
-
-        # Try to find the collection corresponding to the library key
-        self._journal_collection = (library[self.library_key()] if
-                                    self.library_key() in library else None)
-        if require_in_library and self._journal_collection is None:
-            raise InvalidRequest(f"No collection '{self.library_key()}' "
-                                 f"in library.")
 
         # Was a data directory provided / required?
         self._run_data_root_url = (requestData["runDataRootUrl"]
@@ -182,11 +161,6 @@ class RequestData:
     def parameter(self) -> str:
         """Return the additional parameter (if given)"""
         return self._parameter
-
-    @property
-    def journal_collection(self) -> jv2backend.journals.JournalCollection:
-        """Return the associated JournalCollection object (if any)"""
-        return self._journal_collection
 
     @property
     def value_map(self) -> {}:

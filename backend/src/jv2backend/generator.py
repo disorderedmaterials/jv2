@@ -9,12 +9,12 @@ import xml.etree.ElementTree as ElementTree
 import hashlib
 
 import datetime
-from io import BytesIO
 from flask import make_response
-from jv2backend.requestData import RequestData, SourceType
+from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
-from jv2backend.journals import JournalLibrary, JournalCollection
-from jv2backend.journal import Journal
+from jv2backend.journalLibrary import JournalLibrary
+from jv2backend.journalCollection import JournalCollection
+from jv2backend.journal import Journal, SourceType
 
 
 class JournalGenerator:
@@ -163,6 +163,7 @@ class JournalGenerator:
             # Push a new Journal on to the list
             jf = Journal(
                 displayName,
+                SourceType.Cached,
                 url_join(requestData.journal_root_url, requestData.directory),
                 journal_filename,
                 j,
