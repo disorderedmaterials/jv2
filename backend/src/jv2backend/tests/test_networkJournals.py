@@ -41,6 +41,16 @@ def _fake_server_data_file(filename: str) -> bytes:
     with open(_fake_server_data_dir() / filename) as handle:
         return handle.read().encode("utf-8")
 
+def _create_request_dict() -> {}:
+    """Create a dictionary containing basic data for initialising RequestData"""
+    return {
+        "sourceID": "TestID",
+        "sourceType": "Network",
+        "journalRootUrl": FAKE_SERVER_ADDRESS,
+        "directory": FAKE_INSTRUMENT_NAME,
+        "journalFilename": "journal_main.xml"
+    }
+
 @pytest.fixture()
 def app(requests_mock):
     app = create_app()
@@ -70,13 +80,7 @@ def app(requests_mock):
 
 def test_parse_isis_journal_index(app):
     library = jv2backend.journalLibrary.JournalLibrary({})
-    data = RequestData(
-        {"sourceID": "TestID",
-         "sourceType": "Network",
-         "journalRootUrl": FAKE_SERVER_ADDRESS,
-         "directory": FAKE_INSTRUMENT_NAME,
-         "journalFilename": "journal_main.xml"},
-        require_journal_file=True)
+    data = RequestData(_create_request_dict(), require_journal_file=True)
 
     with app.app_context():
         try:
