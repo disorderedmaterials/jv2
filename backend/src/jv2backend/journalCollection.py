@@ -35,26 +35,24 @@ class JournalCollection:
         """
         # Search the collection for the specified journal file
         j = self.get_journal(requestData.journal_filename)
+        if j is None:
+            return make_response(
+                jsonify({"Error": f"Journal {requestData.journal_filename} "
+                                  f"not present in collection."}), 200
+            )
 
-        # For cached sources, we either return the found data immediately or
-        # raise an error
+        # For cached sources we return the found data immediately
         if requestData.source_type == SourceType.Cached:
-            if j is not None:
-                return make_response(j.get_run_data_as_json(), 200)
-            else:
-                return make_response(
-                    jsonify({"Error": "Cached journal not found."}), 200
-                )
+            return make_response(j.get_run_data_as_json(), 200)
 
-        # If we already have this journal file in the collection, check its
-        # modification time
-        if j is not None:
-            # Return current data if the file still has the same modtime
+        # If we already have run data for the journal, check its modtime and
+        # return the existing data if it is up-to-date
+        if j.run_data is not None:
             current_last_modified = j.get_modification_time()
             if current_last_modified == j.last_modified:
                 return make_response(j.get_run_data_as_json(), 200)
 
-        # Not up-to-date, so get the full file content and update modtime
+        # Not up-to-date, or not present, so get the full file content
         try:
             tree_root, modtime = j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
