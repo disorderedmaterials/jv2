@@ -8,7 +8,16 @@ from typing import Optional
 from jv2backend.utils import url_join
 from jv2backend.integerRange import IntegerRange
 import xml.etree.ElementTree as ElementTree
+from enum import Enum
 import json
+
+
+class SourceType(Enum):
+    """Source types"""
+    Unknown = 0
+    Network = 1
+    Cached = 2
+    File = 3
 
 
 class Journal:

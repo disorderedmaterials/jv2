@@ -9,8 +9,8 @@ from flask import jsonify, make_response
 from flask.wrappers import Response as FlaskResponse
 from jv2backend.utils import url_join, lm_to_datetime
 from jv2backend.journalCollection import JournalCollection
-from jv2backend.journal import Journal
-from jv2backend.requestData import RequestData, InvalidRequest, SourceType
+from jv2backend.journal import Journal, SourceType
+from jv2backend.requestData import RequestData, InvalidRequest
 import xml.etree.ElementTree as ElementTree
 import requests
 import logging

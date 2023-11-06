@@ -10,11 +10,11 @@ import hashlib
 
 import datetime
 from flask import make_response
-from jv2backend.requestData import RequestData, SourceType
+from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journalCollection import JournalCollection
-from jv2backend.journal import Journal
+from jv2backend.journal import Journal, SourceType
 
 
 class JournalGenerator:

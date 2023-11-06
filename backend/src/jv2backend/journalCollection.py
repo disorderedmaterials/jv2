@@ -7,8 +7,8 @@ import typing
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import jv2backend.select as Selector
-from jv2backend.journal import Journal
-from jv2backend.requestData import RequestData, SourceType
+from jv2backend.journal import Journal, SourceType
+from jv2backend.requestData import RequestData
 import xml.etree.ElementTree as ElementTree
 from flask import make_response, jsonify
 from flask.wrappers import Response as FlaskResponse

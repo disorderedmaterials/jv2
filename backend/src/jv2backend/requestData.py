@@ -3,7 +3,7 @@
 
 import typing
 from jv2backend.utils import url_join
-from enum import Enum
+from jv2backend.journal import SourceType
 import logging
 
 class InvalidRequest(Exception):
@@ -14,14 +14,6 @@ class InvalidRequest(Exception):
 
     def __str__(self):
         return self._message
-
-
-class SourceType(Enum):
-    """Source types"""
-    Unknown = 0
-    Network = 1
-    Cached = 2
-    File = 3
 
 
 class RequestData:
