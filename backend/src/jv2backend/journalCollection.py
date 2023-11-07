@@ -25,6 +25,15 @@ class JournalCollection:
     def __init__(self, journalFiles: typing.List[Journal]) -> None:
         self.journalFiles = journalFiles
 
+    def __getitem__(self, filename: str):
+        return next(
+            (j for j in self.journalFiles if j.filename == filename),
+            None)
+
+    def __contains__(self, key):
+        j = self.__getitem__(key)
+        return j is not None
+
     # ---------------- Work Functions
 
     def get_journal_data(self, requestData: RequestData) -> FlaskResponse:
@@ -34,7 +43,7 @@ class JournalCollection:
         :return: Array of run data information
         """
         # Search the collection for the specified journal file
-        j = self.get_journal(requestData.journal_filename)
+        j = self[requestData.journal_filename]
         if j is None:
             return make_response(
                 jsonify({"Error": f"Journal {requestData.journal_filename} "
@@ -97,7 +106,7 @@ class JournalCollection:
         :return: Array of new run data information or None
         """
         # Search the collection for the specified journal file
-        j = self.get_journal(requestData.journal_filename)
+        j = self[requestData.journal_filename]
         if j is None:
             return make_response(
                 jsonify({"Error": f"Journal {requestData.journal_filename} "
@@ -211,10 +220,7 @@ class JournalCollection:
             result[i] = self.locate_data_file(i)
         return result
 
-    def get_journal(self, filename: str) -> Journal:
-        return next(
-            (jf for jf in self.journalFiles if jf.filename == filename),
-            None)
+    # --- Conversion
 
     def to_basic_json(self) -> str:
         """Return basic journal information as formatted JSON"""

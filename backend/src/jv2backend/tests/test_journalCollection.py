@@ -48,13 +48,13 @@ def test_find_journal_containing_run_number(_example_collection, run_number: int
 
 
 def test_retrieve_valid_journal(_example_collection):
-    journal = _example_collection.get_journal("simpleRunData1.xml")
+    journal = _example_collection["simpleRunData1.xml"]
     assert journal is not None
     assert journal.display_name == "Journal A"
 
 
 def test_retrieve_invalid_journal(_example_collection):
-    journal = _example_collection.get_journal("simpleRunData99.xml")
+    journal = _example_collection["simpleRunData99.xml"]
     assert journal is None
 
 
