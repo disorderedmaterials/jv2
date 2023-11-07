@@ -3,6 +3,8 @@
 
 from platformdirs import user_data_dir
 from pathlib import Path
+from io import BytesIO
+import os.path
 import hashlib
 import datetime
 import logging
@@ -66,6 +68,41 @@ def put_data(source_id: str, data_name: str, data: str,
             with open(_cache_file_mtime(source_id, data_name), "wb") as file:
                 file.write(bytes(str(mtime), "utf-8"))
         except Exception as exc:
-            logging.error(f"Couldn't write cache file mtime "
+            logging.error(f"Couldn't write cached mtime "
                           f"{_cache_file_mtime(source_id, data_name)} for "
                           f"({source_id}, {data_name}): {str(exc)}")
+
+def has_data(source_id: str, data_name: str) -> bool:
+    """Return whether the specified data exists in the user cache."""
+    if not _CACHE_ACTIVATED:
+        return False
+
+    return os.path.exists(_cache_file(source_id, data_name))
+
+def get_data(source_id: str, data_name: str) -> (bytes, datetime.datetime):
+    """Retrieve the data and associated mtime (if available)"""
+    data = bytes
+    mtime = datetime.datetime
+
+    # Get data file
+    try:
+        with open(_cache_file(source_id, data_name), "rb") as data_file:
+            data = data_file.read()
+    except Exception as exc:
+        logging.error(f"Couldn't read cache file "
+                      f"{_cache_file(source_id, data_name)} for "
+                      f"({source_id}, {data_name}): {str(exc)}")
+
+    # Get mtime file
+    if os.path.exists(_cache_file_mtime(source_id, data_name)):
+        try:
+            with open(_cache_file_mtime(source_id,
+                                        data_name), "rb") as mtime_file:
+                mtime_data = mtime_file.read()
+                mtime = datetime.datetime.fromisoformat(str(mtime_data))
+        except Exception as exc:
+            logging.error(f"Couldn't read cached mtime "
+                          f"{_cache_file_mtime(source_id, data_name)} for "
+                          f"({source_id}, {data_name}): {str(exc)}")
+
+    return data, mtime

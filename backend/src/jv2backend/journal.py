@@ -107,6 +107,22 @@ class Journal:
 
     def get_run_data(self) -> None:
         """Get run data content and parse it with ElementTree"""
+        # Check the cache for the data first
+        if jv2backend.userCache.has_data(self._parent_library_key,
+                                         self.filename):
+            data, mtime = jv2backend.userCache.get_data(
+                self._parent_library_key,
+                self.filename
+            )
+            run_dict = json.loads(data)
+
+            # Need to convert our run number keys from str -> int
+            self.run_data = {int(run_no):run_dict[run_no]
+                             for run_no in run_dict}
+            self._last_modified = mtime
+            return
+
+        # Not present in the user cache, so try to obtain it
         if self._source_type == SourceType.Network:
             response = requests.get(self.get_file_url(), timeout=3)
             response.raise_for_status()
@@ -126,6 +142,10 @@ class Journal:
         else:
             raise RuntimeError(f"Can't handle source type "
                                f"{str(self._source_type)}.")
+
+        # Write data to the cache
+        jv2backend.userCache.put_data(self._parent_library_key, self.filename,
+                                      json.dumps(self._run_data), self.last_modified)
 
     # ---------------- Run Data
 
