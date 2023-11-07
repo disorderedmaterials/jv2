@@ -97,7 +97,7 @@ class Journal:
         elif self._source_type == SourceType.File:
             return datetime.datetime.fromtimestamp(
                 os.path.getmtime(self.get_file_url()),
-
+                datetime.timezone.utc
             )
         else:
             raise RuntimeError(f"Can't handle source type "
