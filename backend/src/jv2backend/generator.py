@@ -164,6 +164,7 @@ class JournalGenerator:
             jf = Journal(
                 displayName,
                 SourceType.Cached,
+                requestData.library_key(),
                 url_join(requestData.journal_root_url, requestData.directory),
                 journal_filename,
                 j,

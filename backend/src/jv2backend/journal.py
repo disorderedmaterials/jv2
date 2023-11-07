@@ -29,6 +29,7 @@ class Journal:
 
     def __init__(self, display_name: str = None,
                  source_type: SourceType = SourceType.Unknown,
+                 parent_library_key: str = None,
                  journal_directory: str = None,
                  filename: str = None,
                  data_directory: str = None,
@@ -36,6 +37,7 @@ class Journal:
                  run_data: {} = None):
         self._display_name = display_name
         self._source_type = source_type
+        self._parent_library_key = parent_library_key
         self._journal_directory = journal_directory
         self._filename = filename
         self._data_directory = data_directory
