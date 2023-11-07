@@ -63,16 +63,12 @@ class JournalCollection:
 
         # Not up-to-date, or not present, so get the full file content
         try:
-            tree_root, modtime = j.get_run_data()
+            j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
         except etree.XMLSyntaxError as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-
-        # Store the updated run data and modtime
-        j.set_run_data_from_element_tree(tree_root)
-        j.last_modified = modtime
 
         return make_response(j.get_run_data_as_json(), 200)
 
@@ -87,16 +83,12 @@ class JournalCollection:
         for journal in [j for j in self.journalFiles if j.run_data is None]:
             logging.debug(f"Obtaining journal {journal.filename}")
             try:
-                tree_root, modtime = journal.get_run_data()
+                journal.get_run_data()
             except (requests.HTTPError, requests.ConnectionError,
                     FileNotFoundError) as exc:
                 return make_response(jsonify({"Error": str(exc)}), 200)
             except etree.XMLSyntaxError as exc:
                 return make_response(jsonify({"Error": str(exc)}), 200)
-
-            # Store the updated run data and modtime
-            journal.set_run_data_from_element_tree(tree_root)
-            journal.last_modified = modtime
 
     def get_updates(self, requestData: RequestData) -> FlaskResponse:
         """Check if the journal index files has been modified since the last
@@ -127,12 +119,10 @@ class JournalCollection:
         # current last run number before we set the new data
         old_last_run_number = j.get_last_run_number()
         try:
-            tree_root, modtime = j.get_run_data()
+            j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
-        j.set_run_data_from_element_tree(tree_root)
-        j.last_modified = modtime
 
         # If our old last run number is None then we had no data so return all
         if old_last_run_number is None:

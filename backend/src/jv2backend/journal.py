@@ -96,29 +96,33 @@ class Journal:
         elif self._source_type == SourceType.File:
             return datetime.datetime.fromtimestamp(
                 os.path.getmtime(self.get_file_url()),
-                datetime.timezone.utc
+
             )
         else:
             raise RuntimeError(f"Can't handle source type "
                                f"{str(self._source_type)}.")
 
-    def get_run_data(self) -> (ElementTree.Element, datetime.datetime):
-        """Get the content of the file and parse it with ElementTree"""
-        tree = ElementTree
-        modtime = None
+    def get_run_data(self) -> None:
+        """Get run data content and parse it with ElementTree"""
         if self._source_type == SourceType.Network:
             response = requests.get(self.get_file_url(), timeout=3)
             response.raise_for_status()
             tree = ElementTree.parse(BytesIO(response.content))
-            modtime = lm_to_datetime(response.headers["Last-Modified"])
+            self.set_run_data_from_element_tree(tree.getroot())
+            self._last_modified = lm_to_datetime(
+                response.headers["Last-Modified"]
+            )
         elif self._source_type == SourceType.File:
             with open(self.get_file_url(), "rb") as file:
                 tree = ElementTree.parse(BytesIO(file.read()))
+            mtime = os.path.getmtime(self.get_file_url())
+            self.set_run_data_from_element_tree(tree.getroot())
+            self._last_modified = datetime.datetime.fromtimestamp(
+                mtime, datetime.timezone.utc
+            )
         else:
             raise RuntimeError(f"Can't handle source type "
                                f"{str(self._source_type)}.")
-
-        return tree.getroot(), modtime
 
     # ---------------- Run Data
 
