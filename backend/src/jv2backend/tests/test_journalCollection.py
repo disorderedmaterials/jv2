@@ -4,24 +4,30 @@
 from jv2backend.journalCollection import JournalCollection
 from jv2backend.journal import Journal, SourceType
 import xml.etree.ElementTree as ElementTree
+from pathlib import Path
 import datetime
 import pytest
 
 
 @pytest.fixture
-def _example_collection():
+def _fake_server_data_dir() -> Path:
+    """Return the path to the test data"""
+    return Path(__file__).parent / "data"
+
+@pytest.fixture
+def _example_collection(_fake_server_data_dir):
     # Construct two example journals and make a collection
     journal1 = Journal("Journal A", SourceType.File,
                        "/a/local/disk", "simpleRunData1.xml",
                        "/fake/data/root", datetime.datetime.now())
-    with open("jv2backend/tests/data/simpleRunData1.xml", "rb") as f1:
+    with open(_fake_server_data_dir / "simpleRunData1.xml", "rb") as f1:
         runDataTree1 = ElementTree.parse(f1)
         journal1.set_run_data_from_element_tree(runDataTree1)
 
     journal2 = Journal("Journal B", SourceType.File,
                        "/a/local/disk", "simpleRunData2.xml",
                        "/fake/data/root", datetime.datetime.now())
-    with open("jv2backend/tests/data/simpleRunData2.xml", "rb") as f2:
+    with open(_fake_server_data_dir / "simpleRunData2.xml", "rb") as f2:
         runDataTree2 = ElementTree.parse(f2)
         journal2.set_run_data_from_element_tree(runDataTree2)
 
