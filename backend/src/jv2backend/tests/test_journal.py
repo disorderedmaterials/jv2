@@ -10,7 +10,7 @@ import xml.etree.ElementTree as ElementTree
 
 # Journal Data
 JOURNAL_NAME = "MyName"
-JOURNAL_SOURCE_TYPE = SourceType.File
+JOURNAL_SOURCE_TYPE = SourceType.Network
 JOURNAL_LIBRARY_KEY = "FakeKey"
 JOURNAL_DIRECTORY = "/my/root/location/directory"
 JOURNAL_FILENAME = "file.name.xml"
