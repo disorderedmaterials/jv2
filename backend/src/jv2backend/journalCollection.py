@@ -52,14 +52,14 @@ class JournalCollection:
 
         # For cached sources we return the found data immediately
         if requestData.source_type == SourceType.Cached:
-            return make_response(j.get_run_data_as_json(), 200)
+            return make_response(j.get_run_data_as_json_array(), 200)
 
         # If we already have run data for the journal, check its modtime and
         # return the existing data if it is up-to-date
         if j.run_data is not None:
             current_last_modified = j.get_modification_time()
             if current_last_modified == j.last_modified:
-                return make_response(j.get_run_data_as_json(), 200)
+                return make_response(j.get_run_data_as_json_array(), 200)
 
         # Not up-to-date, or not present, so get the full file content
         try:
@@ -70,7 +70,7 @@ class JournalCollection:
         except etree.XMLSyntaxError as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        return make_response(j.get_run_data_as_json(), 200)
+        return make_response(j.get_run_data_as_json_array(), 200)
 
     def get_all_journal_data(self) -> None:
         """Retrieve all run data for all journals listed in the collection
@@ -126,7 +126,7 @@ class JournalCollection:
 
         # If our old last run number is None then we had no data so return all
         if old_last_run_number is None:
-            return make_response(j.get_run_data_as_json(), 200)
+            return make_response(j.get_run_data_as_json_array(), 200)
 
         # If the old run numbers are the same, nothing to update
         if old_last_run_number == j.get_last_run_number():
@@ -134,7 +134,7 @@ class JournalCollection:
 
         # Return any new runs after the previous last known run number
         return make_response(
-            Journal.convert_run_data_to_json(
+            Journal.convert_run_data_to_json_array(
                 j.get_run_data_after(old_last_run_number)), 200
         )
 

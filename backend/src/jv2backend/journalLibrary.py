@@ -233,4 +233,4 @@ class JournalLibrary:
         collection.get_all_journal_data()
 
         results = collection.search(request_data.value_map)
-        return make_response(Journal.convert_run_data_to_json(results), 200)
+        return make_response(Journal.convert_run_data_to_json_array(results), 200)

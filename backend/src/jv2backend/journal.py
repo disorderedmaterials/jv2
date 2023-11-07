@@ -265,7 +265,7 @@ class Journal:
         }
 
     @classmethod
-    def convert_run_data_to_json(cls, runs: {}) -> str:
+    def convert_run_data_to_json_array(cls, runs: {}) -> str:
         """Convert the given run data to JSON. The input dict is assumed to
         map run numbers to Dicts of fields/values
         """
@@ -274,5 +274,5 @@ class Journal:
             items.append(runs[key])
         return json.dumps(items)
 
-    def get_run_data_as_json(self) -> str:
-        return self.convert_run_data_to_json(self._run_data)
+    def get_run_data_as_json_array(self) -> str:
+        return self.convert_run_data_to_json_array(self._run_data)
