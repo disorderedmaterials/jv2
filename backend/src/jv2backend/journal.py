@@ -20,7 +20,7 @@ class SourceType(Enum):
     """Source types"""
     Unknown = 0
     Network = 1
-    Cached = 2
+    Generated = 2
     File = 3
 
 

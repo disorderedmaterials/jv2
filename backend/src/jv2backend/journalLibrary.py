@@ -60,7 +60,7 @@ class JournalLibrary:
             response = requests.get(journal_file_url, timeout=3)
             response.raise_for_status()
             return ElementTree.parse(BytesIO(response.content))
-        elif source_type == SourceType.Cached:
+        elif source_type == SourceType.Generated:
             return ElementTree.parse("{}")
         elif source_type == SourceType.File:
             with open(journal_file_url, "rb") as file:

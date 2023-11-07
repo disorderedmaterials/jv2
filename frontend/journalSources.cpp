@@ -29,7 +29,7 @@ bool MainWindow::parseJournalSources(const QDomDocument &source)
         auto sourceName = sourceElement.attribute("name");
 
         // Get source type
-        auto sourceType = JournalSource::indexingType(sourceElement.attribute("journalType", "Cached"));
+        auto sourceType = JournalSource::indexingType(sourceElement.attribute("journalType", "Generated"));
 
         // Create the source
         auto &journalSource = journalSources_.emplace_back(sourceName, sourceType);

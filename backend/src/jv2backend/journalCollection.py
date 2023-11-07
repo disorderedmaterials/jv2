@@ -51,7 +51,7 @@ class JournalCollection:
             )
 
         # For cached sources we return the found data immediately
-        if requestData.source_type == SourceType.Cached:
+        if requestData.source_type == SourceType.Generated:
             return make_response(j.get_run_data_as_json_array(), 200)
 
         # If we already have run data for the journal, check its modtime and
@@ -106,7 +106,7 @@ class JournalCollection:
             )
 
         # For cached sources, we return immediately
-        if requestData.source_type == SourceType.Cached:
+        if requestData.source_type == SourceType.Generated:
             return make_response(jsonify(None), 200)
 
         # If we already have this journal file in the collection, check its
