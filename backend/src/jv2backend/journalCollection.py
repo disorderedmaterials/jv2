@@ -98,22 +98,21 @@ class JournalCollection:
         """
         # Search the collection for the specified journal file
         j = self.get_journal(requestData.journal_filename)
+        if j is None:
+            return make_response(
+                jsonify({"Error": f"Journal {requestData.journal_filename} "
+                                  f"not present in collection."}), 200
+            )
 
-        # For cached sources, we return immediately either way
+        # For cached sources, we return immediately
         if requestData.source_type == SourceType.Cached:
-            if j is not None:
-                return make_response(jsonify(None), 200)
-            else:
-                return make_response(
-                    jsonify({"Error": "Cached journal not found."}), 200
-                )
+            return make_response(jsonify(None), 200)
 
         # If we already have this journal file in the collection, check its
         # modification time, returning the current data if up-to-date
-        if j is not None:
-            current_last_modified = j.get_modification_time()
-            if current_last_modified == j.last_modified:
-                return make_response(jsonify(None), 200)
+        current_last_modified = j.get_modification_time()
+        if current_last_modified == j.last_modified:
+            return make_response(jsonify(None), 200)
 
         # Changed, so read full data and store the whole thing, storing the
         # current last run number before we set the new data
@@ -126,14 +125,18 @@ class JournalCollection:
         j.set_run_data_from_element_tree(tree_root)
         j.last_modified = modtime
 
-        # If the old run numbers are the same
+        # If our old last run number is None then we had no data so return all
+        if old_last_run_number is None:
+            return make_response(j.get_run_data_as_json(), 200)
+
+        # If the old run numbers are the same, nothing to update
         if old_last_run_number == j.get_last_run_number():
             return make_response(jsonify(None), 200)
 
         # Return any new runs after the previous last known run number
         return make_response(
             Journal.convert_run_data_to_json(
-                j.get_run_numbers_after(old_last_run_number)), 200
+                j.get_run_data_after(old_last_run_number)), 200
         )
 
     # ---------------- Helpers
