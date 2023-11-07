@@ -99,7 +99,7 @@ def get_data(source_id: str, data_name: str) -> (bytes, datetime.datetime):
             with open(_cache_file_mtime(source_id,
                                         data_name), "rb") as mtime_file:
                 mtime_data = mtime_file.read()
-                mtime = datetime.datetime.fromisoformat(str(mtime_data))
+                mtime = datetime.datetime.fromisoformat(mtime_data.decode("utf-8"))
         except Exception as exc:
             logging.error(f"Couldn't read cached mtime "
                           f"{_cache_file_mtime(source_id, data_name)} for "
