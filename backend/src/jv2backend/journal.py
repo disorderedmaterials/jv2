@@ -42,7 +42,7 @@ class Journal:
         self._last_modified = last_modified
         self._run_number_ranges: typing.List[IntegerRange] = []
 
-        # Set the run data (also intiialises ranges)
+        # Set the run data (also intialises ranges)
         self._run_data = run_data
 
     # ---------------- Basic Journal Information
