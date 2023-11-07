@@ -39,12 +39,10 @@ class Journal:
         self._filename = filename
         self._data_directory = data_directory
         self._last_modified = last_modified
-        self._run_data = run_data
         self._run_number_ranges: typing.List[IntegerRange] = []
 
-        # Initialise run data information if we were provided some run data
-        if self._run_data is not None:
-            self.__create_run_ranges()
+        # Set the run data (also intiialises ranges)
+        self._run_data = run_data
 
     # ---------------- Basic Journal Information
 
@@ -145,6 +143,10 @@ class Journal:
         """Create run ranges from the current data"""
         self._run_number_ranges = []
 
+        # If the run data is None we are done
+        if self._run_data is None:
+            return
+
         for run_number in self._run_data:
             rnr = next((r for r in self._run_number_ranges
                         if r.extend(run_number)), None)
@@ -187,6 +189,12 @@ class Journal:
     def run_data(self):
         """Return the entire run data for the journal"""
         return self._run_data
+
+    @run_data.setter
+    def run_data(self, run_data: {}):
+        """Set run data from the supplied dictionary."""
+        self._run_data = run_data
+        self.__create_run_ranges()
 
     def get_run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
