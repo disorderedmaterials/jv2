@@ -2,180 +2,212 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import pytest
+from flask import Flask
+from typing import Callable
+import logging
+from pathlib import Path
+from jv2backend.utils import url_join
+from jv2backend.app import create_app
 from jv2backend.requestData import RequestData
+import jv2backend.journalLibrary
+import datetime
+import requests_mock
+import json
 
 FAKE_SERVER_ADDRESS = "http://fake.url/testing"
 FAKE_INSTRUMENT_NAME = "FAKE"
+FAKE_INDEX_FILE = "journal_main.xml"
+FAKE_JOURNAL_FILE_A = "journal_21_1.xml"
+FAKE_JOURNAL_FILE_B = "journal_20_2.xml"
+FAKE_JOURNAL_FILE_MISSING = "journal_11_1.xml"
 
+# Private
+
+def _fake_index_url() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), FAKE_INDEX_FILE)
+
+def _fake_journal_url_a() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), FAKE_JOURNAL_FILE_A)
+
+def _fake_journal_url_b() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), FAKE_JOURNAL_FILE_B)
+
+def _fake_journal_url_missing() -> str:
+    return url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME.lower(), FAKE_JOURNAL_FILE_MISSING)
+
+def _fake_server_data_dir() -> Path:
+    """Return the path to the test data"""
+    return Path(__file__).parent / "data/fake_server"
+
+def _fake_server_data_file(filename: str) -> bytes:
+    """Provide a function to return sample journal data.
+    The fixture accepts a filename for the journal"""
+    with open(_fake_server_data_dir() / filename) as handle:
+        return handle.read().encode("utf-8")
+
+def _create_request_dict(updated_keys: {} = {}) -> {}:
+    """Create a dictionary containing basic data for initialising RequestData"""
+    result = {
+        "sourceID": "TestID",
+        "sourceType": "Network",
+        "journalRootUrl": FAKE_SERVER_ADDRESS,
+        "directory": FAKE_INSTRUMENT_NAME,
+        "journalFilename": "journal_main.xml"
+    }
+    result.update(updated_keys)
+    return result
 
 @pytest.fixture()
-def server_faker(requests_mock, sample_journallist_xml, sample_journal_xml):
-    def _fixture(instrument_name):
-        server = JournalLocator()
-        requests_mock.get(
-            _fake_instrument_journallist_url(instrument_name),
-            content=sample_journallist_xml,
-            headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
-        )
-        for journal_filename in server.journal_filenames(instrument_name):
-            requests_mock.get(
-                _fake_instrument_journal_url(instrument_name, journal_filename),
-                content=sample_journal_xml(journal_filename),
-            )
+def app(requests_mock):
+    app = create_app()
+    logging.basicConfig(level=logging.DEBUG)
+    requests_mock.get(
+        _fake_index_url(),
+        content=_fake_server_data_file(FAKE_INDEX_FILE),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 00:00:00 GMT"},
+    )
+    requests_mock.get(
+        _fake_journal_url_a(),
+        content=_fake_server_data_file(FAKE_JOURNAL_FILE_A),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 00:00:00 GMT"},
+    )
+    requests_mock.get(
+        _fake_journal_url_b(),
+        content=_fake_server_data_file(FAKE_JOURNAL_FILE_B),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 00:00:00 GMT"},
+    )
+    requests_mock.get(
+        _fake_journal_url_missing(),
+        status_code=400
+    )
+    requests_mock.head(
+        _fake_journal_url_a(),
+        headers={"Last-Modified": "Fri, 04 Nov 2022 00:00:00 GMT"},
+    )
 
-        return server
-
-    return _fixture
-
-# def test_journal_index_parsed_as_expected_on_successful_response(server_faker):
-#     server = server_faker(FAKE_INSTRUMENT_NAME)
-#     library = JournalLibrary({})
-#     data = RequestData(      {  "sourceID": "TestID",
-#     "sourceType": "Network"}, library)
-#     index = server.get_index(data, library)
-#
-#     assert isinstance(journal_filenames, JournalList)
-#     assert len(journal_filenames) == 2
-
-
-
+    yield app
 
 
-#
-# def test_journal_filenames_raises_Exception_on_http_error(requests_mock):
-#     requests_mock.get(
-#         _fake_instrument_journallist_url(FAKE_INSTRUMENT_NAME),
-#         content=b"Not Found",
-#         status_code=404,
-#     )
-#     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
-#
-#     with pytest.raises(Exception, match=".*404.*"):
-#         server.journal_filenames(FAKE_INSTRUMENT_NAME)
-#
-#
-# def test_journal_raises_ValueError_if_filename_cyclename_not_provided():
-#     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
-#     with pytest.raises(ValueError):
-#         server.journal("ALF")
-#
-#
-# @pytest.mark.parametrize(
-#     "call_args", [{"filename": "journal_21_1.xml"}, {"cyclename": "21_1"}]
-# )
-# def test_journal_returned_on_successful_response(
-#     call_args, requests_mock, sample_journal_xml
-# ):
-#     instrument_name = "ALF"
-#     requests_mock.get(
-#         _fake_instrument_journal_url(instrument_name, "journal_21_1.xml"),
-#         content=sample_journal_xml(),
-#     )
-#     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
-#
-#     journal = server.journal(instrument_name, **call_args)
-#
-#     assert isinstance(journal, Journal)
-#     assert journal.run_count == 3
-#
-#
-# def test_journal_call_raises_Exception_on_http_error(requests_mock):
-#     instrument_name, journal_filename = "ALF", "bad.xml"
-#     requests_mock.get(
-#         _fake_instrument_journal_url(instrument_name, journal_filename),
-#         content=b"Not Found",
-#         status_code=404,
-#     )
-#     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
-#
-#     with pytest.raises(Exception, match=".*404.*"):
-#         server.journal(instrument_name, filename=journal_filename)
-#
-#
-# def test_check_for_journal_filenames_update_returns_latest_filename_when_changed_since_last_request(
-#     requests_mock, sample_journallist_xml
-# ):
-#     instrument_name = "ALF"
-#     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
-#
-#     requests_mock.get(
-#         _fake_instrument_journallist_url(instrument_name),
-#         content=sample_journallist_xml,
-#         headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
-#     )
-#     server.journal_filenames(instrument_name)
-#     requests_mock.head(
-#         _fake_instrument_journallist_url(instrument_name),
-#         headers={"Last-Modified": "Fri, 11 Nov 2022 10:34:44 GMT"},
-#     )
-#
-#     result = server.check_for_journal_filenames_update(instrument_name)
-#
-#     assert result == "journal_20_2.xml"
-#
-#
-# def test_check_for_journal_filenames_update_returns_Nonewhen_no_change_since_last_request(
-#     requests_mock, sample_journallist_xml
-# ):
-#     instrument_name = "ALF"
-#     server = ISISJournalServer(FAKE_SERVER_ADDRESS)
-#
-#     requests_mock.get(
-#         _fake_instrument_journallist_url(instrument_name),
-#         content=sample_journallist_xml,
-#         headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
-#     )
-#     server.journal_filenames(instrument_name)
-#     requests_mock.head(
-#         _fake_instrument_journallist_url(instrument_name),
-#         headers={"Last-Modified": "Fri, 04 Nov 2022 10:34:44 GMT"},
-#     )
-#
-#     result = server.check_for_journal_filenames_update(instrument_name)
-#
-#     assert result is None
-#
-#
-# def test_search_by_user_name_search_across_all_journals(server_faker):
-#     instrument_name = "ALF"
-#     server = server_faker(instrument_name)
-#     run_field, user_input = "user_name", "Username2"
-#     search_results = server.search(instrument_name, run_field, user_input)
-#
-#     assert search_results.run_count == 3
-#
-#
-# def test_search_by_experiment_identifier_search_across_all_journals(server_faker):
-#     instrument_name = "ALF"
-#     server = server_faker(instrument_name)
-#     run_field, user_input = "experiment_identifier", "1234567"
-#     search_results = server.search(instrument_name, run_field, user_input)
-#
-#     assert search_results.run_count == 2
-#
-#
-# def test_search_by_title_search_across_all_journals(server_faker):
-#     instrument_name = "ALF"
-#     server = server_faker(instrument_name)
-#     run_field, user_input = "title", "MnSi"
-#     search_results = server.search(instrument_name, run_field, user_input)
-#
-#     assert search_results.run_count == 3
-#
-#
-# def test_search_by_run_number_search_across_all_journals(server_faker):
-#     instrument_name = "ALF"
-#     server = server_faker(instrument_name)
-#     run_field, user_input = "run_number", "83898-85424"
-#     search_results = server.search(instrument_name, run_field, user_input)
-#
-#     assert search_results.run_count == 4
-#
+def test_parse_isis_journal_index(app):
+    library = jv2backend.journalLibrary.JournalLibrary({})
+    index_request = RequestData(_create_request_dict(), require_journal_file=True)
 
-# private
-def _fake_instrument_journallist_url(instrument_name: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/journal_main.xml"
+    with app.app_context():
+        index = library.get_index(index_request)
+        response = json.loads(index.data)
+
+    assert "Error" not in response
+    assert "TestID/" + FAKE_INSTRUMENT_NAME in library
+
+    assert len(response) == 3
+    assert response[0]["display_name"] == "Cycle 21 1"
+    assert response[1]["display_name"] == "Cycle 20 2"
+    assert response[2]["display_name"] == "Cycle 11 1"
 
 
-def _fake_instrument_journal_url(instrument_name: str, journal_filename: str) -> str:
-    return FAKE_SERVER_ADDRESS + f"/{instrument_name.lower()}/{journal_filename}"
+@pytest.mark.parametrize("journal_file", [FAKE_JOURNAL_FILE_A, FAKE_JOURNAL_FILE_B])
+def test_parse_isis_journal_file(app, journal_file):
+    library = jv2backend.journalLibrary.JournalLibrary({})
+
+    index_request = RequestData(_create_request_dict(), require_journal_file=True)
+
+    run_data_request = RequestData(_create_request_dict({"journalFilename": journal_file}), require_journal_file=True)
+
+    with app.app_context():
+        index = library.get_index(index_request)
+        index_response = json.loads(index.data)
+        assert "Error" not in index_response
+        assert "TestID/" + FAKE_INSTRUMENT_NAME in library
+
+        journal = library.get_journal_data(run_data_request)
+        journal_response = json.loads(journal.data)
+        assert "Error" not in journal_response
+        assert len(journal_response) == 3
+
+def test_missing_journal_file(app,):
+    library = jv2backend.journalLibrary.JournalLibrary({})
+
+    index_request = RequestData(_create_request_dict(), require_journal_file=True)
+
+    run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_MISSING}), require_journal_file=True)
+
+    with app.app_context():
+        index = library.get_index(index_request)
+        index_response = json.loads(index.data)
+        assert "Error" not in index_response
+        assert "TestID/" + FAKE_INSTRUMENT_NAME in library
+
+        journal = library.get_journal_data(run_data_request)
+        journal_response = json.loads(journal.data)
+        assert "Error" in journal_response
+
+
+def test_get_journal_file_updates(app):
+    library = jv2backend.journalLibrary.JournalLibrary({})
+
+    index_request = RequestData(_create_request_dict(), require_journal_file=True)
+
+    run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_A}), require_journal_file=True)
+
+    # Assemble the collection in the library and load in the full journal data
+    with app.app_context():
+        index = library.get_index(index_request)
+        index_response = json.loads(index.data)
+        assert "Error" not in index_response
+        assert "TestID/" + FAKE_INSTRUMENT_NAME in library
+
+        journal = library.get_journal_data(run_data_request)
+        journal_response = json.loads(journal.data)
+        assert "Error" not in journal_response
+        assert len(journal_response) == 3
+
+    # Get the target journal
+    collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
+    assert collection is not None
+    journal = collection[FAKE_JOURNAL_FILE_A]
+    assert journal is not None
+
+    # Try to update current journal - will be up-to-date, so expect None
+    with app.app_context():
+        updates = library.get_journal_data_updates(run_data_request)
+        updates_response = json.loads(updates.data)
+        assert updates_response is None
+
+    # Delete last run data from the journal, and set a new modtime
+    last_run_number0 = journal.get_last_run_number()
+    del(journal.run_data[last_run_number0])
+    journal.run_data = journal.run_data
+    last_run_number1 = journal.get_last_run_number()
+    del(journal.run_data[last_run_number1])
+    journal.run_data = journal.run_data
+    journal.last_modified = journal.last_modified - datetime.timedelta(days=1)
+    assert journal.get_run_count() == 1
+
+    # Try to update current journal
+    with app.app_context():
+        updates = library.get_journal_data_updates(run_data_request)
+        logging.debug(str(updates.data))
+        updates_response = json.loads(updates.data)
+        assert len(updates_response) == 2
+        assert updates_response[0]["run_number"] == str(last_run_number1)
+        assert updates_response[1]["run_number"] == str(last_run_number0)
+
+def test_get_journal_file_updates_for_empty_journal(app):
+    library = jv2backend.journalLibrary.JournalLibrary({})
+
+    index_request = RequestData(_create_request_dict(), require_journal_file=True)
+
+    run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_A}), require_journal_file=True)
+
+    # Assemble the collection in the library
+    with app.app_context():
+        index = library.get_index(index_request)
+        index_response = json.loads(index.data)
+        assert "Error" not in index_response
+        assert "TestID/" + FAKE_INSTRUMENT_NAME in library
+
+    # Try to update current journal (which currently has zero data)
+    with app.app_context():
+        updates = library.get_journal_data_updates(run_data_request)
+        updates_response = json.loads(updates.data)
+        assert len(updates_response) == 3

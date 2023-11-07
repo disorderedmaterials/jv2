@@ -14,7 +14,6 @@ from jv2backend.requestData import RequestData, InvalidRequest
 import xml.etree.ElementTree as ElementTree
 import requests
 import logging
-import os.path
 import lxml.etree as etree
 import typing
 

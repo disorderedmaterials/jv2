@@ -8,6 +8,18 @@ import jv2backend.nexus
 import pytest
 
 
+@pytest.fixture()
+def test_data_dir() -> Path:
+    """Return the path to the test data"""
+    return Path(__file__).parent / "data/fake_server"
+
+
+@pytest.fixture()
+def sample_nexus_filepath(test_data_dir) -> Path:
+    """Sample NeXus file on fake server"""
+    return test_data_dir / "ALF85423.nxs"
+
+
 def test_log_paths_returns_expected_paths_to_log_entries_if_file_is_accessible(
     sample_nexus_filepath,
 ):

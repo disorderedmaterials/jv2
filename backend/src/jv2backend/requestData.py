@@ -57,14 +57,14 @@ class RequestData:
             raise InvalidRequest("No source type provided in request.")
         self._source_type = SourceType[requestData["sourceType"]]
 
-        # Full journal location required?
-        if require_journal_file:
-            if "journalRootUrl" in requestData:
-                self._journal_root_url = requestData["journalRootUrl"]
-            if "journalFilename" not in requestData:
-                raise InvalidRequest("No journal filename provided in "
-                                     "request.")
+        # Journal file required?
+        if "journalRootUrl" in requestData:
+            self._journal_root_url = requestData["journalRootUrl"]
+        if "journalFilename" in requestData:
             self._journal_filename = requestData["journalFilename"]
+        elif require_journal_file:
+            raise InvalidRequest("No journal filename provided in "
+                                 "request.")
 
         # An optional directory may have been given - this will become part of
         # the library key and the journal url (if relevant)

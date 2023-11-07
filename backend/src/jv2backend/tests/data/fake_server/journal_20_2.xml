@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
   <NXroot NeXus_version="4.3.0" XML_version="mxml"
-file_name="c:\data\journal_21_1.xml"
+file_name="c:\data\journal_20_2.xml"
 xmlns="http://definition.nexusformat.org/schema/3.0"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://definition.nexusformat.org/schema/3.0"
-file_time="2021-05-01T09:28:00+00:00">
-    <NXentry name="ALF00085422">
-      <title NAPItype="NX_CHAR[15]">cycle 211 setup</title>
+file_time="2020-09-09T11:52:34+00:00">
+  <NXentry name="FAKE00083896">
+      <title NAPItype="NX_CHAR[11]">MnSi rot=40</title>
       <simulation_mode NAPItype="NX_CHAR[2]">NO</simulation_mode>
-      <user_name NAPItype="NX_CHAR[11]">Username</user_name>
+      <user_name NAPItype="NX_CHAR[14]">Username</user_name>
       <local_contact NAPItype="NX_CHAR[11]">UNSPECIFIED</local_contact>
       <user_institute NAPItype="NX_CHAR[11]">UNSPECIFIED</user_institute>
-      <experiment_identifier NAPItype="NX_CHAR[1]">1234567</experiment_identifier>
-      <instrument_name NAPItype="NX_CHAR[3]">ALF</instrument_name>
-      <run_number NAPItype="NX_INT32">       85422
+      <experiment_identifier NAPItype="NX_CHAR[7]">2010794</experiment_identifier>
+      <instrument_name NAPItype="NX_CHAR[3]">FAKE</instrument_name>
+      <run_number NAPItype="NX_INT32">       83896
       </run_number>
       <sample_id NAPItype="NX_CHAR[11]">UNSPECIFIED</sample_id>
       <measurement_first_run NAPItype="NX_INT32">           0
@@ -22,15 +22,15 @@ file_time="2021-05-01T09:28:00+00:00">
       <measurement_label NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_label>
       <measurement_type NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_type>
       <measurement_subid NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_subid>
-      <start_time NAPItype="NX_CHAR[19]">2021-05-01T09:27:24</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2021-05-01T09:27:52</end_time>
-      <duration NAPItype="NX_INT64">                      28
+      <start_time NAPItype="NX_CHAR[19]">2020-10-08T15:15:50</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2020-10-08T15:45:47</end_time>
+      <duration NAPItype="NX_INT64">                    1797
       </duration>
-      <proton_charge NAPItype="NX_FLOAT32">      1.4159
+      <proton_charge NAPItype="NX_FLOAT32">     20.0550
       </proton_charge>
-      <raw_frames NAPItype="NX_UINT32">        1427
+      <raw_frames NAPItype="NX_UINT32">       19606
       </raw_frames>
-      <good_frames NAPItype="NX_UINT32">        1427
+      <good_frames NAPItype="NX_UINT32">       19606
       </good_frames>
       <number_periods NAPItype="NX_INT32">           1
       </number_periods>
@@ -40,7 +40,7 @@ file_time="2021-05-01T09:28:00+00:00">
       </number_detectors>
       <number_time_regimes NAPItype="NX_INT32">           1
       </number_time_regimes>
-      <frame_sync NAPItype="NX_CHAR[3]">SMP</frame_sync>
+      <frame_sync NAPItype="NX_CHAR[4]">ISIS</frame_sync>
       <IXtime_regime name="time_regime_1">
         <number_time_channels NAPItype="NX_INT32">        1361
         </number_time_channels>
@@ -49,13 +49,13 @@ file_time="2021-05-01T09:28:00+00:00">
         <time_channel_max NAPItype="NX_FLOAT32">  19900.0000
         </time_channel_max>
       </IXtime_regime>
-      <icp_version NAPItype="NX_CHAR[79]">SVN R2d676ec5b7ca8edce913aecb2e18fdfde158236f (2021/04/10 21:46:54, $WCMIXED?Mi</icp_version>
-      <detector_table_file NAPItype="NX_CHAR[81]">C:/Instrument/Settings/config/NDXALF/configurations/tables/detectors_ALF_20_2.dat</detector_table_file>
-      <spectra_table_file NAPItype="NX_CHAR[86]">C:/Instrument/Settings/config/NDXALF/configurations/tables/spectra_ALF_2018_1_1to8.dat</spectra_table_file>
-      <wiring_table_file NAPItype="NX_CHAR[80]">C:/Instrument/Settings/config/NDXALF/configurations/tables/wiring_ALF_2018_2.dat</wiring_table_file>
+      <icp_version NAPItype="NX_CHAR[79]">SVN R49f6aa6db9094538d195f4dfdd44f8d0ccbd6697 (2020/07/20 23:56:23, $WCMIXED?Mi</icp_version>
+      <detector_table_file NAPItype="NX_CHAR[81]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/detectors_FAKE_20_2.dat</detector_table_file>
+      <spectra_table_file NAPItype="NX_CHAR[86]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/spectra_FAKE_2018_1_1to8.dat</spectra_table_file>
+      <wiring_table_file NAPItype="NX_CHAR[80]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/wiring_FAKE_2018_2.dat</wiring_table_file>
       <monitor_spectrum NAPItype="NX_INT32">        2369
       </monitor_spectrum>
-      <monitor_sum NAPItype="NX_UINT32">      242466
+      <monitor_sum NAPItype="NX_UINT32">     3891666
       </monitor_sum>
       <total_mevents NAPItype="NX_FLOAT32">      0.0000
       </total_mevents>
@@ -68,21 +68,21 @@ file_time="2021-05-01T09:28:00+00:00">
       <temperature_label NAPItype="NX_CHAR[11]">UNSPECIFIED</temperature_label>
       <npratio_average NAPItype="NX_FLOAT32">      0.0000
       </npratio_average>
-      <isis_cycle NAPItype="NX_CHAR[4]">21_1</isis_cycle>
-      <seci_config NAPItype="NX_CHAR[11]">ALF_Default</seci_config>
+      <isis_cycle NAPItype="NX_CHAR[4]">20_2</isis_cycle>
+      <seci_config NAPItype="NX_CHAR[11]">FAKE_Default</seci_config>
       <event_mode NAPItype="NX_FLOAT64">         0.00000
       </event_mode>
       <IXselog name="selog" />
     </NXentry>
-  <NXentry name="ALF00085423">
-      <title NAPItype="NX_CHAR[15]">cycle 211 setup</title>
+  <NXentry name="FAKE00083897">
+      <title NAPItype="NX_CHAR[11]">MnSi rot=45</title>
       <simulation_mode NAPItype="NX_CHAR[2]">NO</simulation_mode>
-      <user_name NAPItype="NX_CHAR[11]">Username</user_name>
+      <user_name NAPItype="NX_CHAR[14]">Username2</user_name>
       <local_contact NAPItype="NX_CHAR[11]">UNSPECIFIED</local_contact>
       <user_institute NAPItype="NX_CHAR[11]">UNSPECIFIED</user_institute>
-      <experiment_identifier NAPItype="NX_CHAR[1]">1234567</experiment_identifier>
-      <instrument_name NAPItype="NX_CHAR[3]">ALF</instrument_name>
-      <run_number NAPItype="NX_INT32">       85423
+      <experiment_identifier NAPItype="NX_CHAR[7]">2010794</experiment_identifier>
+      <instrument_name NAPItype="NX_CHAR[3]">FAKE</instrument_name>
+      <run_number NAPItype="NX_INT32">       83897
       </run_number>
       <sample_id NAPItype="NX_CHAR[11]">UNSPECIFIED</sample_id>
       <measurement_first_run NAPItype="NX_INT32">           0
@@ -91,15 +91,15 @@ file_time="2021-05-01T09:28:00+00:00">
       <measurement_label NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_label>
       <measurement_type NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_type>
       <measurement_subid NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_subid>
-      <start_time NAPItype="NX_CHAR[19]">2021-05-01T11:04:12</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2021-05-01T11:04:30</end_time>
-      <duration NAPItype="NX_INT64">                      18
+      <start_time NAPItype="NX_CHAR[19]">2020-10-08T15:45:56</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2020-10-08T15:53:36</end_time>
+      <duration NAPItype="NX_INT64">                     460
       </duration>
-      <proton_charge NAPItype="NX_FLOAT32">      0.9252
+      <proton_charge NAPItype="NX_FLOAT32">     20.0530
       </proton_charge>
-      <raw_frames NAPItype="NX_UINT32">         930
+      <raw_frames NAPItype="NX_UINT32">       18210
       </raw_frames>
-      <good_frames NAPItype="NX_UINT32">         930
+      <good_frames NAPItype="NX_UINT32">       18210
       </good_frames>
       <number_periods NAPItype="NX_INT32">           1
       </number_periods>
@@ -109,7 +109,7 @@ file_time="2021-05-01T09:28:00+00:00">
       </number_detectors>
       <number_time_regimes NAPItype="NX_INT32">           1
       </number_time_regimes>
-      <frame_sync NAPItype="NX_CHAR[3]">SMP</frame_sync>
+      <frame_sync NAPItype="NX_CHAR[4]">ISIS</frame_sync>
       <IXtime_regime name="time_regime_1">
         <number_time_channels NAPItype="NX_INT32">        1361
         </number_time_channels>
@@ -118,13 +118,13 @@ file_time="2021-05-01T09:28:00+00:00">
         <time_channel_max NAPItype="NX_FLOAT32">  19900.0000
         </time_channel_max>
       </IXtime_regime>
-      <icp_version NAPItype="NX_CHAR[79]">SVN R2d676ec5b7ca8edce913aecb2e18fdfde158236f (2021/04/10 21:46:54, $WCMIXED?Mi</icp_version>
-      <detector_table_file NAPItype="NX_CHAR[81]">C:/Instrument/Settings/config/NDXALF/configurations/tables/detectors_ALF_20_2.dat</detector_table_file>
-      <spectra_table_file NAPItype="NX_CHAR[86]">C:/Instrument/Settings/config/NDXALF/configurations/tables/spectra_ALF_2018_1_1to8.dat</spectra_table_file>
-      <wiring_table_file NAPItype="NX_CHAR[80]">C:/Instrument/Settings/config/NDXALF/configurations/tables/wiring_ALF_2018_2.dat</wiring_table_file>
+      <icp_version NAPItype="NX_CHAR[79]">SVN R49f6aa6db9094538d195f4dfdd44f8d0ccbd6697 (2020/07/20 23:56:23, $WCMIXED?Mi</icp_version>
+      <detector_table_file NAPItype="NX_CHAR[81]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/detectors_FAKE_20_2.dat</detector_table_file>
+      <spectra_table_file NAPItype="NX_CHAR[86]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/spectra_FAKE_2018_1_1to8.dat</spectra_table_file>
+      <wiring_table_file NAPItype="NX_CHAR[80]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/wiring_FAKE_2018_2.dat</wiring_table_file>
       <monitor_spectrum NAPItype="NX_INT32">        2369
       </monitor_spectrum>
-      <monitor_sum NAPItype="NX_UINT32">           0
+      <monitor_sum NAPItype="NX_UINT32">     3878308
       </monitor_sum>
       <total_mevents NAPItype="NX_FLOAT32">      0.0000
       </total_mevents>
@@ -137,21 +137,21 @@ file_time="2021-05-01T09:28:00+00:00">
       <temperature_label NAPItype="NX_CHAR[11]">UNSPECIFIED</temperature_label>
       <npratio_average NAPItype="NX_FLOAT32">      0.0000
       </npratio_average>
-      <isis_cycle NAPItype="NX_CHAR[4]">21_1</isis_cycle>
-      <seci_config NAPItype="NX_CHAR[11]">ALF_Default</seci_config>
+      <isis_cycle NAPItype="NX_CHAR[4]">20_2</isis_cycle>
+      <seci_config NAPItype="NX_CHAR[11]">FAKE_Default</seci_config>
       <event_mode NAPItype="NX_FLOAT64">         0.00000
       </event_mode>
       <IXselog name="selog" />
     </NXentry>
-  <NXentry name="ALF00085424">
-      <title NAPItype="NX_CHAR[15]">my cycle 211 setup</title>
+    <NXentry name="FAKE00083898">
+      <title NAPItype="NX_CHAR[11]">MnSi rot=50</title>
       <simulation_mode NAPItype="NX_CHAR[2]">NO</simulation_mode>
-      <user_name NAPItype="NX_CHAR[11]">Username2</user_name>
+      <user_name NAPItype="NX_CHAR[14]">Username2</user_name>
       <local_contact NAPItype="NX_CHAR[11]">UNSPECIFIED</local_contact>
       <user_institute NAPItype="NX_CHAR[11]">UNSPECIFIED</user_institute>
-      <experiment_identifier NAPItype="NX_CHAR[1]">1234568</experiment_identifier>
-      <instrument_name NAPItype="NX_CHAR[3]">ALF</instrument_name>
-      <run_number NAPItype="NX_INT32">       85424
+      <experiment_identifier NAPItype="NX_CHAR[7]">2010794</experiment_identifier>
+      <instrument_name NAPItype="NX_CHAR[3]">FAKE</instrument_name>
+      <run_number NAPItype="NX_INT32">       83898
       </run_number>
       <sample_id NAPItype="NX_CHAR[11]">UNSPECIFIED</sample_id>
       <measurement_first_run NAPItype="NX_INT32">           0
@@ -160,15 +160,15 @@ file_time="2021-05-01T09:28:00+00:00">
       <measurement_label NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_label>
       <measurement_type NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_type>
       <measurement_subid NAPItype="NX_CHAR[11]">UNSPECIFIED</measurement_subid>
-      <start_time NAPItype="NX_CHAR[19]">2021-05-03T11:12:21</start_time>
-      <end_time NAPItype="NX_CHAR[19]">2021-05-03T11:12:42</end_time>
-      <duration NAPItype="NX_INT64">                      21
+      <start_time NAPItype="NX_CHAR[19]">2020-10-08T15:53:48</start_time>
+      <end_time NAPItype="NX_CHAR[19]">2020-10-08T16:01:29</end_time>
+      <duration NAPItype="NX_INT64">                     461
       </duration>
-      <proton_charge NAPItype="NX_FLOAT32">      1.0602
+      <proton_charge NAPItype="NX_FLOAT32">     20.0533
       </proton_charge>
-      <raw_frames NAPItype="NX_UINT32">        1066
+      <raw_frames NAPItype="NX_UINT32">       18225
       </raw_frames>
-      <good_frames NAPItype="NX_UINT32">        1066
+      <good_frames NAPItype="NX_UINT32">       18226
       </good_frames>
       <number_periods NAPItype="NX_INT32">           1
       </number_periods>
@@ -178,7 +178,7 @@ file_time="2021-05-01T09:28:00+00:00">
       </number_detectors>
       <number_time_regimes NAPItype="NX_INT32">           1
       </number_time_regimes>
-      <frame_sync NAPItype="NX_CHAR[3]">SMP</frame_sync>
+      <frame_sync NAPItype="NX_CHAR[4]">ISIS</frame_sync>
       <IXtime_regime name="time_regime_1">
         <number_time_channels NAPItype="NX_INT32">        1361
         </number_time_channels>
@@ -187,13 +187,13 @@ file_time="2021-05-01T09:28:00+00:00">
         <time_channel_max NAPItype="NX_FLOAT32">  19900.0000
         </time_channel_max>
       </IXtime_regime>
-      <icp_version NAPItype="NX_CHAR[79]">SVN R2d676ec5b7ca8edce913aecb2e18fdfde158236f (2021/04/10 21:46:54, $WCMIXED?Mi</icp_version>
-      <detector_table_file NAPItype="NX_CHAR[81]">C:/Instrument/Settings/config/NDXALF/configurations/tables/detectors_ALF_20_2.dat</detector_table_file>
-      <spectra_table_file NAPItype="NX_CHAR[86]">C:/Instrument/Settings/config/NDXALF/configurations/tables/spectra_ALF_2018_1_1to8.dat</spectra_table_file>
-      <wiring_table_file NAPItype="NX_CHAR[80]">C:/Instrument/Settings/config/NDXALF/configurations/tables/wiring_ALF_2018_2.dat</wiring_table_file>
+      <icp_version NAPItype="NX_CHAR[79]">SVN R49f6aa6db9094538d195f4dfdd44f8d0ccbd6697 (2020/07/20 23:56:23, $WCMIXED?Mi</icp_version>
+      <detector_table_file NAPItype="NX_CHAR[81]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/detectors_FAKE_20_2.dat</detector_table_file>
+      <spectra_table_file NAPItype="NX_CHAR[86]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/spectra_FAKE_2018_1_1to8.dat</spectra_table_file>
+      <wiring_table_file NAPItype="NX_CHAR[80]">C:/Instrument/Settings/config/NDXFAKE/configurations/tables/wiring_FAKE_2018_2.dat</wiring_table_file>
       <monitor_spectrum NAPItype="NX_INT32">        2369
       </monitor_spectrum>
-      <monitor_sum NAPItype="NX_UINT32">      171027
+      <monitor_sum NAPItype="NX_UINT32">     3835553
       </monitor_sum>
       <total_mevents NAPItype="NX_FLOAT32">      0.0000
       </total_mevents>
@@ -206,10 +206,10 @@ file_time="2021-05-01T09:28:00+00:00">
       <temperature_label NAPItype="NX_CHAR[11]">UNSPECIFIED</temperature_label>
       <npratio_average NAPItype="NX_FLOAT32">      0.0000
       </npratio_average>
-      <isis_cycle NAPItype="NX_CHAR[4]">21_1</isis_cycle>
-      <seci_config NAPItype="NX_CHAR[11]">ALF_Default</seci_config>
+      <isis_cycle NAPItype="NX_CHAR[4]">20_2</isis_cycle>
+      <seci_config NAPItype="NX_CHAR[11]">FAKE_Default</seci_config>
       <event_mode NAPItype="NX_FLOAT64">         0.00000
       </event_mode>
       <IXselog name="selog" />
     </NXentry>
-  </NXroot>
+   </NXroot>
