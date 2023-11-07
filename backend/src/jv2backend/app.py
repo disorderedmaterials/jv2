@@ -12,10 +12,11 @@ import jv2backend.nexusRoutes
 import jv2backend.serverRoutes
 import jv2backend.journalLibrary
 import jv2backend.generator
+import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
 
 
-def create_app(inside_gunicorn: bool = True) -> Flask:
+def create_app(inside_gunicorn: bool = True, activate_cache: bool = True) -> Flask:
     """Create the Flask application and define
     the routes served by the backend. See config.py for configuration settings
 
@@ -38,6 +39,10 @@ def create_app(inside_gunicorn: bool = True) -> Flask:
     # Register XML namespaces
     ElementTree.register_namespace( '', "http://definition.nexusformat.org/schema/3.0")
     ElementTree.register_namespace('xsi', "http://www.w3.org/2001/XMLSchema-instance")
+
+    # Initialise and activate the user data cache
+    if activate_cache:
+        jv2backend.userCache.initialise()
 
     return app
 

@@ -8,6 +8,7 @@ from typing import Optional
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 from jv2backend.integerRange import IntegerRange
+import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
 from enum import Enum
 import requests
