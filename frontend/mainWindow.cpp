@@ -118,9 +118,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
     if (currentJournalSource_)
     {
-        settings.setValue("recentSource", currentJournalSource().name());
-        settings.setValue("recentInstrument", currentInstrument()->get().name());
-        settings.setValue("recentJournal", currentInstrument()->get().name());
+        settings.remove("Recent");
+        if (currentJournalSource_)
+        {
+            auto &source = currentJournalSource();
+            settings.beginGroup("Recent");
+            settings.setValue("Source", source.name());
+            if (source.currentInstrument())
+                settings.setValue("Instrument", source.currentInstrument()->get().name());
+            if (source.currentJournal())
+                    settings.setValue("Journal", source.currentJournal()->get().name());
+        }
     }
 
     // Shut down backend
