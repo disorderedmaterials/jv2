@@ -2,49 +2,42 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from __future__ import annotations
-from dataclasses import dataclass
 
-from io import BytesIO
-from flask import jsonify, make_response
-from flask.wrappers import Response as FlaskResponse
-from jv2backend.utils import url_join, lm_to_datetime
 from jv2backend.journalCollection import JournalCollection
 from jv2backend.journal import Journal, SourceType
-from jv2backend.requestData import RequestData, InvalidRequest
-import jv2backend.userCache
 import requests
 import logging
 import lxml.etree as etree
-import typing
 import json
 
-@dataclass
 class JournalLibrary:
     """Defines one or more data source rootURL/directory and their associated
     journal collections.
     """
-    collections: typing.Dict[str, JournalCollection]
+
+    def __init__(self, collections: {} = None):
+        self._collections = {} if collections is None else collections
 
     def __setitem__(self, key, value):
-        self.collections[key] = value
+        self._collections[key] = value
 
     def __getitem__(self, key):
-        if key in self.collections:
-            return self.collections[key]
+        if key in self._collections:
+            return self._collections[key]
         else:
             return None
 
     def __contains__(self, key):
-        return key in self.collections
+        return key in self._collections
 
 
     def list(self):
         """List contents of library"""
-        for c in self.collections:
+        for c in self._collections:
             logging.debug(f"Collection '{c}' contains "
-                          f"{self.collections[c].get_journal_count()} "
+                          f"{self._collections[c].get_journal_count()} "
                           f"journal files:")
-            for j in self.collections[c].journals:
+            for j in self._collections[c].journals:
                 if j.has_run_data():
                     logging.debug(f"     {j.get_file_url()} "
                                   f"({j.get_run_count()} run data)")
@@ -64,7 +57,7 @@ class JournalLibrary:
         :param library_key: Library key identifying a collection
         :param journal_directory: Location / URL of the journal index file
         :param journal_filename: Filename of journal index file
-        :param data_directory: Directory containing associated run data
+        :param run_data_directory: Directory containing associated run data
         :return: A JSON response with the journal list or an error string
         """
         # Check the library for an existing collection
@@ -81,7 +74,7 @@ class JournalLibrary:
             # Create new collection in the library
             logging.debug(f"Creating new collection for "
                           f"'{library_key}'")
-            self.collections[library_key] = JournalCollection(
+            self._collections[library_key] = JournalCollection(
                 source_type,
                 library_key,
                 journal_directory,
