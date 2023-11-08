@@ -48,7 +48,7 @@ class MainWindow : public QMainWindow
     void waitForBackend();
 
     protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
     /*
      * Journal Sources
