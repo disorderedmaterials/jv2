@@ -16,6 +16,7 @@ import requests
 import logging
 import lxml.etree as etree
 import typing
+import json
 
 @dataclass
 class JournalLibrary:
@@ -52,51 +53,55 @@ class JournalLibrary:
 
     # ---------------- Work Functions
 
-    def get_index(self, request_data: RequestData) -> FlaskResponse:
+    def get_index(self, source_type: SourceType, library_key: str,
+                  journal_directory: str, journal_filename: str,
+                  run_data_directory: str) -> str:
         """Retrieve an index file containing journal information, creating a
         collection for it in the process, and return the contained journals.
         The collection may already exist, in which case we return it directly.
 
-        :param request_data: RequestData object containing index file details
+        :param source_type: The SourceType for the index
+        :param library_key: Library key identifying a collection
+        :param journal_directory: Location / URL of the journal index file
+        :param journal_filename: Filename of journal index file
+        :param data_directory: Directory containing associated run data
         :return: A JSON response with the journal list or an error string
         """
         # Check the library for an existing collection
-        collection = self[request_data.library_key()]
+        collection = self[library_key]
 
         # If we already have a collection for the specified source, return it
         # if it is up-to-date
         if collection is not None:
             if collection.is_up_to_date():
                 logging.debug(f"Returning already up-to-date collection for "
-                              f"'{request_data.library_key()}'")
-                return make_response(collection.to_basic_json(), 200)
+                              f"'{library_key}'")
+                return collection.to_basic_json()
         else:
             # Create new collection in the library
             logging.debug(f"Creating new collection for "
-                          f"'{request_data.library_key()}'")
-            self.collections[request_data.library_key()] = JournalCollection(
-                request_data.source_type,
-                request_data.library_key(),
-                url_join(request_data.journal_root_url,
-                         request_data.directory),
-                request_data.journal_filename,
-                url_join(request_data.run_data_root_url,
-                         request_data.directory)
+                          f"'{library_key}'")
+            self.collections[library_key] = JournalCollection(
+                source_type,
+                library_key,
+                journal_directory,
+                journal_filename,
+                run_data_directory
             )
-            collection = self[request_data.library_key()]
+            collection = self[library_key]
 
         # Retrieve the journal index data, since we either don't have it or it
         # needs updating
         try:
             collection.get_index()
         except FileNotFoundError:
-            return make_response(jsonify("Index File Not Found"), 200)
+            return json.dumps("Index File Not Found")
         except (requests.HTTPError, requests.ConnectionError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
         except etree.XMLSyntaxError as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
 
-        return make_response(collection.to_basic_json(), 200)
+        return collection.to_basic_json()
 
     def get_journal_data(self, request_data: RequestData) -> FlaskResponse:
         """Retrieve run data contained in a journal file within a collection

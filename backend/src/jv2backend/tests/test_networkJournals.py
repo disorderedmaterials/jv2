@@ -2,13 +2,12 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import pytest
-from flask import Flask
-from typing import Callable
 import logging
 from pathlib import Path
 from jv2backend.utils import url_join
 from jv2backend.app import create_app
 from jv2backend.requestData import RequestData
+from jv2backend.journal import SourceType
 import jv2backend.journalLibrary
 import datetime
 import requests_mock
@@ -57,6 +56,16 @@ def _create_request_dict(updated_keys: {} = {}) -> {}:
     result.update(updated_keys)
     return result
 
+def _get_library_index(library: jv2backend.journalLibrary.JournalLibrary) -> str:
+    """Retrieve library index"""
+    return json.loads(library.get_index(
+        SourceType.Network,
+        "TestID/" + FAKE_INSTRUMENT_NAME,
+        url_join(FAKE_SERVER_ADDRESS, FAKE_INSTRUMENT_NAME),
+        "journal_main.xml",
+        "/fake/data/directory"
+    ))
+
 @pytest.fixture()
 def app(requests_mock):
     app = create_app(activate_cache=False)
@@ -90,11 +99,9 @@ def app(requests_mock):
 
 def test_parse_isis_journal_index(app):
     library = jv2backend.journalLibrary.JournalLibrary({})
-    index_request = RequestData(_create_request_dict(), require_journal_file=True)
 
     with app.app_context():
-        index = library.get_index(index_request)
-        response = json.loads(index.data)
+        response = _get_library_index(library)
 
     assert "Error" not in response
     assert "TestID/" + FAKE_INSTRUMENT_NAME in library
@@ -109,13 +116,10 @@ def test_parse_isis_journal_index(app):
 def test_parse_isis_journal_file(app, journal_file):
     library = jv2backend.journalLibrary.JournalLibrary({})
 
-    index_request = RequestData(_create_request_dict(), require_journal_file=True)
-
     run_data_request = RequestData(_create_request_dict({"journalFilename": journal_file}), require_journal_file=True)
 
     with app.app_context():
-        index = library.get_index(index_request)
-        index_response = json.loads(index.data)
+        index_response = _get_library_index(library)
         assert "Error" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
@@ -127,13 +131,10 @@ def test_parse_isis_journal_file(app, journal_file):
 def test_missing_journal_file(app,):
     library = jv2backend.journalLibrary.JournalLibrary({})
 
-    index_request = RequestData(_create_request_dict(), require_journal_file=True)
-
     run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_MISSING}), require_journal_file=True)
 
     with app.app_context():
-        index = library.get_index(index_request)
-        index_response = json.loads(index.data)
+        index_response = _get_library_index(library)
         assert "Error" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
@@ -145,14 +146,11 @@ def test_missing_journal_file(app,):
 def test_get_journal_file_updates(app):
     library = jv2backend.journalLibrary.JournalLibrary({})
 
-    index_request = RequestData(_create_request_dict(), require_journal_file=True)
-
     run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_A}), require_journal_file=True)
 
     # Assemble the collection in the library and load in the full journal data
     with app.app_context():
-        index = library.get_index(index_request)
-        index_response = json.loads(index.data)
+        index_response = _get_library_index(library)
         assert "Error" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
@@ -195,14 +193,11 @@ def test_get_journal_file_updates(app):
 def test_get_journal_file_updates_for_empty_journal(app):
     library = jv2backend.journalLibrary.JournalLibrary({})
 
-    index_request = RequestData(_create_request_dict(), require_journal_file=True)
-
     run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_A}), require_journal_file=True)
 
     # Assemble the collection in the library
     with app.app_context():
-        index = library.get_index(index_request)
-        index_response = json.loads(index.data)
+        index_response = _get_library_index(library)
         assert "Error" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 

@@ -5,7 +5,7 @@
 import logging
 from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
-
+from jv2backend.utils import url_join
 from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journalLibrary import JournalLibrary
 
@@ -30,16 +30,22 @@ def add_routes(
                  journals
         """
         try:
-            postData = RequestData(request.json,
-                                   require_journal_file=True)
+            post_data = RequestData(request.json,
+                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Listing journals for {postData.source_id}: "
-                      f"{postData.journal_file_url()}")
+        logging.debug(f"Listing journals for {post_data.source_id}: "
+                      f"{post_data.journal_file_url()}")
 
         # Parse the journal index
-        return journalLibrary.get_index(postData)
+        return make_response(journalLibrary.get_index(
+            post_data.source_type,
+            post_data.library_key(),
+            url_join(post_data.journal_root_url, post_data.directory),
+            post_data.journal_filename,
+            url_join(post_data.run_data_root_url, post_data.directory)
+        ), 200)
 
     @app.post("/journals/get")
     def get_journal_data() -> FlaskResponse:
