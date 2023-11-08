@@ -90,15 +90,26 @@ def add_routes(
         :return: A JSON-formatted list of new run data, or None
         """
         try:
-            postData = RequestData(request.json,
-                                   require_journal_file=True)
+            post_data = RequestData(request.json,
+                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Get journal {postData.journal_file_url()} from source "
-                      f"{postData.library_key()}")
+        logging.debug(f"Get journal {post_data.journal_file_url()} updates "
+                      f"from source {post_data.library_key()}")
 
-        return journalLibrary.get_journal_data_updates(postData)
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(jsonify(
+                {"Error": f"No collection '{post_data.library_key()}' "
+                          f"currently exists."}),
+                200
+            )
+
+        return make_response(
+            collection.get_updates(post_data.journal_filename),
+            200
+        )
 
     @app.post("/journals/search")
     def search() -> FlaskResponse:

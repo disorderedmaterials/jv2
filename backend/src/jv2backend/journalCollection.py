@@ -239,29 +239,24 @@ class JournalCollection:
             logging.debug(f"Obtaining journal {journal.filename}")
             journal.get_run_data()
 
-    def get_updates(self, requestData: RequestData) -> FlaskResponse:
+    def get_updates(self, journal_filename: str) -> str:
         """Check if the journal index files has been modified since the last
         retrieval and return new runs added after the last known.
 
-        :param requestData: RequestData object containing journal details
-        :return: Array of new run data information or None
+        :param journal_filename: Target journal to probe for updates
+        :return: JSON array of new run data information or None
         """
         # Search the collection for the specified journal file
-        j = self[requestData.journal_filename]
+        j = self[journal_filename]
         if j is None:
-            return make_response(
-                jsonify({"Error": f"Journal {requestData.journal_filename} "
-                                  f"not present in collection."}), 200
+            return json.dumps(
+                {"Error": f"Journal {journal_filename} not in collection."}
             )
-
-        # For cached sources, we return immediately
-        if requestData.source_type == SourceType.Generated:
-            return make_response(jsonify(None), 200)
 
         # If we already have this journal file in the collection, check its
         # modification time, returning the current data if up-to-date
         if j.is_up_to_date():
-            return make_response(jsonify(None), 200)
+            return json.dumps(None)
 
         # Changed, so read full data and store the whole thing, storing the
         # current last run number before we set the new data
@@ -270,20 +265,19 @@ class JournalCollection:
             j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
 
         # If our old last run number is None then we had no data so return all
         if old_last_run_number is None:
-            return make_response(j.get_run_data_as_json_array(), 200)
+            return j.get_run_data_as_json_array()
 
         # If the old run numbers are the same, nothing to update
         if old_last_run_number == j.get_last_run_number():
-            return make_response(jsonify(None), 200)
+            return json.dumps(None)
 
         # Return any new runs after the previous last known run number
-        return make_response(
-            Journal.convert_run_data_to_json_array(
-                j.get_run_data_after(old_last_run_number)), 200
+        return Journal.convert_run_data_to_json_array(
+            j.get_run_data_after(old_last_run_number)
         )
 
     # ---------------- File Location
@@ -321,6 +315,7 @@ class JournalCollection:
     def locate_data_file(self, run_number: int) -> str:
         """Return the full path to the data (NeXuS) file for the specified
         run number
+
         :param run_number: Run number to locate the data file for
         :return: Full path to the data file or None if it couldn't be found
         """

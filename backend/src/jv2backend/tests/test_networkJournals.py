@@ -144,29 +144,27 @@ def test_missing_journal_file(app):
 def test_get_journal_file_updates(app):
     library = jv2backend.journalLibrary.JournalLibrary({})
 
-    run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_A}), require_journal_file=True)
-
     # Assemble the collection in the library and load in the full journal data
     with app.app_context():
         index_response = _get_library_index(library)
         assert "Error" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
-        journal = library.get_journal_data(run_data_request)
-        journal_response = json.loads(journal.data)
+    collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
+
+    with app.app_context():
+        journal_response = json.loads(collection.get_journal_data(FAKE_JOURNAL_FILE_A))
         assert "Error" not in journal_response
         assert len(journal_response) == 3
 
     # Get the target journal
-    collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
     assert collection is not None
     journal = collection[FAKE_JOURNAL_FILE_A]
     assert journal is not None
 
     # Try to update current journal - will be up-to-date, so expect None
     with app.app_context():
-        updates = library.get_journal_data_updates(run_data_request)
-        updates_response = json.loads(updates.data)
+        updates_response = json.loads(collection.get_updates(FAKE_JOURNAL_FILE_A))
         assert updates_response is None
 
     # Delete last run data from the journal, and set a new modtime
@@ -181,17 +179,13 @@ def test_get_journal_file_updates(app):
 
     # Try to update current journal
     with app.app_context():
-        updates = library.get_journal_data_updates(run_data_request)
-        logging.debug(str(updates.data))
-        updates_response = json.loads(updates.data)
+        updates_response = json.loads(collection.get_updates(FAKE_JOURNAL_FILE_A))
         assert len(updates_response) == 2
         assert updates_response[0]["run_number"] == str(last_run_number1)
         assert updates_response[1]["run_number"] == str(last_run_number0)
 
 def test_get_journal_file_updates_for_empty_journal(app):
     library = jv2backend.journalLibrary.JournalLibrary({})
-
-    run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_A}), require_journal_file=True)
 
     # Assemble the collection in the library
     with app.app_context():
@@ -201,6 +195,6 @@ def test_get_journal_file_updates_for_empty_journal(app):
 
     # Try to update current journal (which currently has zero data)
     with app.app_context():
-        updates = library.get_journal_data_updates(run_data_request)
-        updates_response = json.loads(updates.data)
+        collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
+        updates_response = json.loads(collection.get_updates(FAKE_JOURNAL_FILE_A))
         assert len(updates_response) == 3

@@ -103,22 +103,6 @@ class JournalLibrary:
 
         return collection.to_basic_json()
 
-    def get_journal_data_updates(self, request_data: RequestData) -> FlaskResponse:
-        """Retrieve new run data contained in a journal file within a collection
-
-        :param request_data: RequestData object containing target source / journal
-        :return: A JSON response with the journal list or an error string
-        """
-        # Check whether the specified collection exists
-        if request_data.library_key() not in self.collections:
-            return make_response(
-                jsonify({"Error": f"No library '{request_data.library_key()}' "
-                                  f"currently exists."}), 200
-            )
-
-        collection = self.collections[request_data.library_key()]
-        return collection.get_updates(request_data)
-
     def search_collection(self, request_data: RequestData) -> FlaskResponse:
         """Retrieve run data contained in a collection where it matches all of
         the specified search query parameters.
