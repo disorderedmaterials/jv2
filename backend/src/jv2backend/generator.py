@@ -6,12 +6,8 @@ import logging
 import os.path
 import h5py
 import hashlib
-
 import datetime
 import json
-from flask import make_response
-from flask.wrappers import Response as FlaskResponse
-from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journalCollection import JournalCollection
@@ -24,7 +20,7 @@ class JournalGenerator:
 
     def __init__(self) -> None:
         self._total_files_to_scan: int = None
-        self._discovered_files: typing.Dict(str, typing.Any) = {}
+        self._discovered_files: typing.Dict[str, typing.Any] = {}
         # Dicts of descriptors we wish to extract from the NeXuS file, and the
         # journal attributes they map to
         self._nxs_strings = {
@@ -43,7 +39,7 @@ class JournalGenerator:
             "/raw_data_1/proton_charge": "proton_charge"
         }
 
-    def list_files(self, data_directory: str) -> FlaskResponse:
+    def list_files(self, data_directory: str) -> str:
         """List available NeXuS files in a directory.
 
         :param data_directory: Target data directory to scan
@@ -58,7 +54,7 @@ class JournalGenerator:
         for rootDir, dirs, files in os.walk(data_directory):
             for f in files:
                 if f.lower().endswith(".nxs"):
-                    if (rootDir not in self._discovered_files):
+                    if rootDir not in self._discovered_files:
                         self._discovered_files[rootDir] = []
                     self._discovered_files[rootDir].append(f)
 
@@ -67,18 +63,19 @@ class JournalGenerator:
                       {len(self._discovered_files)} unique directories \
                       in root directory {data_directory}.")
 
-        # Create the response
-        response = {}
-        response["num_files"] = num_files
-        response["data_directory"] = data_directory
-
-        return make_response(jsonify(response), 200)
+        return json.dumps(
+            {
+                "num_files": num_files,
+                "data_directory": data_directory
+            }
+        )
 
     def create_journal_entry(self, data_directory: str, filename: str) -> {}:
         """Extract values from the supplied NeXuS file to form a journal
         'entry' for the run.
 
-        :param filepath: Full path to the NeXuS file.
+        :param data_directory: Directory containing the NeXuS file.
+        :param filename: NeXuS filename
         :return: A dict of all run attributes
         """
         nxs = h5py.File(url_join(data_directory, filename))
@@ -103,11 +100,12 @@ class JournalGenerator:
 
         return data
 
-    def generate(self, request_data: RequestData,
-                 journalLibrary: JournalLibrary):
+    def generate(self, collection: JournalCollection, sort_key: str
+                 ) -> str:
         """Generate an index file containing journal information
 
-        :param request_data: RequestData object containing the necessary info
+        :param collection: Target collection for new journals
+        :param sort_key: Attribute on which to sort run data into journals
 
         Search all folders in the data file directory and generate a set of
         journal files describing the found data.
@@ -121,13 +119,6 @@ class JournalGenerator:
                 # Get attributes from the file
                 all_run_data.append(self.create_journal_entry(directory, f))
 
-        # Select the sorting key for the run data
-        if request_data.parameter == "Directory":
-            sort_key = "data_directory"
-        elif request_data.parameter == "RBNumber":
-            sort_key = "experiment_identifier"
-        logging.debug(f"Sorting key is {sort_key}")
-
         # Sort run data into sets by sort key, constructing suitable dicts for
         # direct inclusion in our generated Journal classes
         data_sets = {}
@@ -140,50 +131,31 @@ class JournalGenerator:
             data_sets[run[sort_key]][run_number] = run
 
         # Create index and journal files, and assemble a list of journals
-        journals = []
         for key in data_sets:
             logging.debug(f"Data set for {key} has {len(data_sets[key])} runs")
 
             # Create hash and journal filename
             journal_filename = hashlib.sha256(key.encode('utf-8')).hexdigest() + ".xml"
-            displayName = key.removeprefix(request_data.run_data_url).lstrip("/")
+            display_name = key.removeprefix(collection.run_data_url).lstrip("/")
 
             # Push a new Journal on to the list
-            journal = Journal(
-                displayName,
+            collection.add_journal(
+                display_name,
                 SourceType.Generated,
-                request_data.library_key(),
-                url_join(request_data.journal_root_url, request_data.directory),
                 journal_filename,
                 key,
-                datetime.datetime.now(),
                 data_sets[key]
             )
 
-            journals.append(journal)
-
-        # Create a library entry
-        journalLibrary[request_data.library_key()] = JournalCollection(
-            SourceType.Generated,
-            request_data.library_key(),
-            url_join(request_data.journal_root_url,
-                     request_data.directory),
-            "index.xml",
-            url_join(request_data.run_data_root_url,
-                     request_data.directory),
-            datetime.datetime.now(),
-            journals
-        )
-
         # Store in the user cache
-        jv2backend.userCache.put_data(request_data.library_key(),
-                                      request_data.journal_file_url(),
-                                      journalLibrary[request_data.library_key()].to_basic_json(),
+        jv2backend.userCache.put_data(collection.library_key,
+                                      collection.get_index_file_url(),
+                                      collection.to_basic_json(),
                                       datetime.datetime.now())
-        for journal in journals:
-            jv2backend.userCache.put_data(request_data.library_key(),
+        for journal in collection.journals:
+            jv2backend.userCache.put_data(collection.library_key,
                                           journal.filename,
                                           json.dumps(journal.run_data),
                                           datetime.datetime.now())
 
-        return make_response(jsonify("SUCCESS"), 200)
+        return json.dumps("SUCCESS")

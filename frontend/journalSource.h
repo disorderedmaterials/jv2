@@ -34,6 +34,8 @@ class JournalSource
     };
     // Return text string for specified DataOrganisationType
     static QString dataOrganisationType(DataOrganisationType type);
+    // Return sort key associated to specified DataOrganisationType
+    static QString dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type);
     // Convert text string to DataOrganisationType
     static DataOrganisationType dataOrganisationType(QString typeString);
     // JournalSource States

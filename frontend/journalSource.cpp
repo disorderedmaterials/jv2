@@ -44,6 +44,20 @@ QString JournalSource::dataOrganisationType(JournalSource::DataOrganisationType 
     }
 }
 
+// Return sort key associated to specified DataOrganisationType
+QString JournalSource::dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type)
+{
+    switch (type)
+    {
+        case (DataOrganisationType::Directory):
+            return "data_directory";
+        case (DataOrganisationType::RBNumber):
+            return "experiment_identifier";
+        default:
+            throw(std::runtime_error("DataOrganisationType not known and can't be converted to a QString.\n"));
+    }
+}
+
 // Convert text string to DataOrganisationType
 JournalSource::DataOrganisationType JournalSource::dataOrganisationType(QString typeString)
 {
@@ -223,7 +237,6 @@ QJsonObject JournalSource::sourceObjectData() const
     if (instrumentSubdirectories_)
         data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
     data["runDataRootUrl"] = runDataRootUrl_;
-    data["dataOrganisation"] = dataOrganisationType(runDataOrganisation_);
     return data;
 }
 

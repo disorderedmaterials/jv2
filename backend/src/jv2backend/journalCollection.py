@@ -24,14 +24,14 @@ class JournalCollection:
                  library_key: str = None,
                  index_root_url: str = None,
                  index_filename: str = None,
-                 run_data_root_url: str = None,
+                 run_data_url: str = None,
                  last_modified: datetime.datetime = None,
                  journals: [] = None):
         self._source_type = source_type
         self._library_key = library_key
         self._index_root_url = index_root_url
         self._index_filename = index_filename
-        self._run_data_root_url = run_data_root_url
+        self._run_data_url = run_data_url
         self._last_modified = last_modified
         self._journals = [] if journals is None else journals
 
@@ -44,13 +44,41 @@ class JournalCollection:
         j = self.__getitem__(key)
         return j is not None
 
+    @property
+    def library_key(self) -> str:
+        """Return the library key for the collection"""
+        return self._library_key
+
     def get_index_file_url(self) -> str:
         """Return the full URL to the journal"""
         return url_join(self._index_root_url, self._index_filename)
 
     @property
+    def run_data_url(self) -> str:
+        """Return the run data location"""
+        return self._run_data_url
+
+    def add_journal(self, display_name: str, source_type: SourceType,
+                    journal_filename: str, data_directory: str,
+                    run_data: {} = None) -> Journal:
+        """Add a new journal to the list"""
+        journal = Journal(
+            display_name,
+            source_type,
+            self._library_key,
+            self._index_root_url,
+            journal_filename,
+            data_directory,
+            datetime.datetime.now(),
+            {} if run_data is None else run_data
+        )
+
+        self._journals.append(journal)
+        return journal
+
+    @property
     def journals(self):
-        """Return the current journals array"""
+        """Return the current journals list"""
         return self._journals
 
     def get_journal_count(self):
@@ -175,7 +203,7 @@ class JournalCollection:
                     cycle_dir = j.attrib["name"].replace("journal", "cycle")
                     cycle_dir.replace(".xml", "")
                     data_directory = url_join(
-                        self._run_data_root_url,
+                        self._run_data_url,
                         "Instrument",
                         "data",
                         cycle_dir)
