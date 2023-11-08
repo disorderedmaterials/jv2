@@ -103,8 +103,8 @@ class JournalGenerator:
 
         return data
 
-    def scan_files(self, request_data: RequestData,
-                   journalLibrary: JournalLibrary):
+    def generate(self, request_data: RequestData,
+                 journalLibrary: JournalLibrary):
         """Generate an index file containing journal information
 
         :param request_data: RequestData object containing the necessary info

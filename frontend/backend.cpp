@@ -274,5 +274,5 @@ void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::H
     if (source.type() == JournalSource::IndexingType::Network)
         throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
-    postRequest(createRoute("generate/scan"), source.sourceObjectData(), handler);
+    postRequest(createRoute("generate/go"), source.sourceObjectData(), handler);
 }
