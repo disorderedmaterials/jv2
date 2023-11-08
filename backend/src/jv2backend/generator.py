@@ -5,7 +5,6 @@ import typing
 import logging
 import os.path
 import h5py
-import xml.etree.ElementTree as ElementTree
 import hashlib
 
 import datetime
@@ -129,40 +128,25 @@ class JournalGenerator:
             sort_key = "experiment_identifier"
         logging.debug(f"Sorting key is {sort_key}")
 
-        # Sort run data into sets by sort key
+        # Sort run data into sets by sort key, constructing suitable dicts for
+        # direct inclusion in our generated Journal classes
         data_sets = {}
         for run in all_run_data:
             # If the sorting key isn't already in the dict, add it now
             if run[sort_key] not in data_sets:
-                data_sets[run[sort_key]] = []
-            data_sets[run[sort_key]].append(run)
+                data_sets[run[sort_key]] = {}
+
+            run_number = int(run["run_number"])
+            data_sets[run[sort_key]][run_number] = run
 
         # Create index and journal files, and assemble a list of journals
-        index_root = ElementTree.Element("journal")
         journals = []
         for key in data_sets:
             logging.debug(f"Data set for {key} has {len(data_sets[key])} runs")
 
             # Create hash and journal filename
-            hash = hashlib.sha256(key.encode('utf-8'))
-            journal_filename = hash.hexdigest() + ".xml"
+            journal_filename = hashlib.sha256(key.encode('utf-8')).hexdigest() + ".xml"
             displayName = key.removeprefix(request_data.run_data_url).lstrip("/")
-
-            # Construct the child journal data
-            journal_root = ElementTree.Element("NXroot")
-            journal_root.set("filename", journal_filename)
-            for run in data_sets[key]:
-                run_entry = ElementTree.SubElement(journal_root, "NXentry")
-                run_entry.set("name", run["filename"].replace(".nxs", ""))
-                for attribute in run:
-                    data_entry = ElementTree.SubElement(run_entry, attribute)
-                    data_entry.text = run[attribute]
-
-            # Add an entry in the index file
-            index_entry = ElementTree.SubElement(index_root, "file")
-            index_entry.set("filename", journal_filename)
-            index_entry.set("data_directory", key)
-            index_entry.set("display_name", displayName)
 
             # Push a new Journal on to the list
             journal = Journal(
@@ -172,10 +156,9 @@ class JournalGenerator:
                 url_join(request_data.journal_root_url, request_data.directory),
                 journal_filename,
                 key,
-                datetime.datetime.now()
+                datetime.datetime.now(),
+                data_sets[key]
             )
-
-            journal.set_run_data_from_element_tree(journal_root)
 
             journals.append(journal)
 
