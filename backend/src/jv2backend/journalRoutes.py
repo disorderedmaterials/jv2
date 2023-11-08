@@ -124,14 +124,25 @@ def add_routes(
         :return: A JSON-formatted list of run data, or None
         """
         try:
-            postData = RequestData(request.json,
-                                   require_value_map=True)
+            post_data = RequestData(request.json,
+                                    require_value_map=True)
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)})
 
-        logging.debug(f"Search {postData.library_key()} from...")
+        logging.debug(f"Search {post_data.library_key()}...")
 
-        return journalLibrary.search_collection(postData)
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(jsonify(
+                {"Error": f"No collection '{post_data.library_key()}' "
+                          f"currently exists."}),
+                200
+            )
+
+        return make_response(
+            collection.search(post_data.value_map),
+            200
+        )
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 
