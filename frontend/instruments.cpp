@@ -62,6 +62,9 @@ void MainWindow::getDefaultInstruments()
 // Set current instrument
 void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
 {
+    if (controlsUpdating_)
+        return;
+
     // Need a valid journal source
     if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
         return;

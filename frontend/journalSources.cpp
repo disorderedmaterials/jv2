@@ -220,6 +220,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
 
     journalModel_.setData(journalSource.journals());
 
+    updateForCurrentSource();
+
     controlsUpdating_ = false;
 
     // Now have a new current journal, so retrieve it
