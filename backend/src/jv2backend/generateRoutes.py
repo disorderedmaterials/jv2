@@ -2,12 +2,15 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import logging
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
-
+from jv2backend.utils import url_join
+from jv2backend.journalCollection import JournalCollection
+from jv2backend.journal import SourceType
 from jv2backend.requestData import RequestData, InvalidRequest
 import jv2backend.journalLibrary
 import jv2backend.generator
+import datetime
 
 
 def add_routes(
@@ -29,15 +32,18 @@ def add_routes(
         :return: The number of NeXuS files found
         """
         try:
-            postData = RequestData(request.json,
-                                   require_data_directory=True)
+            post_data = RequestData(request.json,
+                                    require_data_directory=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Scan for NeXuS files in data directory \
-                      {postData.run_data_url}...")
+        logging.debug(f"Scan for NeXuS files in data directory "
+                      f"{post_data.run_data_url}...")
 
-        return journalGenerator.list_files(postData.run_data_url)
+        return make_response(
+            journalGenerator.list_files(post_data.run_data_url),
+            200
+        )
 
     @app.post("/generate/go")
     def scan() -> FlaskResponse:
@@ -53,16 +59,27 @@ def add_routes(
         :return: A JSON-formatted list of new run data, or None
         """
         try:
-            postData = RequestData(request.json,
-                                   require_journal_file=True,
-                                   require_data_directory=True,
-                                   require_parameter="dataOrganisation")
+            post_data = RequestData(request.json,
+                                    require_journal_file=True,
+                                    require_data_directory=True,
+                                    require_parameter="sortKey")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Generate journal {postData.journal_filename} from \
-                      {postData.run_data_url}")
+        logging.debug(f"Generate journals for '{post_data.library_key()}' "
+                      f"from NeXuS files in {post_data.run_data_url}")
 
-        return journalGenerator.generate(postData, journalLibrary)
+        journalLibrary[post_data.library_key()] = JournalCollection(
+            SourceType.Generated,
+            post_data.library_key(),
+            url_join(post_data.journal_root_url,
+                     post_data.directory),
+            "index.xml",
+            url_join(post_data.run_data_root_url,
+                     post_data.directory),
+            datetime.datetime.now()
+        )
+
+        return journalGenerator.generate(journalLibrary[post_data.library_key()], post_data.parameter)
 
     return app

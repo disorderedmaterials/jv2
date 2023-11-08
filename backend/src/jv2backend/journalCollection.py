@@ -8,11 +8,8 @@ from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import jv2backend.select as Selector
 from jv2backend.journal import Journal, SourceType
-from jv2backend.requestData import RequestData
 import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
-from flask import make_response, jsonify
-from flask.wrappers import Response as FlaskResponse
 import logging
 import json
 import requests
@@ -27,14 +24,14 @@ class JournalCollection:
                  library_key: str = None,
                  index_root_url: str = None,
                  index_filename: str = None,
-                 run_data_root_url: str = None,
+                 run_data_url: str = None,
                  last_modified: datetime.datetime = None,
                  journals: [] = None):
         self._source_type = source_type
         self._library_key = library_key
         self._index_root_url = index_root_url
         self._index_filename = index_filename
-        self._run_data_root_url = run_data_root_url
+        self._run_data_url = run_data_url
         self._last_modified = last_modified
         self._journals = [] if journals is None else journals
 
@@ -47,13 +44,41 @@ class JournalCollection:
         j = self.__getitem__(key)
         return j is not None
 
+    @property
+    def library_key(self) -> str:
+        """Return the library key for the collection"""
+        return self._library_key
+
     def get_index_file_url(self) -> str:
         """Return the full URL to the journal"""
         return url_join(self._index_root_url, self._index_filename)
 
     @property
+    def run_data_url(self) -> str:
+        """Return the run data location"""
+        return self._run_data_url
+
+    def add_journal(self, display_name: str, source_type: SourceType,
+                    journal_filename: str, data_directory: str,
+                    run_data: {} = None) -> Journal:
+        """Add a new journal to the list"""
+        journal = Journal(
+            display_name,
+            source_type,
+            self._library_key,
+            self._index_root_url,
+            journal_filename,
+            data_directory,
+            datetime.datetime.now(),
+            {} if run_data is None else run_data
+        )
+
+        self._journals.append(journal)
+        return journal
+
+    @property
     def journals(self):
-        """Return the current journals array"""
+        """Return the current journals list"""
         return self._journals
 
     def get_journal_count(self):
@@ -178,7 +203,7 @@ class JournalCollection:
                     cycle_dir = j.attrib["name"].replace("journal", "cycle")
                     cycle_dir.replace(".xml", "")
                     data_directory = url_join(
-                        self._run_data_root_url,
+                        self._run_data_url,
                         "Instrument",
                         "data",
                         cycle_dir)
@@ -198,18 +223,17 @@ class JournalCollection:
         else:
             raise RuntimeError("Don't know how to get data for source.")
 
-    def get_journal_data(self, requestData: RequestData) -> FlaskResponse:
+    def get_journal_data(self, journal_filename: str) -> str:
         """Retrieve run data contained in a journal file
 
-        :param requestData: RequestData object containing journal details
-        :return: Array of run data information
+        :param journal_filename: Name of the journal to retrieve
+        :return: JSON array of run data information
         """
         # Search the collection for the specified journal file
-        j = self[requestData.journal_filename]
+        j = self[journal_filename]
         if j is None:
-            return make_response(
-                jsonify({"Error": f"Journal {requestData.journal_filename} "
-                                  f"not present in collection."}), 200
+            return json.dumps(
+                {"Error": f"Journal {journal_filename} not in collection."}
             )
 
         # If we already have run data for the journal, check its modtime and
@@ -218,18 +242,18 @@ class JournalCollection:
             if j.is_up_to_date():
                 logging.debug(f"Returning current data for journal "
                               f"{j.filename} as it is up-to-date.")
-                return make_response(j.get_run_data_as_json_array(), 200)
+                return j.get_run_data_as_json_array()
 
         # Not up-to-date, or not present, so get the full file content
         try:
             j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
         except etree.XMLSyntaxError as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
 
-        return make_response(j.get_run_data_as_json_array(), 200)
+        return j.get_run_data_as_json_array()
 
     def get_all_journal_data(self) -> None:
         """Retrieve all run data for all journals listed in the collection
@@ -240,29 +264,24 @@ class JournalCollection:
             logging.debug(f"Obtaining journal {journal.filename}")
             journal.get_run_data()
 
-    def get_updates(self, requestData: RequestData) -> FlaskResponse:
+    def get_updates(self, journal_filename: str) -> str:
         """Check if the journal index files has been modified since the last
         retrieval and return new runs added after the last known.
 
-        :param requestData: RequestData object containing journal details
-        :return: Array of new run data information or None
+        :param journal_filename: Target journal to probe for updates
+        :return: JSON array of new run data information or None
         """
         # Search the collection for the specified journal file
-        j = self[requestData.journal_filename]
+        j = self[journal_filename]
         if j is None:
-            return make_response(
-                jsonify({"Error": f"Journal {requestData.journal_filename} "
-                                  f"not present in collection."}), 200
+            return json.dumps(
+                {"Error": f"Journal {journal_filename} not in collection."}
             )
-
-        # For cached sources, we return immediately
-        if requestData.source_type == SourceType.Generated:
-            return make_response(jsonify(None), 200)
 
         # If we already have this journal file in the collection, check its
         # modification time, returning the current data if up-to-date
         if j.is_up_to_date():
-            return make_response(jsonify(None), 200)
+            return json.dumps(None)
 
         # Changed, so read full data and store the whole thing, storing the
         # current last run number before we set the new data
@@ -271,20 +290,19 @@ class JournalCollection:
             j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
 
         # If our old last run number is None then we had no data so return all
         if old_last_run_number is None:
-            return make_response(j.get_run_data_as_json_array(), 200)
+            return j.get_run_data_as_json_array()
 
         # If the old run numbers are the same, nothing to update
         if old_last_run_number == j.get_last_run_number():
-            return make_response(jsonify(None), 200)
+            return json.dumps(None)
 
         # Return any new runs after the previous last known run number
-        return make_response(
-            Journal.convert_run_data_to_json_array(
-                j.get_run_data_after(old_last_run_number)), 200
+        return Journal.convert_run_data_to_json_array(
+            j.get_run_data_after(old_last_run_number)
         )
 
     # ---------------- File Location
@@ -322,6 +340,7 @@ class JournalCollection:
     def locate_data_file(self, run_number: int) -> str:
         """Return the full path to the data (NeXuS) file for the specified
         run number
+
         :param run_number: Run number to locate the data file for
         :return: Full path to the data file or None if it couldn't be found
         """

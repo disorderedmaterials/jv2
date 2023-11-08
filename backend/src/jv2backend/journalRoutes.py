@@ -5,7 +5,7 @@
 import logging
 from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
-
+from jv2backend.utils import url_join
 from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.journalLibrary import JournalLibrary
 
@@ -30,16 +30,22 @@ def add_routes(
                  journals
         """
         try:
-            postData = RequestData(request.json,
-                                   require_journal_file=True)
+            post_data = RequestData(request.json,
+                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Listing journals for {postData.source_id}: "
-                      f"{postData.journal_file_url()}")
+        logging.debug(f"Listing journals for {post_data.source_id}: "
+                      f"{post_data.journal_file_url()}")
 
         # Parse the journal index
-        return journalLibrary.get_index(postData)
+        return make_response(journalLibrary.get_index(
+            post_data.source_type,
+            post_data.library_key(),
+            url_join(post_data.journal_root_url, post_data.directory),
+            post_data.journal_filename,
+            url_join(post_data.run_data_root_url, post_data.directory)
+        ), 200)
 
     @app.post("/journals/get")
     def get_journal_data() -> FlaskResponse:
@@ -51,17 +57,27 @@ def add_routes(
         :return: A JSON response containing the journal data, or an error
         """
         try:
-            postData = RequestData(request.json,
-                                   require_journal_file=True)
+            post_data = RequestData(request.json,
+                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Get journal {postData.journal_file_url()} "
-                      f"from '{postData.library_key()}'")
+        logging.debug(f"Get journal {post_data.journal_file_url()} "
+                      f"from '{post_data.library_key()}'")
 
         journalLibrary.list()
 
-        return journalLibrary.get_journal_data(postData)
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(
+                jsonify({"Error": f"No library '{post_data.library_key()}' "
+                               f"currently exists."}), 200
+            )
+
+        return make_response(
+            collection.get_journal_data(post_data.journal_filename),
+            200
+        )
 
     @app.post("/journals/getUpdates")
     def get_journal_updates():
@@ -74,15 +90,26 @@ def add_routes(
         :return: A JSON-formatted list of new run data, or None
         """
         try:
-            postData = RequestData(request.json,
-                                   require_journal_file=True)
+            post_data = RequestData(request.json,
+                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Get journal {postData.journal_file_url()} from source "
-                      f"{postData.library_key()}")
+        logging.debug(f"Get journal {post_data.journal_file_url()} updates "
+                      f"from source {post_data.library_key()}")
 
-        return journalLibrary.get_journal_data_updates(postData)
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(jsonify(
+                {"Error": f"No collection '{post_data.library_key()}' "
+                          f"currently exists."}),
+                200
+            )
+
+        return make_response(
+            collection.get_updates(post_data.journal_filename),
+            200
+        )
 
     @app.post("/journals/search")
     def search() -> FlaskResponse:
@@ -97,14 +124,25 @@ def add_routes(
         :return: A JSON-formatted list of run data, or None
         """
         try:
-            postData = RequestData(request.json,
-                                   require_value_map=True)
+            post_data = RequestData(request.json,
+                                    require_value_map=True)
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)})
 
-        logging.debug(f"Search {postData.library_key()} from...")
+        logging.debug(f"Search {post_data.library_key()}...")
 
-        return journalLibrary.search_collection(postData)
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(jsonify(
+                {"Error": f"No collection '{post_data.library_key()}' "
+                          f"currently exists."}),
+                200
+            )
+
+        return make_response(
+            collection.search(post_data.value_map),
+            200
+        )
 
     # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
 
