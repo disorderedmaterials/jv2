@@ -10,7 +10,8 @@ import xml.etree.ElementTree as ElementTree
 
 # Journal Data
 JOURNAL_NAME = "MyName"
-JOURNAL_SOURCE_TYPE = SourceType.File
+JOURNAL_SOURCE_TYPE = SourceType.Network
+JOURNAL_LIBRARY_KEY = "FakeKey"
 JOURNAL_DIRECTORY = "/my/root/location/directory"
 JOURNAL_FILENAME = "file.name.xml"
 JOURNAL_FILE_URL = url_join(JOURNAL_DIRECTORY, JOURNAL_FILENAME)
@@ -21,6 +22,7 @@ JOURNAL_MODTIME = datetime.datetime.now()
 @pytest.fixture
 def _example_journal():
     journal = Journal(JOURNAL_NAME, JOURNAL_SOURCE_TYPE,
+                      JOURNAL_LIBRARY_KEY,
                       JOURNAL_DIRECTORY, JOURNAL_FILENAME,
                       JOURNAL_DATA_ROOT, JOURNAL_MODTIME)
 

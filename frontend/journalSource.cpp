@@ -12,8 +12,8 @@ QString JournalSource::indexingType(JournalSource::IndexingType type)
     {
         case (IndexingType::Network):
             return "Network";
-        case (IndexingType::Cached):
-            return "Cached";
+        case (IndexingType::Generated):
+            return "Generated";
         default:
             throw(std::runtime_error("IndexingType type not known and can't be converted to a QString.\n"));
     }
@@ -24,8 +24,8 @@ JournalSource::IndexingType JournalSource::indexingType(const QString &typeStrin
 {
     if (typeString.toLower() == "network")
         return IndexingType::Network;
-    else if (typeString.toLower() == "cached")
-        return IndexingType::Cached;
+    else if (typeString.toLower() == "generated")
+        return IndexingType::Generated;
     else
         throw(std::runtime_error("IndexingType string can't be converted to a IndexingType.\n"));
 }
@@ -84,7 +84,7 @@ QString JournalSource::journalRootUrl() const { return journalRootUrl_; }
 // Return name of the index file in the main directories, if known
 QString JournalSource::journalIndexFilename() const
 {
-    return type_ == IndexingType::Cached ? "index.xml" : journalIndexFilename_;
+    return type_ == IndexingType::Generated ? "index.xml" : journalIndexFilename_;
 }
 
 // Clear current journals

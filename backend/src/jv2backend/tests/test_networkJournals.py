@@ -59,7 +59,7 @@ def _create_request_dict(updated_keys: {} = {}) -> {}:
 
 @pytest.fixture()
 def app(requests_mock):
-    app = create_app()
+    app = create_app(activate_cache=False)
     logging.basicConfig(level=logging.DEBUG)
     requests_mock.get(
         _fake_index_url(),

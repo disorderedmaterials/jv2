@@ -8,6 +8,7 @@ from typing import Optional
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 from jv2backend.integerRange import IntegerRange
+import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
 from enum import Enum
 import requests
@@ -19,8 +20,7 @@ class SourceType(Enum):
     """Source types"""
     Unknown = 0
     Network = 1
-    Cached = 2
-    File = 3
+    Generated = 2
 
 
 class Journal:
@@ -28,6 +28,7 @@ class Journal:
 
     def __init__(self, display_name: str = None,
                  source_type: SourceType = SourceType.Unknown,
+                 parent_library_key: str = None,
                  journal_directory: str = None,
                  filename: str = None,
                  data_directory: str = None,
@@ -35,13 +36,14 @@ class Journal:
                  run_data: {} = None):
         self._display_name = display_name
         self._source_type = source_type
+        self._parent_library_key = parent_library_key
         self._journal_directory = journal_directory
         self._filename = filename
         self._data_directory = data_directory
         self._last_modified = last_modified
         self._run_number_ranges: typing.List[IntegerRange] = []
 
-        # Set the run data (also intiialises ranges)
+        # Set the run data (also intialises ranges)
         self._run_data = run_data
 
     # ---------------- Basic Journal Information
@@ -87,38 +89,58 @@ class Journal:
 
     # ---------------- File Operations
 
-    def get_modification_time(self) -> datetime.datetime:
-        """Get the modification time of the journal"""
-        if self._source_type == SourceType.Network:
+    def is_up_to_date(self) -> bool:
+        """Get the modification time of the index from its root source and
+        compare this to the stored value, returning whether the current data
+        is up-to-date.
+        """
+        if self._last_modified is None:
+            return False
+        elif self._source_type == SourceType.Network:
+            # Try to retrieve from source
             response = requests.head(self.get_file_url(), timeout=3)
             response.raise_for_status()
-            return lm_to_datetime(response.headers["Last-Modified"])
-        elif self._source_type == SourceType.File:
-            return datetime.datetime.fromtimestamp(
-                os.path.getmtime(self.get_file_url()),
-                datetime.timezone.utc
-            )
-        else:
-            raise RuntimeError(f"Can't handle source type "
-                               f"{str(self._source_type)}.")
+            return lm_to_datetime(
+                response.headers["Last-Modified"]
+            ) == self._last_modified
+        elif self._source_type == SourceType.Generated:
+            return True
 
-    def get_run_data(self) -> (ElementTree.Element, datetime.datetime):
-        """Get the content of the file and parse it with ElementTree"""
-        tree = ElementTree
-        modtime = None
+        return False
+
+    def get_run_data(self) -> None:
+        """Get run data content and parse it with ElementTree"""
+        # Check the cache for the data first
+        if jv2backend.userCache.has_data(self._parent_library_key,
+                                         self.filename):
+            data, mtime = jv2backend.userCache.get_data(
+                self._parent_library_key,
+                self.filename
+            )
+            run_dict = json.loads(data)
+
+            # Need to convert our run number keys from str -> int
+            self.run_data = {int(run_no):run_dict[run_no]
+                             for run_no in run_dict}
+            self._last_modified = mtime
+            return
+
+        # Not present in the user cache, so try to obtain it
         if self._source_type == SourceType.Network:
             response = requests.get(self.get_file_url(), timeout=3)
             response.raise_for_status()
             tree = ElementTree.parse(BytesIO(response.content))
-            modtime = lm_to_datetime(response.headers["Last-Modified"])
-        elif self._source_type == SourceType.File:
-            with open(self.get_file_url(), "rb") as file:
-                tree = ElementTree.parse(BytesIO(file.read()))
+            self.set_run_data_from_element_tree(tree.getroot())
+            self._last_modified = lm_to_datetime(
+                response.headers["Last-Modified"]
+            )
         else:
-            raise RuntimeError(f"Can't handle source type "
+            raise RuntimeError(f"Couldn't get run data for source type "
                                f"{str(self._source_type)}.")
 
-        return tree.getroot(), modtime
+        # Write new data to the cache
+        jv2backend.userCache.put_data(self._parent_library_key, self.filename,
+                                      json.dumps(self._run_data), self.last_modified)
 
     # ---------------- Run Data
 
@@ -238,7 +260,7 @@ class Journal:
         }
 
     @classmethod
-    def convert_run_data_to_json(cls, runs: {}) -> str:
+    def convert_run_data_to_json_array(cls, runs: {}) -> str:
         """Convert the given run data to JSON. The input dict is assumed to
         map run numbers to Dicts of fields/values
         """
@@ -247,5 +269,5 @@ class Journal:
             items.append(runs[key])
         return json.dumps(items)
 
-    def get_run_data_as_json(self) -> str:
-        return self.convert_run_data_to_json(self._run_data)
+    def get_run_data_as_json_array(self) -> str:
+        return self.convert_run_data_to_json_array(self._run_data)

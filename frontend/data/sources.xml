@@ -1,7 +1,7 @@
 <xml>
 	<sources>
-		<source name="Local" journalType="Cached" runDataRootUrl="/home/tris/src/jv2/TestData/Directories" dataOrganisation="Directory"/>
 		<source name="ISIS Archive" journalType="Network" journalRootUrl="http://data.isis.rl.ac.uk/journals" journalIndexFilename="journal_main.xml" instrumentSubdirs="true" runDataRootUrl="/archive"/>
-ŋ		<source name="Local RB" journalType="Cached" instrumentSubdirs="true" runDataRootUrl="/home/ty11203/TestData/RB_Directories" dataOrganisation="RBNumber"/>
+		<source name="Local" journalType="Generated" runDataRootUrl="/home/tris/src/jv2/TestData/Directories" dataOrganisation="Directory"/>
+		<source name="Local RB" journalType="Generated" instrumentSubdirs="true" runDataRootUrl="/home/ty11203/TestData/RB_Directories" dataOrganisation="RBNumber"/>
 	</sources>
 </xml>

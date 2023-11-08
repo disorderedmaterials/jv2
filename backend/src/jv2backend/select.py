@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-import typing
 import datetime
 from jv2backend.integerRange import IntegerRange
 
@@ -14,8 +13,7 @@ def _to_datetime(user_input: str, input_format: str) -> datetime.datetime:
     return datetime.datetime.strptime(user_input, input_format)
 
 # Query handlers
-# A handler should have the form Callable[[pd.DataFrame, str, bool],
-# pd.DataFrame]
+# A handler should have the form Callable[[{}}, str, bool], {}]
 def _query_string_contains(
     data: {}, field: str, value: str, case_sensitive: bool
 ) -> {}:

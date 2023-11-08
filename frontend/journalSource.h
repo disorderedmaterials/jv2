@@ -20,7 +20,7 @@ class JournalSource
     enum class IndexingType
     {
         Network,
-        Cached
+        Generated
     };
     // Return text string for specified IndexingType type
     static QString indexingType(IndexingType type);

@@ -5,16 +5,18 @@ import typing
 import logging
 import os.path
 import h5py
-import xml.etree.ElementTree as ElementTree
 import hashlib
 
 import datetime
+import json
 from flask import make_response
+from flask.wrappers import Response as FlaskResponse
 from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journalCollection import JournalCollection
 from jv2backend.journal import Journal, SourceType
+import jv2backend.userCache
 
 
 class JournalGenerator:
@@ -41,7 +43,7 @@ class JournalGenerator:
             "/raw_data_1/proton_charge": "proton_charge"
         }
 
-    def list_files(self, data_directory: str) -> int:
+    def list_files(self, data_directory: str) -> FlaskResponse:
         """List available NeXuS files in a directory.
 
         :param data_directory: Target data directory to scan
@@ -101,94 +103,87 @@ class JournalGenerator:
 
         return data
 
-    def scan_files(self, requestData: RequestData,
-                   journalLibrary: JournalLibrary):
+    def generate(self, request_data: RequestData,
+                 journalLibrary: JournalLibrary):
         """Generate an index file containing journal information
 
-        :param requestData: RequestData object containing the necessary info
+        :param request_data: RequestData object containing the necessary info
 
         Search all folders in the data file directory and generate a set of
-        journal files and an accompanying index file describing the contents.
+        journal files describing the found data.
         """
-        # Iterate over available data files and get their journal attributes
-        run_data = []
-        for dir in self._discovered_files:
-            logging.debug(f"Probing files in directory {dir}...")
-            for f in self._discovered_files[dir]:
+        # Iterate over available data files and get their attributes
+        all_run_data = []
+        for directory in self._discovered_files:
+            logging.debug(f"Probing files in directory {directory}...")
+            for f in self._discovered_files[directory]:
                 logging.debug(f"... {f}")
                 # Get attributes from the file
-                run_data.append(self.create_journal_entry(dir, f))
+                all_run_data.append(self.create_journal_entry(directory, f))
 
-        # Create organised journals for the run data
-        journals = {}
-        if requestData.parameter == "Directory":
-            sortKey = "data_directory"
-        elif requestData.parameter == "RBNumber":
-            sortKey = "experiment_identifier"
-        logging.debug(f"Sorting key is {sortKey}")
+        # Select the sorting key for the run data
+        if request_data.parameter == "Directory":
+            sort_key = "data_directory"
+        elif request_data.parameter == "RBNumber":
+            sort_key = "experiment_identifier"
+        logging.debug(f"Sorting key is {sort_key}")
 
-        for run in run_data:
+        # Sort run data into sets by sort key, constructing suitable dicts for
+        # direct inclusion in our generated Journal classes
+        data_sets = {}
+        for run in all_run_data:
             # If the sorting key isn't already in the dict, add it now
-            if run[sortKey] not in journals:
-                journals[run[sortKey]] = []
-            journals[run[sortKey]].append(run)
+            if run[sort_key] not in data_sets:
+                data_sets[run[sort_key]] = {}
+
+            run_number = int(run["run_number"])
+            data_sets[run[sort_key]][run_number] = run
 
         # Create index and journal files, and assemble a list of journals
-        index_root = ElementTree.Element("journal")
-        jc = []
-        for j in journals:
-            logging.debug(f"Journal for {j} has {len(journals[j])} runs")
+        journals = []
+        for key in data_sets:
+            logging.debug(f"Data set for {key} has {len(data_sets[key])} runs")
 
             # Create hash and journal filename
-            hash = hashlib.sha256(j.encode('utf-8'))
-            journal_filename = hash.hexdigest() + ".xml"
-            displayName = j.removeprefix(requestData.run_data_url).lstrip("/")
-
-            # Construct the child journal data
-            journal_root = ElementTree.Element("NXroot")
-            journal_root.set("filename", journal_filename)
-            for run in journals[j]:
-                run_entry = ElementTree.SubElement(journal_root, "NXentry")
-                run_entry.set("name", run["filename"].replace(".nxs", ""))
-                for d in run:
-                    data_entry = ElementTree.SubElement(run_entry, d)
-                    data_entry.text = run[d]
-
-            # Add an entry in the index file
-            index_entry = ElementTree.SubElement(index_root, "file")
-            index_entry.set("name", journal_filename)
-            index_entry.set("data_directory", j)
-            index_entry.set("display_name", displayName)
+            journal_filename = hashlib.sha256(key.encode('utf-8')).hexdigest() + ".xml"
+            displayName = key.removeprefix(request_data.run_data_url).lstrip("/")
 
             # Push a new Journal on to the list
-            jf = Journal(
+            journal = Journal(
                 displayName,
-                SourceType.Cached,
-                url_join(requestData.journal_root_url, requestData.directory),
+                SourceType.Generated,
+                request_data.library_key(),
+                url_join(request_data.journal_root_url, request_data.directory),
                 journal_filename,
-                j,
-                datetime.datetime.now()
+                key,
+                datetime.datetime.now(),
+                data_sets[key]
             )
 
-            jf.set_run_data_from_element_tree(journal_root)
+            journals.append(journal)
 
-            jc.append(jf)
+        # Create a library entry
+        journalLibrary[request_data.library_key()] = JournalCollection(
+            SourceType.Generated,
+            request_data.library_key(),
+            url_join(request_data.journal_root_url,
+                     request_data.directory),
+            "index.xml",
+            url_join(request_data.run_data_root_url,
+                     request_data.directory),
+            datetime.datetime.now(),
+            journals
+        )
 
-            # Write the index and journal files for a "Disk" source
-            if requestData.source_type == SourceType.File:
-                # Index file
-                with open(requestData.journal_file_url(), "wb") as f:
-                    ElementTree.ElementTree(index_root).write(f)
-                # Journal files
-                for j in journals:
-                    try:
-                        with open(url_join(requestData.url,
-                                           j["filename"]), "wb") as f:
-                            ElementTree.ElementTree(journal_root).write(f)
-                    except Exception as exc:
-                        return make_response(jsonify({"Error": str(exc)}), 200)
-
-        # Finally, create a library entry
-        journalLibrary[requestData.library_key()] = JournalCollection(jc)
+        # Store in the user cache
+        jv2backend.userCache.put_data(request_data.library_key(),
+                                      request_data.journal_file_url(),
+                                      journalLibrary[request_data.library_key()].to_basic_json(),
+                                      datetime.datetime.now())
+        for journal in journals:
+            jv2backend.userCache.put_data(request_data.library_key(),
+                                          journal.filename,
+                                          json.dumps(journal.run_data),
+                                          datetime.datetime.now())
 
         return make_response(jsonify("SUCCESS"), 200)

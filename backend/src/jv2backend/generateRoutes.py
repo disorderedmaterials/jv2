@@ -39,7 +39,7 @@ def add_routes(
 
         return journalGenerator.list_files(postData.run_data_url)
 
-    @app.post("/generate/scan")
+    @app.post("/generate/go")
     def scan() -> FlaskResponse:
         """Generates journals and accompanying index file for a target dir
 
@@ -63,6 +63,6 @@ def add_routes(
         logging.debug(f"Generate journal {postData.journal_filename} from \
                       {postData.run_data_url}")
 
-        return journalGenerator.scan_files(postData, journalLibrary)
+        return journalGenerator.generate(postData, journalLibrary)
 
     return app
