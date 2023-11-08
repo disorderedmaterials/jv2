@@ -31,11 +31,17 @@ def _example_collection(_fake_server_data_dir):
         runDataTree2 = ElementTree.parse(f2)
         journal2.set_run_data_from_element_tree(runDataTree2)
 
-    return JournalCollection([journal1, journal2])
+    return JournalCollection(SourceType.Generated,
+                             "FakeKey",
+                             "/a/local/disk",
+                             "index.xml",
+                             "/a/local/root/location",
+                             datetime.datetime.now(),
+                             [journal1, journal2])
 
 
 def test_constructor(_example_collection):
-    assert len(_example_collection.journalFiles) == 2
+    assert _example_collection.get_journal_count() == 2
 
 
 @pytest.mark.parametrize("run_number,journal", [(1, "Journal A"), (2, "Journal A"), (4, "Journal B"), (5, "Journal B"), (10, None)])

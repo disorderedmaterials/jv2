@@ -9,12 +9,15 @@ import xml.etree.ElementTree as ElementTree
 import hashlib
 
 import datetime
+import json
 from flask import make_response
+from flask.wrappers import Response as FlaskResponse
 from jv2backend.requestData import RequestData
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journalCollection import JournalCollection
 from jv2backend.journal import Journal, SourceType
+import jv2backend.userCache
 
 
 class JournalGenerator:
@@ -41,7 +44,7 @@ class JournalGenerator:
             "/raw_data_1/proton_charge": "proton_charge"
         }
 
-    def list_files(self, data_directory: str) -> int:
+    def list_files(self, data_directory: str) -> FlaskResponse:
         """List available NeXuS files in a directory.
 
         :param data_directory: Target data directory to scan
@@ -175,21 +178,18 @@ class JournalGenerator:
 
             jc.append(jf)
 
-            # Write the index and journal files for a "Disk" source
-            if requestData.source_type == SourceType.File:
-                # Index file
-                with open(requestData.journal_file_url(), "wb") as f:
-                    ElementTree.ElementTree(index_root).write(f)
-                # Journal files
-                for j in journals:
-                    try:
-                        with open(url_join(requestData.url,
-                                           j["filename"]), "wb") as f:
-                            ElementTree.ElementTree(journal_root).write(f)
-                    except Exception as exc:
-                        return make_response(jsonify({"Error": str(exc)}), 200)
-
-        # Finally, create a library entry
+        # Create a library entry
         journalLibrary[requestData.library_key()] = JournalCollection(jc)
+
+        # Store in the user cache
+        jv2backend.userCache.put_data(requestData.library_key(),
+                                      requestData.journal_file_url(),
+                                      journalLibrary[requestData.library_key()].to_basic_json(),
+                                      datetime.datetime.now())
+        for journal in jc:
+            jv2backend.userCache.put_data(requestData.library_key(),
+                                          journal.filename,
+                                          json.dumps(journal.run_data),
+                                          datetime.datetime.now())
 
         return make_response(jsonify("SUCCESS"), 200)

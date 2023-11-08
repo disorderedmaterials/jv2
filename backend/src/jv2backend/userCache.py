@@ -79,6 +79,13 @@ def has_data(source_id: str, data_name: str) -> bool:
 
     return os.path.exists(_cache_file(source_id, data_name))
 
+def has_mtime(source_id: str, data_name: str) -> bool:
+    """Return whether the specified mtime exists in the user cache."""
+    if not _CACHE_ACTIVATED:
+        return False
+
+    return os.path.exists(_cache_file_mtime(source_id, data_name))
+
 def get_data(source_id: str, data_name: str) -> (bytes, datetime.datetime):
     """Retrieve the data and associated mtime (if available)"""
     data = bytes
@@ -93,16 +100,20 @@ def get_data(source_id: str, data_name: str) -> (bytes, datetime.datetime):
                       f"{_cache_file(source_id, data_name)} for "
                       f"({source_id}, {data_name}): {str(exc)}")
 
-    # Get mtime file
+    # Get mtime
     if os.path.exists(_cache_file_mtime(source_id, data_name)):
-        try:
-            with open(_cache_file_mtime(source_id,
-                                        data_name), "rb") as mtime_file:
-                mtime_data = mtime_file.read()
-                mtime = datetime.datetime.fromisoformat(mtime_data.decode("utf-8"))
-        except Exception as exc:
-            logging.error(f"Couldn't read cached mtime "
-                          f"{_cache_file_mtime(source_id, data_name)} for "
-                          f"({source_id}, {data_name}): {str(exc)}")
+        mtime = get_mtime(source_id, data_name)
 
     return data, mtime
+
+def get_mtime(source_id: str, data_name: str) -> datetime.datetime:
+    """Retrieve the specified mtime"""
+    try:
+        with open(_cache_file_mtime(source_id,
+                                    data_name), "rb") as mtime_file:
+            mtime_data = mtime_file.read()
+            return datetime.datetime.fromisoformat(mtime_data.decode("utf-8"))
+    except Exception as exc:
+        logging.warning(f"Couldn't read cached mtime "
+                        f"{_cache_file_mtime(source_id, data_name)} for "
+                        f"({source_id}, {data_name}): {str(exc)}")

@@ -21,7 +21,6 @@ class SourceType(Enum):
     Unknown = 0
     Network = 1
     Generated = 2
-    File = 3
 
 
 class Journal:
@@ -90,20 +89,24 @@ class Journal:
 
     # ---------------- File Operations
 
-    def get_modification_time(self) -> datetime.datetime:
-        """Get the modification time of the journal"""
-        if self._source_type == SourceType.Network:
+    def is_up_to_date(self) -> bool:
+        """Get the modification time of the index from its root source and
+        compare this to the stored value, returning whether the current data
+        is up-to-date.
+        """
+        if self._last_modified is None:
+            return False
+        elif self._source_type == SourceType.Network:
+            # Try to retrieve from source
             response = requests.head(self.get_file_url(), timeout=3)
             response.raise_for_status()
-            return lm_to_datetime(response.headers["Last-Modified"])
-        elif self._source_type == SourceType.File:
-            return datetime.datetime.fromtimestamp(
-                os.path.getmtime(self.get_file_url()),
-                datetime.timezone.utc
-            )
-        else:
-            raise RuntimeError(f"Can't handle source type "
-                               f"{str(self._source_type)}.")
+            return lm_to_datetime(
+                response.headers["Last-Modified"]
+            ) == self._last_modified
+        elif self._source_type == SourceType.Generated:
+            return True
+
+        return False
 
     def get_run_data(self) -> None:
         """Get run data content and parse it with ElementTree"""
@@ -131,19 +134,11 @@ class Journal:
             self._last_modified = lm_to_datetime(
                 response.headers["Last-Modified"]
             )
-        elif self._source_type == SourceType.File:
-            with open(self.get_file_url(), "rb") as file:
-                tree = ElementTree.parse(BytesIO(file.read()))
-            mtime = os.path.getmtime(self.get_file_url())
-            self.set_run_data_from_element_tree(tree.getroot())
-            self._last_modified = datetime.datetime.fromtimestamp(
-                mtime, datetime.timezone.utc
-            )
         else:
-            raise RuntimeError(f"Can't handle source type "
+            raise RuntimeError(f"Couldn't get run data for source type "
                                f"{str(self._source_type)}.")
 
-        # Write data to the cache
+        # Write new data to the cache
         jv2backend.userCache.put_data(self._parent_library_key, self.filename,
                                       json.dumps(self._run_data), self.last_modified)
 

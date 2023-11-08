@@ -2,12 +2,15 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 from __future__ import annotations
-from dataclasses import dataclass
 import typing
+import datetime
+from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import jv2backend.select as Selector
 from jv2backend.journal import Journal, SourceType
 from jv2backend.requestData import RequestData
+import jv2backend.userCache
+import xml.etree.ElementTree as ElementTree
 from flask import make_response, jsonify
 from flask.wrappers import Response as FlaskResponse
 import logging
@@ -15,26 +18,182 @@ import json
 import requests
 import lxml.etree as etree
 
-@dataclass
 class JournalCollection:
-    """Defines a collection of journal files"""
+    """Defines a collection of journal files relating to a specific instrument,
+    directory etc.
+    """
 
-    # The available journal files within a collection
-    journalFiles: typing.List[Journal]
-
-    def __init__(self, journalFiles: typing.List[Journal]) -> None:
-        self.journalFiles = journalFiles
+    def __init__(self, source_type: SourceType = SourceType.Unknown,
+                 library_key: str = None,
+                 index_root_url: str = None,
+                 index_filename: str = None,
+                 run_data_root_url: str = None,
+                 last_modified: datetime.datetime = None,
+                 journals: [] = None):
+        self._source_type = source_type
+        self._library_key = library_key
+        self._index_root_url = index_root_url
+        self._index_filename = index_filename
+        self._run_data_root_url = run_data_root_url
+        self._last_modified = last_modified
+        self._journals = [] if journals is None else journals
 
     def __getitem__(self, filename: str):
         return next(
-            (j for j in self.journalFiles if j.filename == filename),
+            (j for j in self._journals if j.filename == filename),
             None)
 
     def __contains__(self, key):
         j = self.__getitem__(key)
         return j is not None
 
-    # ---------------- Work Functions
+    def get_index_file_url(self) -> str:
+        """Return the full URL to the journal"""
+        return url_join(self._index_root_url, self._index_filename)
+
+    @property
+    def journals(self):
+        """Return the current journals array"""
+        return self._journals
+
+    def get_journal_count(self):
+        """Return the number of journals in the collection"""
+        return 0 if self._journals is None else len(self._journals)
+
+    # ---------------- Data Handling
+
+    def _update_journals(self, data: {}):
+        """Update journal information from supplied dict"""
+        for j in data:
+            logging.debug(f"Processing index entry {j['filename']}...")
+
+            # If this journal already exists we just move on
+            if j["filename"] in self:
+                logging.debug("Skipping as already exists.")
+                continue
+
+            # Create a new journal entry
+            self._journals.append(Journal(
+                j["display_name"],
+                self._source_type,
+                self._library_key,
+                self._index_root_url,
+                j["filename"],
+                j["data_directory"]
+            ))
+
+    def is_up_to_date(self) -> bool:
+        """Get the modification time of the index from its root source and
+        compare this to the stored value, returning whether the current data
+        is up-to-date.
+        """
+        if self._last_modified is None:
+            return False
+        elif self._source_type == SourceType.Network:
+            # Try to retrieve from source
+            response = requests.head(self.get_index_file_url(), timeout=3)
+            response.raise_for_status()
+            return lm_to_datetime(
+                response.headers["Last-Modified"]
+            ) == self._last_modified
+        elif self._source_type == SourceType.Generated:
+            return True
+
+        return False
+
+    def get_index(self) -> None:
+        """Retrieve index file information
+
+        The index xml file contains a simple list of journal files in the
+        same directory:
+
+        <journal>
+           <file name="journal.xml"/>
+           <file name="journal_YY_N.xml"/>
+           ...
+           <file name="hash1.xml" display_name="My Data"
+                 data_directory="/data"/>           # JV2-generated entry
+        </journal>
+
+        The first entry (journal.xml) is not relevant and should not be
+        returned as a valid result. Other files represent journals
+        corresponding to directory locations or, in the case of the ISIS
+        standard journals, specific years (YY) and cycle integers (N).
+        These journal files are expected to reside in the same directory as
+        the index file.
+
+        -- Display Name --
+
+        The display name of the journal is given in the 'display_name'
+        attribute. If not specified, a display name is generated from the
+        journal filename, assuming that it is ISIS standard.
+
+        -- Run Data Location --
+
+        The location on disk of the associated run data for the journal is
+        given in the 'data_directory' attribute. If not present, it is
+        assumed that the location follows the ISIS Archive format, e.g.:
+
+        /data_directory/NDXINSTRUMENT/Instrument/data/cycle_YY_M
+
+        The 'instrument' in this case is expected to be the `directory`
+        parameter passed in the request_data object.
+        """
+        # Check the cache for the data first
+        if jv2backend.userCache.has_data(self._library_key,
+                                         self._index_filename):
+            data, mtime = jv2backend.userCache.get_data(
+                self._library_key,
+                self._index_filename
+            )
+            self._update_journals(json.loads(data))
+            self._last_modified = mtime
+        elif self._source_type == SourceType.Network:
+            response = requests.get(url_join(self._index_root_url, self._index_filename), timeout=3)
+            response.raise_for_status()
+            index_tree = ElementTree.parse(BytesIO(response.content))
+            index_root = index_tree.getroot()
+            self._last_modified = lm_to_datetime(
+                response.headers["Last-Modified"]
+            )
+
+            # Construct a dict of journals from the XML
+            data = []
+            for j in index_root.iter("file"):
+                # Skip the "journal.xml" or malformed entries
+                if "name" not in j.attrib or j.attrib["name"] == "journal.xml":
+                    continue
+
+                # Determine display name
+                if "display_name" in j.attrib:
+                    display_name = j.attrib["display_name"]
+                else:
+                    display_name = j.attrib["name"].replace("journal", "Cycle")
+                    display_name = display_name.replace(".xml", "").replace("_", " ")
+
+                # Determine data directory
+                if "data_directory" in j.attrib:
+                    data_directory = j.attrib["data_directory"]
+                else:
+                    cycle_dir = j.attrib["name"].replace("journal", "cycle")
+                    cycle_dir.replace(".xml", "")
+                    data_directory = url_join(
+                        self._run_data_root_url,
+                        "Instrument",
+                        "data",
+                        cycle_dir)
+
+                # Push a new journal definition
+                data.append({
+                    "display_name": display_name,
+                    "data_directory": data_directory,
+                    "filename": j.attrib["name"]
+                })
+
+            # Update the current journals with the new data
+            self._update_journals(data)
+        else:
+            raise RuntimeError("No source type set.")
 
     def get_journal_data(self, requestData: RequestData) -> FlaskResponse:
         """Retrieve run data contained in a journal file
@@ -50,15 +209,12 @@ class JournalCollection:
                                   f"not present in collection."}), 200
             )
 
-        # For cached sources we return the found data immediately
-        if requestData.source_type == SourceType.Generated:
-            return make_response(j.get_run_data_as_json_array(), 200)
-
         # If we already have run data for the journal, check its modtime and
         # return the existing data if it is up-to-date
         if j.run_data is not None:
-            current_last_modified = j.get_modification_time()
-            if current_last_modified == j.last_modified:
+            if j.is_up_to_date():
+                logging.debug(f"Returning current data for journal "
+                              f"{j.filename} as it is up-to-date.")
                 return make_response(j.get_run_data_as_json_array(), 200)
 
         # Not up-to-date, or not present, so get the full file content
@@ -74,21 +230,12 @@ class JournalCollection:
 
     def get_all_journal_data(self) -> None:
         """Retrieve all run data for all journals listed in the collection
-
-        :param requestData: RequestData object containing source details
-        :return: None
         """
         # Loop over defined journal files. If run_data is already present we
         # assume it's up-to-date.
-        for journal in [j for j in self.journalFiles if j.run_data is None]:
+        for journal in [j for j in self._journals if j.run_data is None]:
             logging.debug(f"Obtaining journal {journal.filename}")
-            try:
-                journal.get_run_data()
-            except (requests.HTTPError, requests.ConnectionError,
-                    FileNotFoundError) as exc:
-                return make_response(jsonify({"Error": str(exc)}), 200)
-            except etree.XMLSyntaxError as exc:
-                return make_response(jsonify({"Error": str(exc)}), 200)
+            journal.get_run_data()
 
     def get_updates(self, requestData: RequestData) -> FlaskResponse:
         """Check if the journal index files has been modified since the last
@@ -111,8 +258,7 @@ class JournalCollection:
 
         # If we already have this journal file in the collection, check its
         # modification time, returning the current data if up-to-date
-        current_last_modified = j.get_modification_time()
-        if current_last_modified == j.last_modified:
+        if j.is_up_to_date():
             return make_response(jsonify(None), 200)
 
         # Changed, so read full data and store the whole thing, storing the
@@ -138,7 +284,7 @@ class JournalCollection:
                 j.get_run_data_after(old_last_run_number)), 200
         )
 
-    # ---------------- Helpers
+    # ---------------- File Location
 
     def filename_for_run(self, instrument: str, run: str) -> typing.Optional[str]:
         """Find the journal file that contains the given run
@@ -167,7 +313,7 @@ class JournalCollection:
         :return: Journal containing the run number, or None if not found
         """
         return next(
-            (jf for jf in self.journalFiles if run_number in jf),
+            (jf for jf in self._journals if run_number in jf),
             None)
 
     def locate_data_file(self, run_number: int) -> str:
@@ -210,14 +356,7 @@ class JournalCollection:
             result[i] = self.locate_data_file(i)
         return result
 
-    # --- Conversion
-
-    def to_basic_json(self) -> str:
-        """Return basic journal information as formatted JSON"""
-        basic = []
-        for journal in self.journalFiles:
-            basic.append(journal.get_journal_as_dict())
-        return json.dumps(basic)
+    # ---------------- Search
 
     def search(self, search_terms: {}) -> {}:
         """
@@ -236,7 +375,7 @@ class JournalCollection:
         if "caseSensitive" in search_terms:
             del search_terms["caseSensitive"]
 
-        for jf in self.journalFiles:
+        for jf in self._journals:
             logging.debug(f"Journal {jf.filename} .....")
             if not jf.has_run_data:
                 continue
@@ -264,3 +403,12 @@ class JournalCollection:
             results.update(matches)
 
         return results
+
+    # ---------------- Conversion
+
+    def to_basic_json(self) -> str:
+        """Return basic journal information as formatted JSON"""
+        basic = []
+        for journal in self._journals:
+            basic.append(journal.get_journal_as_dict())
+        return json.dumps(basic)
