@@ -192,8 +192,11 @@ class JournalCollection:
 
             # Update the current journals with the new data
             self._update_journals(data)
+        elif self._source_type == SourceType.Generated:
+            # Respond that the index file is not found by raising a FileNotFoundError
+            raise FileNotFoundError
         else:
-            raise RuntimeError("No source type set.")
+            raise RuntimeError("Don't know how to get data for source.")
 
     def get_journal_data(self, requestData: RequestData) -> FlaskResponse:
         """Retrieve run data contained in a journal file
