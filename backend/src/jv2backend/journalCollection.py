@@ -198,18 +198,17 @@ class JournalCollection:
         else:
             raise RuntimeError("Don't know how to get data for source.")
 
-    def get_journal_data(self, requestData: RequestData) -> FlaskResponse:
+    def get_journal_data(self, journal_filename: str) -> str:
         """Retrieve run data contained in a journal file
 
-        :param requestData: RequestData object containing journal details
-        :return: Array of run data information
+        :param journal_filename: Name of the journal to retrieve
+        :return: JSON array of run data information
         """
         # Search the collection for the specified journal file
-        j = self[requestData.journal_filename]
+        j = self[journal_filename]
         if j is None:
-            return make_response(
-                jsonify({"Error": f"Journal {requestData.journal_filename} "
-                                  f"not present in collection."}), 200
+            return json.dumps(
+                {"Error": f"Journal {journal_filename} not in collection."}
             )
 
         # If we already have run data for the journal, check its modtime and
@@ -218,18 +217,18 @@ class JournalCollection:
             if j.is_up_to_date():
                 logging.debug(f"Returning current data for journal "
                               f"{j.filename} as it is up-to-date.")
-                return make_response(j.get_run_data_as_json_array(), 200)
+                return j.get_run_data_as_json_array()
 
         # Not up-to-date, or not present, so get the full file content
         try:
             j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
         except etree.XMLSyntaxError as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return json.dumps({"Error": str(exc)})
 
-        return make_response(j.get_run_data_as_json_array(), 200)
+        return j.get_run_data_as_json_array()
 
     def get_all_journal_data(self) -> None:
         """Retrieve all run data for all journals listed in the collection

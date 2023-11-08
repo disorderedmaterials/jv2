@@ -57,17 +57,27 @@ def add_routes(
         :return: A JSON response containing the journal data, or an error
         """
         try:
-            postData = RequestData(request.json,
-                                   require_journal_file=True)
+            post_data = RequestData(request.json,
+                                    require_journal_file=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Get journal {postData.journal_file_url()} "
-                      f"from '{postData.library_key()}'")
+        logging.debug(f"Get journal {post_data.journal_file_url()} "
+                      f"from '{post_data.library_key()}'")
 
         journalLibrary.list()
 
-        return journalLibrary.get_journal_data(postData)
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(
+                jsonify({"Error": f"No library '{post_data.library_key()}' "
+                               f"currently exists."}), 200
+            )
+
+        return make_response(
+            collection.get_journal_data(post_data.journal_filename),
+            200
+        )
 
     @app.post("/journals/getUpdates")
     def get_journal_updates():

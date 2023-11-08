@@ -123,23 +123,21 @@ def test_parse_isis_journal_file(app, journal_file):
         assert "Error" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
-        journal = library.get_journal_data(run_data_request)
-        journal_response = json.loads(journal.data)
+        collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
+        journal_response = json.loads(collection.get_journal_data(journal_file))
         assert "Error" not in journal_response
         assert len(journal_response) == 3
 
-def test_missing_journal_file(app,):
+def test_missing_journal_file(app):
     library = jv2backend.journalLibrary.JournalLibrary({})
-
-    run_data_request = RequestData(_create_request_dict({"journalFilename": FAKE_JOURNAL_FILE_MISSING}), require_journal_file=True)
 
     with app.app_context():
         index_response = _get_library_index(library)
         assert "Error" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
-        journal = library.get_journal_data(run_data_request)
-        journal_response = json.loads(journal.data)
+        collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
+        journal_response = json.loads(collection.get_journal_data(FAKE_JOURNAL_FILE_MISSING))
         assert "Error" in journal_response
 
 
