@@ -54,7 +54,7 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
     settings.beginGroup("Recent");
     if (!settings.contains("Source"))
         return {};
-    qDebug() << settings.value("Source").toString();
+
     auto optSource = findJournalSource(settings.value("Source").toString());
     if (!optSource)
     {
@@ -79,7 +79,6 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
         // Get the instrument and set the journals source here so we load relevant journals
         auto optInst = findInstrument(settings.value("Instrument").toString());
         source.setCurrentInstrument(optInst);
-        qDebug() << settings.value("Instrument").toString();
 
         // If there was no valid instrument specified we can exit now
         if (!optInst)
