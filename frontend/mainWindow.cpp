@@ -88,6 +88,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     if (source.state() == JournalSource::JournalSourceState::OK)
     {
         ui_.InstrumentComboBox->setEnabled(source.instrumentSubdirectories());
+        ui_.JournalComboBox->setCurrentText(source.currentJournal()->get().name());
         ui_.JournalComboBox->setEnabled(true);
     }
     else
@@ -163,11 +164,22 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
         connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
         timer->start(30000);
 
+        controlsUpdating_ = true;
+
         // Get default journal sources
         getDefaultJournalSources();
 
-        // Get recent journal settings
-        getRecentJournalSettings();
+        // Get recent journal settings - this will set directly the relevant data but not call the backend
+        auto requestedJournal = getRecentJournalSettings();
+
+        controlsUpdating_ = false;
+
+        setCurrentJournalSource(currentJournalSource_);
+        updateForCurrentSource();
+
+        // Retrieve the initial journal data if one was found in the recent settings
+        backend_.getJournalIndex(currentJournalSource(),
+                                 [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
     }
     else
         waitForBackend();

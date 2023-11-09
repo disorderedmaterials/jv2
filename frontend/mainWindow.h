@@ -84,7 +84,7 @@ class MainWindow : public QMainWindow
     // Handle get journal updates result
     void handleGetJournalUpdates(HttpRequestWorker *workers);
     // Handle returned journal information for an instrument
-    void handleListJournals(HttpRequestWorker *worker);
+    void handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad = {});
 
     /*
      * Instruments
@@ -169,7 +169,7 @@ class MainWindow : public QMainWindow
     // Store recent journal settings
     void storeRecentJournalSettings() const;
     // Get recent journal settings
-    void getRecentJournalSettings();
+    std::optional<QString> getRecentJournalSettings();
 
     /*
      * Find in Current Journal

@@ -173,7 +173,7 @@ void MainWindow::on_JournalComboBackToJournalsButton_clicked(bool checked)
  */
 
 // Handle returned journal information for an instrument
-void MainWindow::handleListJournals(HttpRequestWorker *worker)
+void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad)
 {
     controlsUpdating_ = true;
 
@@ -218,6 +218,13 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
 
     // Add returned journals
     journalSource.setJournals(worker->jsonArray);
+
+    // Set a named journal as the current one (optional)
+    if (journalToLoad)
+    {
+        if (journalSource.findJournal(*journalToLoad))
+            journalSource.setCurrentJournal(*journalToLoad);
+    }
 
     journalModel_.setData(journalSource.journals());
 
