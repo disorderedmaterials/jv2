@@ -150,37 +150,42 @@ void MainWindow::waitForBackend()
     pingTimer->setSingleShot(true);
     pingTimer->setInterval(1000);
     connect(pingTimer, &QTimer::timeout,
-            [=]() { backend_.ping([this](HttpRequestWorker *worker) { handleBackendPingResult(worker); }); });
+            [=]()
+            {
+                backend_.ping(
+                    [this](HttpRequestWorker *worker)
+                    {
+                        if (worker->response.contains("READY"))
+                            prepare();
+                        else
+                            waitForBackend();
+                    });
+            });
     pingTimer->start();
 }
 
-// Handle backend ping result
-void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
+// Prepare initial state once the backend is ready
+void MainWindow::prepare()
 {
-    if (worker->response.contains("READY"))
-    {
-        // Connect up an update timer
-        QTimer *timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
-        timer->start(30000);
+    // Connect up an update timer
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
+    timer->start(30000);
 
-        controlsUpdating_ = true;
+    controlsUpdating_ = true;
 
-        // Get default journal sources
-        getDefaultJournalSources();
+    // Get default journal sources
+    getDefaultJournalSources();
 
-        // Get recent journal settings - this will set directly the relevant data but not call the backend
-        auto requestedJournal = getRecentJournalSettings();
+    // Get recent journal settings - this will set directly the relevant data but not call the backend
+    auto requestedJournal = getRecentJournalSettings();
 
-        controlsUpdating_ = false;
+    controlsUpdating_ = false;
 
-        setCurrentJournalSource(currentJournalSource_);
-        updateForCurrentSource();
+    setCurrentJournalSource(currentJournalSource_);
+    updateForCurrentSource();
 
-        // Retrieve the initial journal data if one was found in the recent settings
-        backend_.getJournalIndex(currentJournalSource(),
-                                 [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
-    }
-    else
-        waitForBackend();
+    // Retrieve the initial journal data if one was found in the recent settings
+    backend_.getJournalIndex(currentJournalSource(),
+                             [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
 }

@@ -46,6 +46,8 @@ class MainWindow : public QMainWindow
     void backendStarted(const QString &result);
     // Ping backend to see if it's ready
     void waitForBackend();
+    // Prepare initial state once the backend is ready
+    void prepare();
 
     protected:
     void closeEvent(QCloseEvent *event) override;
@@ -153,8 +155,6 @@ class MainWindow : public QMainWindow
     private:
     // Perform error check on http result
     bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
-    // Handle backend ping result
-    void handleBackendPingResult(HttpRequestWorker *worker);
     // Handle run data returned for a whole journal
     void handleCompleteJournalRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number
