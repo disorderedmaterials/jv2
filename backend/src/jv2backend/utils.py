@@ -20,20 +20,6 @@ def json_response(result: Any) -> FlaskResponse:
         return jsonify(result)
 
 
-def split(input: str, delimiter: str, discard_empty=True) -> Sequence[str]:
-    """Split a string using a delimeter and optionally discard empty parts
-
-    :param input: The input string
-    :param delimiter: Delimeter used for splitting
-    :param discard_empty: If True then empty elements are removed
-    """
-    items = input.split(delimiter)
-    if discard_empty:
-        items = list(filter(None, items))
-
-    return items
-
-
 def _join_slash(a: str, b: str):
     """Join two strings together with a forward slash"""
     if a is None or len(a) is 0:
