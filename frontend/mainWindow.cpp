@@ -8,12 +8,11 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QCommandLineParser &cliParser)
-    : QMainWindow(), backend_(cliParser), runDataFilterProxy_(runDataModel_)
+MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(cliParser), runDataFilterProxy_(runDataModel_)
 {
     ui_.setupUi(this);
 
-    controlsUpdating_ = true;
+    Locker updateLocker(controlsUpdating_);
 
     // Set the window title
     setWindowTitle(QString("JournalViewer 2 (v%1)").arg(JV2VERSION));
@@ -62,8 +61,6 @@ MainWindow::MainWindow(QCommandLineParser &cliParser)
     // Start the backend - this will notify backendStarted when complete, but we still need to wait for the server to come up
     connect(&backend_, SIGNAL(started(const QString &)), this, SLOT(backendStarted(const QString &)));
     backend_.start();
-
-    controlsUpdating_ = false;
 }
 
 /*
@@ -73,7 +70,7 @@ MainWindow::MainWindow(QCommandLineParser &cliParser)
 // Update the UI accordingly for the current source, updating its state if required
 void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState)
 {
-    controlsUpdating_ = true;
+    Locker updateLocker(controlsUpdating_);
 
     // Do we actually have a current source?
     if (!currentJournalSource_)
@@ -115,8 +112,6 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
 
     // Set the main stack page to correspond to the state enum
     ui_.MainStack->setCurrentIndex(source.state());
-
-    controlsUpdating_ = false;
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
@@ -187,12 +182,8 @@ void MainWindow::prepare()
     connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
     timer->start(30000);
 
-    controlsUpdating_ = true;
-
     // Get recent journal settings - this will set directly the relevant data but not call the backend
     auto requestedJournal = getRecentJournalSettings();
-
-    controlsUpdating_ = false;
 
     setCurrentJournalSource(currentJournalSource_);
     updateForCurrentSource();

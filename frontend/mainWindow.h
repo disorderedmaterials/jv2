@@ -11,6 +11,7 @@
 #include "journalSourceModel.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
+#include "lock.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>
@@ -32,7 +33,7 @@ class MainWindow : public QMainWindow
     private:
     Ui::MainWindow ui_;
     // Whether UI controls are currently being updated with new data
-    bool controlsUpdating_{false};
+    Lock controlsUpdating_;
     // Main backend class
     Backend backend_;
 

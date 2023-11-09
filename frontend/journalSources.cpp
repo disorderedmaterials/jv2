@@ -66,7 +66,7 @@ void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource>
     // Reset the state of the source since we can't assume the result of the index request
     currentJournalSource().setState(JournalSource::JournalSourceState::Loading);
 
-    backend_.getJournalIndex(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.getJournalIndex(currentJournalSource(), [&](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
 // Return current journal source
@@ -134,7 +134,7 @@ void MainWindow::on_JournalComboBackToJournalsButton_clicked(bool checked)
 // Handle returned journal information for an instrument
 void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad)
 {
-    controlsUpdating_ = true;
+    Locker updateLocker(controlsUpdating_);
 
     // Clear existing data
     clearRunData();
@@ -145,7 +145,6 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     {
         ui_.NetworkErrorInfoLabel->setText(worker->response);
         updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
-        controlsUpdating_ = false;
         return;
     }
 
@@ -170,7 +169,6 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
         {
             backend_.listDataDirectory(currentJournalSource(),
                                        [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
-            controlsUpdating_ = false;
             return;
         }
     }
@@ -188,8 +186,6 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     journalModel_.setData(journalSource.journals());
 
     updateForCurrentSource();
-
-    controlsUpdating_ = false;
 
     // Now have a new current journal, so retrieve it
     backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });

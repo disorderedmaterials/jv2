@@ -93,7 +93,7 @@ void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
-    backend_.getJournalIndex(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.getJournalIndex(currentJournalSource(), [&](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
 // Return current instrument from active source
