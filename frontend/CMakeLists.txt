@@ -92,7 +92,7 @@ qt6_add_executable(
   seLogChooserDialog.h
   seLogChooserDialog.ui
   # Resources
-  icons.qrc
+  resources.qrc
   # Main
   main.cpp)
 
