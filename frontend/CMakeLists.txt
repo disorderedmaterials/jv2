@@ -73,6 +73,8 @@ qt6_add_executable(
   instrumentModel.h
   journalModel.cpp
   journalModel.h
+  journalSourceModel.cpp
+  journalSourceModel.h
   jsonTableModel.cpp
   jsonTableModel.h
   jsonTableFilterProxy.cpp
