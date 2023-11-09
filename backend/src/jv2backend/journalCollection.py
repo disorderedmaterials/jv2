@@ -58,13 +58,13 @@ class JournalCollection:
         """Return the run data location"""
         return self._run_data_url
 
-    def add_journal(self, display_name: str, source_type: SourceType,
-                    journal_filename: str, data_directory: str,
+    def add_journal(self, display_name: str, journal_filename: str,
+                    data_directory: str,
                     run_data: {} = None) -> Journal:
         """Add a new journal to the list"""
         journal = Journal(
             display_name,
-            source_type,
+            self._source_type,
             self._library_key,
             self._index_root_url,
             journal_filename,
