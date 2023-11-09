@@ -21,12 +21,12 @@ def _example_collection(_fake_server_data_dir):
                                    "FakeKey",
                                    "/a/local/disk",
                                    "index.xml",
-                                   _fake_server_data_dir)
+                                   str(_fake_server_data_dir))
 
     # Construct two example journals and make a collection
     journal1 = collection.add_journal(
         "Journal A", "simpleRunData1.xml",
-        _fake_server_data_dir, datetime.datetime.now()
+        str(_fake_server_data_dir), datetime.datetime.now()
     )
     with open(_fake_server_data_dir / "simpleRunData1.xml", "rb") as f1:
         runDataTree1 = ElementTree.parse(f1)
@@ -34,7 +34,7 @@ def _example_collection(_fake_server_data_dir):
 
     journal2 = collection.add_journal(
         "Journal B", "simpleRunData2.xml",
-        _fake_server_data_dir, datetime.datetime.now()
+        str(_fake_server_data_dir), datetime.datetime.now()
     )
     with open(_fake_server_data_dir / "simpleRunData2.xml", "rb") as f2:
         runDataTree2 = ElementTree.parse(f2)
@@ -90,3 +90,21 @@ def test_search_across_journals_for_title_and_start_date(_example_collection):
 
     assert len(matches) == 1
     assert 3 in matches
+
+
+@pytest.mark.parametrize("journal_and_run", [("Journal A", 1), ("Journal A", 3), ("Journal B", 4)])
+def test_data_file_can_be_found_in_journal(_example_collection, _fake_server_data_dir, journal_and_run):
+    expected_journal, run_number = journal_and_run
+    journal = _example_collection.journal_for_run(run_number)
+    assert journal is not None
+    assert journal.display_name == expected_journal
+
+
+@pytest.mark.parametrize("run_number", [1,2,3,4,5,7])
+def test_data_file_can_be_found_in_collection(_example_collection, _fake_server_data_dir, run_number):
+    assert _example_collection.locate_data_file(run_number) == str(_fake_server_data_dir / f"JVTEST0000000{run_number}.nxs")
+
+
+@pytest.mark.parametrize("run_number", [1001,1002])
+def test_data_file_not_found_in_collection(_example_collection, _fake_server_data_dir, run_number):
+    assert _example_collection.locate_data_file(run_number) is None
