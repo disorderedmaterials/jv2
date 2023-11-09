@@ -2,8 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 """Defines the Flask endpoints that are server-related"""
-from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
+from flask import Flask, jsonify, request
 
 def add_routes(
     app: Flask,
@@ -11,10 +11,13 @@ def add_routes(
     """Add routes to the given Flask application."""
 
     # ---------------- Queries ------------------
-    @app.route("/ping")
+    @app.post("/ping")
     def ping() -> FlaskResponse:
-        """Return that we are ready
+        """Handle a ping from the frontend
         """
-        return jsonify('READY', 200)
+        if "STATUS" in request.json:
+            return jsonify('READY', 200)
+        elif "KEEPALIVE" in request.json:
+            
 
     return app

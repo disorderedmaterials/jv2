@@ -120,8 +120,15 @@ void Backend::stop()
  * Server Endpoints
  */
 
-// Ping backend to see if its alive
-void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createRequest(createRoute("ping"), handler); }
+// Ping backend with a message
+void Backend::ping(const QString &message, HttpRequestWorker::HttpRequestHandler handler)
+{
+
+    QJsonObject data;
+    data["message"] = message;
+
+    postRequest(createRoute("ping"), data, handler);
+}
 
 /*
  * Journal Endpoints

@@ -58,8 +58,8 @@ class Backend : public QObject
      * Server Endpoints
      */
     public:
-    // Ping backend to see if it's alive
-    void ping(HttpRequestWorker::HttpRequestHandler handler = {});
+    // Ping backend with a message
+    void ping(const QString &message, HttpRequestWorker::HttpRequestHandler handler = {});
 
     /*
      * Journal Endpoints
