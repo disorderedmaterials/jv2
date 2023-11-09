@@ -55,6 +55,18 @@ void MainWindow::getDefaultInstruments()
         throw(std::runtime_error("Couldn't parse internal instrument data.\n"));
 }
 
+// Find instrument with supplied name
+OptionalReferenceWrapper<const Instrument> MainWindow::findInstrument(const QString &name) const
+{
+    auto instIt =
+        std::find_if(instruments_.begin(), instruments_.end(), [&name](const auto &inst) { return inst.name() == name; });
+
+    if (instIt == instruments_.end())
+        return {};
+
+    return *instIt;
+}
+
 /*
  * UI
  */

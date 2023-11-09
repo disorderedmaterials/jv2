@@ -100,6 +100,8 @@ class MainWindow : public QMainWindow
     bool parseInstruments(const QDomDocument &source);
     // Get default instrument complement
     void getDefaultInstruments();
+    // Find instrument with supplied name
+    OptionalReferenceWrapper<const Instrument> findInstrument(const QString &name) const;
 
     private slots:
     void on_InstrumentComboBox_currentIndexChanged(int index);
