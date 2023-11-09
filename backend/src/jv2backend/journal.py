@@ -12,7 +12,6 @@ import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
 from enum import Enum
 import requests
-import os.path
 import json
 
 
