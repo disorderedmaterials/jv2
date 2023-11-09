@@ -22,8 +22,7 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     getDefaultInstruments();
     instrumentModel_.setData(instruments_);
 
-    // Define initial variable states
-    init_ = true;
+    // Define initial variable state
     searchString_ = "";
     groupedRunDataColumns_.emplace_back("Run Numbers", "run_number");
     groupedRunDataColumns_.emplace_back("Title", "title");
