@@ -215,7 +215,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
                     .arg(journalSource.name())) == QMessageBox::StandardButton::Yes)
         {
             backend_.listDataDirectory(currentJournalSource(),
-                                       [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
+                                       [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
             controlsUpdating_ = false;
             return;
         }

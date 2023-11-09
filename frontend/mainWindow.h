@@ -141,9 +141,9 @@ class MainWindow : public QMainWindow
      */
     private:
     // Handle returned directory list result
-    void handleListDataDirectory(const JournalSource &source, HttpRequestWorker *worker);
+    void handleListDataDirectory(JournalSource &source, HttpRequestWorker *worker);
     // Handle returned journal generation result
-    void handleScanResult(const JournalSource &source, HttpRequestWorker *worker);
+    void handleScanResult(JournalSource &source, HttpRequestWorker *worker);
 
     /*
      * Network Handling

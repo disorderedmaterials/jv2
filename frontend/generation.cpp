@@ -5,7 +5,7 @@
 #include <QMessageBox>
 
 // Handle returned directory list result
-void MainWindow::handleListDataDirectory(const JournalSource &source, HttpRequestWorker *worker)
+void MainWindow::handleListDataDirectory(JournalSource &source, HttpRequestWorker *worker)
 {
     // Check network reply
     if (networkRequestHasError(worker, "trying to list data directory"))
@@ -32,11 +32,11 @@ void MainWindow::handleListDataDirectory(const JournalSource &source, HttpReques
     updateForCurrentSource(JournalSource::JournalSourceState::JournalGenerationInProgress);
 
     // Begin the journal generation
-    backend_.generateJournals(source, [=](HttpRequestWorker *scanWorker) { handleScanResult(source, scanWorker); });
+    backend_.generateJournals(source, [&](HttpRequestWorker *scanWorker) { handleScanResult(source, scanWorker); });
 }
 
 // Handle returned journal generation result
-void MainWindow::handleScanResult(const JournalSource &source, HttpRequestWorker *worker)
+void MainWindow::handleScanResult(JournalSource &source, HttpRequestWorker *worker)
 {
     // Check network reply
     if (networkRequestHasError(worker, "trying to generate journals for directory"))
