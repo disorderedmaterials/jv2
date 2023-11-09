@@ -18,6 +18,7 @@
 #include <QDomDocument>
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 class MainWindow : public QMainWindow
 {
@@ -36,6 +37,8 @@ class MainWindow : public QMainWindow
     Lock controlsUpdating_;
     // Main backend class
     Backend backend_;
+    // Journal auto update timer
+    QTimer journalAutoUpdateTimer_;
 
     private:
     // Update the UI accordingly for the current source, updating its state if required
