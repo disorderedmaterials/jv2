@@ -68,6 +68,8 @@ class MainWindow : public QMainWindow
     void getDefaultJournalSources();
     // Set current journal source
     void setCurrentJournalSource(std::optional<QString> optName);
+    // Find the specified journal source
+    OptionalReferenceWrapper<JournalSource> findJournalSource(const QString &name);
     // Return current journal source
     JournalSource &currentJournalSource() const;
     // Return selected journal in current source (assuming one is selected)

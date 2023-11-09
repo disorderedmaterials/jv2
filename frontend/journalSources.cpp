@@ -69,6 +69,17 @@ void MainWindow::getDefaultJournalSources()
         throw(std::runtime_error("Couldn't parse internal journal sources.\n"));
 }
 
+// Find the specified journal source
+OptionalReferenceWrapper<JournalSource> MainWindow::findJournalSource(const QString &name)
+{
+    auto sourceIt = std::find_if(journalSources_.begin(), journalSources_.end(),
+                                 [name](const auto &source) { return source.name() == name; });
+    if (sourceIt != journalSources_.end())
+        return *sourceIt;
+
+    return {};
+}
+
 /*
  * UI
  */
@@ -95,22 +106,18 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
 
     // Find the source specified
     auto name = *optName;
-    auto sourceIt = std::find_if(journalSources_.begin(), journalSources_.end(),
-                                 [name](const auto &source) { return source.name() == name; });
-    if (sourceIt == journalSources_.end())
+    currentJournalSource_ = findJournalSource(name);
+    if (!currentJournalSource_)
         throw(std::runtime_error("Selected journal source does not exist!\n"));
 
-    auto &source = *sourceIt;
-    currentJournalSource_ = source;
-
     // Make sure we have a default instrument set if one is required
-    if (source.instrumentSubdirectories() && !source.currentInstrument())
-        source.setCurrentInstrument(instruments_.front());
+    if (currentJournalSource().instrumentSubdirectories() && !currentJournalSource().currentInstrument())
+        currentJournalSource().setCurrentInstrument(instruments_.front());
 
     // Reset the state of the source since we can't assume the result of the index request
-    source.setState(JournalSource::JournalSourceState::Loading);
+    currentJournalSource().setState(JournalSource::JournalSourceState::Loading);
 
-    backend_.getJournalIndex(source, [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.getJournalIndex(currentJournalSource(), [=](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
 // Return current journal source
