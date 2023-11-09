@@ -80,12 +80,8 @@ OptionalReferenceWrapper<JournalSource> MainWindow::findJournalSource(const QStr
     return {};
 }
 
-/*
- * UI
- */
-
 // Set current journal source
-void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
+void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource)
 {
     if (controlsUpdating_)
         return;
@@ -94,21 +90,15 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     clearRunData();
     journalModel_.setData(std::nullopt);
 
-    // If no source is specified, we're done
-    if (!optName)
-    {
-        currentJournalSource_ = std::nullopt;
+    currentJournalSource_ = optSource;
 
+    // If no source was specified, we're done
+    if (!currentJournalSource_)
+    {
         updateForCurrentSource();
 
         return;
     }
-
-    // Find the source specified
-    auto name = *optName;
-    currentJournalSource_ = findJournalSource(name);
-    if (!currentJournalSource_)
-        throw(std::runtime_error("Selected journal source does not exist!\n"));
 
     // Make sure we have a default instrument set if one is required
     if (currentJournalSource().instrumentSubdirectories() && !currentJournalSource().currentInstrument())
@@ -147,7 +137,12 @@ void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
     if (index == -1)
         setCurrentJournalSource({});
     else
-        setCurrentJournalSource(ui_.JournalSourceComboBox->currentText());
+    {
+        auto optSource = findJournalSource(ui_.JournalSourceComboBox->currentText());
+        if (!optSource)
+            throw(std::runtime_error("Selected journal source does not exist!\n"));
+        setCurrentJournalSource(optSource);
+    }
 }
 
 void MainWindow::on_JournalComboBox_currentIndexChanged(int index)

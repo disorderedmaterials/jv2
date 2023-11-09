@@ -50,5 +50,5 @@ void MainWindow::handleScanResult(JournalSource &source, HttpRequestWorker *work
     }
 
     // Generation was a success, so try to load in the file we just generated
-    setCurrentJournalSource(source.name());
+    setCurrentJournalSource(source);
 }
