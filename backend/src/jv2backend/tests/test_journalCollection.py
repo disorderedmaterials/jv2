@@ -16,7 +16,6 @@ def _fake_server_data_dir() -> Path:
 
 @pytest.fixture
 def _example_collection(_fake_server_data_dir):
-    logging.basicConfig(level=logging.DEBUG)
     collection = JournalCollection(SourceType.Generated,
                                    "FakeKey",
                                    "/a/local/disk",
