@@ -54,7 +54,7 @@ class JournalSource
     };
 
     public:
-    JournalSource(QString name, IndexingType type);
+    JournalSource(QString name, IndexingType type, bool userDefined = false);
 
     /*
      * Basic Data
@@ -64,12 +64,16 @@ class JournalSource
     QString name_;
     // Type
     IndexingType type_;
+    // Whether the source is user-defined
+    bool userDefined_{false};
 
     public:
     // Return name (used for display)
     const QString &name() const;
     // Return type
     IndexingType type() const;
+    // Return whether the source is user-defined
+    bool isUserDefined() const;
 
     /*
      * Journal Data

@@ -8,14 +8,17 @@
 #include "instrumentModel.h"
 #include "journalModel.h"
 #include "journalSource.h"
+#include "journalSourceModel.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
+#include "lock.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>
 #include <QDomDocument>
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 class MainWindow : public QMainWindow
 {
@@ -30,11 +33,12 @@ class MainWindow : public QMainWindow
      */
     private:
     Ui::MainWindow ui_;
-    bool init_;
     // Whether UI controls are currently being updated with new data
-    bool controlsUpdating_{false};
+    Lock controlsUpdating_;
     // Main backend class
     Backend backend_;
+    // Journal auto update timer
+    QTimer journalAutoUpdateTimer_;
 
     private:
     // Update the UI accordingly for the current source, updating its state if required
@@ -46,9 +50,11 @@ class MainWindow : public QMainWindow
     void backendStarted(const QString &result);
     // Ping backend to see if it's ready
     void waitForBackend();
+    // Prepare initial state once the backend is ready
+    void prepare();
 
     protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 
     /*
      * Journal Sources
@@ -58,16 +64,18 @@ class MainWindow : public QMainWindow
     std::vector<JournalSource> journalSources_;
     // Currently selected journal source (if any)
     OptionalReferenceWrapper<JournalSource> currentJournalSource_;
+    // Model for available journal sources
+    JournalSourceModel journalSourceModel_;
     // Model for available journals
     JournalModel journalModel_;
 
     private:
-    // Parse journal source from specified source
-    bool parseJournalSources(const QDomDocument &source);
-    // Get default journal sources
-    void getDefaultJournalSources();
+    // Set up standard journal sources
+    void setUpStandardJournalSources();
     // Set current journal source
-    void setCurrentJournalSource(std::optional<QString> optName);
+    void setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource);
+    // Find the specified journal source
+    OptionalReferenceWrapper<JournalSource> findJournalSource(const QString &name);
     // Return current journal source
     JournalSource &currentJournalSource() const;
     // Return selected journal in current source (assuming one is selected)
@@ -82,7 +90,7 @@ class MainWindow : public QMainWindow
     // Handle get journal updates result
     void handleGetJournalUpdates(HttpRequestWorker *workers);
     // Handle returned journal information for an instrument
-    void handleListJournals(HttpRequestWorker *worker);
+    void handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad = {});
 
     /*
      * Instruments
@@ -98,6 +106,8 @@ class MainWindow : public QMainWindow
     bool parseInstruments(const QDomDocument &source);
     // Get default instrument complement
     void getDefaultInstruments();
+    // Find instrument with supplied name
+    OptionalReferenceWrapper<const Instrument> findInstrument(const QString &name) const;
 
     private slots:
     void on_InstrumentComboBox_currentIndexChanged(int index);
@@ -139,9 +149,9 @@ class MainWindow : public QMainWindow
      */
     private:
     // Handle returned directory list result
-    void handleListDataDirectory(const JournalSource &source, HttpRequestWorker *worker);
+    void handleListDataDirectory(JournalSource &source, HttpRequestWorker *worker);
     // Handle returned journal generation result
-    void handleScanResult(const JournalSource &source, HttpRequestWorker *worker);
+    void handleScanResult(JournalSource &source, HttpRequestWorker *worker);
 
     /*
      * Network Handling
@@ -149,8 +159,6 @@ class MainWindow : public QMainWindow
     private:
     // Perform error check on http result
     bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
-    // Handle backend ping result
-    void handleBackendPingResult(HttpRequestWorker *worker);
     // Handle run data returned for a whole journal
     void handleCompleteJournalRunData(HttpRequestWorker *worker);
     // Handle jump to specified run number
@@ -162,8 +170,14 @@ class MainWindow : public QMainWindow
     private:
     // Save custom column settings
     void saveCustomColumnSettings() const;
-    // Retrieve user settings
-    void loadSettings();
+    // Store recent journal settings
+    void storeRecentJournalSettings() const;
+    // Get recent journal settings
+    std::optional<QString> getRecentJournalSettings();
+    // Store user-defined journal sources
+    void storeUserJournalSources() const;
+    // Get user-defined journal sources
+    void getUserJournalSources();
 
     /*
      * Find in Current Journal

@@ -3,78 +3,44 @@
 
 #include "mainWindow.h"
 #include <QDomDocument>
-#include <QFile>
 #include <QMessageBox>
+#include <QSettings>
 
 /*
  * Private Functions
  */
 
-// Parse journal sources from specified source
-bool MainWindow::parseJournalSources(const QDomDocument &source)
+// Set up standard journal sources
+void MainWindow::setUpStandardJournalSources()
 {
-    // Clear old sources
-    journalSources_.clear();
-    ui_.JournalSourceComboBox->clear();
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 
-    auto docRoot = source.documentElement();
-    auto sourceNodes = docRoot.elementsByTagName("source");
+    // The main ISIS Archive
+    auto &isisArchive = journalSources_.emplace_back("ISIS Archive", JournalSource::IndexingType::Network);
+    isisArchive.setInstrumentSubdirectories(true);
+    isisArchive.setJournalData("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
+    isisArchive.setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString(),
+                                   JournalSource::DataOrganisationType::Directory);
 
-    // Loop over sources
-    for (auto i = 0; i < sourceNodes.count(); ++i)
-    {
-        auto sourceElement = sourceNodes.item(i).toElement();
-
-        // Get source name
-        auto sourceName = sourceElement.attribute("name");
-
-        // Get source type
-        auto sourceType = JournalSource::indexingType(sourceElement.attribute("journalType", "Generated"));
-
-        // Create the source
-        auto &journalSource = journalSources_.emplace_back(sourceName, sourceType);
-
-        // Set whether the journals / data are organised by known instrument
-        journalSource.setInstrumentSubdirectories(sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true");
-
-        // Set journal data
-        journalSource.setJournalData(sourceElement.attribute("journalRootUrl"),
-                                     sourceElement.attribute("journalIndexFilename"));
-
-        // Run data
-        journalSource.setRunDataLocation(
-            sourceElement.attribute("runDataRootUrl"),
-            JournalSource::dataOrganisationType(sourceElement.attribute("dataOrganisation", "Directory")));
-    }
-
-    // Populate the combo box with options
-    for (const auto &source : journalSources_)
-        ui_.JournalSourceComboBox->addItem(source.name());
-
-    return true;
+    // IDAaaS RB Directories
+    auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
+    idaaasRB.setInstrumentSubdirectories(true);
+    idaaasRB.setRunDataLocation("/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
 }
 
-// Get default journal sources complement
-void MainWindow::getDefaultJournalSources()
+// Find the specified journal source
+OptionalReferenceWrapper<JournalSource> MainWindow::findJournalSource(const QString &name)
 {
-    QFile file(":/data/sources.xml");
-    if (!file.exists())
-        throw(std::runtime_error("Internal journal sources not found.\n"));
+    auto sourceIt = std::find_if(journalSources_.begin(), journalSources_.end(),
+                                 [name](const auto &source) { return source.name() == name; });
+    if (sourceIt != journalSources_.end())
+        return *sourceIt;
 
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
-    if (!parseJournalSources(dom))
-        throw(std::runtime_error("Couldn't parse internal journal sources.\n"));
+    return {};
 }
-
-/*
- * UI
- */
 
 // Set current journal source
-void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
+void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource)
 {
     if (controlsUpdating_)
         return;
@@ -83,34 +49,24 @@ void MainWindow::setCurrentJournalSource(std::optional<QString> optName)
     clearRunData();
     journalModel_.setData(std::nullopt);
 
-    // If no source is specified, we're done
-    if (!optName)
-    {
-        currentJournalSource_ = std::nullopt;
+    currentJournalSource_ = optSource;
 
+    // If no source was specified, we're done
+    if (!currentJournalSource_)
+    {
         updateForCurrentSource();
 
         return;
     }
 
-    // Find the source specified
-    auto name = *optName;
-    auto sourceIt = std::find_if(journalSources_.begin(), journalSources_.end(),
-                                 [name](const auto &source) { return source.name() == name; });
-    if (sourceIt == journalSources_.end())
-        throw(std::runtime_error("Selected journal source does not exist!\n"));
-
-    auto &source = *sourceIt;
-    currentJournalSource_ = source;
-
     // Make sure we have a default instrument set if one is required
-    if (source.instrumentSubdirectories() && !source.currentInstrument())
-        source.setCurrentInstrument(instruments_.front());
+    if (currentJournalSource().instrumentSubdirectories() && !currentJournalSource().currentInstrument())
+        currentJournalSource().setCurrentInstrument(instruments_.front());
 
     // Reset the state of the source since we can't assume the result of the index request
-    source.setState(JournalSource::JournalSourceState::Loading);
+    currentJournalSource().setState(JournalSource::JournalSourceState::Loading);
 
-    backend_.getJournalIndex(source, [=](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.getJournalIndex(currentJournalSource(), [&](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
 
 // Return current journal source
@@ -140,7 +96,12 @@ void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
     if (index == -1)
         setCurrentJournalSource({});
     else
-        setCurrentJournalSource(ui_.JournalSourceComboBox->currentText());
+    {
+        auto optSource = findJournalSource(ui_.JournalSourceComboBox->currentText());
+        if (!optSource)
+            throw(std::runtime_error("Selected journal source does not exist!\n"));
+        setCurrentJournalSource(optSource);
+    }
 }
 
 void MainWindow::on_JournalComboBox_currentIndexChanged(int index)
@@ -171,9 +132,9 @@ void MainWindow::on_JournalComboBackToJournalsButton_clicked(bool checked)
  */
 
 // Handle returned journal information for an instrument
-void MainWindow::handleListJournals(HttpRequestWorker *worker)
+void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad)
 {
-    controlsUpdating_ = true;
+    Locker updateLocker(controlsUpdating_);
 
     // Clear existing data
     clearRunData();
@@ -184,7 +145,6 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     {
         ui_.NetworkErrorInfoLabel->setText(worker->response);
         updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
-        controlsUpdating_ = false;
         return;
     }
 
@@ -208,8 +168,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
                     .arg(journalSource.name())) == QMessageBox::StandardButton::Yes)
         {
             backend_.listDataDirectory(currentJournalSource(),
-                                       [=](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
-            controlsUpdating_ = false;
+                                       [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
             return;
         }
     }
@@ -217,11 +176,16 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker)
     // Add returned journals
     journalSource.setJournals(worker->jsonArray);
 
+    // Set a named journal as the current one (optional)
+    if (journalToLoad)
+    {
+        if (journalSource.findJournal(*journalToLoad))
+            journalSource.setCurrentJournal(*journalToLoad);
+    }
+
     journalModel_.setData(journalSource.journals());
 
     updateForCurrentSource();
-
-    controlsUpdating_ = false;
 
     // Now have a new current journal, so retrieve it
     backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });

@@ -44,6 +44,8 @@ qt6_add_executable(
   instrument.h
   journal.cpp
   journal.h
+  lock.cpp
+  lock.h
   optionalRef.h
   # Backend
   backend.cpp
@@ -73,6 +75,8 @@ qt6_add_executable(
   instrumentModel.h
   journalModel.cpp
   journalModel.h
+  journalSourceModel.cpp
+  journalSourceModel.h
   jsonTableModel.cpp
   jsonTableModel.h
   jsonTableFilterProxy.cpp
@@ -90,7 +94,7 @@ qt6_add_executable(
   seLogChooserDialog.h
   seLogChooserDialog.ui
   # Resources
-  icons.qrc
+  resources.qrc
   # Main
   main.cpp)
 

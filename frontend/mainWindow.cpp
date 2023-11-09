@@ -12,8 +12,14 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
 {
     ui_.setupUi(this);
 
+    Locker updateLocker(controlsUpdating_);
+
     // Set the window title
     setWindowTitle(QString("JournalViewer 2 (v%1)").arg(JV2VERSION));
+
+    // Set up standard journal sources
+    setUpStandardJournalSources();
+    journalSourceModel_.setData(journalSources_);
 
     // Get default instrument run data columns
     Instrument::getDefaultColumns();
@@ -22,14 +28,14 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     getDefaultInstruments();
     instrumentModel_.setData(instruments_);
 
-    // Define initial variable states
-    init_ = true;
+    // Define initial variable state
     searchString_ = "";
     groupedRunDataColumns_.emplace_back("Run Numbers", "run_number");
     groupedRunDataColumns_.emplace_back("Title", "title");
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
     // Connect models
+    ui_.JournalSourceComboBox->setModel(&journalSourceModel_);
     ui_.InstrumentComboBox->setModel(&instrumentModel_);
     ui_.JournalComboBox->setModel(&journalModel_);
 
@@ -49,11 +55,13 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     ui_.MainTabs->tabBar()->setTabButton(0, QTabBar::RightSide, 0);
     connect(ui_.MainTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
 
+    // Set up and connect the journal update timer and make sure it is currently stopped
+    journalAutoUpdateTimer_.setInterval(30000);
+    journalAutoUpdateTimer_.stop();
+    connect(&journalAutoUpdateTimer_, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
+
     // Connect exit action
     connect(ui_.actionQuit, SIGNAL(triggered()), this, SLOT(close()));
-
-    // Get user settings
-    loadSettings();
 
     // Start the backend - this will notify backendStarted when complete, but we still need to wait for the server to come up
     connect(&backend_, SIGNAL(started(const QString &)), this, SLOT(backendStarted(const QString &)));
@@ -67,6 +75,8 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
 // Update the UI accordingly for the current source, updating its state if required
 void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState)
 {
+    Locker updateLocker(controlsUpdating_);
+
     // Do we actually have a current source?
     if (!currentJournalSource_)
     {
@@ -81,6 +91,8 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     if (newState)
         source.setState(*newState);
 
+    ui_.JournalSourceComboBox->setCurrentText(source.name());
+
     // Set the current instrument
     if (source.instrumentSubdirectories() && source.currentInstrument())
         ui_.InstrumentComboBox->setCurrentText(source.currentInstrument()->get().name());
@@ -91,6 +103,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     if (source.state() == JournalSource::JournalSourceState::OK)
     {
         ui_.InstrumentComboBox->setEnabled(source.instrumentSubdirectories());
+        ui_.JournalComboBox->setCurrentText(source.currentJournal()->get().name());
         ui_.JournalComboBox->setEnabled(true);
     }
     else
@@ -104,6 +117,13 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
 
     // Set the main stack page to correspond to the state enum
     ui_.MainStack->setCurrentIndex(source.state());
+
+    // If the source state is viewing normal run data and it is a Network source, enable the auto-update timer
+    if (source.state() == JournalSource::JournalSourceState::OK && !source.showingSearchedData() &&
+        source.type() == JournalSource::IndexingType::Network)
+        journalAutoUpdateTimer_.start();
+    else
+        journalAutoUpdateTimer_.stop();
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
@@ -114,14 +134,8 @@ void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // Update history on close
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (currentJournalSource_)
-    {
-        settings.setValue("recentSource", currentJournalSource().name());
-        settings.setValue("recentInstrument", currentInstrument()->get().name());
-        settings.setValue("recentJournal", currentInstrument()->get().name());
-    }
+    // Update recent journal settings
+    storeRecentJournalSettings();
 
     // Shut down backend
     backend_.stop();
@@ -158,23 +172,30 @@ void MainWindow::waitForBackend()
     pingTimer->setSingleShot(true);
     pingTimer->setInterval(1000);
     connect(pingTimer, &QTimer::timeout,
-            [=]() { backend_.ping([this](HttpRequestWorker *worker) { handleBackendPingResult(worker); }); });
+            [=]()
+            {
+                backend_.ping(
+                    [this](HttpRequestWorker *worker)
+                    {
+                        if (worker->response.contains("READY"))
+                            prepare();
+                        else
+                            waitForBackend();
+                    });
+            });
     pingTimer->start();
 }
 
-// Handle backend ping result
-void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
+// Prepare initial state once the backend is ready
+void MainWindow::prepare()
 {
-    if (worker->response.contains("READY"))
-    {
-        // Connect up an update timer
-        QTimer *timer = new QTimer(this);
-        connect(timer, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
-        timer->start(30000);
+    // Get recent journal settings - this will set directly the relevant data but not call the backend
+    auto requestedJournal = getRecentJournalSettings();
 
-        // Get default journal sources
-        getDefaultJournalSources();
-    }
-    else
-        waitForBackend();
+    setCurrentJournalSource(currentJournalSource_);
+    updateForCurrentSource();
+
+    // Retrieve the initial journal data if one was found in the recent settings
+    backend_.getJournalIndex(currentJournalSource(),
+                             [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
 }
