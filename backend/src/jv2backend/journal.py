@@ -149,12 +149,15 @@ class Journal:
         children = list(run)
         run_number_element = run.find("run_number" if namespace_prefix is None
                                       else namespace_prefix + "run_number")
+
         if run_number_element is None:
             raise RuntimeError("A run_number entry is missing in the data.")
         run_number = int(run_number_element.text)
 
         # Convert our XML tree to a dict for storage
         self._run_data[run_number] = {}
+        if "name" in run.attrib:
+            self._run_data[run_number]["name"] = run.attrib["name"]
         for child in children:
             tag = (child.tag if namespace_prefix is None
                    else child.tag.removeprefix(namespace_prefix))
