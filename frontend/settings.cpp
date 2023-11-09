@@ -92,3 +92,37 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
 
     return {};
 }
+
+// Store user-defined journal sources
+void MainWindow::storeUserJournalSources() const
+{
+    // Loop over sources
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    settings.beginWriteArray("UserSources");
+    auto index = 0;
+    for (auto &source : journalSources_)
+    {
+        if (!source.isUserDefined())
+            continue;
+
+        settings.setArrayIndex(++index);
+
+        // Basic information
+        settings.setValue("Name", source.name());
+        settings.setValue("Type", JournalSource::indexingType(source.type()));
+
+        // Journal Data
+        settings.setValue("JournalRootUrl", source.journalRootUrl());
+        settings.setValue("JournalIndexFilename", source.journalIndexFilename());
+
+        // Instruments?
+        settings.setValue("InstrumentSubDirs", source.instrumentSubdirectories());
+
+        // Run Data
+        settings.setValue("RunDataRootUrl", source.runDataRootUrl());
+        settings.setValue("RunDataOrganisation", JournalSource::dataOrganisationType(source.runDataOrganisation()));
+    }
+}
+
+// Get user-defined journal sources
+void MainWindow::getUserJournalSources() {}

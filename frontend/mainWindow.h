@@ -8,6 +8,7 @@
 #include "instrumentModel.h"
 #include "journalModel.h"
 #include "journalSource.h"
+#include "journalSourceModel.h"
 #include "jsonTableFilterProxy.h"
 #include "jsonTableModel.h"
 #include "ui_mainWindow.h"
@@ -59,14 +60,14 @@ class MainWindow : public QMainWindow
     std::vector<JournalSource> journalSources_;
     // Currently selected journal source (if any)
     OptionalReferenceWrapper<JournalSource> currentJournalSource_;
+    // Model for available journal sources
+    JournalSourceModel journalSourceModel_;
     // Model for available journals
     JournalModel journalModel_;
 
     private:
-    // Parse journal source from specified source
-    bool parseJournalSources(const QDomDocument &source);
-    // Get default journal sources
-    void getDefaultJournalSources();
+    // Set up standard journal sources
+    void setUpStandardJournalSources();
     // Set current journal source
     void setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource);
     // Find the specified journal source
@@ -169,6 +170,10 @@ class MainWindow : public QMainWindow
     void storeRecentJournalSettings() const;
     // Get recent journal settings
     std::optional<QString> getRecentJournalSettings();
+    // Store user-defined journal sources
+    void storeUserJournalSources() const;
+    // Get user-defined journal sources
+    void getUserJournalSources();
 
     /*
      * Find in Current Journal

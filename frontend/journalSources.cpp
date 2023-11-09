@@ -3,70 +3,29 @@
 
 #include "mainWindow.h"
 #include <QDomDocument>
-#include <QFile>
 #include <QMessageBox>
+#include <QSettings>
 
 /*
  * Private Functions
  */
 
-// Parse journal sources from specified source
-bool MainWindow::parseJournalSources(const QDomDocument &source)
+// Set up standard journal sources
+void MainWindow::setUpStandardJournalSources()
 {
-    // Clear old sources
-    journalSources_.clear();
-    ui_.JournalSourceComboBox->clear();
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 
-    auto docRoot = source.documentElement();
-    auto sourceNodes = docRoot.elementsByTagName("source");
+    // The main ISIS Archive
+    auto &isisArchive = journalSources_.emplace_back("ISIS Archive", JournalSource::IndexingType::Network);
+    isisArchive.setInstrumentSubdirectories(true);
+    isisArchive.setJournalData("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
+    isisArchive.setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString(),
+                                   JournalSource::DataOrganisationType::Directory);
 
-    // Loop over sources
-    for (auto i = 0; i < sourceNodes.count(); ++i)
-    {
-        auto sourceElement = sourceNodes.item(i).toElement();
-
-        // Get source name
-        auto sourceName = sourceElement.attribute("name");
-
-        // Get source type
-        auto sourceType = JournalSource::indexingType(sourceElement.attribute("journalType", "Generated"));
-
-        // Create the source
-        auto &journalSource = journalSources_.emplace_back(sourceName, sourceType);
-
-        // Set whether the journals / data are organised by known instrument
-        journalSource.setInstrumentSubdirectories(sourceElement.attribute("instrumentSubdirs", "false").toLower() == "true");
-
-        // Set journal data
-        journalSource.setJournalData(sourceElement.attribute("journalRootUrl"),
-                                     sourceElement.attribute("journalIndexFilename"));
-
-        // Run data
-        journalSource.setRunDataLocation(
-            sourceElement.attribute("runDataRootUrl"),
-            JournalSource::dataOrganisationType(sourceElement.attribute("dataOrganisation", "Directory")));
-    }
-
-    // Populate the combo box with options
-    for (const auto &source : journalSources_)
-        ui_.JournalSourceComboBox->addItem(source.name());
-
-    return true;
-}
-
-// Get default journal sources complement
-void MainWindow::getDefaultJournalSources()
-{
-    QFile file(":/data/sources.xml");
-    if (!file.exists())
-        throw(std::runtime_error("Internal journal sources not found.\n"));
-
-    file.open(QIODevice::ReadOnly);
-    QDomDocument dom;
-    dom.setContent(&file);
-    file.close();
-    if (!parseJournalSources(dom))
-        throw(std::runtime_error("Couldn't parse internal journal sources.\n"));
+    // IDAaaS RB Directories
+    auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
+    idaaasRB.setInstrumentSubdirectories(true);
+    idaaasRB.setRunDataLocation("/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
 }
 
 // Find the specified journal source

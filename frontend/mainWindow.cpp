@@ -8,12 +8,19 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(cliParser), runDataFilterProxy_(runDataModel_)
+MainWindow::MainWindow(QCommandLineParser &cliParser)
+    : QMainWindow(), backend_(cliParser), runDataFilterProxy_(runDataModel_)
 {
     ui_.setupUi(this);
 
+    controlsUpdating_ = true;
+
     // Set the window title
     setWindowTitle(QString("JournalViewer 2 (v%1)").arg(JV2VERSION));
+
+    // Set up standard journal sources
+    setUpStandardJournalSources();
+    journalSourceModel_.setData(journalSources_);
 
     // Get default instrument run data columns
     Instrument::getDefaultColumns();
@@ -29,6 +36,7 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
     // Connect models
+    ui_.JournalSourceComboBox->setModel(&journalSourceModel_);
     ui_.InstrumentComboBox->setModel(&instrumentModel_);
     ui_.JournalComboBox->setModel(&journalModel_);
 
@@ -54,6 +62,8 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Start the backend - this will notify backendStarted when complete, but we still need to wait for the server to come up
     connect(&backend_, SIGNAL(started(const QString &)), this, SLOT(backendStarted(const QString &)));
     backend_.start();
+
+    controlsUpdating_ = false;
 }
 
 /*
@@ -63,6 +73,8 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
 // Update the UI accordingly for the current source, updating its state if required
 void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState)
 {
+    controlsUpdating_ = true;
+
     // Do we actually have a current source?
     if (!currentJournalSource_)
     {
@@ -76,6 +88,8 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     auto &source = currentJournalSource_->get();
     if (newState)
         source.setState(*newState);
+
+    ui_.JournalSourceComboBox->setCurrentText(source.name());
 
     // Set the current instrument
     if (source.instrumentSubdirectories() && source.currentInstrument())
@@ -101,6 +115,8 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
 
     // Set the main stack page to correspond to the state enum
     ui_.MainStack->setCurrentIndex(source.state());
+
+    controlsUpdating_ = false;
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
@@ -172,9 +188,6 @@ void MainWindow::prepare()
     timer->start(30000);
 
     controlsUpdating_ = true;
-
-    // Get default journal sources
-    getDefaultJournalSources();
 
     // Get recent journal settings - this will set directly the relevant data but not call the backend
     auto requestedJournal = getRecentJournalSettings();

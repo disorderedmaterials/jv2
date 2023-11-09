@@ -69,7 +69,10 @@ JournalSource::DataOrganisationType JournalSource::dataOrganisationType(QString 
         throw(std::runtime_error("DataOrganisationType string can't be converted to a DataOrganisationType.\n"));
 }
 
-JournalSource::JournalSource(QString name, IndexingType type) : name_(name), type_(type) {}
+JournalSource::JournalSource(QString name, IndexingType type, bool userDefined)
+    : name_(name), type_(type), userDefined_(userDefined)
+{
+}
 
 /*
  * Basic Data
@@ -80,6 +83,9 @@ const QString &JournalSource::name() const { return name_; }
 
 // Return type
 JournalSource::IndexingType JournalSource::type() const { return type_; }
+
+// Return whether the source is user-defined
+bool JournalSource::isUserDefined() const { return userDefined_; }
 
 /*
  * Journal Data
