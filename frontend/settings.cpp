@@ -27,5 +27,41 @@ void MainWindow::saveCustomColumnSettings() const
     }
 }
 
-// Retrieve user settings
-void MainWindow::loadSettings() { QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2"); }
+// Store recent journal settings
+void MainWindow::storeRecentJournalSettings() const
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    if (currentJournalSource_)
+    {
+        settings.remove("Recent");
+        if (currentJournalSource_)
+        {
+            auto &source = currentJournalSource();
+            settings.beginGroup("Recent");
+            settings.setValue("Source", source.name());
+            if (source.currentInstrument())
+                settings.setValue("Instrument", source.currentInstrument()->get().name());
+            if (source.currentJournal())
+                settings.setValue("Journal", source.currentJournal()->get().name());
+        }
+    }
+}
+
+// Get recent journal settings
+void MainWindow::getRecentJournalSettings()
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    settings.beginGroup("Recent");
+    if (!settings.contains("Source"))
+        return;
+    currentJournalSource_ = findJournalSource(settings.value("Source").toString());
+    if (!currentJournalSource_)
+    {
+        // In case the specified source isn't found, set it to the first one available
+        
+    }
+    if (source.currentInstrument())
+        settings.setValue("Instrument", source.currentInstrument()->get().name());
+    if (source.currentJournal())
+        settings.setValue("Journal", source.currentJournal()->get().name());
+}

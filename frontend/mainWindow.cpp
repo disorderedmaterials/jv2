@@ -52,9 +52,6 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Connect exit action
     connect(ui_.actionQuit, SIGNAL(triggered()), this, SLOT(close()));
 
-    // Get user settings
-    loadSettings();
-
     // Start the backend - this will notify backendStarted when complete, but we still need to wait for the server to come up
     connect(&backend_, SIGNAL(started(const QString &)), this, SLOT(backendStarted(const QString &)));
     backend_.start();
@@ -114,22 +111,8 @@ void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    // Update history on close
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    if (currentJournalSource_)
-    {
-        settings.remove("Recent");
-        if (currentJournalSource_)
-        {
-            auto &source = currentJournalSource();
-            settings.beginGroup("Recent");
-            settings.setValue("Source", source.name());
-            if (source.currentInstrument())
-                settings.setValue("Instrument", source.currentInstrument()->get().name());
-            if (source.currentJournal())
-                    settings.setValue("Journal", source.currentJournal()->get().name());
-        }
-    }
+    // Update recent journal settings
+    storeRecentJournalSettings();
 
     // Shut down backend
     backend_.stop();
@@ -182,6 +165,9 @@ void MainWindow::handleBackendPingResult(HttpRequestWorker *worker)
 
         // Get default journal sources
         getDefaultJournalSources();
+
+        // Get recent journal settings
+        getRecentJournalSettings();
     }
     else
         waitForBackend();

@@ -164,8 +164,10 @@ class MainWindow : public QMainWindow
     private:
     // Save custom column settings
     void saveCustomColumnSettings() const;
-    // Retrieve user settings
-    void loadSettings();
+    // Store recent journal settings
+    void storeRecentJournalSettings() const;
+    // Get recent journal settings
+    void getRecentJournalSettings();
 
     /*
      * Find in Current Journal
