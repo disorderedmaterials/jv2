@@ -51,9 +51,8 @@ void MainWindow::storeRecentJournalSettings() const
 std::optional<QString> MainWindow::getRecentJournalSettings()
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+
     settings.beginGroup("Recent");
-    if (!settings.contains("Source"))
-        return {};
 
     auto optSource = findJournalSource(settings.value("Source").toString());
     if (!optSource)
