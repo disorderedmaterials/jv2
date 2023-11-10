@@ -117,8 +117,10 @@ class JournalSource
     private:
     // Instrument-dependent journal organisation for this source
     Instrument::InstrumentPathType journalOrganisationByInstrument_{Instrument::InstrumentPathType::None};
+    bool journalOrganisationByInstrumentUppercase_{false};
     // Instrument-dependent run data organisation for this source
     Instrument::InstrumentPathType runDataOrganisationByInstrument_{Instrument::InstrumentPathType::None};
+    bool runDataOrganisationByInstrumentUppercase_{false};
     // Currently selected instrument (if any)
     OptionalReferenceWrapper<const Instrument> currentInstrument_;
 
@@ -126,11 +128,11 @@ class JournalSource
     // Return whether the source requires an instrument to be specified
     bool instrumentRequired() const;
     // Set instrument-dependent journal organisation for this source
-    void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType);
+    void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType, bool upperCase = false);
     // Return instrument-dependent journal organisation for this source
     Instrument::InstrumentPathType journalOrganisationByInstrument() const;
     // Set instrument-dependent run data organisation for this source
-    void setRunDataOrganisationByInstrument(Instrument::InstrumentPathType orgType);
+    void setRunDataOrganisationByInstrument(Instrument::InstrumentPathType orgType, bool upperCase = false);
     // Return instrument-dependent run data organisation for this source
     Instrument::InstrumentPathType runDataOrganisationByInstrument() const;
     // Set current instrument
