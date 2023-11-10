@@ -160,8 +160,8 @@ void MainWindow::on_actionJumpTo_triggered()
     if (!ok)
         return;
 
-//    backend_.goToCycle(inst.journalDirectory(), QString::number(runNo),
-//                       [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
+    //    backend_.goToCycle(inst.journalDirectory(), QString::number(runNo),
+    //                       [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
 }
 
 // Run data context menu requested
