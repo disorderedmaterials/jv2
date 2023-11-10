@@ -77,7 +77,7 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
 
         // Get the instrument and set the journals source here so we load relevant journals
         auto optInst = findInstrument(settings.value("Instrument").toString());
-        source.setCurrentInstrument(optInst);
+        source.setCurrentInstrument(optInst.value_or(instruments_.front()));
 
         // If there was no valid instrument specified we can exit now
         if (!optInst)
