@@ -42,6 +42,7 @@ class JournalSource
     enum JournalSourceState
     {
         _NoBackendError,
+        _NoSourceError,
         Loading,
         OK,
         NetworkError,

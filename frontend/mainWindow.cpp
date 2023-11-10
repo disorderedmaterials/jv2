@@ -84,7 +84,11 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         ui_.JournalComboBox->setEnabled(false);
         journalModel_.setData(std::nullopt);
 
-        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoBackendError);
+        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoSourceError);
+
+        journalAutoUpdateTimer_.stop();
+
+        return;
     }
 
     auto &source = currentJournalSource_->get();
@@ -196,6 +200,7 @@ void MainWindow::prepare()
     updateForCurrentSource();
 
     // Retrieve the initial journal data if one was found in the recent settings
-    backend_.getJournalIndex(currentJournalSource(),
-                             [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
+    if (currentJournalSource_)
+        backend_.getJournalIndex(currentJournalSource(),
+                                 [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
 }

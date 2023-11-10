@@ -63,6 +63,21 @@
         <string>Data</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>4</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
         <item>
          <widget class="QWidget" name="TopWidget" native="true">
           <property name="sizePolicy">
@@ -261,7 +276,7 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="resources.qrc">
                     <normaloff>:/icons/cross.svg</normaloff>:/icons/cross.svg</iconset>
                   </property>
                  </widget>
@@ -285,7 +300,7 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset resource="icons.qrc">
+                   <iconset resource="resources.qrc">
                     <normaloff>:/icons/group.svg</normaloff>:/icons/group.svg</iconset>
                   </property>
                   <property name="shortcut">
@@ -339,7 +354,7 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="NoBackendPage">
            <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -353,6 +368,26 @@
               </property>
               <property name="text">
                <string>No Backend</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="NoSourcePage">
+           <layout class="QVBoxLayout" name="verticalLayout_17">
+            <item>
+             <widget class="QLabel" name="NoSourceLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>No Journal Source Set!</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -727,7 +762,7 @@
   </action>
  </widget>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
