@@ -112,19 +112,35 @@ class JournalSource
     OptionalReferenceWrapper<Journal> currentJournal() const;
 
     /*
-     * Instrument Subdirectories
+     * Instrument Organisation
      */
+    public:
+    // Instrument Organisation Type
+    enum InstrumentOrganisationType
+    {
+        None,
+        Name,
+        NDXName,
+        AltNDXName
+    };
+
     private:
-    // Whether this source has instrument subdirectories
-    bool instrumentSubdirectories_{false};
+    // Instrument-dependent journal organisation for this source
+    InstrumentOrganisationType journalOrganisationByInstrument_{InstrumentOrganisationType::None};
+    // Instrument-dependent run data organisation for this source
+    InstrumentOrganisationType runDataOrganisationByInstrument_{InstrumentOrganisationType::None};
     // Currently selected instrument (if any)
     OptionalReferenceWrapper<const Instrument> currentInstrument_;
 
     public:
-    // Set whether this source has instrument subdirectories
-    void setInstrumentSubdirectories(bool b);
-    // Return whether this source has instrument subdirectories
-    bool instrumentSubdirectories() const;
+    // Set instrument-dependent journal organisation for this source
+    void setJournalOrganisationByInstrument(InstrumentOrganisationType orgType);
+    // Return instrument-dependent journal organisation for this source
+    InstrumentOrganisationType journalOrganisationByInstrument() const;
+    // Set instrument-dependent run data organisation for this source
+    void setRunDataOrganisationByInstrument(InstrumentOrganisationType orgType);
+    // Return instrument-dependent run data organisation for this source
+    InstrumentOrganisationType runDataOrganisationByInstrument() const;
     // Set current instrument
     void setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst);
     // Return current instrument
