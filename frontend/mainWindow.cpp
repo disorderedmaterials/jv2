@@ -103,18 +103,12 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     else
         ui_.InstrumentComboBox->setCurrentIndex(-1);
 
-    // If the source is OK, we enable relevant controls
-    if (source.state() == JournalSource::JournalSourceState::OK)
-    {
-        ui_.InstrumentComboBox->setEnabled(source.instrumentRequired());
+    // Set relevant controls
+    ui_.InstrumentComboBox->setEnabled(source.instrumentRequired());
+    if (source.currentJournal())
         ui_.JournalComboBox->setCurrentText(source.currentJournal()->get().name());
-        ui_.JournalComboBox->setEnabled(true);
-    }
     else
-    {
-        ui_.InstrumentComboBox->setEnabled(false);
-        ui_.JournalComboBox->setEnabled(false);
-    }
+        ui_.JournalComboBox->setCurrentIndex(-1);
 
     // Set the journal combo stack page according to the current source search state
     ui_.JournalComboStack->setCurrentIndex(source.showingSearchedData() ? 1 : 0);
