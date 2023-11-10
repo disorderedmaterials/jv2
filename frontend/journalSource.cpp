@@ -258,8 +258,8 @@ QJsonObject JournalSource::sourceObjectData() const
     data["sourceType"] = indexingType(type_);
     data["journalRootUrl"] = journalRootUrl_;
     data["journalFilename"] = journalIndexFilename();
-    if (instrumentSubdirectories_)
-        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
+    if (currentInstrument_)
+        data["instrument"] = currentInstrument_->get().name();
     data["runDataRootUrl"] = runDataRootUrl_;
     return data;
 }
@@ -272,8 +272,8 @@ QJsonObject JournalSource::currentJournalObjectData() const
     data["sourceType"] = indexingType(type_);
     data["journalRootUrl"] = journalRootUrl_;
     data["journalFilename"] = currentJournal_ ? currentJournal_->get().filename() : "UNKNOWN";
-    if (instrumentSubdirectories_)
-        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
+    if (currentInstrument_)
+        data["instrument"] = currentInstrument_->get().name();
     data["runDataRootUrl"] = runDataRootUrl_;
     return data;
 }
