@@ -123,7 +123,6 @@ void Backend::stop()
 // Ping backend with a message
 void Backend::ping(const QString &message, HttpRequestWorker::HttpRequestHandler handler)
 {
-
     QJsonObject data;
     data["message"] = message;
 

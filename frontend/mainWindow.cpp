@@ -174,10 +174,10 @@ void MainWindow::waitForBackend()
     connect(pingTimer, &QTimer::timeout,
             [=]()
             {
-                backend_.ping(
+                backend_.ping("HELLO",
                     [this](HttpRequestWorker *worker)
                     {
-                        if (worker->response.contains("READY"))
+                        if (worker->response.contains("HELLO"))
                             prepare();
                         else
                             waitForBackend();
@@ -194,6 +194,9 @@ void MainWindow::prepare()
 
     setCurrentJournalSource(currentJournalSource_);
     updateForCurrentSource();
+
+    // Inform the backend to be
+    backend_.ping("KEEPALIVE");
 
     // Retrieve the initial journal data if one was found in the recent settings
     backend_.getJournalIndex(currentJournalSource(),
