@@ -60,9 +60,8 @@ void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource>
         return;
     }
 
-    // Make sure we have a default instrument set if one is required
-    if (currentJournalSource().journalOrganisationByInstrument() != Instrument::InstrumentPathType::None &&
-        !currentJournalSource().currentInstrument())
+    // Make sure we have an instrument set if one is required
+    if (currentJournalSource().instrumentRequired() && !currentJournalSource().currentInstrument())
         currentJournalSource().setCurrentInstrument(instruments_.front());
 
     // Reset the state of the source since we can't assume the result of the index request
@@ -159,17 +158,14 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     {
         updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
 
-        bool orgByInst = journalSource.journalOrganisationByInstrument() != Instrument::InstrumentPathType::None &&
-                         journalSource.currentInstrument();
-        auto rootUrl =
-            orgByInst ? QString("%1/%2").arg(journalSource.journalRootUrl(), journalSource.currentInstrument()->get().name())
-                      : journalSource.journalRootUrl();
+        auto sourceID = journalSource.instrumentRequired()
+                            ? QString("%1/%2").arg(journalSource.name(), journalSource.currentInstrument()->get().name())
+                            : journalSource.name();
 
         if (QMessageBox::question(
                 this, "Index File Doesn't Exist",
-                QString("No index file currently exists in the source '%3'.\nWould you like to generate it now?")
-                    .arg(journalSource.name())) == QMessageBox::StandardButton::Yes)
-        {
+                QString("No index file currently exists in '%1'.\nWould you like to generate it now?").arg(sourceID)) ==
+            QMessageBox::StandardButton::Yes)
             backend_.listDataDirectory(currentJournalSource(),
                                        [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
             return;

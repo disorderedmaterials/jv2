@@ -123,6 +123,8 @@ class JournalSource
     OptionalReferenceWrapper<const Instrument> currentInstrument_;
 
     public:
+    // Return whether the source requires an instrument to be specified
+    bool instrumentRequired() const;
     // Set instrument-dependent journal organisation for this source
     void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType);
     // Return instrument-dependent journal organisation for this source

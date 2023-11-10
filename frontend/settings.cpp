@@ -70,7 +70,7 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
     currentJournalSource_ = source;
 
     // Set up the rest of the source - instrument first, if relevant
-    if (source.journalOrganisationByInstrument() != Instrument::InstrumentPathType::None)
+    if (source.instrumentRequired())
     {
         if (!settings.contains("Instrument"))
             return {};
