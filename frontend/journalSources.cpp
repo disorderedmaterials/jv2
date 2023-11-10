@@ -172,8 +172,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
             QMessageBox::StandardButton::Yes)
             backend_.listDataDirectory(currentJournalSource(),
                                        [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
-            return;
-        }
+
+        return;
     }
 
     // Add returned journals
