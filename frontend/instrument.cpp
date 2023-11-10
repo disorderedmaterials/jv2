@@ -107,6 +107,39 @@ const Instrument::RunDataColumns &Instrument::runDataColumns(Instrument::Instrum
  * Paths
  */
 
+// Return text string for specified instrument path type
+QString Instrument::instrumentPathType(Instrument::InstrumentPathType type)
+{
+    switch (type)
+    {
+        case (InstrumentPathType::None):
+            return "None";
+        case (InstrumentPathType::Name):
+            return "Name";
+        case (InstrumentPathType::NDXName):
+            return "NDXName";
+        case (InstrumentPathType::AltNDXName):
+            return "AltNDXName";
+        default:
+            throw(std::runtime_error("Can't convert instrument path type to string.\n"));
+    }
+}
+
+// Convert text string to instrument path type
+Instrument::InstrumentPathType Instrument::instrumentPathType(QString typeString)
+{
+    if (typeString.toLower() == "none")
+        return InstrumentPathType::None;
+    else if (typeString.toLower() == "name")
+        return InstrumentPathType::Name;
+    else if (typeString.toLower() == "ndxname")
+        return InstrumentPathType::NDXName;
+    else if (typeString.toLower() == "altndxname")
+        return InstrumentPathType::AltNDXName;
+    else
+        throw(std::runtime_error("Can't convert string to instrument path type.\n"));
+}
+
 // Return specified path component for this instrument
 QString Instrument::pathComponent(InstrumentPathType pathType, bool upperCased) const
 {
