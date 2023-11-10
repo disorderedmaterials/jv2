@@ -175,7 +175,7 @@ void MainWindow::waitForBackend()
                 backend_.ping(
                     [this](HttpRequestWorker *worker)
                     {
-                        if (worker->response.contains("READY"))
+                        if (worker->response().contains("READY"))
                             prepare();
                         else
                             waitForBackend();

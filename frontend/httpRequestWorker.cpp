@@ -42,17 +42,32 @@ HttpRequestWorker::HttpRequestWorker(QNetworkAccessManager &manager, const QStri
 // Process request
 void HttpRequestWorker::requestComplete()
 {
-    errorType = reply_->error();
-    if (errorType == QNetworkReply::NoError)
+    errorType_ = reply_->error();
+    if (errorType_ == QNetworkReply::NoError)
     {
-        response = reply_->readAll();
-        jsonResponse = QJsonDocument::fromJson(response.toUtf8());
-        jsonArray = jsonResponse.array();
+        response_ = reply_->readAll();
+        jsonResponse_ = QJsonDocument::fromJson(response_.toUtf8());
     }
     else
-        errorString = reply_->errorString();
+        errorString_ = reply_->errorString();
 
     reply_->deleteLater();
 
     emit requestFinished(this);
 }
+
+/*
+ * Result Data
+ */
+
+// Return raw response string
+const QString &HttpRequestWorker::response() const { return response_; }
+
+// Return esponse formatted as JSON
+const QJsonDocument &HttpRequestWorker::jsonResponse() const { return jsonResponse_; }
+
+// Return error type
+QNetworkReply::NetworkError HttpRequestWorker::errorType() const { return errorType_; }
+
+// Return error string (if available)
+const QString &HttpRequestWorker::errorString() const { return errorString_; }

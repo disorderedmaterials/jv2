@@ -275,14 +275,15 @@ void GraphWidget::modifyAgainstWorker(HttpRequestWorker *worker, bool checked)
     QJsonArray valueArray;
     qreal max = 0;
     qreal min = 0;
-    auto dataType = worker->jsonArray[0].toArray()[2].toString(0);
-    worker->jsonArray.removeFirst();
+    auto jsonArray = worker->jsonResponse().array();
+    auto dataType = jsonArray[0].toArray()[2].toString(0);
+    jsonArray.removeFirst();
     for (auto i = 0; i < ui_.chartView->chart()->series().count(); i++)
     {
-        if (worker->jsonArray.count() > 1)
-            valueArray = worker->jsonArray[i].toArray();
+        if (jsonArray.count() > 1)
+            valueArray = jsonArray[i].toArray();
         else
-            valueArray = worker->jsonArray[0].toArray();
+            valueArray = jsonArray[0].toArray();
         auto xySeries = qobject_cast<QXYSeries *>(ui_.chartView->chart()->series()[i]);
         auto points = xySeries->points();
         if (checked)

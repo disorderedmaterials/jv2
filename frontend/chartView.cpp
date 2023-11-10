@@ -55,10 +55,10 @@ void ChartView::assignChart(QChart *chart)
 void ChartView::addSeries(HttpRequestWorker *worker)
 {
     QString msg;
-    if (worker->errorType == QNetworkReply::NoError)
+    if (worker->errorType() == QNetworkReply::NoError)
     {
         // For each Run
-        auto array = worker->jsonArray;
+        auto array = worker->jsonResponse().array();
         array.removeFirst();
         foreach (const auto &runFields, array)
         {
@@ -123,7 +123,7 @@ void ChartView::addSeries(HttpRequestWorker *worker)
     else
     {
         // an error occurred
-        msg = "Error2: " + worker->errorString;
+        msg = "Error2: " + worker->errorString();
         QMessageBox::information(this, "", msg);
     }
 }

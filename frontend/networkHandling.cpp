@@ -12,17 +12,17 @@
 bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription)
 {
     // Communications error with the backend?
-    if (worker->errorType != QNetworkReply::NoError)
+    if (worker->errorType() != QNetworkReply::NoError)
     {
         statusBar()->showMessage(QString("Network error for source %1").arg(currentJournalSource().name()), 3000);
         QMessageBox::warning(this, "Network Error",
                              QString("A network error was encountered while %1.\nThe error returned was: %2")
-                                 .arg(taskDescription, worker->errorString));
+                                 .arg(taskDescription, worker->errorString()));
         return true;
     }
 
     // Response error?
-    auto response = worker->jsonResponse.object();
+    auto response = worker->jsonResponse().object();
     if (response.contains("Error"))
     {
         statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource().name()), 3000);
@@ -55,7 +55,7 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
     // Get desired fields and titles from config files
     runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
                                           : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
-    runData_ = worker->jsonArray;
+    runData_ = worker->jsonResponse().array();
 
     // Set table data
     runDataModel_.setHorizontalHeaders(runDataColumns_);
@@ -78,16 +78,16 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
         return;
     }
 
-    if (worker->response == "Not Found")
+    if (worker->response() == "Not Found")
     {
         statusBar()->showMessage("Search query not found", 5000);
         return;
     }
 
     // Locate the journal returned
-    auto optJournal = currentJournalSource().findJournal(worker->response);
+    auto optJournal = currentJournalSource().findJournal(worker->response());
 
-    if (optJournal && optJournal->get().name() == worker->response)
+    if (optJournal && optJournal->get().name() == worker->response())
     {
         highlightRunNumber(runNumber);
         return;

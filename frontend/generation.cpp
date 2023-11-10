@@ -12,7 +12,7 @@ void MainWindow::handleListDataDirectory(JournalSource &source, HttpRequestWorke
         return;
 
     // Result contains the number of NeXuS files found and the target dir
-    const auto receivedData = worker->jsonResponse.object();
+    const auto receivedData = worker->jsonResponse().object();
     auto nFilesFound = receivedData["num_files"].toInt();
     auto dataDirectory = receivedData["data_directory"].toString();
 
@@ -43,7 +43,7 @@ void MainWindow::handleScanResult(JournalSource &source, HttpRequestWorker *work
         return;
 
     // Success?
-    if (!worker->response.startsWith("\"SUCCESS"))
+    if (!worker->response().startsWith("\"SUCCESS"))
     {
         updateForCurrentSource(JournalSource::JournalSourceState::JournalGenerationError);
         return;

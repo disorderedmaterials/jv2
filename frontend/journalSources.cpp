@@ -148,7 +148,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     // Check network reply
     if (networkRequestHasError(worker, "trying to list journals"))
     {
-        ui_.NetworkErrorInfoLabel->setText(worker->response);
+        ui_.NetworkErrorInfoLabel->setText(worker->response());
         updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
         return;
     }
@@ -158,7 +158,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
 
     // Special case - for cache or disk-based sources we may get an error stating that the index file was not found.
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
-    if (worker->response.startsWith("\"Index File Not Found\""))
+    if (worker->response().startsWith("\"Index File Not Found\""))
     {
         updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
 
@@ -177,7 +177,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     }
 
     // Add returned journals
-    journalSource.setJournals(worker->jsonArray);
+    journalSource.setJournals(worker->jsonResponse().array());
 
     // Set a named journal as the current one (optional)
     if (journalToLoad)
@@ -198,14 +198,14 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
 void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
 {
     // A null response indicates no change
-    if (worker->response.startsWith("null"))
+    if (worker->response().startsWith("null"))
         return;
 
     // The main body of the request contains any run numbers we don't currently have.
     // If we are currently displaying grouped data we append the new data directly then refresh the grouping
     if (ui_.GroupRunsButton->isChecked())
     {
-        foreach (const auto &item, worker->jsonArray)
+        foreach (const auto &item, worker->jsonResponse().array())
             runData_.append(item);
 
         generateGroupedData();
@@ -218,6 +218,6 @@ void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
     else
     {
         // Update via the model
-        runDataModel_.appendData(worker->jsonArray);
+        runDataModel_.appendData(worker->jsonResponse().array());
     }
 }

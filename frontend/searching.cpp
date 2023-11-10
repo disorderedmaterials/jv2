@@ -41,7 +41,7 @@ void MainWindow::handleSearchResult(HttpRequestWorker *worker)
     // Get desired fields and titles from config files
     runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
                                           : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
-    runData_ = worker->jsonArray;
+    runData_ = worker->jsonResponse().array();
 
     // Set table data
     runDataModel_.setHorizontalHeaders(runDataColumns_);

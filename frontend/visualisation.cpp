@@ -20,7 +20,7 @@ void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
 
     // Iterate over logs extracted from the target run data and construct our mapped values
     auto *rootItem = new GenericTreeItem({"Log Value", "Full Path"});
-    foreach (const auto &log, worker->jsonArray)
+    foreach (const auto &log, worker->jsonResponse().array())
     {
         auto logArray = log.toArray();
         if (logArray.size() < 2)
@@ -81,7 +81,7 @@ void MainWindow::handleCreateSELogPlot(HttpRequestWorker *worker)
     //                  }
     //              }
 
-    const auto receivedData = worker->jsonResponse.object();
+    const auto receivedData = worker->jsonResponse().object();
     auto logValueName = receivedData["logValue"].toString().section('/', -1);
     qDebug() << logValueName;
 
