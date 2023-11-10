@@ -42,9 +42,9 @@ def add_routes(
         return make_response(journalLibrary.get_index(
             post_data.source_type,
             post_data.library_key(),
-            url_join(post_data.journal_root_url, post_data.directory),
+            post_data.journal_root_url,
             post_data.journal_filename,
-            url_join(post_data.run_data_root_url, post_data.directory)
+            post_data.run_data_root_url
         ), 200)
 
     @app.post("/journals/get")

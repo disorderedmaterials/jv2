@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "instrument.h"
 #include "journal.h"
 #include "optionalRef.h"
 #include <QJsonObject>
@@ -10,7 +11,6 @@
 
 // Forward Declarations
 class HttpRequestWorker;
-class Instrument;
 
 // Journal Source Definition
 class JournalSource
@@ -114,33 +114,23 @@ class JournalSource
     /*
      * Instrument Organisation
      */
-    public:
-    // Instrument Organisation Type
-    enum InstrumentOrganisationType
-    {
-        None,
-        Name,
-        NDXName,
-        AltNDXName
-    };
-
     private:
     // Instrument-dependent journal organisation for this source
-    InstrumentOrganisationType journalOrganisationByInstrument_{InstrumentOrganisationType::None};
+    Instrument::InstrumentPathType journalOrganisationByInstrument_{Instrument::InstrumentPathType::None};
     // Instrument-dependent run data organisation for this source
-    InstrumentOrganisationType runDataOrganisationByInstrument_{InstrumentOrganisationType::None};
+    Instrument::InstrumentPathType runDataOrganisationByInstrument_{Instrument::InstrumentPathType::None};
     // Currently selected instrument (if any)
     OptionalReferenceWrapper<const Instrument> currentInstrument_;
 
     public:
     // Set instrument-dependent journal organisation for this source
-    void setJournalOrganisationByInstrument(InstrumentOrganisationType orgType);
+    void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType);
     // Return instrument-dependent journal organisation for this source
-    InstrumentOrganisationType journalOrganisationByInstrument() const;
+    Instrument::InstrumentPathType journalOrganisationByInstrument() const;
     // Set instrument-dependent run data organisation for this source
-    void setRunDataOrganisationByInstrument(InstrumentOrganisationType orgType);
+    void setRunDataOrganisationByInstrument(Instrument::InstrumentPathType orgType);
     // Return instrument-dependent run data organisation for this source
-    InstrumentOrganisationType runDataOrganisationByInstrument() const;
+    Instrument::InstrumentPathType runDataOrganisationByInstrument() const;
     // Set current instrument
     void setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst);
     // Return current instrument

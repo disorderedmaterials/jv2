@@ -38,10 +38,10 @@ def add_routes(
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Scan for NeXuS files in data directory "
-                      f"{post_data.run_data_url}...")
+                      f"{post_data.run_data_root_url}...")
 
         return make_response(
-            journalGenerator.list_files(post_data.run_data_url),
+            journalGenerator.list_files(post_data.run_data_root_url),
             200
         )
 
@@ -67,16 +67,14 @@ def add_routes(
             return make_response(jsonify({"Error": str(exc)}), 200)
 
         logging.debug(f"Generate journals for '{post_data.library_key()}' "
-                      f"from NeXuS files in {post_data.run_data_url}")
+                      f"from NeXuS files in {post_data.run_data_root_url}")
 
         journalLibrary[post_data.library_key()] = JournalCollection(
             SourceType.Generated,
             post_data.library_key(),
-            url_join(post_data.journal_root_url,
-                     post_data.directory),
+            post_data.journal_root_url,
             "index.xml",
-            url_join(post_data.run_data_root_url,
-                     post_data.directory),
+            post_data.run_data_root_url,
             datetime.datetime.now()
         )
 

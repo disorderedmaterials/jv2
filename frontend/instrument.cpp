@@ -34,8 +34,8 @@ Instrument::InstrumentType Instrument::instrumentType(QString typeString)
         throw(std::runtime_error("Instrument string can't be converted to an InstrumentType.\n"));
 }
 
-Instrument::Instrument(QString name, InstrumentType type, bool userDefined)
-    : name_(name), type_(type), userDefined_(userDefined)
+Instrument::Instrument(QString name, std::optional<QString> altName, InstrumentType type, bool userDefined)
+    : name_(name), alternativeName_(altName), type_(type), userDefined_(userDefined)
 {
 }
 
@@ -104,17 +104,28 @@ const Instrument::RunDataColumns &Instrument::runDataColumns() const
 const Instrument::RunDataColumns &Instrument::runDataColumns(Instrument::InstrumentType type) { return defaultColumns_[type]; }
 
 /*
- * Additional Information
+ * Paths
  */
 
-// Set journal directory
-void Instrument::setJournalDirectory(QString journalDir) { journalDirectory_ = journalDir; }
-
-// Return journal directory
-const QString &Instrument::journalDirectory() const { return journalDirectory_; }
-
-// Set data directory
-void Instrument::setDataDirectory(QString dataDir) { dataDirectory_ = dataDir; }
-
-// Return data directory
-const QString &Instrument::dataDirectory() const { return dataDirectory_; }
+// Return specified path component for this instrument
+QString Instrument::pathComponent(InstrumentPathType pathType, bool upperCased) const
+{
+    QString result;
+    switch (pathType)
+    {
+        case (InstrumentPathType::None):
+            return {};
+        case (InstrumentPathType::Name):
+            result = name_;
+            break;
+        case (InstrumentPathType::NDXName):
+            result = QString("ndx%1").arg(name_);
+            break;
+        case (InstrumentPathType::AltNDXName):
+            result = QString("ndx%1").arg(alternativeName_.value_or(name_));
+            break;
+        default:
+            return "UNKNOWN_PATH_TYPE";
+    }
+    return upperCased ? result.toUpper() : result.toLower();
+}

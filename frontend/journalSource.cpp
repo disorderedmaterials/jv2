@@ -175,25 +175,25 @@ OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return
  */
 
 // Set instrument-dependent journal organisation for this source
-void JournalSource::setJournalOrganisationByInstrument(JournalSource::InstrumentOrganisationType orgType)
+void JournalSource::setJournalOrganisationByInstrument(Instrument::InstrumentPathType pathType)
 {
-    journalOrganisationByInstrument_ = orgType;
+    journalOrganisationByInstrument_ = pathType;
 }
 
 // Return instrument-dependent journal organisation for this source
-JournalSource::InstrumentOrganisationType JournalSource::journalOrganisationByInstrument() const
+Instrument::InstrumentPathType JournalSource::journalOrganisationByInstrument() const
 {
     return journalOrganisationByInstrument_;
 }
 
 // Set instrument-dependent run data organisation for this source
-void JournalSource::setRunDataOrganisationByInstrument(JournalSource::InstrumentOrganisationType orgType)
+void JournalSource::setRunDataOrganisationByInstrument(Instrument::InstrumentPathType pathType)
 {
-    runDataOrganisationByInstrument_ = orgType;
+    runDataOrganisationByInstrument_ = pathType;
 }
 
 // Return instrument-dependent run data organisation for this source
-JournalSource::InstrumentOrganisationType JournalSource::runDataOrganisationByInstrument() const
+Instrument::InstrumentPathType JournalSource::runDataOrganisationByInstrument() const
 {
     return runDataOrganisationByInstrument_;
 }
@@ -209,10 +209,10 @@ OptionalReferenceWrapper<const Instrument> JournalSource::currentInstrument() co
  */
 
 // Set run data location
-void JournalSource::setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType orgType)
+void JournalSource::setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType pathType)
 {
     runDataRootUrl_ = runDataRootUrl;
-    runDataOrganisation_ = orgType;
+    runDataOrganisation_ = pathType;
 }
 
 // Return root URL containing associated run data
@@ -256,24 +256,26 @@ QJsonObject JournalSource::sourceObjectData() const
     QJsonObject data;
     data["sourceID"] = name_;
     data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] = journalRootUrl_;
+    data["journalRootUrl"] =
+        currentInstrument_
+            ? QString("%1/%2").arg(journalRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
+            : journalRootUrl_;
     data["journalFilename"] = journalIndexFilename();
     if (currentInstrument_)
         data["instrument"] = currentInstrument_->get().name();
-    data["runDataRootUrl"] = runDataRootUrl_;
+    data["runDataRootUrl"] =
+        currentInstrument_
+            ? QString("%1/%2").arg(runDataRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
+            : runDataRootUrl_;
     return data;
 }
 
 // Return current journal data read for network request
 QJsonObject JournalSource::currentJournalObjectData() const
 {
-    QJsonObject data;
-    data["sourceID"] = name_;
-    data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] = journalRootUrl_;
+    QJsonObject data = sourceObjectData();
     data["journalFilename"] = currentJournal_ ? currentJournal_->get().filename() : "UNKNOWN";
     if (currentInstrument_)
         data["instrument"] = currentInstrument_->get().name();
-    data["runDataRootUrl"] = runDataRootUrl_;
     return data;
 }

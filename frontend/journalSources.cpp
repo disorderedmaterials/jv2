@@ -17,15 +17,16 @@ void MainWindow::setUpStandardJournalSources()
 
     // The main ISIS Archive
     auto &isisArchive = journalSources_.emplace_back("ISIS Archive", JournalSource::IndexingType::Network);
-    isisArchive.setInstrumentSubdirectories(true);
+    isisArchive.setJournalOrganisationByInstrument(Instrument::InstrumentPathType::AltNDXName);
+    isisArchive.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
     isisArchive.setJournalData("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
     isisArchive.setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString(),
                                    JournalSource::DataOrganisationType::Directory);
 
     // IDAaaS RB Directories
     auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
-    idaaasRB.setInstrumentSubdirectories(true);
-    idaaasRB.setRunDataLocation("/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
+    isisArchive.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
+    idaaasRB.setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
 }
 
 // Find the specified journal source
@@ -60,7 +61,8 @@ void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource>
     }
 
     // Make sure we have a default instrument set if one is required
-    if (currentJournalSource().instrumentSubdirectories() && !currentJournalSource().currentInstrument())
+    if (currentJournalSource().journalOrganisationByInstrument() != Instrument::InstrumentPathType::None &&
+        !currentJournalSource().currentInstrument())
         currentJournalSource().setCurrentInstrument(instruments_.front());
 
     // Reset the state of the source since we can't assume the result of the index request
@@ -157,7 +159,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     {
         updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
 
-        bool orgByInst = journalSource.instrumentSubdirectories() && journalSource.currentInstrument();
+        bool orgByInst = journalSource.journalOrganisationByInstrument() != Instrument::InstrumentPathType::None &&
+                         journalSource.currentInstrument();
         auto rootUrl =
             orgByInst ? QString("%1/%2").arg(journalSource.journalRootUrl(), journalSource.currentInstrument()->get().name())
                       : journalSource.journalRootUrl();

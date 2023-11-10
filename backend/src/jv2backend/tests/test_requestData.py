@@ -47,7 +47,7 @@ def test_library_key_generation():
 
     assert data.library_key() == POST_SOURCE_ID
 
-    post_data["directory"] = "bananas"
+    post_data["instrument"] = "bananas"
 
     try:
         data = RequestData(post_data)
@@ -75,16 +75,6 @@ def test_journal_file_required_and_provided():
     assert data.journal_file_url() == POST_JOURNAL_ROOT_URL + "/" + POST_JOURNAL_FILENAME
 
 
-    post_data["directory"] = "apples"
-
-    try:
-        data = RequestData(post_data, require_journal_file=True)
-    except Exception as exc:
-        pytest.fail(f"Unexpected exception: {exc}")
-
-    assert data.journal_file_url() == POST_JOURNAL_ROOT_URL + "/apples/" + POST_JOURNAL_FILENAME
-
-
 def test_journal_file_required_but_not_provided():
     post_data = {
         "sourceID": POST_SOURCE_ID,
@@ -110,13 +100,3 @@ def test_run_data_directory_required_and_provided():
         pytest.fail(f"Unexpected exception: {exc}")
 
     assert data.run_data_root_url == POST_RUN_DATA_ROOT_URL
-    assert data.run_data_url == POST_RUN_DATA_ROOT_URL
-
-    post_data["directory"] = "apples"
-
-    try:
-        data = RequestData(post_data, require_data_directory=True)
-    except Exception as exc:
-        pytest.fail(f"Unexpected exception: {exc}")
-
-    assert data.run_data_url == POST_RUN_DATA_ROOT_URL + "/apples"
