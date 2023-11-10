@@ -114,7 +114,10 @@ void MainWindow::storeUserJournalSources() const
         settings.setValue("JournalIndexFilename", source.journalIndexFilename());
 
         // Instrument Organisation?
-//        settings.setValue("InstrumentSubDirs", source.instrumentSubdirectories());
+        settings.setValue("JournalInstrumentPathType",
+                          Instrument::instrumentPathType(source.journalOrganisationByInstrument()));
+        settings.setValue("RunDataInstrumentPathType",
+                          Instrument::instrumentPathType(source.runDataOrganisationByInstrument()));
 
         // Run Data
         settings.setValue("RunDataRootUrl", source.runDataRootUrl());
