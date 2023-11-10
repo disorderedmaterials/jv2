@@ -26,11 +26,11 @@ bool MainWindow::parseInstruments(const QDomDocument &source)
         // Get instrument type
         auto instrumentType = Instrument::instrumentType(instElement.attribute("type", "Neutron"));
 
-        auto &inst = instruments_.emplace_back(instrumentName, instrumentType);
-
-        // Data locations
-        inst.setJournalDirectory(instElement.attribute("journalDirectory"));
-        inst.setDataDirectory(instElement.attribute("runDataRootUrl"));
+        // Create the instrument (with optional alternative name)
+        if (instElement.hasAttribute("altName"))
+            instruments_.emplace_back(instrumentName, instElement.attribute("altName"), instrumentType);
+        else
+            instruments_.emplace_back(instrumentName, std::nullopt, instrumentType);
 
         // If display columns are defined parse them now, otherwise assign defaults based on instrument
         auto columns = instElement.elementsByTagName("columns");
@@ -78,7 +78,8 @@ void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
         return;
 
     // Need a valid journal source
-    if (!currentJournalSource_ || !currentJournalSource().instrumentSubdirectories())
+    if (!currentJournalSource_ ||
+        currentJournalSource().journalOrganisationByInstrument() == Instrument::InstrumentPathType::None)
         return;
     auto &source = currentJournalSource();
 

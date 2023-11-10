@@ -144,14 +144,6 @@ class RequestData:
         return self._run_data_root_url
 
     @property
-    def run_data_url(self) -> str:
-        """Return the full path to the data directory (if given)"""
-        if self._directory:
-            return url_join(self._run_data_root_url, self._directory)
-        else:
-            return self._run_data_root_url
-
-    @property
     def run_numbers(self) -> typing.List[int]:
         """Return the run numbers (if given)"""
         return self._run_numbers

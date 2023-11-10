@@ -98,7 +98,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     ui_.JournalSourceComboBox->setCurrentText(source.name());
 
     // Set the current instrument
-    if (source.instrumentSubdirectories() && source.currentInstrument())
+    if (source.journalOrganisationByInstrument() != Instrument::InstrumentPathType::None && source.currentInstrument())
         ui_.InstrumentComboBox->setCurrentText(source.currentInstrument()->get().name());
     else
         ui_.InstrumentComboBox->setCurrentIndex(-1);
@@ -106,7 +106,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     // If the source is OK, we enable relevant controls
     if (source.state() == JournalSource::JournalSourceState::OK)
     {
-        ui_.InstrumentComboBox->setEnabled(source.instrumentSubdirectories());
+        ui_.InstrumentComboBox->setEnabled(source.journalOrganisationByInstrument() != Instrument::InstrumentPathType::None);
         ui_.JournalComboBox->setCurrentText(source.currentJournal()->get().name());
         ui_.JournalComboBox->setEnabled(true);
     }

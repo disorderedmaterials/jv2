@@ -70,7 +70,7 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
     currentJournalSource_ = source;
 
     // Set up the rest of the source - instrument first, if relevant
-    if (source.instrumentSubdirectories())
+    if (source.journalOrganisationByInstrument() != Instrument::InstrumentPathType::None)
     {
         if (!settings.contains("Instrument"))
             return {};
@@ -113,8 +113,8 @@ void MainWindow::storeUserJournalSources() const
         settings.setValue("JournalRootUrl", source.journalRootUrl());
         settings.setValue("JournalIndexFilename", source.journalIndexFilename());
 
-        // Instruments?
-        settings.setValue("InstrumentSubDirs", source.instrumentSubdirectories());
+        // Instrument Organisation?
+//        settings.setValue("InstrumentSubDirs", source.instrumentSubdirectories());
 
         // Run Data
         settings.setValue("RunDataRootUrl", source.runDataRootUrl());
