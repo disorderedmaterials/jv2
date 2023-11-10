@@ -41,10 +41,9 @@ OptionalReferenceWrapper<JournalSource> MainWindow::findJournalSource(const QStr
 }
 
 // Set current journal source
-void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource)
+void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource, std::optional<QString> goToJournal)
 {
-    if (controlsUpdating_)
-        return;
+    Locker updateLock(controlsUpdating_);
 
     // Clear any existing data
     clearRunData();
@@ -66,6 +65,8 @@ void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource>
 
     // Reset the state of the source since we can't assume the result of the index request
     currentJournalSource().setState(JournalSource::JournalSourceState::Loading);
+
+    updateForCurrentSource();
 
     backend_.getJournalIndex(currentJournalSource(), [&](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
@@ -94,6 +95,9 @@ Journal &MainWindow::currentJournal() const
 
 void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
 {
+    if (controlsUpdating_)
+        return;
+
     if (index == -1)
         setCurrentJournalSource({});
     else

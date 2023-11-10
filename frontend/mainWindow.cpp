@@ -196,11 +196,5 @@ void MainWindow::prepare()
     // Get recent journal settings - this will set directly the relevant data but not call the backend
     auto requestedJournal = getRecentJournalSettings();
 
-    setCurrentJournalSource(currentJournalSource_);
-    updateForCurrentSource();
-
-    // Retrieve the initial journal data if one was found in the recent settings
-    if (currentJournalSource_)
-        backend_.getJournalIndex(currentJournalSource(),
-                                 [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
+    setCurrentJournalSource(currentJournalSource_, requestedJournal);
 }
