@@ -282,7 +282,5 @@ QJsonObject JournalSource::currentJournalObjectData() const
 {
     QJsonObject data = sourceObjectData();
     data["journalFilename"] = currentJournal_ ? currentJournal_->get().filename() : "UNKNOWN";
-    if (currentInstrument_)
-        data["instrument"] = currentInstrument_->get().name();
     return data;
 }
