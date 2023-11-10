@@ -174,6 +174,13 @@ OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return
  * Instrument Organisation
  */
 
+// Return whether the source requires an instrument to be specified
+bool JournalSource::instrumentRequired() const
+{
+    return journalOrganisationByInstrument_ != Instrument::InstrumentPathType::None ||
+           runDataOrganisationByInstrument_ != Instrument::InstrumentPathType::None;
+}
+
 // Set instrument-dependent journal organisation for this source
 void JournalSource::setJournalOrganisationByInstrument(Instrument::InstrumentPathType pathType)
 {

@@ -78,8 +78,7 @@ void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
         return;
 
     // Need a valid journal source
-    if (!currentJournalSource_ ||
-        currentJournalSource().journalOrganisationByInstrument() == Instrument::InstrumentPathType::None)
+    if (!currentJournalSource_ || !currentJournalSource().instrumentRequired())
         return;
     auto &source = currentJournalSource();
 
