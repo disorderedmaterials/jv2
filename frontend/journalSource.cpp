@@ -171,14 +171,32 @@ void JournalSource::setCurrentJournal(int index)
 OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return currentJournal_; }
 
 /*
- * Instrument Subdirectories
+ * Instrument Organisation
  */
 
-// Set whether this source has instrument subdirectories
-void JournalSource::setInstrumentSubdirectories(bool b) { instrumentSubdirectories_ = b; }
+// Set instrument-dependent journal organisation for this source
+void JournalSource::setJournalOrganisationByInstrument(JournalSource::InstrumentOrganisationType orgType)
+{
+    journalOrganisationByInstrument_ = orgType;
+}
 
-// Return whether this source has instrument subdirectories
-bool JournalSource::instrumentSubdirectories() const { return instrumentSubdirectories_; }
+// Return instrument-dependent journal organisation for this source
+JournalSource::InstrumentOrganisationType JournalSource::journalOrganisationByInstrument() const
+{
+    return journalOrganisationByInstrument_;
+}
+
+// Set instrument-dependent run data organisation for this source
+void JournalSource::setRunDataOrganisationByInstrument(JournalSource::InstrumentOrganisationType orgType)
+{
+    runDataOrganisationByInstrument_ = orgType;
+}
+
+// Return instrument-dependent run data organisation for this source
+JournalSource::InstrumentOrganisationType JournalSource::runDataOrganisationByInstrument() const
+{
+    return runDataOrganisationByInstrument_;
+}
 
 // Set current instrument
 void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst) { currentInstrument_ = optInst; }
