@@ -148,8 +148,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     // Check network reply
     if (networkRequestHasError(worker, "trying to list journals"))
     {
-        ui_.NetworkErrorInfoLabel->setText(worker->response());
-        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
     }
 
@@ -160,7 +159,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
     if (worker->response().startsWith("\"Index File Not Found\""))
     {
-        updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
+        setErrorPage("No Index File Found", "An index file could not be found.");
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
 
         auto sourceID = journalSource.instrumentRequired()
                             ? QString("%1/%2").arg(journalSource.name(), journalSource.currentInstrument()->get().name())

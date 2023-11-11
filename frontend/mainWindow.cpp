@@ -84,7 +84,8 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         ui_.JournalComboBox->setEnabled(false);
         journalModel_.setData(std::nullopt);
 
-        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoSourceError);
+        setErrorPage("No Journal Source", "There is no current journal source set, so nothing to display.");
+        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::Error);
 
         journalAutoUpdateTimer_.stop();
 
@@ -122,6 +123,14 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         journalAutoUpdateTimer_.start();
     else
         journalAutoUpdateTimer_.stop();
+}
+
+// Update the error page
+void MainWindow::setErrorPage(const QString &errorTitle, const QString &errorText)
+{
+    ui_.ErrorLabel->setText(errorTitle);
+    ui_.ErrorInfoLabel->setText(errorText);
+    ui_.ErrorRetryButton->setEnabled(false);
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }

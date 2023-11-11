@@ -20,16 +20,15 @@ void MainWindow::handleListDataDirectory(JournalSource &source, HttpRequestWorke
     if (nFilesFound == 0)
     {
         statusBar()->showMessage("No NeXuS files found.");
-        QMessageBox::warning(
-            this, "File Error",
-            QString("No NeXuS files were found in '%1'.\nCheck the location, network mounts etc.").arg(dataDirectory));
+        setErrorPage("Data Error",
+                     QString("No NeXuS files were found in '%1'.\nCheck the location, network mounts etc.").arg(dataDirectory));
 
-        updateForCurrentSource(JournalSource::JournalSourceState::RunDataScanNoFilesError);
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
 
         return;
     }
 
-    updateForCurrentSource(JournalSource::JournalSourceState::JournalGenerationInProgress);
+    updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
     // Begin the journal generation
     backend_.generateJournals(source, [&](HttpRequestWorker *scanWorker) { handleScanResult(source, scanWorker); });
@@ -45,7 +44,8 @@ void MainWindow::handleScanResult(JournalSource &source, HttpRequestWorker *work
     // Success?
     if (!worker->response().startsWith("\"SUCCESS"))
     {
-        updateForCurrentSource(JournalSource::JournalSourceState::JournalGenerationError);
+        setErrorPage("Journal Generation Failed", "Something happened.");
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
     }
 

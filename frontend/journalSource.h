@@ -38,21 +38,6 @@ class JournalSource
     static QString dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type);
     // Convert text string to DataOrganisationType
     static DataOrganisationType dataOrganisationType(QString typeString);
-    // JournalSource States
-    enum JournalSourceState
-    {
-        _NoBackendError,
-        _NoSourceError,
-        Loading,
-        OK,
-        NetworkError,
-        NoIndexFileError,
-        NoJournalsError,
-        RunDataScanInProgress,
-        RunDataScanNoFilesError,
-        JournalGenerationInProgress,
-        JournalGenerationError
-    };
 
     public:
     JournalSource(QString name, IndexingType type, bool userDefined = false);
@@ -167,6 +152,15 @@ class JournalSource
     /*
      * State
      */
+    public:
+    // JournalSource States
+    enum JournalSourceState
+    {
+        Loading,
+        OK,
+        Error
+    };
+
     private:
     // Current state of the journal source
     JournalSourceState state_{JournalSourceState::Loading};

@@ -30,7 +30,7 @@ void MainWindow::handleSearchResult(HttpRequestWorker *worker)
     // Check network reply
     if (networkRequestHasError(worker, "trying to search across journals"))
     {
-        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
     }
 

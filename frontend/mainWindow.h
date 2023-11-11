@@ -43,6 +43,8 @@ class MainWindow : public QMainWindow
     private:
     // Update the UI accordingly for the current source, updating its state if required
     void updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState = {});
+    // Update the error page
+    void setErrorPage(const QString &errorTitle, const QString &errorText);
 
     private slots:
     void removeTab(int index);

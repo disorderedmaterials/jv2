@@ -15,9 +15,9 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     if (worker->errorType() != QNetworkReply::NoError)
     {
         statusBar()->showMessage(QString("Network error for source %1").arg(currentJournalSource().name()), 3000);
-        QMessageBox::warning(this, "Network Error",
-                             QString("A network error was encountered while %1.\nThe error returned was: %2")
-                                 .arg(taskDescription, worker->errorString()));
+        setErrorPage("Network Error", QString("A network error was encountered while %1.\nThe error returned was: %2")
+                                          .arg(taskDescription, worker->errorString()));
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return true;
     }
 
@@ -26,9 +26,9 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     if (response.contains("Error"))
     {
         statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource().name()), 3000);
-        QMessageBox::warning(this, "Response Error",
-                             QString("The backend failed while %1.\nThe response returned was: %2")
-                                 .arg(taskDescription, response["Error"].toString()));
+        setErrorPage("Response Error", QString("The backend failed while %1.\nThe response returned was: %2")
+                                           .arg(taskDescription, response["Error"].toString()));
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return true;
     }
 
@@ -44,7 +44,7 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker)
     // Check network reply
     if (networkRequestHasError(worker, "trying to retrieve run data for the journal"))
     {
-        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
     }
 
@@ -74,7 +74,7 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
     // Check network reply
     if (networkRequestHasError(worker, "trying to select run number within journal"))
     {
-        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
     }
 
