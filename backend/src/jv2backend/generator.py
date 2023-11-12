@@ -136,12 +136,11 @@ class JournalGenerator:
 
             # Create hash and journal filename
             journal_filename = hashlib.sha256(key.encode('utf-8')).hexdigest() + ".xml"
-            display_name = key.removeprefix(collection.run_data_root_url).lstrip("/")
+            display_name = key.removeprefix(collection.run_data_url).lstrip("/")
 
             # Push a new Journal on to the list
             collection.add_journal(
                 display_name,
-                SourceType.Generated,
                 journal_filename,
                 key,
                 data_sets[key]
