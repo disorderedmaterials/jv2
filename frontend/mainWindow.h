@@ -43,6 +43,8 @@ class MainWindow : public QMainWindow
     private:
     // Update the UI accordingly for the current source, updating its state if required
     void updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState = {});
+    // Update the error page
+    void setErrorPage(const QString &errorTitle, const QString &errorText);
 
     private slots:
     void removeTab(int index);
@@ -73,7 +75,7 @@ class MainWindow : public QMainWindow
     // Set up standard journal sources
     void setUpStandardJournalSources();
     // Set current journal source
-    void setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource);
+    void setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource, std::optional<QString> goToJournal = {});
     // Find the specified journal source
     OptionalReferenceWrapper<JournalSource> findJournalSource(const QString &name);
     // Return current journal source

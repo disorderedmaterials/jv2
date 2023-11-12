@@ -17,15 +17,16 @@ void MainWindow::setUpStandardJournalSources()
 
     // The main ISIS Archive
     auto &isisArchive = journalSources_.emplace_back("ISIS Archive", JournalSource::IndexingType::Network);
-    isisArchive.setInstrumentSubdirectories(true);
+    isisArchive.setJournalOrganisationByInstrument(Instrument::InstrumentPathType::AltNDXName);
+    isisArchive.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
     isisArchive.setJournalData("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
     isisArchive.setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString(),
                                    JournalSource::DataOrganisationType::Directory);
 
     // IDAaaS RB Directories
     auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
-    idaaasRB.setInstrumentSubdirectories(true);
-    idaaasRB.setRunDataLocation("/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
+    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
+    idaaasRB.setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
 }
 
 // Find the specified journal source
@@ -40,10 +41,9 @@ OptionalReferenceWrapper<JournalSource> MainWindow::findJournalSource(const QStr
 }
 
 // Set current journal source
-void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource)
+void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource, std::optional<QString> goToJournal)
 {
-    if (controlsUpdating_)
-        return;
+    Locker updateLock(controlsUpdating_);
 
     // Clear any existing data
     clearRunData();
@@ -59,12 +59,14 @@ void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource>
         return;
     }
 
-    // Make sure we have a default instrument set if one is required
-    if (currentJournalSource().instrumentSubdirectories() && !currentJournalSource().currentInstrument())
+    // Make sure we have an instrument set if one is required
+    if (currentJournalSource().instrumentRequired() && !currentJournalSource().currentInstrument())
         currentJournalSource().setCurrentInstrument(instruments_.front());
 
     // Reset the state of the source since we can't assume the result of the index request
     currentJournalSource().setState(JournalSource::JournalSourceState::Loading);
+
+    updateForCurrentSource();
 
     backend_.getJournalIndex(currentJournalSource(), [&](HttpRequestWorker *worker) { handleListJournals(worker); });
 }
@@ -93,6 +95,9 @@ Journal &MainWindow::currentJournal() const
 
 void MainWindow::on_JournalSourceComboBox_currentIndexChanged(int index)
 {
+    if (controlsUpdating_)
+        return;
+
     if (index == -1)
         setCurrentJournalSource({});
     else
@@ -143,8 +148,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     // Check network reply
     if (networkRequestHasError(worker, "trying to list journals"))
     {
-        ui_.NetworkErrorInfoLabel->setText(worker->response);
-        updateForCurrentSource(JournalSource::JournalSourceState::NetworkError);
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
     }
 
@@ -153,28 +157,27 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
 
     // Special case - for cache or disk-based sources we may get an error stating that the index file was not found.
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
-    if (worker->response.startsWith("\"Index File Not Found\""))
+    if (worker->response().startsWith("\"Index File Not Found\""))
     {
-        updateForCurrentSource(JournalSource::JournalSourceState::NoIndexFileError);
+        setErrorPage("No Index File Found", "An index file could not be found.");
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
 
-        bool orgByInst = journalSource.instrumentSubdirectories() && journalSource.currentInstrument();
-        auto rootUrl =
-            orgByInst ? QString("%1/%2").arg(journalSource.journalRootUrl(), journalSource.currentInstrument()->get().name())
-                      : journalSource.journalRootUrl();
+        auto sourceID = journalSource.instrumentRequired()
+                            ? QString("%1/%2").arg(journalSource.name(), journalSource.currentInstrument()->get().name())
+                            : journalSource.name();
 
         if (QMessageBox::question(
                 this, "Index File Doesn't Exist",
-                QString("No index file currently exists in the source '%3'.\nWould you like to generate it now?")
-                    .arg(journalSource.name())) == QMessageBox::StandardButton::Yes)
-        {
+                QString("No index file currently exists in '%1'.\nWould you like to generate it now?").arg(sourceID)) ==
+            QMessageBox::StandardButton::Yes)
             backend_.listDataDirectory(currentJournalSource(),
                                        [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
-            return;
-        }
+
+        return;
     }
 
     // Add returned journals
-    journalSource.setJournals(worker->jsonArray);
+    journalSource.setJournals(worker->jsonResponse().array());
 
     // Set a named journal as the current one (optional)
     if (journalToLoad)
@@ -195,14 +198,14 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
 void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
 {
     // A null response indicates no change
-    if (worker->response.startsWith("null"))
+    if (worker->response().startsWith("null"))
         return;
 
     // The main body of the request contains any run numbers we don't currently have.
     // If we are currently displaying grouped data we append the new data directly then refresh the grouping
     if (ui_.GroupRunsButton->isChecked())
     {
-        foreach (const auto &item, worker->jsonArray)
+        foreach (const auto &item, worker->jsonResponse().array())
             runData_.append(item);
 
         generateGroupedData();
@@ -215,6 +218,6 @@ void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
     else
     {
         // Update via the model
-        runDataModel_.appendData(worker->jsonArray);
+        runDataModel_.appendData(worker->jsonResponse().array());
     }
 }

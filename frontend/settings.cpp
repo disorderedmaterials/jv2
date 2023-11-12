@@ -70,14 +70,14 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
     currentJournalSource_ = source;
 
     // Set up the rest of the source - instrument first, if relevant
-    if (source.instrumentSubdirectories())
+    if (source.instrumentRequired())
     {
         if (!settings.contains("Instrument"))
             return {};
 
         // Get the instrument and set the journals source here so we load relevant journals
         auto optInst = findInstrument(settings.value("Instrument").toString());
-        source.setCurrentInstrument(optInst);
+        source.setCurrentInstrument(optInst.value_or(instruments_.front()));
 
         // If there was no valid instrument specified we can exit now
         if (!optInst)
@@ -113,8 +113,11 @@ void MainWindow::storeUserJournalSources() const
         settings.setValue("JournalRootUrl", source.journalRootUrl());
         settings.setValue("JournalIndexFilename", source.journalIndexFilename());
 
-        // Instruments?
-        settings.setValue("InstrumentSubDirs", source.instrumentSubdirectories());
+        // Instrument Organisation?
+        settings.setValue("JournalInstrumentPathType",
+                          Instrument::instrumentPathType(source.journalOrganisationByInstrument()));
+        settings.setValue("RunDataInstrumentPathType",
+                          Instrument::instrumentPathType(source.runDataOrganisationByInstrument()));
 
         // Run Data
         settings.setValue("RunDataRootUrl", source.runDataRootUrl());

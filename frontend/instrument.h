@@ -22,14 +22,16 @@ class Instrument
     static InstrumentType instrumentType(QString typeString);
 
     public:
-    Instrument(QString name, InstrumentType type, bool userDefined = false);
+    Instrument(QString name, std::optional<QString> altName, InstrumentType type, bool userDefined = false);
 
     /*
      * Basic Data
      */
     private:
-    // Name (used for display)
+    // Name
     QString name_;
+    // Alternative name
+    std::optional<QString> alternativeName_;
     // Type
     InstrumentType type_;
     // Whether this instrument is user-defined
@@ -67,21 +69,21 @@ class Instrument
     static const RunDataColumns &runDataColumns(InstrumentType type);
 
     /*
-     * Data Locations
+     * Paths
      */
-    private:
-    // XML journal directory
-    QString journalDirectory_;
-    // Run data directory
-    QString dataDirectory_;
-
     public:
-    // Set journal directory
-    void setJournalDirectory(QString journalDir);
-    // Return journal directory
-    const QString &journalDirectory() const;
-    // Set data directory
-    void setDataDirectory(QString dataDir);
-    // Return data directory
-    const QString &dataDirectory() const;
+    // Instrument Path Type
+    enum class InstrumentPathType
+    {
+        None,      /* No instrument information present in the path */
+        Name,      /* Path includes standard instrument name */
+        NDXName,   /* Path includes standard instrument name prefixed with 'ndx' */
+        AltNDXName /* Path includes alternate instrument name prefixed with 'ndx' */
+    };
+    // Return text string for specified instrument path type
+    static QString instrumentPathType(InstrumentPathType type);
+    // Convert text string to instrument path type
+    static InstrumentPathType instrumentPathType(QString typeString);
+    // Return specified path component for this instrument (lowercases by default)
+    QString pathComponent(InstrumentPathType pathType, bool upperCased = false) const;
 };

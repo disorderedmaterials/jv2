@@ -200,13 +200,13 @@ class JournalCollection:
                 if "data_directory" in j.attrib:
                     data_directory = j.attrib["data_directory"]
                 else:
-                    cycle_dir = j.attrib["name"].replace("journal", "cycle")
-                    cycle_dir.replace(".xml", "")
                     data_directory = url_join(
                         self._run_data_url,
                         "Instrument",
                         "data",
-                        cycle_dir)
+                        j.attrib["name"].replace(
+                            "journal", "cycle"
+                        ).replace(".xml", ""))
 
                 # Push a new journal definition
                 data.append({

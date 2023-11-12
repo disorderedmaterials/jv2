@@ -171,14 +171,39 @@ void JournalSource::setCurrentJournal(int index)
 OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return currentJournal_; }
 
 /*
- * Instrument Subdirectories
+ * Instrument Organisation
  */
 
-// Set whether this source has instrument subdirectories
-void JournalSource::setInstrumentSubdirectories(bool b) { instrumentSubdirectories_ = b; }
+// Return whether the source requires an instrument to be specified
+bool JournalSource::instrumentRequired() const
+{
+    return journalOrganisationByInstrument_ != Instrument::InstrumentPathType::None ||
+           runDataOrganisationByInstrument_ != Instrument::InstrumentPathType::None;
+}
 
-// Return whether this source has instrument subdirectories
-bool JournalSource::instrumentSubdirectories() const { return instrumentSubdirectories_; }
+// Set instrument-dependent journal organisation for this source
+void JournalSource::setJournalOrganisationByInstrument(Instrument::InstrumentPathType pathType)
+{
+    journalOrganisationByInstrument_ = pathType;
+}
+
+// Return instrument-dependent journal organisation for this source
+Instrument::InstrumentPathType JournalSource::journalOrganisationByInstrument() const
+{
+    return journalOrganisationByInstrument_;
+}
+
+// Set instrument-dependent run data organisation for this source
+void JournalSource::setRunDataOrganisationByInstrument(Instrument::InstrumentPathType pathType)
+{
+    runDataOrganisationByInstrument_ = pathType;
+}
+
+// Return instrument-dependent run data organisation for this source
+Instrument::InstrumentPathType JournalSource::runDataOrganisationByInstrument() const
+{
+    return runDataOrganisationByInstrument_;
+}
 
 // Set current instrument
 void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst) { currentInstrument_ = optInst; }
@@ -191,10 +216,10 @@ OptionalReferenceWrapper<const Instrument> JournalSource::currentInstrument() co
  */
 
 // Set run data location
-void JournalSource::setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType orgType)
+void JournalSource::setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType pathType)
 {
     runDataRootUrl_ = runDataRootUrl;
-    runDataOrganisation_ = orgType;
+    runDataOrganisation_ = pathType;
 }
 
 // Return root URL containing associated run data
@@ -238,24 +263,24 @@ QJsonObject JournalSource::sourceObjectData() const
     QJsonObject data;
     data["sourceID"] = name_;
     data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] = journalRootUrl_;
+    data["journalRootUrl"] =
+        currentInstrument_
+            ? QString("%1/%2").arg(journalRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
+            : journalRootUrl_;
     data["journalFilename"] = journalIndexFilename();
-    if (instrumentSubdirectories_)
-        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
-    data["runDataRootUrl"] = runDataRootUrl_;
+    if (currentInstrument_)
+        data["instrument"] = currentInstrument_->get().name();
+    data["runDataRootUrl"] =
+        currentInstrument_
+            ? QString("%1/%2").arg(runDataRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
+            : runDataRootUrl_;
     return data;
 }
 
 // Return current journal data read for network request
 QJsonObject JournalSource::currentJournalObjectData() const
 {
-    QJsonObject data;
-    data["sourceID"] = name_;
-    data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] = journalRootUrl_;
+    QJsonObject data = sourceObjectData();
     data["journalFilename"] = currentJournal_ ? currentJournal_->get().filename() : "UNKNOWN";
-    if (instrumentSubdirectories_)
-        data["directory"] = currentInstrument_ ? currentInstrument_->get().journalDirectory() : "UNKNOWN";
-    data["runDataRootUrl"] = runDataRootUrl_;
     return data;
 }

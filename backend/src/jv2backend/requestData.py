@@ -41,7 +41,7 @@ class RequestData:
         self._source_type: SourceType = SourceType.Unknown
         self._journal_root_url: str = None
         self._journal_filename: str = None
-        self._directory: str = None
+        self._instrument: str = None
         self._run_data_root_url: str = None
         self._parameter: str = None
         self._run_numbers: typing.List[int] = []
@@ -66,10 +66,10 @@ class RequestData:
             raise InvalidRequest("No journal filename provided in "
                                  "request.")
 
-        # An optional directory may have been given - this will become part of
-        # the library key and the journal url (if relevant)
-        if "directory" in requestData:
-            self._directory = requestData["directory"]
+        # An optional instrument may have been given - this will become part of
+        # the library key
+        if "instrument" in requestData:
+            self._instrument = requestData["instrument"]
 
         # Was a data directory provided / required?
         self._run_data_root_url = (requestData["runDataRootUrl"]
@@ -103,10 +103,10 @@ class RequestData:
 
     def library_key(self) -> str:
         """Return the library key (same as full URL)"""
-        if self._directory is None:
+        if self._instrument is None:
             return self._source_id
         else:
-            return url_join(self._source_id, self._directory)
+            return url_join(self._source_id, self._instrument)
 
     @property
     def source_id(self) -> str:
@@ -129,28 +129,19 @@ class RequestData:
         return self._journal_filename
 
     def journal_file_url(self) -> str:
-        """Return the full URL (journalRoot plus any optional directory)"""
-        # Try to join everything we have - url_join will handle any empty data
-        return url_join(self._journal_root_url, self._directory,
+        """Return the full journal file URL"""
+        return url_join(self._journal_root_url,
                         self._journal_filename)
 
     @property
-    def directory(self) -> str:
+    def instrument(self) -> str:
         """Return the directory (if given)"""
-        return self._directory
+        return self._instrument
 
     @property
     def run_data_root_url(self) -> str:
         """Return the root of the data directory (if given)"""
         return self._run_data_root_url
-
-    @property
-    def run_data_url(self) -> str:
-        """Return the full path to the data directory (if given)"""
-        if self._directory:
-            return url_join(self._run_data_root_url, self._directory)
-        else:
-            return self._run_data_root_url
 
     @property
     def run_numbers(self) -> typing.List[int]:

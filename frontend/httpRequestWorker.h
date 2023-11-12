@@ -38,12 +38,28 @@ class HttpRequestWorker : public QObject
     // Post data (if specified)
     QByteArray postData_;
 
+    /*
+     * Result Data
+     */
+    private:
+    // Raw response string
+    QString response_;
+    // Error type
+    QNetworkReply::NetworkError errorType_{QNetworkReply::NoError};
+    // Error string (if available)
+    QString errorString_;
+    // Response formatted as JSON
+    QJsonDocument jsonResponse_;
+
     public:
-    QString response;
-    QNetworkReply::NetworkError errorType{QNetworkReply::NoError};
-    QString errorString;
-    QJsonDocument jsonResponse;
-    QJsonArray jsonArray;
+    // Return raw response string
+    const QString &response() const;
+    // Return esponse formatted as JSON
+    const QJsonDocument &jsonResponse() const;
+    // Return error type
+    QNetworkReply::NetworkError errorType() const;
+    // Return error string (if available)
+    const QString &errorString() const;
 
     signals:
     void requestFinished(HttpRequestWorker *worker);

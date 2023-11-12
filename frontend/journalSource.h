@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "instrument.h"
 #include "journal.h"
 #include "optionalRef.h"
 #include <QJsonObject>
@@ -10,7 +11,6 @@
 
 // Forward Declarations
 class HttpRequestWorker;
-class Instrument;
 
 // Journal Source Definition
 class JournalSource
@@ -38,21 +38,6 @@ class JournalSource
     static QString dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type);
     // Convert text string to DataOrganisationType
     static DataOrganisationType dataOrganisationType(QString typeString);
-    // JournalSource States
-    enum JournalSourceState
-    {
-        _NoBackendError,
-        _NoSourceError,
-        Loading,
-        OK,
-        NetworkError,
-        NoIndexFileError,
-        NoJournalsError,
-        RunDataScanInProgress,
-        RunDataScanNoFilesError,
-        JournalGenerationInProgress,
-        JournalGenerationError
-    };
 
     public:
     JournalSource(QString name, IndexingType type, bool userDefined = false);
@@ -112,19 +97,27 @@ class JournalSource
     OptionalReferenceWrapper<Journal> currentJournal() const;
 
     /*
-     * Instrument Subdirectories
+     * Instrument Organisation
      */
     private:
-    // Whether this source has instrument subdirectories
-    bool instrumentSubdirectories_{false};
+    // Instrument-dependent journal organisation for this source
+    Instrument::InstrumentPathType journalOrganisationByInstrument_{Instrument::InstrumentPathType::None};
+    // Instrument-dependent run data organisation for this source
+    Instrument::InstrumentPathType runDataOrganisationByInstrument_{Instrument::InstrumentPathType::None};
     // Currently selected instrument (if any)
     OptionalReferenceWrapper<const Instrument> currentInstrument_;
 
     public:
-    // Set whether this source has instrument subdirectories
-    void setInstrumentSubdirectories(bool b);
-    // Return whether this source has instrument subdirectories
-    bool instrumentSubdirectories() const;
+    // Return whether the source requires an instrument to be specified
+    bool instrumentRequired() const;
+    // Set instrument-dependent journal organisation for this source
+    void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType);
+    // Return instrument-dependent journal organisation for this source
+    Instrument::InstrumentPathType journalOrganisationByInstrument() const;
+    // Set instrument-dependent run data organisation for this source
+    void setRunDataOrganisationByInstrument(Instrument::InstrumentPathType orgType);
+    // Return instrument-dependent run data organisation for this source
+    Instrument::InstrumentPathType runDataOrganisationByInstrument() const;
     // Set current instrument
     void setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst);
     // Return current instrument
@@ -159,6 +152,15 @@ class JournalSource
     /*
      * State
      */
+    public:
+    // JournalSource States
+    enum JournalSourceState
+    {
+        Loading,
+        OK,
+        Error
+    };
+
     private:
     // Current state of the journal source
     JournalSourceState state_{JournalSourceState::Loading};

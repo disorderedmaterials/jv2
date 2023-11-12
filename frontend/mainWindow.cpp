@@ -84,7 +84,8 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         ui_.JournalComboBox->setEnabled(false);
         journalModel_.setData(std::nullopt);
 
-        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::_NoSourceError);
+        setErrorPage("No Journal Source", "There is no current journal source set, so nothing to display.");
+        ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::Error);
 
         journalAutoUpdateTimer_.stop();
 
@@ -98,23 +99,17 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     ui_.JournalSourceComboBox->setCurrentText(source.name());
 
     // Set the current instrument
-    if (source.instrumentSubdirectories() && source.currentInstrument())
+    if (source.instrumentRequired() && source.currentInstrument())
         ui_.InstrumentComboBox->setCurrentText(source.currentInstrument()->get().name());
     else
         ui_.InstrumentComboBox->setCurrentIndex(-1);
 
-    // If the source is OK, we enable relevant controls
-    if (source.state() == JournalSource::JournalSourceState::OK)
-    {
-        ui_.InstrumentComboBox->setEnabled(source.instrumentSubdirectories());
+    // Set relevant controls
+    ui_.InstrumentComboBox->setEnabled(source.instrumentRequired());
+    if (source.currentJournal())
         ui_.JournalComboBox->setCurrentText(source.currentJournal()->get().name());
-        ui_.JournalComboBox->setEnabled(true);
-    }
     else
-    {
-        ui_.InstrumentComboBox->setEnabled(false);
-        ui_.JournalComboBox->setEnabled(false);
-    }
+        ui_.JournalComboBox->setCurrentIndex(-1);
 
     // Set the journal combo stack page according to the current source search state
     ui_.JournalComboStack->setCurrentIndex(source.showingSearchedData() ? 1 : 0);
@@ -128,6 +123,14 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         journalAutoUpdateTimer_.start();
     else
         journalAutoUpdateTimer_.stop();
+}
+
+// Update the error page
+void MainWindow::setErrorPage(const QString &errorTitle, const QString &errorText)
+{
+    ui_.ErrorLabel->setText(errorTitle);
+    ui_.ErrorInfoLabel->setText(errorText);
+    ui_.ErrorRetryButton->setEnabled(false);
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
@@ -181,7 +184,7 @@ void MainWindow::waitForBackend()
                 backend_.ping(
                     [this](HttpRequestWorker *worker)
                     {
-                        if (worker->response.contains("READY"))
+                        if (worker->response().contains("READY"))
                             prepare();
                         else
                             waitForBackend();
@@ -196,11 +199,5 @@ void MainWindow::prepare()
     // Get recent journal settings - this will set directly the relevant data but not call the backend
     auto requestedJournal = getRecentJournalSettings();
 
-    setCurrentJournalSource(currentJournalSource_);
-    updateForCurrentSource();
-
-    // Retrieve the initial journal data if one was found in the recent settings
-    if (currentJournalSource_)
-        backend_.getJournalIndex(currentJournalSource(),
-                                 [=](HttpRequestWorker *worker) { handleListJournals(worker, requestedJournal); });
+    setCurrentJournalSource(currentJournalSource_, requestedJournal);
 }
