@@ -45,8 +45,33 @@ def add_routes(
             200
         )
 
-    @app.post("/generate/go")
+    @app.post("/generate/scan")
     def scan() -> FlaskResponse:
+        """Generates journals and accompanying index file for a target dir
+
+        The POST data should contain:
+             journalRoot: Unique identifier for the journal set
+               directory: The directory in journalRoot containing the journal
+           dataDirectory: Location of the run data to scan
+        dataOrganisation: How the data is to be organised
+                filename: Name of the target index file to generate
+
+        :return: A JSON-formatted list of new run data, or None
+        """
+        try:
+            post_data = RequestData(request.json,
+                                    require_journal_file=True,
+                                    require_data_directory=True,
+                                    require_parameter="sortKey")
+        except InvalidRequest as exc:
+            return make_response(jsonify({"Error": str(exc)}), 200)
+
+        logging.debug(f"Scan NeXuS files in {post_data.run_data_root_url}")
+
+        return journalGenerator.scan()
+
+    @app.post("/generate/finalise")
+    def finalise() -> FlaskResponse:
         """Generates journals and accompanying index file for a target dir
 
         The POST data should contain:
@@ -79,5 +104,6 @@ def add_routes(
         )
 
         return journalGenerator.generate(journalLibrary[post_data.library_key()], post_data.parameter)
+
 
     return app

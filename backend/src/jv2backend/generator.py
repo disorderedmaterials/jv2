@@ -8,11 +8,22 @@ import h5py
 import hashlib
 import datetime
 import json
+import time
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journalCollection import JournalCollection
 from jv2backend.journal import Journal, SourceType
 import jv2backend.userCache
+from threading import Thread
+
+
+# Threading
+class GeneratorThread(Thread):
+    def __init__(self, wait_time: int):
+        Thread.__init__(self, daemon=True)
+        self._wait_time = wait_time
+        self._counter = wait_time
+        self._destroy = False
 
 
 class JournalGenerator:
@@ -100,8 +111,18 @@ class JournalGenerator:
 
         return data
 
-    def generate(self, collection: JournalCollection, sort_key: str
-                 ) -> str:
+    def _get_nexus_file_data(self):
+        # Iterate over available data files and get their attributes
+        all_run_data = []
+        for directory in self._discovered_files:
+            logging.debug(f"Probing files in directory {directory}...")
+            for f in self._discovered_files[directory]:
+                logging.debug(f"... {f}")
+                # Get attributes from the file
+                # all_run_data.append(self.create_journal_entry(directory, f))
+                time.sleep(10)
+
+    def scan(self):
         """Generate an index file containing journal information
 
         :param collection: Target collection for new journals
@@ -111,14 +132,12 @@ class JournalGenerator:
         journal files describing the found data.
         """
         # Iterate over available data files and get their attributes
-        all_run_data = []
-        for directory in self._discovered_files:
-            logging.debug(f"Probing files in directory {directory}...")
-            for f in self._discovered_files[directory]:
-                logging.debug(f"... {f}")
-                # Get attributes from the file
-                all_run_data.append(self.create_journal_entry(directory, f))
+        thread = Thread(target=self._get_nexus_file_data(), daemon=True)
+        thread.start()
+        logging.debug("Noe we are here.")
 
+    def generate(self, collection: JournalCollection, sort_key: str) -> str:
+        all_run_data = []
         # Sort run data into sets by sort key, constructing suitable dicts for
         # direct inclusion in our generated Journal classes
         data_sets = {}

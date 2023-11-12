@@ -277,5 +277,5 @@ void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::H
     auto data = source.sourceObjectData();
     data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
 
-    postRequest(createRoute("generate/go"), data, handler);
+    postRequest(createRoute("generate/scan"), data, handler);
 }
