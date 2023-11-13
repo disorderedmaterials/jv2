@@ -219,6 +219,9 @@ class JournalGenerator:
 
         all_run_data = copy.deepcopy(_GENERATOR_THREAD.get_run_data())
 
+        # Done with the thread now, so set it to None
+        _GENERATOR_THREAD = None
+
         # Sort run data into sets by sort key, constructing suitable dicts for
         # direct inclusion in our generated Journal classes
         data_sets = {}
