@@ -59,6 +59,13 @@ void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource>
         return;
     }
 
+    // If this source is generating, move to the generator page and stop there
+    if (currentJournalSource().state() == JournalSource::JournalSourceState::Generating)
+    {
+        updateForCurrentSource();
+        return;
+    }
+
     // Make sure we have an instrument set if one is required
     if (currentJournalSource().instrumentRequired() && !currentJournalSource().currentInstrument())
         currentJournalSource().setCurrentInstrument(instruments_.front());
