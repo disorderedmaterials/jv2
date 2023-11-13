@@ -11,7 +11,6 @@ void MainWindow::handleGenerateList(JournalSource &source, HttpRequestWorker *wo
     if (networkRequestHasError(worker, "trying to list data directory"))
         return;
 
-    qDebug() << worker->response();
     // Result contains the number of NeXuS files found and the target dir
     const auto receivedData = worker->jsonResponse().object();
     auto nFilesFound = receivedData["num_files"].toInt();
@@ -78,7 +77,6 @@ void MainWindow::handleGenerateBackgroundScan()
                 backend_.generateBackgroundScanUpdate(
                     [this](HttpRequestWorker *worker)
                     {
-                        qDebug() << worker->response();
                         if (worker->response().startsWith("\"NOT_RUNNING"))
                         {
                             // If we are currently displaying the target source for generation, indicate an error
