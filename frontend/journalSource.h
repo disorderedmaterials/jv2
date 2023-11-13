@@ -160,6 +160,7 @@ class JournalSource
     {
         Loading,
         OK,
+        Generating,
         Error
     };
 

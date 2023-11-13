@@ -104,8 +104,10 @@ class Backend : public QObject
      * Generation Endpoints
      */
     public:
-    // List data directory for the specified source
-    void listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Generate journals for the specified source
-    void generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Generate data file list for the specified source
+    void generateList(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Scan data files discovered in the specified source
+    void generateBackgroundScan(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Request update on background scan
+    void generateBackgroundScanUpdate(HttpRequestWorker::HttpRequestHandler handler = {});
 };

@@ -25,8 +25,8 @@ void MainWindow::setUpStandardJournalSources()
 
     // IDAaaS RB Directories
     auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
-    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
-    idaaasRB.setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
+    //    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
+    idaaasRB.setRunDataLocation("/home/tris/src/jv2/TestData", JournalSource::DataOrganisationType::Directory);
 }
 
 // Find the specified journal source
@@ -170,8 +170,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
                 this, "Index File Doesn't Exist",
                 QString("No index file currently exists in '%1'.\nWould you like to generate it now?").arg(sourceID)) ==
             QMessageBox::StandardButton::Yes)
-            backend_.listDataDirectory(currentJournalSource(),
-                                       [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
+            backend_.generateList(currentJournalSource(),
+                                  [&](HttpRequestWorker *worker) { handleGenerateList(journalSource, worker); });
 
         return;
     }
