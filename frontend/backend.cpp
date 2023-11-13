@@ -278,14 +278,20 @@ void Backend::generateBackgroundScan(const JournalSource &source, HttpRequestWor
     if (source.type() == JournalSource::IndexingType::Network)
         throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
-    auto data = source.sourceObjectData();
-    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
-
-    postRequest(createRoute("generate/scan"), data, handler);
+    postRequest(createRoute("generate/scan"), source.sourceObjectData(), handler);
 }
 
 // Request update on background scan
 void Backend::generateBackgroundScanUpdate(HttpRequestWorker::HttpRequestHandler handler)
 {
     createRequest(createRoute("generate/scanUpdate"), handler);
+}
+
+// Finalise journals from scanned data
+void Backend::generateFinalise(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+{
+    auto data = source.sourceObjectData();
+    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
+
+    postRequest(createRoute("generate/finalise"), data, handler);
 }

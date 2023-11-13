@@ -158,10 +158,10 @@ class MainWindow : public QMainWindow
     private:
     // Handle returned directory list result
     void handleGenerateList(JournalSource &source, HttpRequestWorker *worker);
-    // Handle / monitor the background scan
-    void handleBackgroundScan();
-    // Handle returned journal generation result
-    void handleScanResult(JournalSource &source, HttpRequestWorker *worker);
+    // Handle / monitor the generation background scan
+    void handleGenerateBackgroundScan();
+    // Handle journal generation finalisation
+    void handleGenerateFinalise(JournalSource &source, HttpRequestWorker *worker);
 
     private:
     // Model for scanned journal files

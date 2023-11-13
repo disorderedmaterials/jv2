@@ -61,8 +61,7 @@ def add_routes(
         try:
             post_data = RequestData(request.json,
                                     require_journal_file=True,
-                                    require_data_directory=True,
-                                    require_parameter="sortKey")
+                                    require_data_directory=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -109,7 +108,11 @@ def add_routes(
             datetime.datetime.now()
         )
 
-        return journalGenerator.generate(journalLibrary[post_data.library_key()], post_data.parameter)
+        return make_response(
+            journalGenerator.generate(journalLibrary[post_data.library_key()],
+                                      post_data.parameter),
+            200
+        )
 
 
     return app

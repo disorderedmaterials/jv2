@@ -110,4 +110,6 @@ class Backend : public QObject
     void generateBackgroundScan(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
     // Request update on background scan
     void generateBackgroundScanUpdate(HttpRequestWorker::HttpRequestHandler handler = {});
+    // Finalise journals from scanned data
+    void generateFinalise(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
 };

@@ -58,43 +58,61 @@ void MainWindow::handleGenerateList(JournalSource &source, HttpRequestWorker *wo
     updateForCurrentSource(JournalSource::JournalSourceState::Generating);
 
     // Begin the background file scan
-    backend_.generateBackgroundScan(source, [&](HttpRequestWorker *scanWorker) { handleBackgroundScan(); });
+    backend_.generateBackgroundScan(source, [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(); });
 }
 
-// Handle / monitor the background scan
-void MainWindow::handleBackgroundScan()
+// Handle / monitor the generation background scan
+void MainWindow::handleGenerateBackgroundScan()
 {
+    if (!sourceBeingGenerated_)
+        throw(std::runtime_error("No target source for generation is set.\n"));
+    auto &source = sourceBeingGenerated_->get();
+
     // Create a timer to ping the backend for a scan update after 1000 ms
     auto *pingTimer = new QTimer;
     pingTimer->setSingleShot(true);
     pingTimer->setInterval(1000);
     connect(pingTimer, &QTimer::timeout,
-            [=]()
+            [&]()
             {
                 backend_.generateBackgroundScanUpdate(
                     [this](HttpRequestWorker *worker)
                     {
                         qDebug() << worker->response();
                         if (worker->response().startsWith("\"NOT_RUNNING"))
+                        {
+                            // If we are currently displaying the target source for generation, indicate an error
+                            if (currentJournalSource_ && sourceBeingGenerated_)
+                            {
+                                if (&sourceBeingGenerated_->get() == &currentJournalSource_->get())
+                                {
+                                    setErrorPage("Journal Scan Failed", "Best complain to somebody about it...");
+                                    updateForCurrentSource(JournalSource::JournalSourceState::Error);
+                                }
+                            }
                             return;
-                        else if (worker->response().startsWith("\"COMPLETE"))
-                            return;
-                        // backend_.generateFinalise()
+                        }
                         else
                         {
                             // Update the generator page of the stack
                             auto nCompleted = worker->jsonResponse()["num_completed"].toInt();
                             auto lastFilename = worker->jsonResponse()["last_filename"].toString();
                             updateGenerationPage(nCompleted, lastFilename);
-                            handleBackgroundScan();
+
+                            // Complete?
+                            if (worker->jsonResponse()["complete"].toBool())
+                                backend_.generateFinalise(sourceBeingGenerated_->get(), [=](HttpRequestWorker *worker)
+                                                          { handleGenerateFinalise(sourceBeingGenerated_->get(), worker); });
+                            else
+                                handleGenerateBackgroundScan();
                         }
                     });
             });
     pingTimer->start();
 }
 
-// Handle returned journal generation result
-void MainWindow::handleScanResult(JournalSource &source, HttpRequestWorker *worker)
+// Handle journal generation finalisation
+void MainWindow::handleGenerateFinalise(JournalSource &source, HttpRequestWorker *worker)
 {
     // Check network reply
     if (networkRequestHasError(worker, "trying to generate journals for directory"))
