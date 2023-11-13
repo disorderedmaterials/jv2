@@ -26,18 +26,6 @@ class JournalSource
     static QString indexingType(IndexingType type);
     // Convert text string to IndexingType type
     static IndexingType indexingType(const QString &typeString);
-    // Data Organisation Types
-    enum class DataOrganisationType
-    {
-        Directory,
-        RBNumber
-    };
-    // Return text string for specified DataOrganisationType
-    static QString dataOrganisationType(DataOrganisationType type);
-    // Return sort key associated to specified DataOrganisationType
-    static QString dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type);
-    // Convert text string to DataOrganisationType
-    static DataOrganisationType dataOrganisationType(QString typeString);
 
     public:
     JournalSource(QString name, IndexingType type, bool userDefined = false);
@@ -126,6 +114,20 @@ class JournalSource
     /*
      * Associated Run Data
      */
+    public:
+    // Data Organisation Types
+    enum class DataOrganisationType
+    {
+        Directory,
+        RBNumber
+    };
+    // Return text string for specified DataOrganisationType
+    static QString dataOrganisationType(DataOrganisationType type);
+    // Return sort key associated to specified DataOrganisationType
+    static QString dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type);
+    // Convert text string to DataOrganisationType
+    static DataOrganisationType dataOrganisationType(QString typeString);
+
     private:
     // Root URL containing associated run data
     QString runDataRootUrl_;
