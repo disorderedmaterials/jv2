@@ -9,6 +9,7 @@ import hashlib
 import datetime
 import json
 import time
+import copy
 from jv2backend.utils import jsonify, url_join
 from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journalCollection import JournalCollection
@@ -18,18 +19,18 @@ from threading import Thread, Event, Lock
 
 
 _STOP_GENERATOR_EVENT = Event()
-_GENERATOR_THREAD_NUM_COMPLETED_MUTEX = Lock()
-_GENERATOR_THREAD_LAST_FILE_MUTEX = Lock()
 _GENERATOR_THREAD_RUN_DATA_MUTEX = Lock()
+_GENERATOR_THREAD_COMPLETE_MUTEX = Lock()
+
 
 # Threading
 class GeneratorThread(Thread):
     def __init__(self, discovered_files: typing.Dict[str, typing.Any]):
         Thread.__init__(self)
         self._discovered_files = discovered_files
-        self._num_completed = 0
-        self._last_file_scanned = ""
         self._run_data = []
+        self._complete = False
+
         # Dicts of descriptors we wish to extract from the NeXuS file, and the
         # journal attributes they map to
         self._nxs_strings = {
@@ -49,7 +50,8 @@ class GeneratorThread(Thread):
         }
 
     def run(self):
-        global _GENERATOR_THREAD_NUM_COMPLETED_MUTEX, _STOP_GENERATOR_EVENT
+        global _GENERATOR_THREAD_RUN_DATA_MUTEX, _STOP_GENERATOR_EVENT
+        global _GENERATOR_THREAD_COMPLETE_MUTEX
 
         # Iterate over available data files and get their attributes
         for directory in self._discovered_files:
@@ -65,13 +67,11 @@ class GeneratorThread(Thread):
                 logging.debug(f"... {f}")
 
                 # Get attributes from the file
-                with _GENERATOR_THREAD_LAST_FILE_MUTEX:
-                    self._last_file_scanned = f
                 with _GENERATOR_THREAD_RUN_DATA_MUTEX:
                     self._run_data.append(self._create_journal_entry(directory, f))
-                with _GENERATOR_THREAD_NUM_COMPLETED_MUTEX:
-                    self._num_completed = self._num_completed + 1
-                time.sleep(1)
+
+        with _GENERATOR_THREAD_COMPLETE_MUTEX:
+            self._complete = True
 
     def _create_journal_entry(self, data_directory: str, filename: str) -> {}:
         """Extract values from the supplied NeXuS file to form a journal
@@ -105,19 +105,42 @@ class GeneratorThread(Thread):
 
     def get_update(self) -> ():
         """Return an update on the scan"""
-        global _GENERATOR_THREAD_NUM_COMPLETED_MUTEX
-        global _GENERATOR_THREAD_LAST_FILE_MUTEX
+        global _GENERATOR_THREAD_RUN_DATA_MUTEX, _GENERATOR_THREAD_COMPLETE_MUTEX
 
-        n = None
-        with _GENERATOR_THREAD_NUM_COMPLETED_MUTEX:
-            n = self._num_completed
+        n = 0
         filename = ""
-        with _GENERATOR_THREAD_LAST_FILE_MUTEX:
-            filename = self._last_file_scanned
+        with _GENERATOR_THREAD_RUN_DATA_MUTEX:
+            n = len(self._run_data)
+            if n > 0:
+                filename = self._run_data[-1]["filename"]
 
-        return json.dumps({"num_completed": n, "last_filename": filename})
+        complete = False
+        with _GENERATOR_THREAD_COMPLETE_MUTEX:
+            complete = self._complete
 
-_GENERATOR_THREAD = GeneratorThread
+        return json.dumps(
+            {
+                "num_completed": n,
+                "last_filename": filename,
+                "complete": complete
+            }
+        )
+
+    def is_complete(self) -> bool:
+        """Return whether the thread has completed"""
+        global _GENERATOR_THREAD_COMPLETE_MUTEX
+        with _GENERATOR_THREAD_COMPLETE_MUTEX:
+            return self._complete
+
+    def get_run_data(self) -> []:
+        """Return the run data dict"""
+        global _GENERATOR_THREAD_RUN_DATA_MUTEX
+        with _GENERATOR_THREAD_RUN_DATA_MUTEX:
+            return self._run_data
+
+
+# Global variable for the generator thread instance (GeneratorThread)
+_GENERATOR_THREAD = None
 
 
 class JournalGenerator:
@@ -168,8 +191,7 @@ class JournalGenerator:
         journal files describing the found data.
         """
         # Create the generator thread
-        global _GENERATOR_THREAD
-        global _STOP_GENERATOR_EVENT
+        global _GENERATOR_THREAD, _STOP_GENERATOR_EVENT
         _GENERATOR_THREAD = GeneratorThread(self._discovered_files)
         _STOP_GENERATOR_EVENT.clear()
         _GENERATOR_THREAD.start()
@@ -179,7 +201,7 @@ class JournalGenerator:
     def get_scan_update(self) -> str:
         """Get an update on the current scan"""
         global _GENERATOR_THREAD
-        if _GENERATOR_THREAD is not None and _GENERATOR_THREAD.is_alive():
+        if _GENERATOR_THREAD is not None:
             return _GENERATOR_THREAD.get_update()
         return json.dumps("NOT_RUNNING")
 
@@ -192,11 +214,21 @@ class JournalGenerator:
             _STOP_GENERATOR_EVENT.set()
 
     def generate(self, collection: JournalCollection, sort_key: str) -> str:
-        all_run_data = []
+        global _GENERATOR_THREAD
+
+        # Check that we have a valid thread and that it is *not* running
+        if _GENERATOR_THREAD is None:
+            return json.dumps({"Error": "No generator thread found in the backend."})
+        if _GENERATOR_THREAD.is_alive() or not _GENERATOR_THREAD.is_complete():
+            return json.dumps({"Error": "Generator thread is still running!"})
+
+        all_run_data = copy.deepcopy(_GENERATOR_THREAD.get_run_data())
+
         # Sort run data into sets by sort key, constructing suitable dicts for
         # direct inclusion in our generated Journal classes
         data_sets = {}
         for run in all_run_data:
+            logging.debug(run)
             # If the sorting key isn't already in the dict, add it now
             if run[sort_key] not in data_sets:
                 data_sets[run[sort_key]] = {}
