@@ -8,16 +8,15 @@ import h5py
 import hashlib
 import datetime
 import json
-import time
 import copy
-from jv2backend.utils import jsonify, url_join
-from jv2backend.journalLibrary import JournalLibrary
+from jv2backend.utils import url_join
 from jv2backend.journalCollection import JournalCollection
-from jv2backend.journal import Journal, SourceType
 import jv2backend.userCache
 from threading import Thread, Event, Lock
 
 
+# Global variable for the generator thread instance (GeneratorThread)
+_GENERATOR_THREAD = None
 _STOP_GENERATOR_EVENT = Event()
 _GENERATOR_THREAD_RUN_DATA_MUTEX = Lock()
 _GENERATOR_THREAD_COMPLETE_MUTEX = Lock()
@@ -139,10 +138,6 @@ class GeneratorThread(Thread):
             return self._run_data
 
 
-# Global variable for the generator thread instance (GeneratorThread)
-_GENERATOR_THREAD = None
-
-
 class JournalGenerator:
     """Journal file generator"""
 
@@ -228,7 +223,6 @@ class JournalGenerator:
         # direct inclusion in our generated Journal classes
         data_sets = {}
         for run in all_run_data:
-            logging.debug(run)
             # If the sorting key isn't already in the dict, add it now
             if run[sort_key] not in data_sets:
                 data_sets[run[sort_key]] = {}
