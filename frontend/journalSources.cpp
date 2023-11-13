@@ -25,8 +25,8 @@ void MainWindow::setUpStandardJournalSources()
 
     // IDAaaS RB Directories
     auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
-    //    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
-    idaaasRB.setRunDataLocation("/home/tris/src/jv2/TestData", JournalSource::DataOrganisationType::Directory);
+    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
+    idaaasRB.setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
 }
 
 // Find the specified journal source
