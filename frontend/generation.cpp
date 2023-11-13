@@ -124,8 +124,16 @@ void MainWindow::handleGenerateFinalise(JournalSource &source, HttpRequestWorker
         return;
     }
 
-    // Generation was a success, so try to load in the file we just generated
-    setCurrentJournalSource(source);
+    // Generation was a success, so clean up
+    sourceBeingGenerated_ = std::nullopt;
+
+    source.setState(JournalSource::JournalSourceState::Loading);
+
+    statusBar()->showMessage(QString("Journal generation completed for source '%1'.\n").arg(source.name()));
+
+    // Show the new journals _if_ the current journal source being displayed is the one just generated
+    if (&source == &currentJournalSource())
+        setCurrentJournalSource(source);
 }
 
 // Update journal generation page for specified source
