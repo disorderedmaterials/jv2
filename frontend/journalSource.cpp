@@ -212,6 +212,16 @@ void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrume
 OptionalReferenceWrapper<const Instrument> JournalSource::currentInstrument() const { return currentInstrument_; }
 
 /*
+ * Source ID
+ */
+
+// Return our source ID
+QString JournalSource::sourceID() const
+{
+    return instrumentRequired() ? QString("%1/%2").arg(name_, currentInstrument()->get().name()) : name_;
+}
+
+/*
  * Associated Run Data
  */
 

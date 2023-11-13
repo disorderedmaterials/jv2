@@ -4,6 +4,33 @@
 #include "mainWindow.h"
 #include <QMessageBox>
 
+/*
+ * UI
+ */
+
+// Update journal generation page for specified source
+void MainWindow::updateGenerationPage(int nCompleted, const QString &lastFileProcessed)
+{
+    ui_.GeneratingProgressBar->setValue(nCompleted);
+    ui_.GeneratingInfoLabel->setText(QString("Last file processed was '%1')").arg(lastFileProcessed));
+}
+
+void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
+{
+    if (!sourceBeingGenerated_)
+        return;
+
+    if (QMessageBox::question(
+            this, "Stop Journal Generation?",
+            QString("Are you sure you want to cancel journal generation for '%1'?\nAll progress to date will be lost.")
+                .arg(sourceBeingGenerated_->get().sourceID())) == QMessageBox::StandardButton::Yes)
+        backend_.generateBackgroundScanStop([&](HttpRequestWorker *worker) { handleGenerateBackgroundScanStop(worker); });
+}
+
+/*
+ * Network Handling
+ */
+
 // Handle returned directory list result
 void MainWindow::handleGenerateList(JournalSource &source, HttpRequestWorker *worker)
 {
@@ -136,9 +163,9 @@ void MainWindow::handleGenerateFinalise(JournalSource &source, HttpRequestWorker
         setCurrentJournalSource(source);
 }
 
-// Update journal generation page for specified source
-void MainWindow::updateGenerationPage(int nCompleted, const QString &lastFileProcessed)
+void MainWindow::handleGenerateBackgroundScanStop(HttpRequestWorker *worker)
 {
-    ui_.GeneratingProgressBar->setValue(nCompleted);
-    ui_.GeneratingInfoLabel->setText(QString("Last file processed was '%1')").arg(lastFileProcessed));
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to stop run data scan for directory"))
+        return;
 }

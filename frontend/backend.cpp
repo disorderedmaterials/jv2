@@ -287,6 +287,12 @@ void Backend::generateBackgroundScanUpdate(HttpRequestWorker::HttpRequestHandler
     createRequest(createRoute("generate/scanUpdate"), handler);
 }
 
+// Stop background scan
+void Backend::generateBackgroundScanStop(HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("generate/stop"), handler);
+}
+
 // Finalise journals from scanned data
 void Backend::generateFinalise(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {

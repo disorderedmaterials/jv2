@@ -169,14 +169,9 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
         setErrorPage("No Index File Found", "An index file could not be found.");
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
 
-        auto sourceID = journalSource.instrumentRequired()
-                            ? QString("%1/%2").arg(journalSource.name(), journalSource.currentInstrument()->get().name())
-                            : journalSource.name();
-
-        if (QMessageBox::question(
-                this, "Index File Doesn't Exist",
-                QString("No index file currently exists in '%1'.\nWould you like to generate it now?").arg(sourceID)) ==
-            QMessageBox::StandardButton::Yes)
+        if (QMessageBox::question(this, "Index File Doesn't Exist",
+                                  QString("No index file currently exists in '%1'.\nWould you like to generate it now?")
+                                      .arg(journalSource.sourceID())) == QMessageBox::StandardButton::Yes)
             backend_.generateList(currentJournalSource(),
                                   [&](HttpRequestWorker *worker) { handleGenerateList(journalSource, worker); });
 

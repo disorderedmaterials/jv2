@@ -151,9 +151,19 @@ class MainWindow : public QMainWindow
      * Journal Generation
      */
     private:
+    // Current source being generated (if any)
     OptionalReferenceWrapper<JournalSource> sourceBeingGenerated_;
     // Map of sort keys to run data files
     std::map<QString, std::vector<QString>> scannedFiles_;
+
+    private:
+    // Model for scanned journal files
+    GenericTreeModel generatorScannedFilesModel_;
+    // Update journal generation page for specified source
+    void updateGenerationPage(int nCompleted, const QString &lastFileProcessed);
+
+    private slots:
+    void on_GeneratingCancelButton_clicked(bool checked);
 
     private:
     // Handle returned directory list result
@@ -162,12 +172,8 @@ class MainWindow : public QMainWindow
     void handleGenerateBackgroundScan();
     // Handle journal generation finalisation
     void handleGenerateFinalise(JournalSource &source, HttpRequestWorker *worker);
-
-    private:
-    // Model for scanned journal files
-    GenericTreeModel generatorScannedFilesModel_;
-    // Update journal generation page for specified source
-    void updateGenerationPage(int nCompleted, const QString &lastFileProcessed);
+    // Handle journal generation background scan termination
+    void handleGenerateBackgroundScanStop(HttpRequestWorker *worker);
 
     /*
      * Network Handling

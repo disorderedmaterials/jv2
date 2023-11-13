@@ -203,13 +203,18 @@ class JournalGenerator:
             return _GENERATOR_THREAD.get_update()
         return json.dumps("NOT_RUNNING")
 
-    def stop_scan(self):
+    def stop_scan(self) -> str:
         """Stop any scan currently in progress"""
         global _GENERATOR_THREAD
         if _GENERATOR_THREAD is None:
-            return
+            return json.dumps("NOT RUNNING")
         if _GENERATOR_THREAD.is_alive():
             _STOP_GENERATOR_EVENT.set()
+            _GENERATOR_THREAD.join()
+
+        _GENERATOR_THREAD = None
+
+        return json.dumps("OK")
 
     def generate(self, collection: JournalCollection, sort_key: str) -> str:
         global _GENERATOR_THREAD

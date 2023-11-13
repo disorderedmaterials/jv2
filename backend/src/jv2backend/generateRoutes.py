@@ -72,8 +72,12 @@ def add_routes(
     @app.get("/generate/scanUpdate")
     def scan_update() -> FlaskResponse:
         """Provide an update on the current background scan"""
-
         return make_response(journalGenerator.get_scan_update(), 200)
+
+    @app.get("/generate/stop")
+    def scan_stop() -> FlaskResponse:
+        """Stop the current background scan"""
+        return make_response(journalGenerator.stop_scan(), 200)
 
     @app.post("/generate/finalise")
     def finalise() -> FlaskResponse:

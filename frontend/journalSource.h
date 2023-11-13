@@ -112,6 +112,13 @@ class JournalSource
     OptionalReferenceWrapper<const Instrument> currentInstrument() const;
 
     /*
+     * Source ID
+     */
+    public:
+    // Return our source ID
+    QString sourceID() const;
+
+    /*
      * Associated Run Data
      */
     public:
