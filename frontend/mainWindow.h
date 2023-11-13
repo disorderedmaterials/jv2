@@ -167,7 +167,7 @@ class MainWindow : public QMainWindow
     // Model for scanned journal files
     GenericTreeModel generatorScannedFilesModel_;
     // Update journal generation page for specified source
-    void updateGenerationPage(int nCompleted, QString currentFile);
+    void updateGenerationPage(int nCompleted, const QString &lastFileProcessed);
 
     /*
      * Network Handling

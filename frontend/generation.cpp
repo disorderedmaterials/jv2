@@ -137,9 +137,8 @@ void MainWindow::handleGenerateFinalise(JournalSource &source, HttpRequestWorker
 }
 
 // Update journal generation page for specified source
-void MainWindow::updateGenerationPage(int nCompleted, QString currentFile)
+void MainWindow::updateGenerationPage(int nCompleted, const QString &lastFileProcessed)
 {
     ui_.GeneratingProgressBar->setValue(nCompleted);
-
-    //    generatorScannedFilesModel_;
+    ui_.GeneratingInfoLabel->setText(QString("Last file processed was '%1')").arg(lastFileProcessed));
 }

@@ -111,7 +111,10 @@ class GeneratorThread(Thread):
         with _GENERATOR_THREAD_RUN_DATA_MUTEX:
             n = len(self._run_data)
             if n > 0:
-                filename = self._run_data[-1]["filename"]
+                filename = url_join(
+                    self._run_data[-1]["data_directory"],
+                    self._run_data[-1]["filename"]
+                )
 
         complete = False
         with _GENERATOR_THREAD_COMPLETE_MUTEX:
