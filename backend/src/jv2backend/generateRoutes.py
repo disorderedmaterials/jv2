@@ -70,6 +70,12 @@ def add_routes(
 
         return journalGenerator.scan()
 
+    @app.get("/generate/scanUpdate")
+    def scan_update() -> FlaskResponse:
+        """Provide an update on the current background scan"""
+
+        return make_response(journalGenerator.get_scan_update(), 200)
+
     @app.post("/generate/finalise")
     def finalise() -> FlaskResponse:
         """Generates journals and accompanying index file for a target dir

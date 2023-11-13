@@ -14,24 +14,22 @@ from jv2backend.journalLibrary import JournalLibrary
 from jv2backend.journalCollection import JournalCollection
 from jv2backend.journal import Journal, SourceType
 import jv2backend.userCache
-from threading import Thread
+from threading import Thread, Event, Lock
 
+
+_STOP_GENERATOR_EVENT = Event()
+_GENERATOR_THREAD_NUM_COMPLETED_MUTEX = Lock()
+_GENERATOR_THREAD_LAST_FILE_MUTEX = Lock()
+_GENERATOR_THREAD_RUN_DATA_MUTEX = Lock()
 
 # Threading
 class GeneratorThread(Thread):
-    def __init__(self, wait_time: int):
-        Thread.__init__(self, daemon=True)
-        self._wait_time = wait_time
-        self._counter = wait_time
-        self._destroy = False
-
-
-class JournalGenerator:
-    """Journal file generator"""
-
-    def __init__(self) -> None:
-        self._total_files_to_scan: int = None
-        self._discovered_files: typing.Dict[str, typing.Any] = {}
+    def __init__(self, discovered_files: typing.Dict[str, typing.Any]):
+        Thread.__init__(self)
+        self._discovered_files = discovered_files
+        self._num_completed = 0
+        self._last_file_scanned = ""
+        self._run_data = []
         # Dicts of descriptors we wish to extract from the NeXuS file, and the
         # journal attributes they map to
         self._nxs_strings = {
@@ -50,38 +48,32 @@ class JournalGenerator:
             "/raw_data_1/proton_charge": "proton_charge"
         }
 
-    def list_files(self, data_directory: str) -> str:
-        """List available NeXuS files in a directory.
+    def run(self):
+        global _GENERATOR_THREAD_NUM_COMPLETED_MUTEX, _STOP_GENERATOR_EVENT
 
-        :param data_directory: Target data directory to scan
-        :return: A JSON response with the number of NeXuS files located
-        """
-        # Check if a scan is already in progress
-        # TODO
+        # Iterate over available data files and get their attributes
+        for directory in self._discovered_files:
+            if _STOP_GENERATOR_EVENT.is_set():
+                break
 
-        # First step, create a dict of all available nxs files in the target
-        # directory, organised by folder name
-        self._discovered_files = {}
-        for rootDir, dirs, files in os.walk(data_directory):
-            for f in files:
-                if f.lower().endswith(".nxs"):
-                    if rootDir not in self._discovered_files:
-                        self._discovered_files[rootDir] = []
-                    self._discovered_files[rootDir].append(f)
+            logging.debug(f"Scanning files in directory {directory}...")
 
-        num_files = sum(len(runs) for runs in self._discovered_files.values())
-        logging.debug(f"Found {num_files} NeXus files over \
-                      {len(self._discovered_files)} unique directories \
-                      in root directory {data_directory}.")
+            for f in self._discovered_files[directory]:
+                if _STOP_GENERATOR_EVENT.is_set():
+                    break
 
-        return json.dumps(
-            {
-                "num_files": num_files,
-                "data_directory": data_directory
-            }
-        )
+                logging.debug(f"... {f}")
 
-    def create_journal_entry(self, data_directory: str, filename: str) -> {}:
+                # Get attributes from the file
+                with _GENERATOR_THREAD_LAST_FILE_MUTEX:
+                    self._last_file_scanned = f
+                with _GENERATOR_THREAD_RUN_DATA_MUTEX:
+                    self._run_data.append(self._create_journal_entry(directory, f))
+                with _GENERATOR_THREAD_NUM_COMPLETED_MUTEX:
+                    self._num_completed = self._num_completed + 1
+                time.sleep(1)
+
+    def _create_journal_entry(self, data_directory: str, filename: str) -> {}:
         """Extract values from the supplied NeXuS file to form a journal
         'entry' for the run.
 
@@ -111,18 +103,62 @@ class JournalGenerator:
 
         return data
 
-    def _get_nexus_file_data(self):
-        # Iterate over available data files and get their attributes
-        all_run_data = []
-        for directory in self._discovered_files:
-            logging.debug(f"Probing files in directory {directory}...")
-            for f in self._discovered_files[directory]:
-                logging.debug(f"... {f}")
-                # Get attributes from the file
-                # all_run_data.append(self.create_journal_entry(directory, f))
-                time.sleep(10)
+    def get_update(self) -> ():
+        """Return an update on the scan"""
+        global _GENERATOR_THREAD_NUM_COMPLETED_MUTEX
+        global _GENERATOR_THREAD_LAST_FILE_MUTEX
 
-    def scan(self):
+        n = None
+        with _GENERATOR_THREAD_NUM_COMPLETED_MUTEX:
+            n = self._num_completed
+        filename = ""
+        with _GENERATOR_THREAD_LAST_FILE_MUTEX:
+            filename = self._last_file_scanned
+
+        return json.dumps({"num_completed": n, "last_filename": filename})
+
+_GENERATOR_THREAD = GeneratorThread
+
+
+class JournalGenerator:
+    """Journal file generator"""
+
+    def __init__(self) -> None:
+        self._discovered_files: typing.Dict[str, typing.Any] = {}
+
+    def list_files(self, data_directory: str) -> str:
+        """List available NeXuS files in a directory.
+
+        :param data_directory: Target data directory to scan
+        :return: A JSON response with the number of NeXuS files located
+        """
+        # Check if a scan is already in progress
+        # TODO
+
+        # First step, create a dict of all available nxs files in the target
+        # directory, organised by folder name
+        self._discovered_files = {}
+        for rootDir, dirs, files in os.walk(data_directory):
+            for f in files:
+                if f.lower().endswith(".nxs"):
+                    if rootDir not in self._discovered_files:
+                        self._discovered_files[rootDir] = []
+                    self._discovered_files[rootDir].append(f)
+
+        num_files = sum(len(runs) for runs in self._discovered_files.values())
+        logging.debug(f"Found {num_files} NeXus files over \
+                      {len(self._discovered_files)} unique directories \
+                      in root directory {data_directory}.")
+
+        return json.dumps(
+            {
+                "num_files": num_files,
+                "data_directory": data_directory,
+                "files": self._discovered_files
+            }
+        )
+
+    def scan(self) -> str:
         """Generate an index file containing journal information
 
         :param collection: Target collection for new journals
@@ -131,10 +167,21 @@ class JournalGenerator:
         Search all folders in the data file directory and generate a set of
         journal files describing the found data.
         """
-        # Iterate over available data files and get their attributes
-        thread = Thread(target=self._get_nexus_file_data(), daemon=True)
-        thread.start()
-        logging.debug("Noe we are here.")
+        # Create the generator thread
+        global _GENERATOR_THREAD
+        global _STOP_GENERATOR_EVENT
+        _GENERATOR_THREAD = GeneratorThread(self._discovered_files)
+        _STOP_GENERATOR_EVENT.clear()
+        _GENERATOR_THREAD.start()
+        logging.debug("Started generator thread...")
+        return json.dumps(None)
+
+    def get_scan_update(self) -> str:
+        """Get an update on the current scan"""
+        global _GENERATOR_THREAD
+        if _GENERATOR_THREAD is not None and _GENERATOR_THREAD.is_alive():
+            return _GENERATOR_THREAD.get_update()
+        return json.dumps("NOT_RUNNING")
 
     def generate(self, collection: JournalCollection, sort_key: str) -> str:
         all_run_data = []
