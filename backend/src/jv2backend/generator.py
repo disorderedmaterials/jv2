@@ -183,6 +183,14 @@ class JournalGenerator:
             return _GENERATOR_THREAD.get_update()
         return json.dumps("NOT_RUNNING")
 
+    def stop_scan(self):
+        """Stop any scan currently in progress"""
+        global _GENERATOR_THREAD
+        if _GENERATOR_THREAD is None:
+            return
+        if _GENERATOR_THREAD.is_alive():
+            _STOP_GENERATOR_EVENT.set()
+
     def generate(self, collection: JournalCollection, sort_key: str) -> str:
         all_run_data = []
         # Sort run data into sets by sort key, constructing suitable dicts for

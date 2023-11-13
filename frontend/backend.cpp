@@ -112,6 +112,10 @@ void Backend::start()
 void Backend::stop()
 {
     qDebug() << "Stopping backend process with pid " << process_.processId();
+
+    // Gracefully inform the backend to quit
+    createRequest(createRoute("shutdown"));
+
     process_.terminate();
     process_.waitForFinished();
 }

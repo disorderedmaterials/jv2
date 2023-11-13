@@ -19,4 +19,13 @@ def add_routes(
         """
         return jsonify('READY', 200)
 
+    @app.route("/shutdown")
+    def shutdown() -> FlaskResponse:
+        """Prepare for nice shutdown
+        """
+        journalGenerator.stop_scan()
+
+        return jsonify('OK', 200)
+
+
     return app
