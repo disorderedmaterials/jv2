@@ -262,8 +262,6 @@ class MainWindow : public QMainWindow
     void handleMonSpectraCharting(HttpRequestWorker *worker);
     void plotSpectra(HttpRequestWorker *count);
     void plotMonSpectra(HttpRequestWorker *count);
-    void getSpectrumCount();
-    void getMonitorCount();
 
     // Normalisation options
     void muAmps(QString runs, bool checked, QString);

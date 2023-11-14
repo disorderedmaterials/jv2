@@ -9,6 +9,7 @@ from flask.wrappers import Response as FlaskResponse
 from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.utils import json_response
 import jv2backend.nexus
+import json
 
 
 def add_routes(
@@ -108,18 +109,20 @@ def add_routes(
 
         return make_response(jsonify(result), 200)
 
-    @app.post("/runData/nexus/getSpectrumRange")
-    def getSpectrumRange() -> FlaskResponse:
-        """Return the number of detector spectra for the run.
+    @app.post("/runData/nexus/getSpectrumCount")
+    def get_spectrum_count() -> FlaskResponse:
+        """Return the number of spectra - monitor or detector - for the run.
 
         The POST data should contain:
-          runNumber: Run number to probe for detector count
+             runNumber: Run number to probe for spectrum count
+          spectrumType: Either "monitor" or "detector"
 
         :return: The number of available detectors
         """
         try:
             postData = RequestData(request.json,
-                                   require_run_numbers=True)
+                                   require_run_numbers=True,
+                                   require_parameter="spectrumType")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -140,49 +143,29 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return make_response(jsonify(jv2backend.nexus.spectra_count(dataFile)), 200)
-
-    @app.post("/runData/nexus/getMonitorRange")
-    def getMonitorRange() -> FlaskResponse:
-        """Return the number of monitor spectra for the run.
-
-        The POST data should contain:
-          runNumber: Run number to probe for monitor count
-
-        :return: The number of available monitors
-        """
-        try:
-            postData = RequestData(request.json,
-                                   require_run_numbers=True)
-        except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
-
-        # Check for valid collection
-        if postData.library_key() not in journalLibrary:
+        if postData.parameter == "monitor":
             return make_response(
-                jsonify({"Error": f"Collection {postData.library_key()} "
-                                  f"does not exist."}), 200
-            )
-        collection = journalLibrary[postData.library_key()]
-
-        # Locate data file for the specified run number in the collection
-        run_number = postData.run_numbers[0]
-        dataFile = collection.locate_data_file(run_number)
-        if dataFile is None:
+                jsonify(jv2backend.nexus.get_monitor_count(dataFile)),
+                200)
+        elif postData.parameter == "detector":
             return make_response(
-                jsonify({"Error": f"Unable to find data file for run "
-                                  "{run}"}), 200
-            )
+                jsonify(jv2backend.nexus.get_detector_count(dataFile)),
+                200)
+        else:
+            return make_response(
+                json.dumps({"Error": f"Unrecognised spectrum type "
+                                     f"'{postData.parameter}'"}),
+                200)
 
-        return make_response(jsonify(jv2backend.nexus.monitor_count(dataFile)), 200)
 
     @app.post("/runData/nexus/getSpectrum")
-    def getSpectrum() -> FlaskResponse:
-        """Return detector spectrum for one or more run numbers.
+    def get_spectrum() -> FlaskResponse:
+        """Return spectrum for one or more run numbers.
 
         The POST data should contain:
-         runNumbers: Array of run numbers to work on
-         spectrumId: Target detector spectrum to return
+           runNumbers: Array of run numbers to work on
+           spectrumId: Target spectrum index to return
+         spectrumType: Spectrum type to return - either monitor or detector
 
         :return: A list of the detector spectra
         """
@@ -207,48 +190,21 @@ def add_routes(
         # first entry matches sata expectation of the frontend
         spectra = [[postData.run_numbers, postData.parameter, "detector"]]
         for run in dataFiles:
-            if run is not None:
-                spectra.append(jv2backend.nexus.spectrum(dataFiles[run],
-                                            int(postData.parameter)))
+            if run is None:
+                continue
+            if postData.parameter == "monitor":
+                spectra.append(jv2backend.nexus.get_detector_spectrum(
+                    dataFiles[run],
+                    int(postData.parameter))
+                )
+            elif postData.parameter == "detector":
+                spectra.append(jv2backend.nexus.get_monitor_spectrum(
+                    dataFiles[run],
+                    int(postData.parameter))
+                )
 
         return make_response(jsonify(spectra), 200)
 
-    @app.post("/runData/nexus/getMonitorSpectrum")
-    def getMonitorSpectrum() -> FlaskResponse:
-        """Return monitor spectrum for one or more run numbers.
-
-        The POST data should contain:
-         runNumbers: Array of run numbers to work on
-         spectrumId: Target monitor spectrum to return
-
-        :return: A list of the monitor spectra
-        """
-        try:
-            postData = RequestData(request.json,
-                                   require_run_numbers=True,
-                                   require_parameter="spectrumId")
-        except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
-
-        # Check for valid collection
-        if postData.library_key() not in journalLibrary:
-            return make_response(
-                jsonify({"Error": f"Collection {postData.library_key()} "
-                                  f"does not exist."}), 200
-            )
-        collection = journalLibrary[postData.library_key()]
-
-        # Locate data files for the specified run numbers in the collection
-        dataFiles = collection.locate_data_files(postData.run_numbers)
-
-        # first entry matches data expectation of the frontend
-        spectra = [[postData.run_numbers, postData.parameter, "monitor"]]
-        for run in dataFiles:
-            if run is not None:
-                spectra.append(jv2backend.nexus.monitor_spectrum(dataFiles[run],
-                                                    int(postData.parameter)))
-
-        return make_response(jsonify(spectra), 200)
 
     @app.post("/runData/nexus/getDetectorAnalysis")
     def getDetectorAnalysis() -> FlaskResponse:

@@ -87,16 +87,12 @@ class Backend : public QObject
     // Get NeXuS log value data for specified run files
     void getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
                               HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor range for specified run number
-    void getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor spectrum for specified run numbers
-    void getNexusMonitor(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                         HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS spectrum range for specified run numbers
-    void getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS detector spectra for specified run numbers
-    void getNexusDetector(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                          HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS spectrum count for specified run number
+    void getNexusSpectrumCount(const JournalSource &source, const QString &spectrumType, int runNo,
+                               HttpRequestWorker::HttpRequestHandler handler = {});
+    // Get NeXuS spectrum for specified run numbers
+    void getNexusSpectrum(const JournalSource &source, const QString &spectrumType, int monitorId,
+                          const std::vector<int> &runNos, HttpRequestWorker::HttpRequestHandler handler = {});
     // Get NeXuS detector spectra analysis for specified run number
     void getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
 

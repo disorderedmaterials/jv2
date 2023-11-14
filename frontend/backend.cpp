@@ -204,45 +204,24 @@ void Backend::getNexusLogValueData(const JournalSource &source, const std::vecto
     postRequest(createRoute("runData/nexus/getLogValueData"), data, handler);
 }
 
-// Get NeXuS monitor range for specified run numbers in the given cycle
-void Backend::getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
+// Get NeXuS spectrum count for specified run number
+void Backend::getNexusSpectrumCount(const JournalSource &source, const QString &spectrumType, int runNo,
+                                    HttpRequestWorker::HttpRequestHandler handler)
 {
     auto data = source.sourceObjectData();
     data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
+    data["spectrumType"] = spectrumType;
 
-    postRequest(createRoute("runData/nexus/getMonitorRange"), data, handler);
+    postRequest(createRoute("runData/nexus/getSpectrumCount"), data, handler);
 }
 
-// Get NeXuS monitor spectrum for specified run numbers in the given cycle
-void Backend::getNexusMonitor(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                              HttpRequestWorker::HttpRequestHandler handler)
+// Get NeXuS spectrum for specified run numbers
+void Backend::getNexusSpectrum(const JournalSource &source, const QString &spectrumType, int monitorId,
+                               const std::vector<int> &runNos, HttpRequestWorker::HttpRequestHandler handler)
 {
     auto data = source.sourceObjectData();
     data["spectrumId"] = monitorId;
-
-    QJsonArray runNumbers;
-    for (auto i : runNos)
-        runNumbers.append(i);
-    data["runNumbers"] = runNumbers;
-
-    postRequest(createRoute("runData/nexus/getMonitorSpectrum"), data, handler);
-}
-
-// Get NeXuS spectrum range for specified run number
-void Backend::getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
-{
-    auto data = source.sourceObjectData();
-    data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
-
-    postRequest(createRoute("runData/nexus/getSpectrumRange"), data, handler);
-}
-
-// Get NeXuS detector spectra for specified run numbers in the given cycle
-void Backend::getNexusDetector(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                               HttpRequestWorker::HttpRequestHandler handler)
-{
-    auto data = source.sourceObjectData();
-    data["spectrumId"] = monitorId;
+    data["spectrumType"] = spectrumType;
 
     QJsonArray runNumbers;
     for (auto i : runNos)
