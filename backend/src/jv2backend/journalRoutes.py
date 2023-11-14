@@ -35,7 +35,7 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Listing journals for {post_data.source_id}: "
+        logging.debug(f"Listing journals for {post_data.library_key()}: "
                       f"{post_data.journal_file_url()}")
 
         # Parse the journal index
