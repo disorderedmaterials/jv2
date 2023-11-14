@@ -26,10 +26,9 @@ def add_routes(
         """List available NeXuS files in a target directory
 
         The POST data should contain:
-          journalRoot: The root network or disk location for journals [UNUSED]
-        dataDirectory: The data file directory to list
+          runDataRootUrl: The data file directory to list
 
-        :return: The number of NeXuS files found
+        :return: A JSON response containing details of the NeXuS files found
         """
         try:
             post_data = RequestData(request.json,
@@ -37,7 +36,7 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Scan for NeXuS files in data directory "
+        logging.debug(f"List NeXuS files in data directory "
                       f"{post_data.run_data_root_url}...")
 
         return make_response(
@@ -50,22 +49,18 @@ def add_routes(
         """Generates journals and accompanying index file for a target dir
 
         The POST data should contain:
-             journalRoot: Unique identifier for the journal set
-               directory: The directory in journalRoot containing the journal
-           dataDirectory: Location of the run data to scan
-        dataOrganisation: How the data is to be organised
-                filename: Name of the target index file to generate
+          runDataRootUrl: The data file directory to scan
 
         :return: A JSON-formatted list of new run data, or None
         """
         try:
             post_data = RequestData(request.json,
-                                    require_journal_file=True,
                                     require_data_directory=True)
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Scan NeXuS files in {post_data.run_data_root_url}")
+        logging.debug(f"Scan NeXuS files discovered in "
+                      f"{post_data.run_data_root_url}")
 
         return journalGenerator.scan()
 
@@ -84,13 +79,13 @@ def add_routes(
         """Generates journals and accompanying index file for a target dir
 
         The POST data should contain:
-             journalRoot: Unique identifier for the journal set
-               directory: The directory in journalRoot containing the journal
-           dataDirectory: Location of the run data to scan
-        dataOrganisation: How the data is to be organised
-                filename: Name of the target index file to generate
+              journalRoot: Unique identifier for the journal set
+           runDataRootUrl: Location of the run data to scan
+         dataOrganisation: How the data is to be organised
+                  sortKey: An additional parameter describing the journal
+                           organisation strategy to employ
 
-        :return: A JSON-formatted list of new run data, or None
+        :return: A JSON response indicating the success of the operation
         """
         try:
             post_data = RequestData(request.json,
