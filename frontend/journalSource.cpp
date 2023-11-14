@@ -257,7 +257,7 @@ QJsonObject JournalSource::sourceObjectData() const
         data["instrument"] = currentInstrument_->get().name();
     data["runDataRootUrl"] =
         currentInstrument_
-            ? QString("%1/%2").arg(runDataRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
+            ? QString("%1/%2").arg(runDataRootUrl_, currentInstrument_->get().pathComponent(runDataOrganisationByInstrument_))
             : runDataRootUrl_;
     return data;
 }
