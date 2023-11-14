@@ -7,7 +7,6 @@ import logging
 from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.utils import json_response
 import jv2backend.nexus
 import json
 
