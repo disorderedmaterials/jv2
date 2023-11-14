@@ -92,14 +92,14 @@ def add_routes(
                                       "{run}"}), 200
                 )
 
-            runData = {}
+            run_data = {}
             nxsfile, first_group = jv2backend.nexus.open_at(data_files[run], 0)
 
-            runData["runNumber"] = str(run)
-            runData["timeRange"] = [jv2backend.nexus.timerange(first_group)]
-            runData["data"] = jv2backend.nexus.logvalues(first_group[log_value])
+            run_data["runNumber"] = str(run)
+            run_data["timeRange"] = [jv2backend.nexus.timerange(first_group)]
+            run_data["data"] = jv2backend.nexus.logvalues(first_group[log_value])
 
-            log_value_data[run] = runData
+            log_value_data[run] = run_data
 
         return make_response(jsonify(
             {
