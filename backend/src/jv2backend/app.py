@@ -31,7 +31,7 @@ def create_app(inside_gunicorn: bool = True, activate_cache: bool = True) -> Fla
     journalLibrary = jv2backend.journalLibrary.JournalLibrary({})
 
     # Register Flask routes
-    jv2backend.serverRoutes.add_routes(app)
+    jv2backend.serverRoutes.add_routes(app, journalGenerator)
     jv2backend.journalRoutes.add_routes(app, journalLibrary)
     jv2backend.generateRoutes.add_routes(app, journalGenerator, journalLibrary)
     jv2backend.nexusRoutes.add_routes(app, journalLibrary)

@@ -26,10 +26,9 @@ def add_routes(
         """List available NeXuS files in a target directory
 
         The POST data should contain:
-          journalRoot: The root network or disk location for journals [UNUSED]
-        dataDirectory: The data file directory to list
+          runDataRootUrl: The data file directory to list
 
-        :return: The number of NeXuS files found
+        :return: A JSON response containing details of the NeXuS files found
         """
         try:
             post_data = RequestData(request.json,
@@ -37,7 +36,7 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Scan for NeXuS files in data directory "
+        logging.debug(f"List NeXuS files in data directory "
                       f"{post_data.run_data_root_url}...")
 
         return make_response(
@@ -45,18 +44,48 @@ def add_routes(
             200
         )
 
-    @app.post("/generate/go")
+    @app.post("/generate/scan")
     def scan() -> FlaskResponse:
         """Generates journals and accompanying index file for a target dir
 
         The POST data should contain:
-             journalRoot: Unique identifier for the journal set
-               directory: The directory in journalRoot containing the journal
-           dataDirectory: Location of the run data to scan
-        dataOrganisation: How the data is to be organised
-                filename: Name of the target index file to generate
+          runDataRootUrl: The data file directory to scan
 
         :return: A JSON-formatted list of new run data, or None
+        """
+        try:
+            post_data = RequestData(request.json,
+                                    require_data_directory=True)
+        except InvalidRequest as exc:
+            return make_response(jsonify({"Error": str(exc)}), 200)
+
+        logging.debug(f"Scan NeXuS files discovered in "
+                      f"{post_data.run_data_root_url}")
+
+        return journalGenerator.scan()
+
+    @app.get("/generate/scanUpdate")
+    def scan_update() -> FlaskResponse:
+        """Provide an update on the current background scan"""
+        return make_response(journalGenerator.get_scan_update(), 200)
+
+    @app.get("/generate/stop")
+    def scan_stop() -> FlaskResponse:
+        """Stop the current background scan"""
+        return make_response(journalGenerator.stop_scan(), 200)
+
+    @app.post("/generate/finalise")
+    def finalise() -> FlaskResponse:
+        """Generates journals and accompanying index file for a target dir
+
+        The POST data should contain:
+              journalRoot: Unique identifier for the journal set
+           runDataRootUrl: Location of the run data to scan
+         dataOrganisation: How the data is to be organised
+                  sortKey: An additional parameter describing the journal
+                           organisation strategy to employ
+
+        :return: A JSON response indicating the success of the operation
         """
         try:
             post_data = RequestData(request.json,
@@ -78,6 +107,11 @@ def add_routes(
             datetime.datetime.now()
         )
 
-        return journalGenerator.generate(journalLibrary[post_data.library_key()], post_data.parameter)
+        return make_response(
+            journalGenerator.generate(journalLibrary[post_data.library_key()],
+                                      post_data.parameter),
+            200
+        )
+
 
     return app

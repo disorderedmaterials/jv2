@@ -4,6 +4,7 @@
 #pragma once
 
 #include "backend.h"
+#include "genericTreeModel.h"
 #include "httpRequestWorker.h"
 #include "instrumentModel.h"
 #include "journalModel.h"
@@ -150,10 +151,29 @@ class MainWindow : public QMainWindow
      * Journal Generation
      */
     private:
+    // Current source being generated (if any)
+    OptionalReferenceWrapper<JournalSource> sourceBeingGenerated_;
+    // Map of sort keys to run data files
+    std::map<QString, std::vector<QString>> scannedFiles_;
+
+    private:
+    // Model for scanned journal files
+    GenericTreeModel generatorScannedFilesModel_;
+    // Update journal generation page for specified source
+    void updateGenerationPage(int nCompleted, const QString &lastFileProcessed);
+
+    private slots:
+    void on_GeneratingCancelButton_clicked(bool checked);
+
+    private:
     // Handle returned directory list result
-    void handleListDataDirectory(JournalSource &source, HttpRequestWorker *worker);
-    // Handle returned journal generation result
-    void handleScanResult(JournalSource &source, HttpRequestWorker *worker);
+    void handleGenerateList(JournalSource &source, HttpRequestWorker *worker);
+    // Handle / monitor the generation background scan
+    void handleGenerateBackgroundScan();
+    // Handle journal generation finalisation
+    void handleGenerateFinalise(JournalSource &source, HttpRequestWorker *worker);
+    // Handle journal generation background scan termination
+    void handleGenerateBackgroundScanStop(HttpRequestWorker *worker);
 
     /*
      * Network Handling

@@ -25,7 +25,7 @@ void MainWindow::setUpStandardJournalSources()
 
     // IDAaaS RB Directories
     auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
-    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
+    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::Name, true);
     idaaasRB.setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
 }
 
@@ -56,6 +56,13 @@ void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource>
     {
         updateForCurrentSource();
 
+        return;
+    }
+
+    // If this source is generating, move to the generator page and stop there
+    if (currentJournalSource().state() == JournalSource::JournalSourceState::Generating)
+    {
+        updateForCurrentSource();
         return;
     }
 
@@ -162,16 +169,11 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
         setErrorPage("No Index File Found", "An index file could not be found.");
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
 
-        auto sourceID = journalSource.instrumentRequired()
-                            ? QString("%1/%2").arg(journalSource.name(), journalSource.currentInstrument()->get().name())
-                            : journalSource.name();
-
-        if (QMessageBox::question(
-                this, "Index File Doesn't Exist",
-                QString("No index file currently exists in '%1'.\nWould you like to generate it now?").arg(sourceID)) ==
-            QMessageBox::StandardButton::Yes)
-            backend_.listDataDirectory(currentJournalSource(),
-                                       [&](HttpRequestWorker *worker) { handleListDataDirectory(journalSource, worker); });
+        if (QMessageBox::question(this, "Index File Doesn't Exist",
+                                  QString("No index file currently exists in '%1'.\nWould you like to generate it now?")
+                                      .arg(journalSource.sourceID())) == QMessageBox::StandardButton::Yes)
+            backend_.generateList(currentJournalSource(),
+                                  [&](HttpRequestWorker *worker) { handleGenerateList(journalSource, worker); });
 
         return;
     }

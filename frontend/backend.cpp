@@ -112,6 +112,10 @@ void Backend::start()
 void Backend::stop()
 {
     qDebug() << "Stopping backend process with pid " << process_.processId();
+
+    // Gracefully inform the backend to quit
+    createRequest(createRoute("shutdown"));
+
     process_.terminate();
     process_.waitForFinished();
 }
@@ -261,21 +265,39 @@ void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, H
  * Generation Endpoints
  */
 
-// List data directory for the specified source
-void Backend::listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+// Generate data file list for the specified source
+void Backend::generateList(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    postRequest(createRoute("generate/list"), source.sourceObjectData(), handler);
+    postRequest(createRoute("generate/list"), source.currentJournalObjectData(), handler);
 }
 
-// Generate journals for the specified source
-void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+// Scan data files discovered in the specified source
+void Backend::generateBackgroundScan(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
     // Only for disk-based sources
     if (source.type() == JournalSource::IndexingType::Network)
         throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
-    auto data = source.sourceObjectData();
+    postRequest(createRoute("generate/scan"), source.sourceObjectData(), handler);
+}
+
+// Request update on background scan
+void Backend::generateBackgroundScanUpdate(HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("generate/scanUpdate"), handler);
+}
+
+// Stop background scan
+void Backend::generateBackgroundScanStop(HttpRequestWorker::HttpRequestHandler handler)
+{
+    createRequest(createRoute("generate/stop"), handler);
+}
+
+// Finalise journals from scanned data
+void Backend::generateFinalise(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+{
+    auto data = source.currentJournalObjectData();
     data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
 
-    postRequest(createRoute("generate/go"), data, handler);
+    postRequest(createRoute("generate/finalise"), data, handler);
 }

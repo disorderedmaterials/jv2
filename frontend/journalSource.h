@@ -26,18 +26,6 @@ class JournalSource
     static QString indexingType(IndexingType type);
     // Convert text string to IndexingType type
     static IndexingType indexingType(const QString &typeString);
-    // Data Organisation Types
-    enum class DataOrganisationType
-    {
-        Directory,
-        RBNumber
-    };
-    // Return text string for specified DataOrganisationType
-    static QString dataOrganisationType(DataOrganisationType type);
-    // Return sort key associated to specified DataOrganisationType
-    static QString dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type);
-    // Convert text string to DataOrganisationType
-    static DataOrganisationType dataOrganisationType(QString typeString);
 
     public:
     JournalSource(QString name, IndexingType type, bool userDefined = false);
@@ -102,8 +90,10 @@ class JournalSource
     private:
     // Instrument-dependent journal organisation for this source
     Instrument::InstrumentPathType journalOrganisationByInstrument_{Instrument::InstrumentPathType::None};
+    bool journalOrganisationByInstrumentUpperCased_{false};
     // Instrument-dependent run data organisation for this source
     Instrument::InstrumentPathType runDataOrganisationByInstrument_{Instrument::InstrumentPathType::None};
+    bool runDataOrganisationByInstrumentUpperCased_{false};
     // Currently selected instrument (if any)
     OptionalReferenceWrapper<const Instrument> currentInstrument_;
 
@@ -111,11 +101,11 @@ class JournalSource
     // Return whether the source requires an instrument to be specified
     bool instrumentRequired() const;
     // Set instrument-dependent journal organisation for this source
-    void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType);
+    void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType, bool upperCased = false);
     // Return instrument-dependent journal organisation for this source
     Instrument::InstrumentPathType journalOrganisationByInstrument() const;
     // Set instrument-dependent run data organisation for this source
-    void setRunDataOrganisationByInstrument(Instrument::InstrumentPathType orgType);
+    void setRunDataOrganisationByInstrument(Instrument::InstrumentPathType orgType, bool upperCased = false);
     // Return instrument-dependent run data organisation for this source
     Instrument::InstrumentPathType runDataOrganisationByInstrument() const;
     // Set current instrument
@@ -124,8 +114,29 @@ class JournalSource
     OptionalReferenceWrapper<const Instrument> currentInstrument() const;
 
     /*
+     * Source ID
+     */
+    public:
+    // Return our source ID
+    QString sourceID() const;
+
+    /*
      * Associated Run Data
      */
+    public:
+    // Data Organisation Types
+    enum class DataOrganisationType
+    {
+        Directory,
+        RBNumber
+    };
+    // Return text string for specified DataOrganisationType
+    static QString dataOrganisationType(DataOrganisationType type);
+    // Return sort key associated to specified DataOrganisationType
+    static QString dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type);
+    // Convert text string to DataOrganisationType
+    static DataOrganisationType dataOrganisationType(QString typeString);
+
     private:
     // Root URL containing associated run data
     QString runDataRootUrl_;
@@ -158,6 +169,7 @@ class JournalSource
     {
         Loading,
         OK,
+        Generating,
         Error
     };
 
