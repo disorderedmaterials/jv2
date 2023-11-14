@@ -246,7 +246,7 @@ class JournalGenerator:
             logging.debug(f"Data set for {key} has {len(data_sets[key])} runs")
 
             # Create hash and journal filename
-            journal_filename = hashlib.sha256(key.encode('utf-8')).hexdigest() + ".xml"
+            journal_filename = key + ".xml"
             display_name = key.removeprefix(collection.run_data_url).lstrip("/")
 
             # Push a new Journal on to the list
