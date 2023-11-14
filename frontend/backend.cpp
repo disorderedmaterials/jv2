@@ -268,7 +268,7 @@ void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, H
 // Generate data file list for the specified source
 void Backend::generateList(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    postRequest(createRoute("generate/list"), source.sourceObjectData(), handler);
+    postRequest(createRoute("generate/list"), source.currentJournalObjectData(), handler);
 }
 
 // Scan data files discovered in the specified source
@@ -296,7 +296,7 @@ void Backend::generateBackgroundScanStop(HttpRequestWorker::HttpRequestHandler h
 // Finalise journals from scanned data
 void Backend::generateFinalise(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source.currentJournalObjectData();
     data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
 
     postRequest(createRoute("generate/finalise"), data, handler);
