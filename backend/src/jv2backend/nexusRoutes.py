@@ -140,7 +140,7 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return make_response(jsonify(str(jv2backend.nexus.spectra_count(dataFile))), 200)
+        return make_response(jsonify(jv2backend.nexus.spectra_count(dataFile)), 200)
 
     @app.post("/runData/nexus/getMonitorRange")
     def getMonitorRange() -> FlaskResponse:
@@ -174,7 +174,7 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return make_response(jsonify(str(jv2backend.nexus.monitor_count(dataFile))), 200)
+        return make_response(jsonify(jv2backend.nexus.monitor_count(dataFile)), 200)
 
     @app.post("/runData/nexus/getSpectrum")
     def getSpectrum() -> FlaskResponse:

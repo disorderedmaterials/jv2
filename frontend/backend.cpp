@@ -208,7 +208,7 @@ void Backend::getNexusLogValueData(const JournalSource &source, const std::vecto
 void Backend::getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
     auto data = source.sourceObjectData();
-    data["runNumber"] = runNo;
+    data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
 
     postRequest(createRoute("runData/nexus/getMonitorRange"), data, handler);
 }
@@ -232,7 +232,7 @@ void Backend::getNexusMonitor(const JournalSource &source, const std::vector<int
 void Backend::getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
     auto data = source.sourceObjectData();
-    data["runNumber"] = runNo;
+    data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
 
     postRequest(createRoute("runData/nexus/getSpectrumRange"), data, handler);
 }
@@ -256,7 +256,7 @@ void Backend::getNexusDetector(const JournalSource &source, const std::vector<in
 void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
 {
     auto data = source.sourceObjectData();
-    data["runNumber"] = runNo;
+    data["runNumbers"] = runNo;
 
     postRequest(createRoute("runData/nexus/getDetectorAnalysis"), data, handler);
 }
