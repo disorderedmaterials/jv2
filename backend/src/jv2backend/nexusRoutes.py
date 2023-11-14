@@ -21,8 +21,6 @@ def add_routes(
         """Return the available log fields for one or more run numbers.
 
         The POST data should contain:
-        journalRoot: The root network or disk location for the journals
-          directory: The directory in journalRoot containing the journals
          runNumbers: Array of run numbers to probe for SE log values
 
         :return: A JSON response with the list of full paths to log fields
@@ -60,8 +58,6 @@ def add_routes(
         """Return log value data specified for one or more run numbers.
 
         The POST data should contain:
-        journalRoot: The root network or disk location for the journals
-          directory: The directory in journalRoot containing the journals
          runNumbers: Array of run numbers to probe for SE log values
            logValue: Log value to retrieve
 
@@ -116,8 +112,6 @@ def add_routes(
         """Return the number of detector spectra for the run.
 
         The POST data should contain:
-            journalRoot: The root network or disk location for the journals
-          directory: The directory in journalRoot containing the journals
           runNumber: Run number to probe for detector count
 
         :return: The number of available detectors
@@ -152,8 +146,6 @@ def add_routes(
         """Return the number of monitor spectra for the run.
 
         The POST data should contain:
-        journalRoot: The root network or disk location for the journals
-          directory: The directory in journalRoot containing the journals
           runNumber: Run number to probe for monitor count
 
         :return: The number of available monitors
@@ -188,8 +180,6 @@ def add_routes(
         """Return detector spectrum for one or more run numbers.
 
         The POST data should contain:
-        journalRoot: The root network or disk location for the journals
-          directory: The directory in journalRoot containing the journals
          runNumbers: Array of run numbers to work on
          spectrumId: Target detector spectrum to return
 
@@ -227,8 +217,6 @@ def add_routes(
         """Return monitor spectrum for one or more run numbers.
 
         The POST data should contain:
-        journalRoot: The root network or disk location for the journals
-          directory: The directory in journalRoot containing the journals
          runNumbers: Array of run numbers to work on
          spectrumId: Target monitor spectrum to return
 
@@ -266,8 +254,6 @@ def add_routes(
         """Determine the number of spectra with non-zero signal values
 
         The POST data should contain:
-        journalRoot: The root network or disk location for the journals
-          directory: The directory in journalRoot containing the journals
           runNumber: Run number to get analysis for
 
         :return: A string of the form "count(non_zero)/count(all_spectra)"
