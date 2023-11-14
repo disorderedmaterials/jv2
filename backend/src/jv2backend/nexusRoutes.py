@@ -18,7 +18,7 @@ def add_routes(
     """Add routes to the given Flask application."""
 
     @app.post("/runData/nexus/getLogValues")
-    def getLogValues() -> FlaskResponse:
+    def get_log_values() -> FlaskResponse:
         """Return the available log fields for one or more run numbers.
 
         The POST data should contain:
@@ -55,7 +55,7 @@ def add_routes(
         return make_response(jsonify(logpaths), 200)
 
     @app.post("/runData/nexus/getLogValueData")
-    def getLogValueData() -> FlaskResponse:
+    def get_log_value_data() -> FlaskResponse:
         """Return log value data specified for one or more run numbers.
 
         The POST data should contain:
@@ -209,9 +209,8 @@ def add_routes(
 
         return make_response(jsonify(spectra), 200)
 
-
     @app.post("/runData/nexus/getDetectorAnalysis")
-    def getDetectorAnalysis() -> FlaskResponse:
+    def get_detector_analysis() -> FlaskResponse:
         """Determine the number of spectra with non-zero signal values
 
         The POST data should contain:
