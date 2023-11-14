@@ -182,9 +182,10 @@ bool JournalSource::instrumentRequired() const
 }
 
 // Set instrument-dependent journal organisation for this source
-void JournalSource::setJournalOrganisationByInstrument(Instrument::InstrumentPathType pathType)
+void JournalSource::setJournalOrganisationByInstrument(Instrument::InstrumentPathType pathType, bool upperCased)
 {
     journalOrganisationByInstrument_ = pathType;
+    journalOrganisationByInstrumentUpperCased_ = upperCased;
 }
 
 // Return instrument-dependent journal organisation for this source
@@ -194,9 +195,10 @@ Instrument::InstrumentPathType JournalSource::journalOrganisationByInstrument() 
 }
 
 // Set instrument-dependent run data organisation for this source
-void JournalSource::setRunDataOrganisationByInstrument(Instrument::InstrumentPathType pathType)
+void JournalSource::setRunDataOrganisationByInstrument(Instrument::InstrumentPathType pathType, bool upperCased)
 {
     runDataOrganisationByInstrument_ = pathType;
+    runDataOrganisationByInstrumentUpperCased_ = upperCased;
 }
 
 // Return instrument-dependent run data organisation for this source
@@ -250,14 +252,18 @@ QJsonObject JournalSource::sourceObjectData() const
     data["sourceType"] = indexingType(type_);
     data["journalRootUrl"] =
         currentInstrument_
-            ? QString("%1/%2").arg(journalRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
+            ? QString("%1/%2").arg(journalRootUrl_,
+                                   currentInstrument_->get().pathComponent(journalOrganisationByInstrument_,
+                                                                           journalOrganisationByInstrumentUpperCased_))
             : journalRootUrl_;
     data["journalFilename"] = journalIndexFilename();
     if (currentInstrument_)
         data["instrument"] = currentInstrument_->get().name();
     data["runDataRootUrl"] =
         currentInstrument_
-            ? QString("%1/%2").arg(runDataRootUrl_, currentInstrument_->get().pathComponent(runDataOrganisationByInstrument_))
+            ? QString("%1/%2").arg(runDataRootUrl_,
+                                   currentInstrument_->get().pathComponent(runDataOrganisationByInstrument_,
+                                                                           runDataOrganisationByInstrumentUpperCased_))
             : runDataRootUrl_;
     return data;
 }
