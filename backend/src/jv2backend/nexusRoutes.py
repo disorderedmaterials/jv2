@@ -68,7 +68,7 @@ def add_routes(
         try:
             postData = RequestData(request.json,
                                    require_run_numbers=True,
-                                   require_parameter="logValue")
+                                   require_parameters="logValue")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -84,6 +84,7 @@ def add_routes(
         dataFiles = collection.locate_data_files(postData.run_numbers)
 
         # Retrieve the log value data
+        log_value = postData.parameter("logValue")
         log_value_data = {}
         for run in dataFiles:
             if dataFiles[run] is None:
@@ -97,17 +98,17 @@ def add_routes(
 
             runData["runNumber"] = str(run)
             runData["timeRange"] = [jv2backend.nexus.timerange(first_group)]
-            runData["data"] = jv2backend.nexus.logvalues(first_group[postData.parameter])
+            runData["data"] = jv2backend.nexus.logvalues(first_group[log_value])
 
             log_value_data[run] = runData
 
-        # Construct the final return object
-        result = {}
-        result["logValue"] = postData.parameter
-        result["runNumbers"] = postData.run_numbers
-        result["data"] = log_value_data
-
-        return make_response(jsonify(result), 200)
+        return make_response(jsonify(
+            {
+                "logValue": log_value,
+                "runNumbers":  postData.run_numbers,
+                "data": log_value_data
+            }
+        ), 200)
 
     @app.post("/runData/nexus/getSpectrumCount")
     def get_spectrum_count() -> FlaskResponse:
@@ -122,7 +123,7 @@ def add_routes(
         try:
             postData = RequestData(request.json,
                                    require_run_numbers=True,
-                                   require_parameter="spectrumType")
+                                   require_parameters="spectrumType")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -143,20 +144,20 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        if postData.parameter == "monitor":
+        spectrum_type = postData.parameter("spectrumType")
+        if spectrum_type == "monitor":
             return make_response(
                 jsonify(jv2backend.nexus.get_monitor_count(dataFile)),
                 200)
-        elif postData.parameter == "detector":
+        elif spectrum_type == "detector":
             return make_response(
                 jsonify(jv2backend.nexus.get_detector_count(dataFile)),
                 200)
         else:
             return make_response(
                 json.dumps({"Error": f"Unrecognised spectrum type "
-                                     f"'{postData.parameter}'"}),
+                                     f"'{spectrum_type}'"}),
                 200)
-
 
     @app.post("/runData/nexus/getSpectrum")
     def get_spectrum() -> FlaskResponse:
@@ -172,7 +173,7 @@ def add_routes(
         try:
             postData = RequestData(request.json,
                                    require_run_numbers=True,
-                                   require_parameter="spectrumId")
+                                   require_parameters="spectrumId,spectrumType")
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
@@ -187,20 +188,24 @@ def add_routes(
         # Locate data files for the specified run numbers in the collection
         dataFiles = collection.locate_data_files(postData.run_numbers)
 
+        # Get request parameters
+        spectrum_id = int(postData.parameter("spectrumId"))
+        spectrum_type = postData.parameter("spectrumType")
+
         # first entry matches sata expectation of the frontend
-        spectra = [[postData.run_numbers, postData.parameter, "detector"]]
+        spectra = [[postData.run_numbers, spectrum_id, spectrum_type]]
         for run in dataFiles:
             if run is None:
                 continue
-            if postData.parameter == "monitor":
-                spectra.append(jv2backend.nexus.get_detector_spectrum(
-                    dataFiles[run],
-                    int(postData.parameter))
-                )
-            elif postData.parameter == "detector":
+            if spectrum_type == "monitor":
                 spectra.append(jv2backend.nexus.get_monitor_spectrum(
                     dataFiles[run],
-                    int(postData.parameter))
+                    spectrum_id)
+                )
+            elif spectrum_type == "detector":
+                spectra.append(jv2backend.nexus.get_detector_spectrum(
+                    dataFiles[run],
+                    spectrum_id)
                 )
 
         return make_response(jsonify(spectra), 200)
