@@ -35,13 +35,13 @@ QString Backend::bindAddress() const { return "127.0.0.1:5000"; };
 
 // Create a POST request
 HttpRequestWorker *Backend::postRequest(const QString &url, const QJsonObject &data,
-                                        HttpRequestWorker::HttpRequestHandler handler)
+                                        const HttpRequestWorker::HttpRequestHandler &handler)
 {
     return new HttpRequestWorker(manager_, url, data, handler);
 }
 
 // Create a request
-HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler)
+HttpRequestWorker *Backend::createRequest(const QString &url, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     return new HttpRequestWorker(manager_, url, handler);
 }
@@ -125,33 +125,33 @@ void Backend::stop()
  */
 
 // Ping backend to see if its alive
-void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createRequest(createRoute("ping"), handler); }
+void Backend::ping(const HttpRequestWorker::HttpRequestHandler &handler) { createRequest(createRoute("ping"), handler); }
 
 /*
  * Journal Endpoints
  */
 
 // Get journal index for the specified source
-void Backend::getJournalIndex(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getJournalIndex(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     postRequest(createRoute("journals/index"), source.sourceObjectData(), handler);
 }
 
 // Get current journal file for the specified source
-void Backend::getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getJournal(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     postRequest(createRoute("journals/get"), source.currentJournalObjectData(), handler);
 }
 
 // Get any updates to the specified current journal in the specified source
-void Backend::getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getJournalUpdates(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     postRequest(createRoute("journals/getUpdates"), source.currentJournalObjectData(), handler);
 }
 
 // Search across all journals for matching runs
 void Backend::search(const JournalSource &source, const std::map<QString, QString> &searchTerms,
-                     HttpRequestWorker::HttpRequestHandler handler)
+                     const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source.sourceObjectData();
 
@@ -166,7 +166,8 @@ void Backend::search(const JournalSource &source, const std::map<QString, QStrin
 }
 
 // Go to cycle containing specified run number
-void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::goToCycle(const QString &journalDirectory, const QString &runNo,
+                        const HttpRequestWorker::HttpRequestHandler &handler)
 {
     createRequest(createRoute("journals/goToCycle", journalDirectory, runNo), handler);
 }
@@ -177,7 +178,7 @@ void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, H
 
 // Get NeXuS log values present in specified run files
 void Backend::getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
-                             HttpRequestWorker::HttpRequestHandler handler)
+                             const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source.sourceObjectData();
 
@@ -191,7 +192,7 @@ void Backend::getNexusFields(const JournalSource &source, const std::vector<int>
 
 // Get NeXuS log value data for specified run files
 void Backend::getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
-                                   HttpRequestWorker::HttpRequestHandler handler)
+                                   const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source.sourceObjectData();
 
@@ -206,7 +207,7 @@ void Backend::getNexusLogValueData(const JournalSource &source, const std::vecto
 
 // Get NeXuS spectrum count for specified run number
 void Backend::getNexusSpectrumCount(const JournalSource &source, const QString &spectrumType, int runNo,
-                                    HttpRequestWorker::HttpRequestHandler handler)
+                                    const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source.sourceObjectData();
     data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
@@ -217,7 +218,7 @@ void Backend::getNexusSpectrumCount(const JournalSource &source, const QString &
 
 // Get NeXuS spectrum for specified run numbers
 void Backend::getNexusSpectrum(const JournalSource &source, const QString &spectrumType, int monitorId,
-                               const std::vector<int> &runNos, HttpRequestWorker::HttpRequestHandler handler)
+                               const std::vector<int> &runNos, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source.sourceObjectData();
     data["spectrumId"] = monitorId;
@@ -232,7 +233,8 @@ void Backend::getNexusSpectrum(const JournalSource &source, const QString &spect
 }
 
 // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo,
+                                       const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source.sourceObjectData();
     data["runNumbers"] = runNo;
@@ -245,13 +247,13 @@ void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, H
  */
 
 // Generate data file list for the specified source
-void Backend::generateList(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::generateList(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     postRequest(createRoute("generate/list"), source.currentJournalObjectData(), handler);
 }
 
 // Scan data files discovered in the specified source
-void Backend::generateBackgroundScan(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::generateBackgroundScan(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     // Only for disk-based sources
     if (source.type() == JournalSource::IndexingType::Network)
@@ -261,19 +263,19 @@ void Backend::generateBackgroundScan(const JournalSource &source, HttpRequestWor
 }
 
 // Request update on background scan
-void Backend::generateBackgroundScanUpdate(HttpRequestWorker::HttpRequestHandler handler)
+void Backend::generateBackgroundScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler)
 {
     createRequest(createRoute("generate/scanUpdate"), handler);
 }
 
 // Stop background scan
-void Backend::generateBackgroundScanStop(HttpRequestWorker::HttpRequestHandler handler)
+void Backend::generateBackgroundScanStop(const HttpRequestWorker::HttpRequestHandler &handler)
 {
     createRequest(createRoute("generate/stop"), handler);
 }
 
 // Finalise journals from scanned data
-void Backend::generateFinalise(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::generateFinalise(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source.currentJournalObjectData();
     data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
