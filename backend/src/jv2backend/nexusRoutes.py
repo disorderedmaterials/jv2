@@ -5,6 +5,7 @@
 import logging
 
 from flask import Flask, jsonify, request, make_response
+from flask.wrappers import Response as FlaskResponse
 from jv2backend.requestData import RequestData, InvalidRequest
 from jv2backend.utils import json_response
 import jv2backend.nexus
@@ -17,7 +18,7 @@ def add_routes(
     """Add routes to the given Flask application."""
 
     @app.post("/runData/nexus/getLogValues")
-    def getLogValues():
+    def getLogValues() -> FlaskResponse:
         """Return the available log fields for one or more run numbers.
 
         The POST data should contain:
@@ -51,10 +52,10 @@ def add_routes(
                 )
             logpaths.extend(jv2backend.nexus.logpaths_from_path(dataFiles[run]))
 
-        return json_response(logpaths)
+        return make_response(jsonify(logpaths), 200)
 
     @app.post("/runData/nexus/getLogValueData")
-    def getLogValueData():
+    def getLogValueData() -> FlaskResponse:
         """Return log value data specified for one or more run numbers.
 
         The POST data should contain:
@@ -105,10 +106,10 @@ def add_routes(
         result["runNumbers"] = postData.run_numbers
         result["data"] = log_value_data
 
-        return json_response(result)
+        return make_response(jsonify(result), 200)
 
     @app.post("/runData/nexus/getSpectrumRange")
-    def getSpectrumRange():
+    def getSpectrumRange() -> FlaskResponse:
         """Return the number of detector spectra for the run.
 
         The POST data should contain:
@@ -139,10 +140,10 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return str(jv2backend.nexus.spectra_count(dataFile))
+        return make_response(jsonify(str(jv2backend.nexus.spectra_count(dataFile))), 200)
 
     @app.post("/runData/nexus/getMonitorRange")
-    def getMonitorRange():
+    def getMonitorRange() -> FlaskResponse:
         """Return the number of monitor spectra for the run.
 
         The POST data should contain:
@@ -173,10 +174,10 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return str(jv2backend.nexus.monitor_count(dataFile))
+        return make_response(jsonify(str(jv2backend.nexus.monitor_count(dataFile))), 200)
 
     @app.post("/runData/nexus/getSpectrum")
-    def getSpectrum():
+    def getSpectrum() -> FlaskResponse:
         """Return detector spectrum for one or more run numbers.
 
         The POST data should contain:
@@ -210,10 +211,10 @@ def add_routes(
                 spectra.append(jv2backend.nexus.spectrum(dataFiles[run],
                                             int(postData.parameter)))
 
-        return json_response(spectra)
+        return make_response(jsonify(spectra), 200)
 
     @app.post("/runData/nexus/getMonitorSpectrum")
-    def getMonitorSpectrum():
+    def getMonitorSpectrum() -> FlaskResponse:
         """Return monitor spectrum for one or more run numbers.
 
         The POST data should contain:
@@ -247,10 +248,10 @@ def add_routes(
                 spectra.append(jv2backend.nexus.monitor_spectrum(dataFiles[run],
                                                     int(postData.parameter)))
 
-        return json_response(spectra)
+        return make_response(jsonify(spectra), 200)
 
     @app.post("/runData/nexus/getDetectorAnalysis")
-    def getDetectorAnalysis():
+    def getDetectorAnalysis() -> FlaskResponse:
         """Determine the number of spectra with non-zero signal values
 
         The POST data should contain:
@@ -281,7 +282,10 @@ def add_routes(
                                   "{run}"}), 200
             )
 
-        return jv2backend.nexus.nonzero_spectra_ratio(dataFile)
+        return make_response(
+            jv2backend.nexus.nonzero_spectra_ratio(dataFile),
+            200
+        )
 
     # ------------------------ End Routes -------------------------
 
