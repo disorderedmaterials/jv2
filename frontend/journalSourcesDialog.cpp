@@ -51,7 +51,12 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     ui_.DataOrganisationCombo->setCurrentIndex(currentSource_->dataOrganisation());
 }
 
-void JournalSourcesDialog::on_AddNewSourceButton_clicked(bool checked) {}
+void JournalSourcesDialog::on_AddNewSourceButton_clicked(bool checked)
+{
+
+    auto index = sourceModel_.appendNew();
+    ui_.SourcesListView->setCurrentIndex(index);
+}
 
 void JournalSourcesDialog::on_RemoveSourceButton_clicked(bool checked) {}
 

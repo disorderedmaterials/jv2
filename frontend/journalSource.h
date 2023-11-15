@@ -160,7 +160,7 @@ class JournalSource
 
     private:
     // Run data organisation
-    DataOrganisationType dataOrganisation_;
+    DataOrganisationType dataOrganisation_{DataOrganisationType::Directory};
 
     public:
     // Set run data organisation type

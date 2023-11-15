@@ -14,7 +14,7 @@ class JournalSourceModel : public QAbstractListModel
     JournalSourceModel();
 
     private:
-    // JournalSource source for the model
+    // JournalSource data for the model
     OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> data_;
 
     public:
@@ -24,6 +24,8 @@ class JournalSourceModel : public QAbstractListModel
     JournalSource *getData(int row) const;
     // Get JournalSource at index specified
     JournalSource *getData(const QModelIndex &index) const;
+    // Append new source to the end of the current data
+    QModelIndex appendNew();
 
     /*
      * QAbstractTableModel Overrides

@@ -2,6 +2,7 @@
 // Copyright (c) 2023 Team JournalSourceViewer and contributors
 
 #include "journalSourceModel.h"
+#include "uniqueName.h"
 
 // Model to handle json data in table view
 JournalSourceModel::JournalSourceModel() : QAbstractListModel() {}
@@ -32,6 +33,22 @@ void JournalSourceModel::setData(OptionalReferenceWrapper<std::vector<std::uniqu
     beginResetModel();
     data_ = sources;
     endResetModel();
+}
+
+// Append new source to the end of the current data
+QModelIndex JournalSourceModel::appendNew()
+{
+    if (!data_)
+        return {};
+    auto &currentData = data_->get();
+
+    beginInsertRows(QModelIndex(), currentData.size(), currentData.size());
+    currentData.emplace_back(
+        std::make_unique<JournalSource>(uniqueName("NewSource", currentData, [](const auto &source) { return source->name(); }),
+                                        JournalSource::IndexingType::Generated));
+    endInsertRows();
+
+    return index(currentData.size() - 1, 0);
 }
 
 /*
