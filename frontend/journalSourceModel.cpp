@@ -45,7 +45,7 @@ QModelIndex JournalSourceModel::appendNew()
     beginInsertRows(QModelIndex(), currentData.size(), currentData.size());
     currentData.emplace_back(
         std::make_unique<JournalSource>(uniqueName("NewSource", currentData, [](const auto &source) { return source->name(); }),
-                                        JournalSource::IndexingType::Generated));
+                                        JournalSource::IndexingType::Generated, true));
     endInsertRows();
 
     return index(currentData.size() - 1, 0);

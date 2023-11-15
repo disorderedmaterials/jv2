@@ -17,8 +17,9 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Set the window title
     setWindowTitle(QString("JournalViewer 2 (v%1)").arg(JV2VERSION));
 
-    // Set up standard journal sources
+    // Set up standard journal sources and get any user-defined ones
     setUpStandardJournalSources();
+    getUserJournalSources();
     journalSourceModel_.setData(journalSources_);
 
     // Get default instrument run data columns

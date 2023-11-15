@@ -92,14 +92,16 @@ void MainWindow::storeUserJournalSources() const
 {
     // Loop over sources
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.beginWriteArray("UserSources");
+    settings.beginGroup("UserSources");
+    settings.beginWriteArray("Source", std::count_if(journalSources_.begin(), journalSources_.end(),
+                                                     [](const auto &source) { return source->isUserDefined(); }));
     auto index = 0;
     for (auto &source : journalSources_)
     {
         if (!source->isUserDefined())
             continue;
 
-        settings.setArrayIndex(++index);
+        settings.setArrayIndex(index++);
 
         // Basic information
         settings.setValue("Name", source->name());
@@ -112,6 +114,7 @@ void MainWindow::storeUserJournalSources() const
             settings.setValue("JournalIndexFilename", source->journalIndexFilename());
             settings.setValue("JournalInstrumentPathType",
                               Instrument::instrumentPathType(source->journalOrganisationByInstrument()));
+            settings.setValue("JournalInstrumentPathTypeUppercased", source->isJournalOrganisationByInstrumentUppercased());
         }
         else
         {
@@ -124,14 +127,59 @@ void MainWindow::storeUserJournalSources() const
         settings.setValue("RunDataRootUrl", source->runDataRootUrl());
         settings.setValue("RunDataInstrumentPathType",
                           Instrument::instrumentPathType(source->runDataOrganisationByInstrument()));
+        settings.setValue("RunDataInstrumentPathTypeUppercased", source->isRunDataOrganisationByInstrumentUppercased());
 
         // Generated Data Organisation
         if (source->type() == JournalSource::IndexingType::Generated)
-            settings.setValue("RunDataOrganisation", JournalSource::dataOrganisationType(source->dataOrganisation()));
+            settings.setValue("DataOrganisation", JournalSource::dataOrganisationType(source->dataOrganisation()));
         else
-            settings.remove("RunDataOrganisation");
+            settings.remove("DataOrganisation");
     }
 }
 
 // Get user-defined journal sources
-void MainWindow::getUserJournalSources() {}
+void MainWindow::getUserJournalSources()
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
+    settings.beginGroup("UserSources");
+    auto nUserSources = settings.beginReadArray("Source");
+    for (auto index = 0; index < nUserSources; ++index)
+    {
+        settings.setArrayIndex(index);
+        auto &source = journalSources_.emplace_back(std::make_unique<JournalSource>(
+            settings.value("Name", "NewSource").toString(),
+            JournalSource::indexingType(
+                settings.value("Type", JournalSource::indexingType(JournalSource::IndexingType::Generated)).toString()),
+            true));
+
+        // Journal Data
+        if (source->type() == JournalSource::IndexingType::Network)
+        {
+            source->setJournalLocation(settings.value("JournalRootUrl").toString(),
+                                       settings.value("JournalIndexFilename").toString());
+            source->setJournalOrganisationByInstrument(
+                Instrument::instrumentPathType(settings
+                                                   .value("JournalInstrumentPathType",
+                                                          Instrument::instrumentPathType(Instrument::InstrumentPathType::None))
+                                                   .toString()),
+                settings.value("JournalInstrumentPathTypeUppercased").toBool());
+        }
+
+        // Run Data
+        source->setRunDataLocation(settings.value("RunDataRootUrl").toString());
+        source->setRunDataOrganisationByInstrument(
+            Instrument::instrumentPathType(
+                settings
+                    .value("RunDataInstrumentPathType", Instrument::instrumentPathType(Instrument::InstrumentPathType::None))
+                    .toString()),
+            settings.value("RunDataInstrumentPathTypeUppercased").toBool());
+
+        // Generated Data Organisation
+        if (source->type() == JournalSource::IndexingType::Generated)
+            source->setDataOrganisation(JournalSource::dataOrganisationType(
+                settings
+                    .value("DataOrganisation",
+                           JournalSource::dataOrganisationType(JournalSource::DataOrganisationType::Directory))
+                    .toString()));
+    }
+}

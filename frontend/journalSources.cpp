@@ -150,6 +150,8 @@ void MainWindow::on_actionEditSources_triggered()
     JournalSourcesDialog sourcesDialog(this);
 
     sourcesDialog.go(journalSources_);
+
+    storeUserJournalSources();
 }
 
 /*
