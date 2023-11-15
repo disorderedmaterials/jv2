@@ -58,7 +58,7 @@ void MainWindow::handleGenerateList(JournalSource *source, HttpRequestWorker *wo
     // Update the GUI
     ui_.GeneratingPageLabel->setText(
         QString("Generating Journals for Source '%1'...\nSource Data Directory is '%2', organised by '%3'")
-            .arg(source->name(), source->runDataRootUrl(), JournalSource::dataOrganisationType(source->runDataOrganisation())));
+            .arg(source->name(), source->runDataRootUrl(), JournalSource::dataOrganisationType(source->dataOrganisation())));
     ui_.GeneratingProgressBar->setMaximum(nFilesFound);
     updateGenerationPage(0, "<No Files Scanned>");
     sourceBeingGenerated_ = source;

@@ -136,7 +136,7 @@ bool MainWindow::highlightRunNumber(int runNumber)
  * UI
  */
 
-void MainWindow::on_actionRefresh_triggered()
+void MainWindow::on_actionRefreshJournal_triggered()
 {
     if (!currentJournalSource_)
         return;

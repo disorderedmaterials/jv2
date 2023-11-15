@@ -106,18 +106,30 @@ void MainWindow::storeUserJournalSources() const
         settings.setValue("Type", JournalSource::indexingType(source->type()));
 
         // Journal Data
-        settings.setValue("JournalRootUrl", source->journalRootUrl());
-        settings.setValue("JournalIndexFilename", source->journalIndexFilename());
-
-        // Instrument Organisation?
-        settings.setValue("JournalInstrumentPathType",
-                          Instrument::instrumentPathType(source->journalOrganisationByInstrument()));
-        settings.setValue("RunDataInstrumentPathType",
-                          Instrument::instrumentPathType(source->runDataOrganisationByInstrument()));
+        if (source->type() == JournalSource::IndexingType::Network)
+        {
+            settings.setValue("JournalRootUrl", source->journalRootUrl());
+            settings.setValue("JournalIndexFilename", source->journalIndexFilename());
+            settings.setValue("JournalInstrumentPathType",
+                              Instrument::instrumentPathType(source->journalOrganisationByInstrument()));
+        }
+        else
+        {
+            settings.remove("JournalRootUrl");
+            settings.remove("JournalIndexFilename");
+            settings.remove("JournalInstrumentPathType");
+        }
 
         // Run Data
         settings.setValue("RunDataRootUrl", source->runDataRootUrl());
-        settings.setValue("RunDataOrganisation", JournalSource::dataOrganisationType(source->runDataOrganisation()));
+        settings.setValue("RunDataInstrumentPathType",
+                          Instrument::instrumentPathType(source->runDataOrganisationByInstrument()));
+
+        // Generated Data Organisation
+        if (source->type() == JournalSource::IndexingType::Generated)
+            settings.setValue("RunDataOrganisation", JournalSource::dataOrganisationType(source->dataOrganisation()));
+        else
+            settings.remove("RunDataOrganisation");
     }
 }
 

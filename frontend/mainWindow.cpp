@@ -58,7 +58,7 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Set up and connect the journal update timer and make sure it is currently stopped
     journalAutoUpdateTimer_.setInterval(30000);
     journalAutoUpdateTimer_.stop();
-    connect(&journalAutoUpdateTimer_, &QTimer::timeout, [=]() { on_actionRefresh_triggered(); });
+    connect(&journalAutoUpdateTimer_, &QTimer::timeout, [=]() { on_actionRefreshJournal_triggered(); });
 
     // Connect exit action
     connect(ui_.actionQuit, SIGNAL(triggered()), this, SLOT(close()));

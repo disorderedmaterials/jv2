@@ -73,7 +73,7 @@ class Instrument
      */
     public:
     // Instrument Path Type
-    enum class InstrumentPathType
+    enum InstrumentPathType
     {
         None,      /* No instrument information present in the path */
         Name,      /* Path includes standard instrument name */

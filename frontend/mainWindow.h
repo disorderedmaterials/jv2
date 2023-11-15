@@ -88,6 +88,7 @@ class MainWindow : public QMainWindow
     void on_JournalSourceComboBox_currentIndexChanged(int index);
     void on_JournalComboBox_currentIndexChanged(int index);
     void on_JournalComboBackToJournalsButton_clicked(bool checked);
+    void on_actionEditSources_triggered();
 
     private:
     // Handle get journal updates result
@@ -141,7 +142,7 @@ class MainWindow : public QMainWindow
     bool highlightRunNumber(int runNumber);
 
     private slots:
-    void on_actionRefresh_triggered();
+    void on_actionRefreshJournal_triggered();
     void on_actionJumpTo_triggered();
 
     // Run data context menu requested

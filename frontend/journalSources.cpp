@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2023 Team JournalViewer and contributors
 
+#include "journalSourcesDialog.h"
 #include "mainWindow.h"
 #include <QDomDocument>
 #include <QMessageBox>
@@ -20,15 +21,15 @@ void MainWindow::setUpStandardJournalSources()
         journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
     isisArchive->setJournalOrganisationByInstrument(Instrument::InstrumentPathType::AltNDXName);
     isisArchive->setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
-    isisArchive->setJournalData("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
-    isisArchive->setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString(),
-                                    JournalSource::DataOrganisationType::Directory);
+    isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
+    isisArchive->setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString());
 
     // IDAaaS RB Directories
     auto &idaaasRB =
         journalSources_.emplace_back(std::make_unique<JournalSource>("IDAaaS", JournalSource::IndexingType::Generated));
     idaaasRB->setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::Name, true);
-    idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
+    idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache");
+    idaaasRB->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
 }
 
 // Find the specified journal source
@@ -142,6 +143,13 @@ void MainWindow::on_JournalComboBackToJournalsButton_clicked(bool checked)
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
     backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+}
+
+void MainWindow::on_actionEditSources_triggered()
+{
+    JournalSourcesDialog sourcesDialog(this);
+
+    sourcesDialog.go(journalSources_);
 }
 
 /*

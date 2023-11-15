@@ -278,7 +278,7 @@ void Backend::generateBackgroundScanStop(const HttpRequestWorker::HttpRequestHan
 void Backend::generateFinalise(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source->currentJournalObjectData();
-    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source->runDataOrganisation());
+    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source->dataOrganisation());
 
     postRequest(createRoute("generate/finalise"), data, handler);
 }

@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Available Journal Sources</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <property name="spacing">
@@ -168,7 +168,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="JournalIndexFIleEdit"/>
+           <widget class="QLineEdit" name="JournalIndexFileEdit"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="JournalInstrumentPathLabel">
@@ -311,7 +311,7 @@
            <number>4</number>
           </property>
           <item row="0" column="0">
-           <widget class="QLabel" name="RunDataRootURLLabel_2">
+           <widget class="QLabel" name="DataOrganisationLabel">
             <property name="toolTip">
              <string>How run data will be organised into generated journals</string>
             </property>
@@ -321,7 +321,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="comboBox">
+           <widget class="QComboBox" name="DataOrganisationCombo">
             <property name="toolTip">
              <string>How run data will be organised into generated journals</string>
             </property>
@@ -384,6 +384,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="CloseButton">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="text">
         <string>Close</string>
        </property>
@@ -414,7 +420,7 @@
   <connection>
    <sender>GeneratedTypeRadioButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox</receiver>
+   <receiver>DataOrganisationGroup</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -446,7 +452,7 @@
   <connection>
    <sender>NetworkTypeRadioButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox</receiver>
+   <receiver>DataOrganisationGroup</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

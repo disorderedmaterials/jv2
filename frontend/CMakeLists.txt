@@ -87,6 +87,9 @@ qt6_add_executable(
   graphWidget.cpp
   graphWidget.h
   graphWidget.ui
+  journalSourcesDialog.cpp
+  journalSourcesDialog.h
+  journalSourcesDialog.ui
   searchDialog.cpp
   searchDialog.h
   searchDialog.ui
