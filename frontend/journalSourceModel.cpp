@@ -59,6 +59,15 @@ int JournalSourceModel::rowCount(const QModelIndex &parent) const { return data_
 
 int JournalSourceModel::columnCount(const QModelIndex &parent) const { return 1; }
 
+Qt::ItemFlags JournalSourceModel::flags(const QModelIndex &index) const
+{
+    auto *source = getData(index);
+    if (source->isUserDefined())
+        return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    else
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+
 QVariant JournalSourceModel::data(const QModelIndex &index, int role) const
 {
     if (!data_)
@@ -69,6 +78,30 @@ QVariant JournalSourceModel::data(const QModelIndex &index, int role) const
 
     // Get target data
     return getData(index)->name();
+}
+
+bool JournalSourceModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!data_)
+        return false;
+
+    if (role == Qt::EditRole)
+    {
+        auto *source = getData(index);
+
+        switch (index.column())
+        {
+            // Name
+            case (0):
+                // Ensure uniqueness of name if we have a reference CoreData
+                source->setName(uniqueName(value.toString(), data_->get(), [](const auto &source) { return source->name(); }));
+                break;
+            default:
+                return false;
+        }
+    }
+
+    return false;
 }
 
 QVariant JournalSourceModel::headerData(int section, Qt::Orientation orientation, int role) const
