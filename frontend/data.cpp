@@ -206,10 +206,12 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotDetector)
     {
-        getSpectrumCount();
+        backend_.getNexusSpectrumCount(currentJournalSource(), "detector", selectedRunNumbers().front(),
+                                       [=](HttpRequestWorker *worker) { plotSpectra(worker); });
     }
     else if (selectedAction == plotMonitor)
     {
-        getMonitorCount();
+        backend_.getNexusSpectrumCount(currentJournalSource(), "monitor", selectedRunNumbers().front(),
+                                       [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
     }
 }
