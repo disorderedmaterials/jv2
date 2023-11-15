@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>JournalSourcesDialog</class>
+ <widget class="QDialog" name="JournalSourcesDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>757</width>
+    <height>461</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <property name="spacing">
+    <number>4</number>
+   </property>
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="topMargin">
+    <number>4</number>
+   </property>
+   <property name="rightMargin">
+    <number>4</number>
+   </property>
+   <property name="bottomMargin">
+    <number>4</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>4</number>
+       </property>
+       <item>
+        <widget class="QListView" name="SourcesListView"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>4</number>
+         </property>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="RemoveSourceButton">
+           <property name="text">
+            <string>Remove</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="AddNewSourceButton">
+           <property name="text">
+            <string>Add New</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="SourceTypGroup">
+         <property name="title">
+          <string>Type</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item>
+           <widget class="QRadioButton" name="GeneratedTypeRadioButton">
+            <property name="text">
+             <string>Local disk (using journals generated from available files)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="NetworkTypeRadioButton">
+            <property name="text">
+             <string>Network (using existing journals present on server)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="JournalLocationGroup">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string>Journal Location (Network Sources Only)</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="horizontalSpacing">
+           <number>4</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="JournalRootURLLabel">
+            <property name="text">
+             <string>Root URL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="JournalRootURLEdit"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="JournalIndexFileLabel">
+            <property name="text">
+             <string>Index File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="JournalIndexFIleEdit"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="JournalInstrumentPathLabel">
+            <property name="text">
+             <string>Instrument Paths</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="JournalInstrumentPathCombo">
+            <item>
+             <property name="text">
+              <string>None - No instrument subdirectories</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Name - Separate directories named after instruments</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>NDXName - Separate directories with 'ndx' names</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>AltNDXName - Separate directories with 'ndx' or alt-'ndx' names</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QCheckBox" name="JournalInstrumentPathUppercaseCheck">
+            <property name="text">
+             <string>Uppercased</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="RunDataLocationGroup">
+         <property name="title">
+          <string>Run Data Location</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <property name="horizontalSpacing">
+           <number>4</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="RunDataRootURLLabel">
+            <property name="text">
+             <string>Root URL</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="RunDataRootURLEdit"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="RunDataInstrumentPathCombo">
+            <item>
+             <property name="text">
+              <string>None - No instrument subdirectories</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Name - Separate directories named after instruments</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>NDXName - Separate directories with 'ndx' names</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>AltNDXName - Separate directories with 'ndx' or alt-'ndx' names</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="RunDataInstrumentPathLabel">
+            <property name="text">
+             <string>Instrument Paths</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="RunDataInstrumentPathUppercaseCheck">
+            <property name="text">
+             <string>Uppercased</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="DataOrganisationGroup">
+         <property name="title">
+          <string>Journal Data Organisation (Local Sources Only)</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_3">
+          <property name="horizontalSpacing">
+           <number>4</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>4</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="RunDataRootURLLabel_2">
+            <property name="toolTip">
+             <string>How run data will be organised into generated journals</string>
+            </property>
+            <property name="text">
+             <string>Organisation</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox">
+            <property name="toolTip">
+             <string>How run data will be organised into generated journals</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>By Directory</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>By RB Number</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="CloseButton">
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>GeneratedTypeRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>JournalLocationGroup</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>GeneratedTypeRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>377</x>
+     <y>384</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NetworkTypeRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>JournalLocationGroup</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>231</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>233</x>
+     <y>121</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>NetworkTypeRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>497</x>
+     <y>80</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>498</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
