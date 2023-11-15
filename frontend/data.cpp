@@ -140,12 +140,10 @@ void MainWindow::on_actionRefresh_triggered()
 {
     if (!currentJournalSource_)
         return;
-    auto &journalSource = currentJournalSource();
-    auto optJournal = journalSource.currentJournal();
-    if (!optJournal)
-        return;
 
-    backend_.getJournalUpdates(journalSource, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    auto optJournal = currentJournalSource_->currentJournal();
+
+    backend_.getJournalUpdates(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
 // Jump to run number

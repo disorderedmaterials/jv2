@@ -76,11 +76,11 @@ class MainWindow : public QMainWindow
     // Set up standard journal sources
     void setUpStandardJournalSources();
     // Set current journal source
-    void setCurrentJournalSource(JournalSource *optSource, std::optional<QString> goToJournal = {});
+    void setCurrentJournalSource(JournalSource *source, std::optional<QString> goToJournal = {});
     // Find the specified journal source
     JournalSource *findJournalSource(const QString &name);
     // Return current journal source
-    JournalSource &currentJournalSource() const;
+    JournalSource *currentJournalSource() const;
     // Return selected journal in current source (assuming one is selected)
     Journal &currentJournal() const;
 
@@ -167,11 +167,11 @@ class MainWindow : public QMainWindow
 
     private:
     // Handle returned directory list result
-    void handleGenerateList(JournalSource &source, HttpRequestWorker *worker);
+    void handleGenerateList(JournalSource *source, HttpRequestWorker *worker);
     // Handle / monitor the generation background scan
     void handleGenerateBackgroundScan();
     // Handle journal generation finalisation
-    void handleGenerateFinalise(JournalSource &source, HttpRequestWorker *worker);
+    void handleGenerateFinalise(HttpRequestWorker *worker);
     // Handle journal generation background scan termination
     void handleGenerateBackgroundScanStop(HttpRequestWorker *worker);
 

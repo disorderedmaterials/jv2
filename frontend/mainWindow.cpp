@@ -92,34 +92,33 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         return;
     }
 
-    auto &source = currentJournalSource_->get();
     if (newState)
-        source.setState(*newState);
+        currentJournalSource_->setState(*newState);
 
-    ui_.JournalSourceComboBox->setCurrentText(source.name());
+    ui_.JournalSourceComboBox->setCurrentText(currentJournalSource_->name());
 
     // Set the current instrument
-    if (source.instrumentRequired() && source.currentInstrument())
-        ui_.InstrumentComboBox->setCurrentText(source.currentInstrument()->get().name());
+    if (currentJournalSource_->instrumentRequired() && currentJournalSource_->currentInstrument())
+        ui_.InstrumentComboBox->setCurrentText(currentJournalSource_->currentInstrument()->get().name());
     else
         ui_.InstrumentComboBox->setCurrentIndex(-1);
 
     // Set relevant controls
-    ui_.InstrumentComboBox->setEnabled(source.instrumentRequired());
-    if (source.currentJournal())
-        ui_.JournalComboBox->setCurrentText(source.currentJournal()->get().name());
+    ui_.InstrumentComboBox->setEnabled(currentJournalSource_->instrumentRequired());
+    if (currentJournalSource_->currentJournal())
+        ui_.JournalComboBox->setCurrentText(currentJournalSource_->currentJournal()->get().name());
     else
         ui_.JournalComboBox->setCurrentIndex(-1);
 
     // Set the journal combo stack page according to the current source search state
-    ui_.JournalComboStack->setCurrentIndex(source.showingSearchedData() ? 1 : 0);
+    ui_.JournalComboStack->setCurrentIndex(currentJournalSource_->showingSearchedData() ? 1 : 0);
 
     // Set the main stack page to correspond to the state enum
-    ui_.MainStack->setCurrentIndex(source.state());
+    ui_.MainStack->setCurrentIndex(currentJournalSource_->state());
 
     // If the source state is viewing normal run data and it is a Network source, enable the auto-update timer
-    if (source.state() == JournalSource::JournalSourceState::OK && !source.showingSearchedData() &&
-        source.type() == JournalSource::IndexingType::Network)
+    if (currentJournalSource_->state() == JournalSource::JournalSourceState::OK &&
+        !currentJournalSource_->showingSearchedData() && currentJournalSource_->type() == JournalSource::IndexingType::Network)
         journalAutoUpdateTimer_.start();
     else
         journalAutoUpdateTimer_.stop();

@@ -20,10 +20,7 @@ JournalSource *JournalSourceModel::getData(int row) const
 }
 
 // Get JournalSource at index specified
-JournalSource *JournalSourceModel::getData(const QModelIndex &index) const
-{
-    return getData(index.row());
-}
+JournalSource *JournalSourceModel::getData(const QModelIndex &index) const { return getData(index.row()); }
 
 /*
  * Public Functions

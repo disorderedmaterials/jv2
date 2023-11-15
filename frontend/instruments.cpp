@@ -78,18 +78,17 @@ void MainWindow::on_InstrumentComboBox_currentIndexChanged(int index)
         return;
 
     // Need a valid journal source
-    if (!currentJournalSource_ || !currentJournalSource().instrumentRequired())
+    if (!currentJournalSource_ || !currentJournalSource_->instrumentRequired())
         return;
-    auto &source = currentJournalSource();
 
     // Get the selected instrument
     if (index == -1)
     {
-        source.setCurrentInstrument(std::nullopt);
+        currentJournalSource_->setCurrentInstrument(std::nullopt);
         return;
     }
     else
-        source.setCurrentInstrument(instruments_[index]);
+        currentJournalSource_->setCurrentInstrument(instruments_[index]);
 
     updateForCurrentSource(JournalSource::JournalSourceState::Loading);
 
@@ -102,5 +101,5 @@ OptionalReferenceWrapper<const Instrument> MainWindow::currentInstrument() const
     if (!currentJournalSource_)
         return {};
 
-    return currentJournalSource().currentInstrument();
+    return currentJournalSource_->currentInstrument();
 }

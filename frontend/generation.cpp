@@ -32,7 +32,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
  */
 
 // Handle returned directory list result
-void MainWindow::handleGenerateList(JournalSource &source, HttpRequestWorker *worker)
+void MainWindow::handleGenerateList(JournalSource *source, HttpRequestWorker *worker)
 {
     // Check network reply
     if (networkRequestHasError(worker, "trying to list data directory"))
@@ -58,7 +58,7 @@ void MainWindow::handleGenerateList(JournalSource &source, HttpRequestWorker *wo
     // Update the GUI
     ui_.GeneratingPageLabel->setText(
         QString("Generating Journals for Source '%1'...\nSource Data Directory is '%2', organised by '%3'")
-            .arg(source.name(), source.runDataRootUrl(), JournalSource::dataOrganisationType(source.runDataOrganisation())));
+            .arg(source->name(), source->runDataRootUrl(), JournalSource::dataOrganisationType(source->runDataOrganisation())));
     ui_.GeneratingProgressBar->setMaximum(nFilesFound);
     updateGenerationPage(0, "<No Files Scanned>");
     sourceBeingGenerated_ = source;
@@ -92,7 +92,6 @@ void MainWindow::handleGenerateBackgroundScan()
 {
     if (!sourceBeingGenerated_)
         throw(std::runtime_error("No target source for generation is set.\n"));
-    auto &source = sourceBeingGenerated_->get();
 
     // Create a timer to ping the backend for a scan update after 1000 ms
     auto *pingTimer = new QTimer;
@@ -109,7 +108,7 @@ void MainWindow::handleGenerateBackgroundScan()
                             // If we are currently displaying the target source for generation, indicate an error
                             if (currentJournalSource_ && sourceBeingGenerated_)
                             {
-                                if (&sourceBeingGenerated_->get() == &currentJournalSource_->get())
+                                if (sourceBeingGenerated_ == currentJournalSource_)
                                 {
                                     setErrorPage("Journal Scan Failed", "Best complain to somebody about it...");
                                     updateForCurrentSource(JournalSource::JournalSourceState::Error);
@@ -126,8 +125,8 @@ void MainWindow::handleGenerateBackgroundScan()
 
                             // Complete?
                             if (worker->jsonResponse()["complete"].toBool())
-                                backend_.generateFinalise(sourceBeingGenerated_->get(), [=](HttpRequestWorker *worker)
-                                                          { handleGenerateFinalise(sourceBeingGenerated_->get(), worker); });
+                                backend_.generateFinalise(sourceBeingGenerated_,
+                                                          [=](HttpRequestWorker *worker) { handleGenerateFinalise(worker); });
                             else
                                 handleGenerateBackgroundScan();
                         }
@@ -137,7 +136,7 @@ void MainWindow::handleGenerateBackgroundScan()
 }
 
 // Handle journal generation finalisation
-void MainWindow::handleGenerateFinalise(JournalSource &source, HttpRequestWorker *worker)
+void MainWindow::handleGenerateFinalise(HttpRequestWorker *worker)
 {
     // Check network reply
     if (networkRequestHasError(worker, "trying to generate journals for directory"))
@@ -152,15 +151,15 @@ void MainWindow::handleGenerateFinalise(JournalSource &source, HttpRequestWorker
     }
 
     // Generation was a success, so clean up
-    sourceBeingGenerated_ = std::nullopt;
+    sourceBeingGenerated_->setState(JournalSource::JournalSourceState::Loading);
 
-    source.setState(JournalSource::JournalSourceState::Loading);
-
-    statusBar()->showMessage(QString("Journal generation completed for source '%1'.\n").arg(source.name()));
+    statusBar()->showMessage(QString("Journal generation completed for source '%1'.\n").arg(sourceBeingGenerated_->name()));
 
     // Show the new journals _if_ the current journal source being displayed is the one just generated
-    if (&source == &currentJournalSource())
-        setCurrentJournalSource(source);
+    if (sourceBeingGenerated_ == currentJournalSource_)
+        setCurrentJournalSource(sourceBeingGenerated_);
+
+    sourceBeingGenerated_ = nullptr;
 }
 
 void MainWindow::handleGenerateBackgroundScanStop(HttpRequestWorker *worker)

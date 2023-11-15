@@ -132,28 +132,28 @@ void Backend::ping(const HttpRequestWorker::HttpRequestHandler &handler) { creat
  */
 
 // Get journal index for the specified source
-void Backend::getJournalIndex(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::getJournalIndex(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("journals/index"), source.sourceObjectData(), handler);
+    postRequest(createRoute("journals/index"), source->sourceObjectData(), handler);
 }
 
 // Get current journal file for the specified source
-void Backend::getJournal(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::getJournal(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("journals/get"), source.currentJournalObjectData(), handler);
+    postRequest(createRoute("journals/get"), source->currentJournalObjectData(), handler);
 }
 
 // Get any updates to the specified current journal in the specified source
-void Backend::getJournalUpdates(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::getJournalUpdates(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("journals/getUpdates"), source.currentJournalObjectData(), handler);
+    postRequest(createRoute("journals/getUpdates"), source->currentJournalObjectData(), handler);
 }
 
 // Search across all journals for matching runs
-void Backend::search(const JournalSource &source, const std::map<QString, QString> &searchTerms,
+void Backend::search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
                      const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
 
     QJsonObject query;
     query["caseSensitive"] = "false";
@@ -177,10 +177,10 @@ void Backend::goToCycle(const QString &journalDirectory, const QString &runNo,
  */
 
 // Get NeXuS log values present in specified run files
-void Backend::getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
+void Backend::getNexusFields(const JournalSource *source, const std::vector<int> &runNos,
                              const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
 
     QJsonArray runNumbers;
     for (auto i : runNos)
@@ -191,10 +191,10 @@ void Backend::getNexusFields(const JournalSource &source, const std::vector<int>
 }
 
 // Get NeXuS log value data for specified run files
-void Backend::getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
+void Backend::getNexusLogValueData(const JournalSource *source, const std::vector<int> &runNos, const QString &logValue,
                                    const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
 
     QJsonArray runNumbers;
     for (auto i : runNos)
@@ -206,10 +206,10 @@ void Backend::getNexusLogValueData(const JournalSource &source, const std::vecto
 }
 
 // Get NeXuS spectrum count for specified run number
-void Backend::getNexusSpectrumCount(const JournalSource &source, const QString &spectrumType, int runNo,
+void Backend::getNexusSpectrumCount(const JournalSource *source, const QString &spectrumType, int runNo,
                                     const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
     data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
     data["spectrumType"] = spectrumType;
 
@@ -217,10 +217,10 @@ void Backend::getNexusSpectrumCount(const JournalSource &source, const QString &
 }
 
 // Get NeXuS spectrum for specified run numbers
-void Backend::getNexusSpectrum(const JournalSource &source, const QString &spectrumType, int monitorId,
+void Backend::getNexusSpectrum(const JournalSource *source, const QString &spectrumType, int monitorId,
                                const std::vector<int> &runNos, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
     data["spectrumId"] = monitorId;
     data["spectrumType"] = spectrumType;
 
@@ -233,10 +233,10 @@ void Backend::getNexusSpectrum(const JournalSource &source, const QString &spect
 }
 
 // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo,
+void Backend::getNexusDetectorAnalysis(const JournalSource *source, int runNo,
                                        const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
     data["runNumbers"] = runNo;
 
     postRequest(createRoute("runData/nexus/getDetectorAnalysis"), data, handler);
@@ -247,19 +247,19 @@ void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo,
  */
 
 // Generate data file list for the specified source
-void Backend::generateList(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("generate/list"), source.currentJournalObjectData(), handler);
+    postRequest(createRoute("generate/list"), source->currentJournalObjectData(), handler);
 }
 
 // Scan data files discovered in the specified source
-void Backend::generateBackgroundScan(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::generateBackgroundScan(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     // Only for disk-based sources
-    if (source.type() == JournalSource::IndexingType::Network)
-        throw(std::runtime_error("Can't generate journals for a network source.\n"));
+    if (source->type() == JournalSource::IndexingType::Network)
+        throw(std::runtime_error("Can't generate journals for a network source->\n"));
 
-    postRequest(createRoute("generate/scan"), source.sourceObjectData(), handler);
+    postRequest(createRoute("generate/scan"), source->sourceObjectData(), handler);
 }
 
 // Request update on background scan
@@ -275,10 +275,10 @@ void Backend::generateBackgroundScanStop(const HttpRequestWorker::HttpRequestHan
 }
 
 // Finalise journals from scanned data
-void Backend::generateFinalise(const JournalSource &source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::generateFinalise(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.currentJournalObjectData();
-    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
+    auto data = source->currentJournalObjectData();
+    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source->runDataOrganisation());
 
     postRequest(createRoute("generate/finalise"), data, handler);
 }

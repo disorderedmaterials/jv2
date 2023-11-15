@@ -36,13 +36,12 @@ void MainWindow::storeRecentJournalSettings() const
         settings.remove("Recent");
         if (currentJournalSource_)
         {
-            auto &source = currentJournalSource();
             settings.beginGroup("Recent");
-            settings.setValue("Source", source.name());
-            if (source.currentInstrument())
-                settings.setValue("Instrument", source.currentInstrument()->get().name());
-            if (source.currentJournal())
-                settings.setValue("Journal", source.currentJournal()->get().name());
+            settings.setValue("Source", currentJournalSource_->name());
+            if (currentJournalSource_->currentInstrument())
+                settings.setValue("Instrument", currentJournalSource_->currentInstrument()->get().name());
+            if (currentJournalSource_->currentJournal())
+                settings.setValue("Journal", currentJournalSource_->currentJournal()->get().name());
         }
     }
 }
@@ -54,30 +53,27 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
 
     settings.beginGroup("Recent");
 
-    auto optSource = findJournalSource(settings.value("Source").toString());
-    if (!optSource)
+    currentJournalSource_ = findJournalSource(settings.value("Source").toString());
+    if (!currentJournalSource_)
     {
         // In case the specified source isn't found, set it to the default / first one available
         if (journalSources_.empty())
-            currentJournalSource_ = std::nullopt;
+            currentJournalSource_ = nullptr;
         else
-            currentJournalSource_ = journalSources_.front();
+            currentJournalSource_ = journalSources_.front().get();
 
         return {};
     }
 
-    auto &source = optSource->get();
-    currentJournalSource_ = source;
-
     // Set up the rest of the source - instrument first, if relevant
-    if (source.instrumentRequired())
+    if (currentJournalSource_->instrumentRequired())
     {
         if (!settings.contains("Instrument"))
             return {};
 
         // Get the instrument and set the journals source here so we load relevant journals
         auto optInst = findInstrument(settings.value("Instrument").toString());
-        source.setCurrentInstrument(optInst.value_or(instruments_.front()));
+        currentJournalSource_->setCurrentInstrument(optInst.value_or(instruments_.front()));
 
         // If there was no valid instrument specified we can exit now
         if (!optInst)
@@ -100,28 +96,28 @@ void MainWindow::storeUserJournalSources() const
     auto index = 0;
     for (auto &source : journalSources_)
     {
-        if (!source.isUserDefined())
+        if (!source->isUserDefined())
             continue;
 
         settings.setArrayIndex(++index);
 
         // Basic information
-        settings.setValue("Name", source.name());
-        settings.setValue("Type", JournalSource::indexingType(source.type()));
+        settings.setValue("Name", source->name());
+        settings.setValue("Type", JournalSource::indexingType(source->type()));
 
         // Journal Data
-        settings.setValue("JournalRootUrl", source.journalRootUrl());
-        settings.setValue("JournalIndexFilename", source.journalIndexFilename());
+        settings.setValue("JournalRootUrl", source->journalRootUrl());
+        settings.setValue("JournalIndexFilename", source->journalIndexFilename());
 
         // Instrument Organisation?
         settings.setValue("JournalInstrumentPathType",
-                          Instrument::instrumentPathType(source.journalOrganisationByInstrument()));
+                          Instrument::instrumentPathType(source->journalOrganisationByInstrument()));
         settings.setValue("RunDataInstrumentPathType",
-                          Instrument::instrumentPathType(source.runDataOrganisationByInstrument()));
+                          Instrument::instrumentPathType(source->runDataOrganisationByInstrument()));
 
         // Run Data
-        settings.setValue("RunDataRootUrl", source.runDataRootUrl());
-        settings.setValue("RunDataOrganisation", JournalSource::dataOrganisationType(source.runDataOrganisation()));
+        settings.setValue("RunDataRootUrl", source->runDataRootUrl());
+        settings.setValue("RunDataOrganisation", JournalSource::dataOrganisationType(source->runDataOrganisation()));
     }
 }
 
