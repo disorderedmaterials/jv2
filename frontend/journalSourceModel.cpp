@@ -11,16 +11,16 @@ JournalSourceModel::JournalSourceModel() : QAbstractListModel() {}
  */
 
 // Get JournalSource row specified
-OptionalReferenceWrapper<JournalSource> JournalSourceModel::getData(int row) const
+JournalSource *JournalSourceModel::getData(int row) const
 {
     if (!data_ || row == -1 || row >= rowCount())
         return {};
 
-    return data_->get()[row];
+    return data_->get()[row].get();
 }
 
 // Get JournalSource at index specified
-OptionalReferenceWrapper<JournalSource> JournalSourceModel::getData(const QModelIndex &index) const
+JournalSource *JournalSourceModel::getData(const QModelIndex &index) const
 {
     return getData(index.row());
 }
@@ -30,7 +30,7 @@ OptionalReferenceWrapper<JournalSource> JournalSourceModel::getData(const QModel
  */
 
 // Set the source data for the model
-void JournalSourceModel::setData(OptionalReferenceWrapper<std::vector<JournalSource>> sources)
+void JournalSourceModel::setData(OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> sources)
 {
     beginResetModel();
     data_ = sources;
@@ -53,11 +53,8 @@ QVariant JournalSourceModel::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole)
         return {};
 
-    // Get target data object
-    auto optJournalSource = getData(index);
-    const auto &journal = optJournalSource->get();
-
-    return journal.name();
+    // Get target data
+    return getData(index)->name();
 }
 
 QVariant JournalSourceModel::headerData(int section, Qt::Orientation orientation, int role) const

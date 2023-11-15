@@ -64,9 +64,9 @@ class MainWindow : public QMainWindow
      */
     private:
     // Known journal sources
-    std::vector<JournalSource> journalSources_;
+    std::vector<std::unique_ptr<JournalSource>> journalSources_;
     // Currently selected journal source (if any)
-    OptionalReferenceWrapper<JournalSource> currentJournalSource_;
+    JournalSource *currentJournalSource_;
     // Model for available journal sources
     JournalSourceModel journalSourceModel_;
     // Model for available journals
@@ -76,9 +76,9 @@ class MainWindow : public QMainWindow
     // Set up standard journal sources
     void setUpStandardJournalSources();
     // Set current journal source
-    void setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource, std::optional<QString> goToJournal = {});
+    void setCurrentJournalSource(JournalSource *optSource, std::optional<QString> goToJournal = {});
     // Find the specified journal source
-    OptionalReferenceWrapper<JournalSource> findJournalSource(const QString &name);
+    JournalSource *findJournalSource(const QString &name);
     // Return current journal source
     JournalSource &currentJournalSource() const;
     // Return selected journal in current source (assuming one is selected)
@@ -152,7 +152,7 @@ class MainWindow : public QMainWindow
      */
     private:
     // Current source being generated (if any)
-    OptionalReferenceWrapper<JournalSource> sourceBeingGenerated_;
+    JournalSource *sourceBeingGenerated_;
     // Map of sort keys to run data files
     std::map<QString, std::vector<QString>> scannedFiles_;
 

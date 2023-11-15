@@ -16,32 +16,32 @@ void MainWindow::setUpStandardJournalSources()
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 
     // The main ISIS Archive
-    auto &isisArchive = journalSources_.emplace_back("ISIS Archive", JournalSource::IndexingType::Network);
-    isisArchive.setJournalOrganisationByInstrument(Instrument::InstrumentPathType::AltNDXName);
-    isisArchive.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
-    isisArchive.setJournalData("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
-    isisArchive.setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString(),
+    auto &isisArchive = journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
+    isisArchive->setJournalOrganisationByInstrument(Instrument::InstrumentPathType::AltNDXName);
+    isisArchive->setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
+    isisArchive->setJournalData("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
+    isisArchive->setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString(),
                                    JournalSource::DataOrganisationType::Directory);
 
     // IDAaaS RB Directories
-    auto &idaaasRB = journalSources_.emplace_back("IDAaaS", JournalSource::IndexingType::Generated);
-    idaaasRB.setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::Name, true);
-    idaaasRB.setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
+    auto &idaaasRB = journalSources_.emplace_back(std::make_unique<JournalSource>("IDAaaS", JournalSource::IndexingType::Generated));
+    idaaasRB->setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::Name, true);
+    idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache", JournalSource::DataOrganisationType::RBNumber);
 }
 
 // Find the specified journal source
-OptionalReferenceWrapper<JournalSource> MainWindow::findJournalSource(const QString &name)
+JournalSource *MainWindow::findJournalSource(const QString &name)
 {
     auto sourceIt = std::find_if(journalSources_.begin(), journalSources_.end(),
-                                 [name](const auto &source) { return source.name() == name; });
+                                 [name](const auto &source) { return source->name() == name; });
     if (sourceIt != journalSources_.end())
-        return *sourceIt;
+        return sourceIt->get();
 
-    return {};
+    return nullptr;
 }
 
 // Set current journal source
-void MainWindow::setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource, std::optional<QString> goToJournal)
+void MainWindow::setCurrentJournalSource(JournalSource *optSource, std::optional<QString> goToJournal)
 {
     Locker updateLock(controlsUpdating_);
 
