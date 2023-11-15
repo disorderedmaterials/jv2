@@ -69,17 +69,17 @@ def test_logvalues_gives_list_of_time_value_pairs_for_open_block(
 def test_spectra_count_returns_the_number_spectra_in_detector_1_entry(
     sample_nexus_filepath,
 ):
-    assert jv2backend.nexus.spectra_count(sample_nexus_filepath) == 2368
+    assert jv2backend.nexus.get_detector_count(sample_nexus_filepath) == 2368
 
 
 def test_monitor_count_returns_the_number_monitors_in_the_first_entry(
     sample_nexus_filepath,
 ):
-    assert jv2backend.nexus.monitor_count(sample_nexus_filepath) == 3
+    assert jv2backend.nexus.get_monitor_count(sample_nexus_filepath) == 3
 
 
 def test_spectrum_returns_expected_spectrum_data(sample_nexus_filepath):
-    data = jv2backend.nexus.spectrum(sample_nexus_filepath, spectrum=15)
+    data = jv2backend.nexus.get_detector_spectrum(sample_nexus_filepath, spectrum=15)
 
     assert len(data) == 1361
     assert data[714][0] == pytest.approx(793.703125)
@@ -87,7 +87,7 @@ def test_spectrum_returns_expected_spectrum_data(sample_nexus_filepath):
 
 
 def test_monitor_spectrum_returns_expected_monitor_data(sample_nexus_filepath):
-    data = jv2backend.nexus.monitor_spectrum(sample_nexus_filepath, monitor=2)
+    data = jv2backend.nexus.get_monitor_spectrum(sample_nexus_filepath, monitor=2)
 
     assert len(data) == 1361
     assert data[714][0] == pytest.approx(793.703125)
