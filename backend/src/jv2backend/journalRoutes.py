@@ -159,7 +159,7 @@ def add_routes(
         except InvalidRequest as exc:
             return jsonify({"Error": str(exc)})
 
-        run_number = int(post_data.run_numbers[0])
+        run_number = post_data.run_numbers[0]
 
         logging.debug(f"Find journal for run '{run_number}' in "
                       f"{post_data.library_key()}...")
