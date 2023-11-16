@@ -154,12 +154,12 @@ void MainWindow::on_actionJumpTo_triggered()
     auto &inst = currentInstrument()->get();
 
     auto ok = false;
-    int runNo = QInputDialog::getInt(this, tr("Jump To"), tr("Run number to jump to:"), 0, 1, 2147483647, 1, &ok);
+    int runNo = QInputDialog::getInt(this, tr("Jump To"), tr("Run number to jump to:"), 1, 1, 2147483647, 1, &ok);
     if (!ok)
         return;
 
-    //    backend_.goToCycle(inst.journalDirectory(), QString::number(runNo),
-    //                       [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
+    backend_.findJournal(currentJournalSource(), runNo,
+                         [=](HttpRequestWorker *workerProxy) { handleJumpToJournal(workerProxy); });
 }
 
 // Run data context menu requested
@@ -212,4 +212,45 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
         backend_.getNexusSpectrumCount(currentJournalSource(), "monitor", selectedRunNumbers().front(),
                                        [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
     }
+}
+
+/*
+ * Network Handling
+ */
+
+// Handle run data returned for a whole journal
+void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight)
+{
+    runData_ = QJsonArray();
+    runDataModel_.setData(runData_);
+
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to retrieve run data for the journal"))
+    {
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+        return;
+    }
+
+    // Turn off grouping
+    if (ui_.GroupRunsButton->isChecked())
+        ui_.GroupRunsButton->setChecked(false);
+
+    // Get desired fields and titles from config files
+    runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
+                                          : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
+    runData_ = worker->jsonResponse().array();
+
+    // Set table data
+    runDataModel_.setHorizontalHeaders(runDataColumns_);
+    runDataModel_.setData(runData_);
+
+    ui_.RunDataTable->resizeColumnsToContents();
+    updateSearch(searchString_);
+    ui_.RunFilterEdit->clear();
+
+    updateForCurrentSource(JournalSource::JournalSourceState::OK);
+
+    // Highlight / go to specific run number if requested
+    if (runNumberToHighlight)
+        highlightRunNumber(*runNumberToHighlight);
 }
