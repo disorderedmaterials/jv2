@@ -263,23 +263,34 @@ JournalSource::DataOrganisationType JournalSource::dataOrganisation() const { re
 QJsonObject JournalSource::sourceObjectData() const
 {
     QJsonObject data;
+    // Basic source information
     data["sourceID"] = name_;
     data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] =
-        currentInstrument_
-            ? QString("%1/%2").arg(journalRootUrl_,
-                                   currentInstrument_->get().pathComponent(journalOrganisationByInstrument_,
-                                                                           journalOrganisationByInstrumentUpperCased_))
-            : journalRootUrl_;
+
+    // Journal Location
+    if (type_ == IndexingType::Network)
+    {
+        data["journalRootUrl"] =
+            journalOrganisationByInstrument_ != Instrument::InstrumentPathType::None && currentInstrument_
+                ? QString("%1/%2").arg(journalRootUrl_,
+                                       currentInstrument_->get().pathComponent(journalOrganisationByInstrument_,
+                                                                               journalOrganisationByInstrumentUpperCased_))
+                : journalRootUrl_;
+    }
     data["journalFilename"] = journalIndexFilename();
+
+    // Current instrument
     if (currentInstrument_)
         data["instrument"] = currentInstrument_->get().name();
+
+    // Run data location
     data["runDataRootUrl"] =
-        currentInstrument_
+        runDataOrganisationByInstrument_ != Instrument::InstrumentPathType::None && currentInstrument_
             ? QString("%1/%2").arg(runDataRootUrl_,
                                    currentInstrument_->get().pathComponent(runDataOrganisationByInstrument_,
                                                                            runDataOrganisationByInstrumentUpperCased_))
             : runDataRootUrl_;
+
     return data;
 }
 

@@ -32,11 +32,14 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
  */
 
 // Handle returned directory list result
-void MainWindow::handleGenerateList(JournalSource *source, HttpRequestWorker *worker)
+void MainWindow::handleGenerateList(HttpRequestWorker *worker)
 {
     // Check network reply
     if (networkRequestHasError(worker, "trying to list data directory"))
+    {
+        sourceBeingGenerated_ = nullptr;
         return;
+    }
 
     // Result contains the number of NeXuS files found and the target dir
     const auto receivedData = worker->jsonResponse().object();
@@ -52,16 +55,18 @@ void MainWindow::handleGenerateList(JournalSource *source, HttpRequestWorker *wo
 
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
 
+        sourceBeingGenerated_ = nullptr;
+
         return;
     }
 
     // Update the GUI
     ui_.GeneratingPageLabel->setText(
         QString("Generating Journals for Source '%1'...\nSource Data Directory is '%2', organised by '%3'")
-            .arg(source->name(), source->runDataRootUrl(), JournalSource::dataOrganisationType(source->dataOrganisation())));
+            .arg(sourceBeingGenerated_->name(), sourceBeingGenerated_->runDataRootUrl(),
+                 JournalSource::dataOrganisationType(sourceBeingGenerated_->dataOrganisation())));
     ui_.GeneratingProgressBar->setMaximum(nFilesFound);
     updateGenerationPage(0, "<No Files Scanned>");
-    sourceBeingGenerated_ = source;
 
     // Make a file tree
     auto *rootItem = new GenericTreeItem({"Journal", "Filename / Path"});
@@ -84,7 +89,8 @@ void MainWindow::handleGenerateList(JournalSource *source, HttpRequestWorker *wo
     updateForCurrentSource(JournalSource::JournalSourceState::Generating);
 
     // Begin the background file scan
-    backend_.generateBackgroundScan(source, [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(); });
+    backend_.generateBackgroundScan(sourceBeingGenerated_,
+                                    [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(); });
 }
 
 // Handle / monitor the generation background scan
