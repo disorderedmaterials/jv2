@@ -224,6 +224,13 @@ class Journal:
         """Return the number of runs listed within this Journal"""
         return len(self._run_data)
 
+    def get_first_run_number(self) -> Optional[int]:
+        """Return the run number of the first run in the journal"""
+        if len(self._run_number_ranges) == 0:
+            return None
+        else:
+            return self._run_number_ranges[0].first
+
     def get_last_run_number(self) -> Optional[int]:
         """Return the run number of the last run in the journal"""
         if len(self._run_number_ranges) == 0:

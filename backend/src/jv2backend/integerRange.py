@@ -29,7 +29,7 @@ class IntegerRange:
             return cls(int(text.strip(), int(text.strip())))
 
     @property
-    def firat(self) -> int:
+    def first(self) -> int:
         return self._first
 
     @property
