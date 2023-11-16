@@ -83,7 +83,7 @@ class Instrument
     // Return text string for specified instrument path type
     static QString pathType(PathType type);
     // Convert text string to instrument path type
-    static PathType pathType(QString typeString);
+    static PathType pathType(const QString &typeString);
     // Return specified path component for this instrument (lowercased by default)
     QString pathComponent(PathType pathType, bool upperCased = false) const;
 };

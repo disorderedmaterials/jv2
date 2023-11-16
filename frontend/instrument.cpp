@@ -126,7 +126,7 @@ QString Instrument::pathType(Instrument::PathType type)
 }
 
 // Convert text string to instrument path type
-Instrument::PathType Instrument::pathType(QString typeString)
+Instrument::PathType Instrument::pathType(const QString &typeString)
 {
     if (typeString.toLower() == "none")
         return PathType::None;
