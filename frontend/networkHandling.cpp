@@ -14,7 +14,7 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     // Communications error with the backend?
     if (worker->errorType() != QNetworkReply::NoError)
     {
-        statusBar()->showMessage(QString("Network error for source %1").arg(currentJournalSource().name()), 3000);
+        statusBar()->showMessage(QString("Network error for source %1").arg(currentJournalSource()->name()), 3000);
         setErrorPage("Network Error", QString("A network error was encountered while %1.\nThe error returned was: %2")
                                           .arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
@@ -25,7 +25,7 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
     auto response = worker->jsonResponse().object();
     if (response.contains("Error"))
     {
-        statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource().name()), 3000);
+        statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource()->name()), 3000);
         setErrorPage("Response Error", QString("The backend failed while %1.\nThe response returned was: %2")
                                            .arg(taskDescription, response["Error"].toString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
@@ -85,7 +85,7 @@ void MainWindow::handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumb
     }
 
     // Locate the journal returned
-    auto optJournal = currentJournalSource().findJournal(worker->response());
+    auto optJournal = currentJournalSource()->findJournal(worker->response());
 
     if (optJournal && optJournal->get().name() == worker->response())
     {

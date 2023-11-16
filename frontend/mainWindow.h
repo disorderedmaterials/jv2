@@ -64,9 +64,9 @@ class MainWindow : public QMainWindow
      */
     private:
     // Known journal sources
-    std::vector<JournalSource> journalSources_;
+    std::vector<std::unique_ptr<JournalSource>> journalSources_;
     // Currently selected journal source (if any)
-    OptionalReferenceWrapper<JournalSource> currentJournalSource_;
+    JournalSource *currentJournalSource_;
     // Model for available journal sources
     JournalSourceModel journalSourceModel_;
     // Model for available journals
@@ -76,11 +76,11 @@ class MainWindow : public QMainWindow
     // Set up standard journal sources
     void setUpStandardJournalSources();
     // Set current journal source
-    void setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource, std::optional<QString> goToJournal = {});
+    void setCurrentJournalSource(JournalSource *source, std::optional<QString> goToJournal = {});
     // Find the specified journal source
-    OptionalReferenceWrapper<JournalSource> findJournalSource(const QString &name);
+    JournalSource *findJournalSource(const QString &name);
     // Return current journal source
-    JournalSource &currentJournalSource() const;
+    JournalSource *currentJournalSource() const;
     // Return selected journal in current source (assuming one is selected)
     Journal &currentJournal() const;
 
@@ -88,6 +88,7 @@ class MainWindow : public QMainWindow
     void on_JournalSourceComboBox_currentIndexChanged(int index);
     void on_JournalComboBox_currentIndexChanged(int index);
     void on_JournalComboBackToJournalsButton_clicked(bool checked);
+    void on_actionEditSources_triggered();
 
     private:
     // Handle get journal updates result
@@ -141,7 +142,7 @@ class MainWindow : public QMainWindow
     bool highlightRunNumber(int runNumber);
 
     private slots:
-    void on_actionRefresh_triggered();
+    void on_actionRefreshJournal_triggered();
     void on_actionJumpTo_triggered();
 
     // Run data context menu requested
@@ -152,7 +153,7 @@ class MainWindow : public QMainWindow
      */
     private:
     // Current source being generated (if any)
-    OptionalReferenceWrapper<JournalSource> sourceBeingGenerated_;
+    JournalSource *sourceBeingGenerated_;
     // Map of sort keys to run data files
     std::map<QString, std::vector<QString>> scannedFiles_;
 
@@ -167,11 +168,11 @@ class MainWindow : public QMainWindow
 
     private:
     // Handle returned directory list result
-    void handleGenerateList(JournalSource &source, HttpRequestWorker *worker);
+    void handleGenerateList(JournalSource *source, HttpRequestWorker *worker);
     // Handle / monitor the generation background scan
     void handleGenerateBackgroundScan();
     // Handle journal generation finalisation
-    void handleGenerateFinalise(JournalSource &source, HttpRequestWorker *worker);
+    void handleGenerateFinalise(HttpRequestWorker *worker);
     // Handle journal generation background scan termination
     void handleGenerateBackgroundScanStop(HttpRequestWorker *worker);
 

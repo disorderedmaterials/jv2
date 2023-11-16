@@ -14,16 +14,18 @@ class JournalSourceModel : public QAbstractListModel
     JournalSourceModel();
 
     private:
-    // JournalSource source for the model
-    OptionalReferenceWrapper<std::vector<JournalSource>> data_;
+    // JournalSource data for the model
+    OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> data_;
 
     public:
     // Set the source data for the model
-    void setData(OptionalReferenceWrapper<std::vector<JournalSource>> sources);
+    void setData(OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> sources);
     // Get JournalSource at row specified
-    OptionalReferenceWrapper<JournalSource> getData(int row) const;
+    JournalSource *getData(int row) const;
     // Get JournalSource at index specified
-    OptionalReferenceWrapper<JournalSource> getData(const QModelIndex &index) const;
+    JournalSource *getData(const QModelIndex &index) const;
+    // Append new source to the end of the current data
+    QModelIndex appendNew();
 
     /*
      * QAbstractTableModel Overrides
@@ -31,6 +33,8 @@ class JournalSourceModel : public QAbstractListModel
     public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 };

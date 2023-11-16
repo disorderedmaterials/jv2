@@ -42,8 +42,12 @@ class JournalSource
     bool userDefined_{false};
 
     public:
-    // Return name (used for display)
+    // Set name
+    void setName(const QString &name);
+    // Return name
     const QString &name() const;
+    // Set type
+    void setType(IndexingType type);
     // Return type
     IndexingType type() const;
     // Return whether the source is user-defined
@@ -63,8 +67,8 @@ class JournalSource
     OptionalReferenceWrapper<Journal> currentJournal_;
 
     public:
-    // Set journal data
-    void setJournalData(const QString &journalRootUrl, const QString &indexFilename);
+    // Set journal location
+    void setJournalLocation(const QString &journalRootUrl, const QString &indexFilename);
     // Root URL for the journal source (if available)
     QString journalRootUrl() const;
     // Return journal index filename
@@ -104,10 +108,14 @@ class JournalSource
     void setJournalOrganisationByInstrument(Instrument::InstrumentPathType orgType, bool upperCased = false);
     // Return instrument-dependent journal organisation for this source
     Instrument::InstrumentPathType journalOrganisationByInstrument() const;
+    // Return whether the instrument path component for journals should be uppercased
+    bool isJournalOrganisationByInstrumentUppercased() const;
     // Set instrument-dependent run data organisation for this source
     void setRunDataOrganisationByInstrument(Instrument::InstrumentPathType orgType, bool upperCased = false);
     // Return instrument-dependent run data organisation for this source
     Instrument::InstrumentPathType runDataOrganisationByInstrument() const;
+    // Return whether the instrument path component for run data should be uppercased
+    bool isRunDataOrganisationByInstrumentUppercased() const;
     // Set current instrument
     void setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst);
     // Return current instrument
@@ -123,9 +131,22 @@ class JournalSource
     /*
      * Associated Run Data
      */
+    private:
+    // Root URL containing associated run data
+    QString runDataRootUrl_;
+
+    public:
+    // Set run data location
+    void setRunDataLocation(const QString &runDataRootUrl);
+    // Return root URL containing associated run data
+    const QString &runDataRootUrl() const;
+
+    /*
+     * Generated Data Organisation
+     */
     public:
     // Data Organisation Types
-    enum class DataOrganisationType
+    enum DataOrganisationType
     {
         Directory,
         RBNumber
@@ -138,18 +159,14 @@ class JournalSource
     static DataOrganisationType dataOrganisationType(QString typeString);
 
     private:
-    // Root URL containing associated run data
-    QString runDataRootUrl_;
     // Run data organisation
-    DataOrganisationType runDataOrganisation_;
+    DataOrganisationType dataOrganisation_{DataOrganisationType::Directory};
 
     public:
-    // Set run data location
-    void setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType orgType);
-    // Return root URL containing associated run data
-    const QString &runDataRootUrl() const;
+    // Set run data organisation type
+    void setDataOrganisation(DataOrganisationType orgType);
     // Return run data organisation
-    DataOrganisationType runDataOrganisation() const;
+    DataOrganisationType dataOrganisation() const;
 
     /*
      * Object Data

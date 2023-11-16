@@ -608,7 +608,6 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
-    <addaction name="actionRefresh"/>
     <addaction name="separator"/>
     <addaction name="actionFind"/>
     <addaction name="actionFindNext"/>
@@ -619,8 +618,32 @@
     <addaction name="separator"/>
     <addaction name="actionSearchEverywhere"/>
    </widget>
+   <widget class="QMenu" name="menuJournal">
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>&amp;Journal</string>
+    </property>
+    <addaction name="actionRefreshJournal"/>
+   </widget>
+   <widget class="QMenu" name="menuSources">
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>&amp;Sources</string>
+    </property>
+    <addaction name="actionEditSources"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuJournal"/>
+   <addaction name="menuSources"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionMassSearchRBNo">
@@ -698,7 +721,7 @@
     <string>Ctrl+J</string>
    </property>
   </action>
-  <action name="actionRefresh">
+  <action name="actionRefreshJournal">
    <property name="text">
     <string>&amp;Refresh</string>
    </property>
@@ -714,6 +737,11 @@
   <action name="actionSearchEverywhere">
    <property name="text">
     <string>&amp;Search Everywhere...</string>
+   </property>
+  </action>
+  <action name="actionEditSources">
+   <property name="text">
+    <string>Edit Sources...</string>
    </property>
   </action>
  </widget>
