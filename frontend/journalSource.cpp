@@ -144,38 +144,32 @@ OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return
 // Return whether the source requires an instrument to be specified
 bool JournalSource::instrumentRequired() const
 {
-    return journalOrganisationByInstrument_ != Instrument::InstrumentPathType::None ||
-           runDataOrganisationByInstrument_ != Instrument::InstrumentPathType::None;
+    return journalOrganisationByInstrument_ != Instrument::PathType::None ||
+           runDataOrganisationByInstrument_ != Instrument::PathType::None;
 }
 
 // Set instrument-dependent journal organisation for this source
-void JournalSource::setJournalOrganisationByInstrument(Instrument::InstrumentPathType pathType, bool upperCased)
+void JournalSource::setJournalOrganisationByInstrument(Instrument::PathType pathType, bool upperCased)
 {
     journalOrganisationByInstrument_ = pathType;
     journalOrganisationByInstrumentUpperCased_ = upperCased;
 }
 
 // Return instrument-dependent journal organisation for this source
-Instrument::InstrumentPathType JournalSource::journalOrganisationByInstrument() const
-{
-    return journalOrganisationByInstrument_;
-}
+Instrument::PathType JournalSource::journalOrganisationByInstrument() const { return journalOrganisationByInstrument_; }
 
 // Return whether the instrument path component for journals should be uppercased
 bool JournalSource::isJournalOrganisationByInstrumentUppercased() const { return journalOrganisationByInstrumentUpperCased_; }
 
 // Set instrument-dependent run data organisation for this source
-void JournalSource::setRunDataOrganisationByInstrument(Instrument::InstrumentPathType pathType, bool upperCased)
+void JournalSource::setRunDataOrganisationByInstrument(Instrument::PathType pathType, bool upperCased)
 {
     runDataOrganisationByInstrument_ = pathType;
     runDataOrganisationByInstrumentUpperCased_ = upperCased;
 }
 
 // Return instrument-dependent run data organisation for this source
-Instrument::InstrumentPathType JournalSource::runDataOrganisationByInstrument() const
-{
-    return runDataOrganisationByInstrument_;
-}
+Instrument::PathType JournalSource::runDataOrganisationByInstrument() const { return runDataOrganisationByInstrument_; }
 
 // Return whether the instrument path component for run data should be uppercased
 bool JournalSource::isRunDataOrganisationByInstrumentUppercased() const { return runDataOrganisationByInstrumentUpperCased_; }

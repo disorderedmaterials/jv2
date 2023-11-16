@@ -10,9 +10,9 @@
 #include "journalModel.h"
 #include "journalSource.h"
 #include "journalSourceModel.h"
-#include "jsonTableFilterProxy.h"
-#include "jsonTableModel.h"
 #include "lock.h"
+#include "runDataFilterProxy.h"
+#include "runDataModel.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>
@@ -123,8 +123,8 @@ class MainWindow : public QMainWindow
      */
     private:
     QJsonArray runData_, groupedRunData_;
-    JsonTableModel runDataModel_;
-    JsonTableFilterProxy runDataFilterProxy_;
+    RunDataModel runDataModel_;
+    RunDataFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:

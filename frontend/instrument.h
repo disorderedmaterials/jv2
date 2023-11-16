@@ -72,8 +72,8 @@ class Instrument
      * Paths
      */
     public:
-    // Instrument Path Type
-    enum InstrumentPathType
+    // Path Type
+    enum PathType
     {
         None,      /* No instrument information present in the path */
         Name,      /* Path includes standard instrument name */
@@ -81,9 +81,9 @@ class Instrument
         AltNDXName /* Path includes alternate instrument name prefixed with 'ndx' */
     };
     // Return text string for specified instrument path type
-    static QString instrumentPathType(InstrumentPathType type);
+    static QString pathType(PathType type);
     // Convert text string to instrument path type
-    static InstrumentPathType instrumentPathType(QString typeString);
-    // Return specified path component for this instrument (lowercases by default)
-    QString pathComponent(InstrumentPathType pathType, bool upperCased = false) const;
+    static PathType pathType(const QString &typeString);
+    // Return specified path component for this instrument (lowercased by default)
+    QString pathComponent(PathType pathType, bool upperCased = false) const;
 };

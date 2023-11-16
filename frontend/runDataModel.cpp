@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "jsonTableModel.h"
+#include "runDataModel.h"
 #include <QDebug>
 #include <QJsonObject>
 #include <QTime>
 
 // Model to handle json data in table view
-JsonTableModel::JsonTableModel() : QAbstractTableModel() {}
+RunDataModel::RunDataModel() : QAbstractTableModel() {}
 
 /*
  * Private Functions
  */
 
 // Get Json data at row specified
-QJsonObject JsonTableModel::getData(int row) const
+QJsonObject RunDataModel::getData(int row) const
 {
     if (!jsonData_)
         return {};
@@ -23,14 +23,14 @@ QJsonObject JsonTableModel::getData(int row) const
 }
 
 // Get Json data at index specified
-QJsonObject JsonTableModel::getData(const QModelIndex &index) const { return getData(index.row()); }
+QJsonObject RunDataModel::getData(const QModelIndex &index) const { return getData(index.row()); }
 
 /*
  * Public Functions
  */
 
 // Set the source data for the model
-void JsonTableModel::setData(QJsonArray &array)
+void RunDataModel::setData(QJsonArray &array)
 {
     beginResetModel();
     jsonData_ = array;
@@ -38,10 +38,10 @@ void JsonTableModel::setData(QJsonArray &array)
 }
 
 // Append supplied data to the current data
-void JsonTableModel::appendData(const QJsonArray &newData)
+void RunDataModel::appendData(const QJsonArray &newData)
 {
     if (!jsonData_)
-        throw(std::runtime_error("Tried to append data in JsonTableModel but no current data reference is set.\n"));
+        throw(std::runtime_error("Tried to append data in RunDataModel but no current data reference is set.\n"));
     auto &currentData = jsonData_->get();
 
     beginInsertRows(QModelIndex(), currentData.size(), currentData.size() + newData.count() - 1);
@@ -51,7 +51,7 @@ void JsonTableModel::appendData(const QJsonArray &newData)
 }
 
 // Set the table column (horizontal) headers
-void JsonTableModel::setHorizontalHeaders(const Instrument::RunDataColumns &headers)
+void RunDataModel::setHorizontalHeaders(const Instrument::RunDataColumns &headers)
 {
     beginResetModel();
     horizontalHeaders_ = headers;
@@ -59,14 +59,14 @@ void JsonTableModel::setHorizontalHeaders(const Instrument::RunDataColumns &head
 }
 
 // Get named data for specified row
-QString JsonTableModel::getData(const QString &targetData, int row) const
+QString RunDataModel::getData(const QString &targetData, int row) const
 {
     auto data = getData(row);
     return data.contains(targetData) ? data[targetData].toString() : QString();
 }
 
 // Get data for specified index
-QString JsonTableModel::getData(const QString &targetData, const QModelIndex &index) const
+QString RunDataModel::getData(const QString &targetData, const QModelIndex &index) const
 {
     return getData(targetData, index.row());
 }
@@ -75,14 +75,14 @@ QString JsonTableModel::getData(const QString &targetData, const QModelIndex &in
  * QAbstractTableModel Overrides
  */
 
-int JsonTableModel::rowCount(const QModelIndex &parent) const { return jsonData_ ? jsonData_->get().size() : 0; }
+int RunDataModel::rowCount(const QModelIndex &parent) const { return jsonData_ ? jsonData_->get().size() : 0; }
 
-int JsonTableModel::columnCount(const QModelIndex &parent) const
+int RunDataModel::columnCount(const QModelIndex &parent) const
 {
     return horizontalHeaders_ ? horizontalHeaders_->get().size() : 0;
 }
 
-QVariant JsonTableModel::data(const QModelIndex &index, int role) const
+QVariant RunDataModel::data(const QModelIndex &index, int role) const
 {
     if (!jsonData_ || !horizontalHeaders_)
         return {};
@@ -134,7 +134,7 @@ QVariant JsonTableModel::data(const QModelIndex &index, int role) const
     return v.toString();
 }
 
-QVariant JsonTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant RunDataModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (!horizontalHeaders_)
         return {};

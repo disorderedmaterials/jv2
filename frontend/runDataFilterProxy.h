@@ -7,19 +7,19 @@
 #include <QSortFilterProxyModel>
 
 // Forward Declarations
-class JsonTableModel;
+class RunDataModel;
 class QModelIndex;
 
-class JsonTableFilterProxy : public QSortFilterProxyModel
+class RunDataFilterProxy : public QSortFilterProxyModel
 {
     Q_OBJECT
 
     public:
-    JsonTableFilterProxy(JsonTableModel &jsonTableModel);
+    RunDataFilterProxy(RunDataModel &runDataModel);
 
     private:
     // Target model
-    JsonTableModel &jsonTableModel_;
+    RunDataModel &runDataModel_;
     // Text string to filter by
     QString filterString_;
     // Whether the filtering is case sensitive

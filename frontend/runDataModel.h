@@ -12,11 +12,11 @@
 #include <QObject>
 #include <QVector>
 
-// Model for json usage in table view
-class JsonTableModel : public QAbstractTableModel
+// JSON Run Data Model
+class RunDataModel : public QAbstractTableModel
 {
     public:
-    JsonTableModel();
+    RunDataModel();
 
     private:
     // journal source for the model
