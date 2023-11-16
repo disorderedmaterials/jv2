@@ -108,17 +108,17 @@ const Instrument::RunDataColumns &Instrument::runDataColumns(Instrument::Instrum
  */
 
 // Return text string for specified instrument path type
-QString Instrument::instrumentPathType(Instrument::InstrumentPathType type)
+QString Instrument::pathType(Instrument::PathType type)
 {
     switch (type)
     {
-        case (InstrumentPathType::None):
+        case (PathType::None):
             return "None";
-        case (InstrumentPathType::Name):
+        case (PathType::Name):
             return "Name";
-        case (InstrumentPathType::NDXName):
+        case (PathType::NDXName):
             return "NDXName";
-        case (InstrumentPathType::AltNDXName):
+        case (PathType::AltNDXName):
             return "AltNDXName";
         default:
             throw(std::runtime_error("Can't convert instrument path type to string.\n"));
@@ -126,35 +126,35 @@ QString Instrument::instrumentPathType(Instrument::InstrumentPathType type)
 }
 
 // Convert text string to instrument path type
-Instrument::InstrumentPathType Instrument::instrumentPathType(QString typeString)
+Instrument::PathType Instrument::pathType(QString typeString)
 {
     if (typeString.toLower() == "none")
-        return InstrumentPathType::None;
+        return PathType::None;
     else if (typeString.toLower() == "name")
-        return InstrumentPathType::Name;
+        return PathType::Name;
     else if (typeString.toLower() == "ndxname")
-        return InstrumentPathType::NDXName;
+        return PathType::NDXName;
     else if (typeString.toLower() == "altndxname")
-        return InstrumentPathType::AltNDXName;
+        return PathType::AltNDXName;
     else
         throw(std::runtime_error("Can't convert string to instrument path type.\n"));
 }
 
 // Return specified path component for this instrument
-QString Instrument::pathComponent(InstrumentPathType pathType, bool upperCased) const
+QString Instrument:: pathComponent(PathType pathType, bool upperCased) const
 {
     QString result;
     switch (pathType)
     {
-        case (InstrumentPathType::None):
+        case (PathType::None):
             return {};
-        case (InstrumentPathType::Name):
+        case (PathType::Name):
             result = name_;
             break;
-        case (InstrumentPathType::NDXName):
+        case (PathType::NDXName):
             result = QString("ndx%1").arg(name_);
             break;
-        case (InstrumentPathType::AltNDXName):
+        case (PathType::AltNDXName):
             result = QString("ndx%1").arg(alternativeName_.value_or(name_));
             break;
         default:

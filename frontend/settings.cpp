@@ -112,22 +112,20 @@ void MainWindow::storeUserJournalSources() const
         {
             settings.setValue("JournalRootUrl", source->journalRootUrl());
             settings.setValue("JournalIndexFilename", source->journalIndexFilename());
-            settings.setValue("JournalInstrumentPathType",
-                              Instrument::instrumentPathType(source->journalOrganisationByInstrument()));
-            settings.setValue("JournalInstrumentPathTypeUppercased", source->isJournalOrganisationByInstrumentUppercased());
+            settings.setValue("JournalPathType", Instrument::pathType(source->journalOrganisationByInstrument()));
+            settings.setValue("JournalPathTypeUppercased", source->isJournalOrganisationByInstrumentUppercased());
         }
         else
         {
             settings.remove("JournalRootUrl");
             settings.remove("JournalIndexFilename");
-            settings.remove("JournalInstrumentPathType");
+            settings.remove("JournalPathType");
         }
 
         // Run Data
         settings.setValue("RunDataRootUrl", source->runDataRootUrl());
-        settings.setValue("RunDataInstrumentPathType",
-                          Instrument::instrumentPathType(source->runDataOrganisationByInstrument()));
-        settings.setValue("RunDataInstrumentPathTypeUppercased", source->isRunDataOrganisationByInstrumentUppercased());
+        settings.setValue("RunDataPathType", Instrument::pathType(source->runDataOrganisationByInstrument()));
+        settings.setValue("RunDataPathTypeUppercased", source->isRunDataOrganisationByInstrumentUppercased());
 
         // Generated Data Organisation
         if (source->type() == JournalSource::IndexingType::Generated)
@@ -158,21 +156,17 @@ void MainWindow::getUserJournalSources()
             source->setJournalLocation(settings.value("JournalRootUrl").toString(),
                                        settings.value("JournalIndexFilename").toString());
             source->setJournalOrganisationByInstrument(
-                Instrument::instrumentPathType(settings
-                                                   .value("JournalInstrumentPathType",
-                                                          Instrument::instrumentPathType(Instrument::InstrumentPathType::None))
-                                                   .toString()),
-                settings.value("JournalInstrumentPathTypeUppercased").toBool());
+                Instrument::pathType(
+                    settings.value("JournalPathType", Instrument::pathType(Instrument::PathType::None)).toString()),
+                settings.value("JournalPathTypeUppercased").toBool());
         }
 
         // Run Data
         source->setRunDataLocation(settings.value("RunDataRootUrl").toString());
         source->setRunDataOrganisationByInstrument(
-            Instrument::instrumentPathType(
-                settings
-                    .value("RunDataInstrumentPathType", Instrument::instrumentPathType(Instrument::InstrumentPathType::None))
-                    .toString()),
-            settings.value("RunDataInstrumentPathTypeUppercased").toBool());
+            Instrument::pathType(
+                settings.value("RunDataPathType", Instrument::pathType(Instrument::PathType::None)).toString()),
+            settings.value("RunDataPathTypeUppercased").toBool());
 
         // Generated Data Organisation
         if (source->type() == JournalSource::IndexingType::Generated)

@@ -107,9 +107,8 @@ void JournalSourcesDialog::on_JournalInstrumentPathCombo_currentIndexChanged(int
     if (widgetUpdateLock_ || !currentSource_)
         return;
 
-    currentSource_->setJournalOrganisationByInstrument(
-        (Instrument::InstrumentPathType)ui_.JournalInstrumentPathCombo->currentIndex(),
-        ui_.JournalInstrumentPathUppercaseCheck->isChecked());
+    currentSource_->setJournalOrganisationByInstrument((Instrument::PathType)ui_.JournalInstrumentPathCombo->currentIndex(),
+                                                       ui_.JournalInstrumentPathUppercaseCheck->isChecked());
 }
 
 void JournalSourcesDialog::on_JournalInstrumentPathUppercaseCheck_clicked(bool checked)
@@ -117,9 +116,8 @@ void JournalSourcesDialog::on_JournalInstrumentPathUppercaseCheck_clicked(bool c
     if (widgetUpdateLock_ || !currentSource_)
         return;
 
-    currentSource_->setJournalOrganisationByInstrument(
-        (Instrument::InstrumentPathType)ui_.JournalInstrumentPathCombo->currentIndex(),
-        ui_.JournalInstrumentPathUppercaseCheck->isChecked());
+    currentSource_->setJournalOrganisationByInstrument((Instrument::PathType)ui_.JournalInstrumentPathCombo->currentIndex(),
+                                                       ui_.JournalInstrumentPathUppercaseCheck->isChecked());
 }
 
 /*
@@ -139,9 +137,8 @@ void JournalSourcesDialog::on_RunDataInstrumentPathCombo_currentIndexChanged(int
     if (widgetUpdateLock_ || !currentSource_)
         return;
 
-    currentSource_->setRunDataOrganisationByInstrument(
-        (Instrument::InstrumentPathType)ui_.RunDataInstrumentPathCombo->currentIndex(),
-        ui_.RunDataInstrumentPathUppercaseCheck->isChecked());
+    currentSource_->setRunDataOrganisationByInstrument((Instrument::PathType)ui_.RunDataInstrumentPathCombo->currentIndex(),
+                                                       ui_.RunDataInstrumentPathUppercaseCheck->isChecked());
 }
 
 void JournalSourcesDialog::on_RunDataInstrumentPathUppercaseCheck_clicked(bool checked)
@@ -149,9 +146,8 @@ void JournalSourcesDialog::on_RunDataInstrumentPathUppercaseCheck_clicked(bool c
     if (widgetUpdateLock_ || !currentSource_)
         return;
 
-    currentSource_->setRunDataOrganisationByInstrument(
-        (Instrument::InstrumentPathType)ui_.RunDataInstrumentPathCombo->currentIndex(),
-        ui_.RunDataInstrumentPathUppercaseCheck->isChecked());
+    currentSource_->setRunDataOrganisationByInstrument((Instrument::PathType)ui_.RunDataInstrumentPathCombo->currentIndex(),
+                                                       ui_.RunDataInstrumentPathUppercaseCheck->isChecked());
 }
 
 /*

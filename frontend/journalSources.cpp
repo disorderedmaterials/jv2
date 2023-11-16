@@ -19,15 +19,15 @@ void MainWindow::setUpStandardJournalSources()
     // The main ISIS Archive
     auto &isisArchive =
         journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
-    isisArchive->setJournalOrganisationByInstrument(Instrument::InstrumentPathType::AltNDXName);
-    isisArchive->setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::NDXName);
+    isisArchive->setJournalOrganisationByInstrument(Instrument::PathType::AltNDXName);
+    isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName);
     isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
     isisArchive->setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString());
 
     // IDAaaS RB Directories
     auto &idaaasRB =
         journalSources_.emplace_back(std::make_unique<JournalSource>("IDAaaS", JournalSource::IndexingType::Generated));
-    idaaasRB->setRunDataOrganisationByInstrument(Instrument::InstrumentPathType::Name, true);
+    idaaasRB->setRunDataOrganisationByInstrument(Instrument::PathType::Name, true);
     idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache");
     idaaasRB->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
 }
