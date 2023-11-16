@@ -3,7 +3,6 @@
 
 from platformdirs import user_data_dir
 from pathlib import Path
-from io import BytesIO
 import os.path
 import hashlib
 import datetime
