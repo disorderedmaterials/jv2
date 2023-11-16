@@ -141,6 +141,23 @@ class Journal:
         jv2backend.userCache.put_data(self._parent_library_key, self.filename,
                                       json.dumps(self._run_data), self.last_modified)
 
+    def get_file_size(self) -> int:
+        """Get the 'on disk' size of the journal file"""
+        # Check the cache for the data first
+        if jv2backend.userCache.has_data(self._parent_library_key,
+                                         self.filename):
+            return jv2backend.userCache.get_file_size(
+                self._parent_library_key,
+                self.filename
+            )
+        elif self._source_type == SourceType.Network:
+            # Try to retrieve from source
+            response = requests.head(self.get_file_url(), timeout=3)
+            response.raise_for_status()
+            return int(response.headers["Content-length"])
+        else:
+            raise RuntimeError("Can't get the file size.")
+
     # ---------------- Run Data
 
     def __make_run_data_entry(self, run: ElementTree.Element,
