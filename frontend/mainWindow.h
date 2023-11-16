@@ -123,8 +123,8 @@ class MainWindow : public QMainWindow
      */
     private:
     QJsonArray runData_, groupedRunData_;
-    JsonTableModel runDataModel_;
-    JsonTableFilterProxy runDataFilterProxy_;
+    RunDataModel runDataModel_;
+    RunDataFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:

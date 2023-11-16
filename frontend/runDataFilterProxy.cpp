@@ -6,13 +6,13 @@
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 
-JsonTableFilterProxy::JsonTableFilterProxy(JsonTableModel &jsonTableModel) : jsonTableModel_(jsonTableModel)
+RunDataFilterProxy::RunDataFilterProxy(RunDataModel &runDataModel) : runDataModel_(runDataModel)
 {
-    setSourceModel(&jsonTableModel_);
+    setSourceModel(&runDataModel_);
 }
 
 // Set text string to filter by
-void JsonTableFilterProxy::setFilterString(QString filterString)
+void RunDataFilterProxy::setFilterString(QString filterString)
 {
     filterString_ = filterString;
 
@@ -20,14 +20,14 @@ void JsonTableFilterProxy::setFilterString(QString filterString)
 }
 
 // Set whether the filtering is case sensitive
-void JsonTableFilterProxy::setCaseSensitivity(bool caseSensitive)
+void RunDataFilterProxy::setCaseSensitivity(bool caseSensitive)
 {
     caseSensitive_ = caseSensitive;
 
     invalidateFilter();
 }
 
-bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool RunDataFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     if (filterString_.isEmpty())
         return true;
@@ -52,7 +52,7 @@ bool JsonTableFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &so
 }
 
 // Get named data for specified proxy index from underlying model
-QString JsonTableFilterProxy::getData(const QString &targetData, const QModelIndex &index) const
+QString RunDataFilterProxy::getData(const QString &targetData, const QModelIndex &index) const
 {
-    return jsonTableModel_.getData(targetData, mapToSource(index));
+    return runDataModel_.getData(targetData, mapToSource(index));
 }
