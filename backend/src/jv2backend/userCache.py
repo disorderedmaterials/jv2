@@ -59,6 +59,9 @@ def put_data(source_id: str, data_name: str, data: str,
     if not _CACHE_ACTIVATED:
         return
 
+    logging.debug(f"Putting cache data for '{source_id}' / '{data_name}' "
+                  f" => '{_cache_file(source_id, data_name)}")
+
     # Write main file data
     try:
         with open(_cache_file(source_id, data_name), "wb") as file:
@@ -84,6 +87,9 @@ def has_data(source_id: str, data_name: str) -> bool:
     if not _CACHE_ACTIVATED:
         return False
 
+    logging.debug(f"Checking cache data for '{source_id}' / '{data_name}' "
+                  f" => '{_cache_file(source_id, data_name)}")
+
     return os.path.exists(_cache_file(source_id, data_name))
 
 
@@ -99,6 +105,9 @@ def get_data(source_id: str, data_name: str) -> (bytes, datetime.datetime):
     """Retrieve the data and associated mtime (if available)"""
     data = bytes
     mtime = datetime.datetime
+
+    logging.debug(f"Getting cache data for '{source_id}' / '{data_name}' "
+                  f" => '{_cache_file(source_id, data_name)}")
 
     # Get data file
     try:
