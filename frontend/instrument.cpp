@@ -141,7 +141,7 @@ Instrument::PathType Instrument::pathType(const QString &typeString)
 }
 
 // Return specified path component for this instrument
-QString Instrument:: pathComponent(PathType pathType, bool upperCased) const
+QString Instrument::pathComponent(PathType pathType, bool upperCased) const
 {
     QString result;
     switch (pathType)
