@@ -10,9 +10,9 @@
 #include "journalModel.h"
 #include "journalSource.h"
 #include "journalSourceModel.h"
-#include "jsonTableFilterProxy.h"
-#include "jsonTableModel.h"
 #include "lock.h"
+#include "runDataFilterProxy.h"
+#include "runDataModel.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>

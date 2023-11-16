@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "jsonTableFilterProxy.h"
-#include "jsonTableModel.h"
+#include "runDataFilterProxy.h"
+#include "runDataModel.h"
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 

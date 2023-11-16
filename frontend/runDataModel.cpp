@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2023 Team JournalViewer and contributors
 
-#include "jsonTableModel.h"
+#include "runDataModel.h"
 #include <QDebug>
 #include <QJsonObject>
 #include <QTime>

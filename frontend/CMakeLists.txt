@@ -77,10 +77,10 @@ qt6_add_executable(
   journalModel.h
   journalSourceModel.cpp
   journalSourceModel.h
-  jsonTableModel.cpp
-  jsonTableModel.h
-  jsonTableFilterProxy.cpp
-  jsonTableFilterProxy.h
+  runDataModel.cpp
+  runDataModel.h
+  runDataFilterProxy.cpp
+  runDataFilterProxy.h
   # Widgets
   chartView.cpp
   chartView.h
