@@ -153,7 +153,7 @@ class MainWindow : public QMainWindow
      */
     private:
     // Current source being generated (if any)
-    JournalSource *sourceBeingGenerated_;
+    JournalSource *sourceBeingGenerated_{nullptr};
     // Map of sort keys to run data files
     std::map<QString, std::vector<QString>> scannedFiles_;
 
@@ -168,7 +168,7 @@ class MainWindow : public QMainWindow
 
     private:
     // Handle returned directory list result
-    void handleGenerateList(JournalSource *source, HttpRequestWorker *worker);
+    void handleGenerateList(HttpRequestWorker *worker);
     // Handle / monitor the generation background scan
     void handleGenerateBackgroundScan();
     // Handle journal generation finalisation

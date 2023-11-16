@@ -161,6 +161,9 @@ void MainWindow::on_actionEditSources_triggered()
 // Handle returned journal information for an instrument
 void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad)
 {
+    if (!currentJournalSource_)
+        return;
+
     Locker updateLocker(controlsUpdating_);
 
     // Clear existing data
@@ -174,9 +177,6 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
         return;
     }
 
-    auto *source = currentJournalSource();
-    source->clearJournals();
-
     // Special case - for cache or disk-based sources we may get an error stating that the index file was not found.
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
     if (worker->response().startsWith("\"Index File Not Found\""))
@@ -184,26 +184,36 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
         setErrorPage("No Index File Found", "An index file could not be found.");
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
 
-        if (QMessageBox::question(this, "Index File Doesn't Exist",
-                                  QString("No index file currently exists in '%1'.\nWould you like to generate it now?")
-                                      .arg(source->sourceID())) == QMessageBox::StandardButton::Yes)
-            backend_.generateList(currentJournalSource(),
-                                  [&](HttpRequestWorker *worker) { handleGenerateList(source, worker); });
+        // Check if another source is being generated...
+        if (sourceBeingGenerated_)
+        {
+            QMessageBox::warning(this, "Index File Doesn't Exist",
+                                 QString("No index file currently exists in '%1'.\nIt can be created but another generation "
+                                         "process is currently active (for '%2').")
+                                     .arg(currentJournalSource_->sourceID(), sourceBeingGenerated_->sourceID()));
+        }
+        else if (QMessageBox::question(this, "Index File Doesn't Exist",
+                                       QString("No index file currently exists in '%1'.\nWould you like to generate it now?")
+                                           .arg(currentJournalSource_->sourceID())) == QMessageBox::StandardButton::Yes)
+        {
+            sourceBeingGenerated_ = currentJournalSource_;
+            backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker) { handleGenerateList(worker); });
+        }
 
         return;
     }
 
     // Add returned journals
-    source->setJournals(worker->jsonResponse().array());
+    currentJournalSource_->setJournals(worker->jsonResponse().array());
 
     // Set a named journal as the current one (optional)
     if (journalToLoad)
     {
-        if (source->findJournal(*journalToLoad))
-            source->setCurrentJournal(*journalToLoad);
+        if (currentJournalSource_->findJournal(*journalToLoad))
+            currentJournalSource_->setCurrentJournal(*journalToLoad);
     }
 
-    journalModel_.setData(source->journals());
+    journalModel_.setData(currentJournalSource_->journals());
 
     updateForCurrentSource();
 
