@@ -8,6 +8,7 @@ from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import jv2backend.select as Selector
 from jv2backend.journal import Journal, SourceType
+from jv2backend.integerRange import IntegerRange
 import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
 import logging
@@ -333,9 +334,53 @@ class JournalCollection:
         :param run_number: Run number to locate
         :return: Journal containing the run number, or None if not found
         """
-        return next(
+        # Try a quick scan over loaded journals which have run number info
+        journal = next(
             (jf for jf in self._journals if run_number in jf),
             None)
+        if journal is not None:
+            return journal
+
+        # Not in an existing loaded journal, so try to find it
+        # Set up a temporary List of first and last run numbers
+        journal_info = []
+        for jf in self._journals:
+            if jf.has_run_data():
+                journal_info.append(IntegerRange(jf.get_first_run_number(),
+                                                 jf.get_last_run_number()))
+            else:
+                journal_info.append(IntegerRange())
+
+        # Determine list index limits for where the requested run is
+        left = 0
+        M = len(self._journals) - 1
+        right = M
+
+        # file_sizes = []
+        # for jf in self._journals:
+        #     file_sizes.append(jf.get_file_size())
+        # logging.debug(file_sizes)
+
+        while left != right:
+            # Get our best limits
+            for n in range(left, right):
+                # Leftmost limit
+                if self._journals[n].has_run_data():
+                    if self._journals[n].get_last_run_number() <= run_number:
+                        left = n if left < n else left
+
+                # Rightmost limit (working backwards)
+                if self._journals[-(n+1)].has_run_data():
+                    if self._journals[-(n+1)].get_first_run_number() >= run_number:
+                        right = M-n if right > M-n else right
+
+            # We will assume that journals contain roughly the same amount of data.
+            # This is obviously not true, but without some measure of file size
+            # (which we don't have consistently across source types)
+            logging.debug(f"LIMITS ARE {left} < {run_number} < {right}")
+
+            # Retrieve run data for the journal at the centre of the specified range
+            self._journals[left + int((right-left)/2)].get_run_data()
 
     def locate_data_file(self, run_number: int) -> str:
         """Return the full path to the data (NeXuS) file for the specified
