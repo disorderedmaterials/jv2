@@ -363,7 +363,6 @@ class JournalCollection:
                         right = last_index-n
 
             # Journal located?
-            logging.debug(f"LIMITS ARE {left} < {run_number} < {right}")
             if left == right:
                 return self._journals[left]
 
