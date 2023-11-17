@@ -334,6 +334,18 @@ class JournalCollection:
         :param run_number: Run number to locate
         :return: Journal containing the run number, or None if not found
         """
+        # For network sources we can (most likely) assume that the journals
+        # are organised chronologically with sequential run numbers. However,
+        # for generated journals there is no such guarantee. However, in the
+        # latter case load times a very quick since we have all information in
+        # the user cache, so just try to load everything.
+        if self._source_type is not SourceType.Network:
+            for jf in self._journals:
+                jf.get_run_data()
+                if run_number in jf:
+                    return jf
+            return None
+
         # Try a quick scan over loaded journals which have run number info
         journal = next(
             (jf for jf in self._journals if run_number in jf),

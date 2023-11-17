@@ -20,6 +20,7 @@ class SourceType(Enum):
     Unknown = 0
     Network = 1
     Generated = 2
+    InternalTest = 3
 
 
 class Journal:
@@ -104,11 +105,17 @@ class Journal:
             ) == self._last_modified
         elif self._source_type == SourceType.Generated:
             return True
+        elif self._source_type == SourceType.InternalTest:
+            return True
 
         return False
 
     def get_run_data(self) -> None:
-        """Get run data content and parse it with ElementTree"""
+        """Get run data content for the journal"""
+        # For test sources, do nothing
+        if self._source_type == SourceType.InternalTest:
+            return
+
         # Check the cache for the data first
         if jv2backend.userCache.has_data(self._parent_library_key,
                                          self.filename):
@@ -155,6 +162,8 @@ class Journal:
             response = requests.head(self.get_file_url(), timeout=3)
             response.raise_for_status()
             return int(response.headers["Content-length"])
+        elif self._source_type == SourceType.InternalTest:
+            return 0
         else:
             raise RuntimeError("Can't get the file size.")
 
