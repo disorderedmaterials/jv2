@@ -74,11 +74,11 @@ class MainWindow : public QMainWindow
 
     private:
     // Set up standard journal sources
-    void setUpStandardJournalSources();
-    // Set current journal source
-    void setCurrentJournalSource(JournalSource *source, std::optional<QString> goToJournal = {});
+    void setUpStandardJournalSources(QCommandLineParser &cliParser);
     // Find the specified journal source
     JournalSource *findJournalSource(const QString &name);
+    // Set current journal source
+    void setCurrentJournalSource(JournalSource *source, std::optional<QString> goToJournal = {});
     // Return current journal source
     JournalSource *currentJournalSource() const;
     // Return selected journal in current source (assuming one is selected)
