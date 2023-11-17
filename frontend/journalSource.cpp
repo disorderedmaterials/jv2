@@ -265,7 +265,7 @@ QJsonObject JournalSource::sourceObjectData() const
     if (type_ == IndexingType::Network)
     {
         data["journalRootUrl"] =
-            journalOrganisationByInstrument_ != Instrument::InstrumentPathType::None && currentInstrument_
+            journalOrganisationByInstrument_ != Instrument::PathType::None && currentInstrument_
                 ? QString("%1/%2").arg(journalRootUrl_,
                                        currentInstrument_->get().pathComponent(journalOrganisationByInstrument_,
                                                                                journalOrganisationByInstrumentUpperCased_))
@@ -279,7 +279,7 @@ QJsonObject JournalSource::sourceObjectData() const
 
     // Run data location
     data["runDataRootUrl"] =
-        runDataOrganisationByInstrument_ != Instrument::InstrumentPathType::None && currentInstrument_
+        runDataOrganisationByInstrument_ != Instrument::PathType::None && currentInstrument_
             ? QString("%1/%2").arg(runDataRootUrl_,
                                    currentInstrument_->get().pathComponent(runDataOrganisationByInstrument_,
                                                                            runDataOrganisationByInstrumentUpperCased_))
