@@ -8,6 +8,7 @@ from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import jv2backend.select as Selector
 from jv2backend.journal import Journal, SourceType
+from jv2backend.integerRange import IntegerRange
 import jv2backend.userCache
 import xml.etree.ElementTree as ElementTree
 import logging
@@ -333,9 +334,58 @@ class JournalCollection:
         :param run_number: Run number to locate
         :return: Journal containing the run number, or None if not found
         """
-        return next(
+        # For network sources we can (most likely) assume that the journals
+        # are organised chronologically with sequential run numbers. However,
+        # for generated journals there is no such guarantee. However, in the
+        # latter case load times a very quick since we have all information in
+        # the user cache, so just try to load everything.
+        if self._source_type is not SourceType.Network:
+            for jf in self._journals:
+                jf.get_run_data()
+                if run_number in jf:
+                    return jf
+            return None
+
+        # Try a quick scan over loaded journals which have run number info
+        journal = next(
             (jf for jf in self._journals if run_number in jf),
             None)
+        if journal is not None:
+            return journal
+
+        # Not in an existing loaded journal, so determine list index limits
+        # for where the requested run is
+        left = 0
+        last_index = len(self._journals) - 1
+        right = last_index
+
+        while left != right:
+            # Get our best limits
+            for n in range(0, last_index + 1):
+                # Leftmost limit
+                if self._journals[n].has_run_data():
+                    logging.debug(f"Journal at {n} has runs from {self._journals[n].get_first_run_number()} to {self._journals[n].get_last_run_number()}")
+                    if self._journals[n].get_first_run_number() <= run_number:
+                        left = n
+
+                # Rightmost limit (working backwards)
+                if self._journals[-(n+1)].has_run_data():
+                    logging.debug(f"and journal at {last_index-n} has runs from {self._journals[-(n+1)].get_first_run_number()} to {self._journals[-(n+1)].get_last_run_number()}")
+                    if self._journals[-(n+1)].get_last_run_number() >= run_number:
+                        right = last_index-n
+
+            # Journal located?
+            if left == right:
+                return self._journals[left]
+
+            # Edge cases - if left == right == 0 then the run number requested
+            # is before the earliest journal available. Similarly, if both
+            # equal the last journal index, it is after our most recent data
+            if (left == right == 0) or (left == right == last_index):
+                return None
+
+            # Retrieve run data for the journal at the centre of the specified range
+            self._journals[left + int((right-left)/2)].get_run_data()
 
     def locate_data_file(self, run_number: int) -> str:
         """Return the full path to the data (NeXuS) file for the specified

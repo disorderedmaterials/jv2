@@ -81,7 +81,8 @@ class RequestData:
 
         # Were run number(s) provided / required?
         if "runNumbers" in requestData:
-            self._run_numbers = requestData["runNumbers"]
+            for run in requestData["runNumbers"]:
+                self._run_numbers.append(int(run))
         if require_run_numbers and len(self._run_numbers) == 0:
             raise InvalidRequest("Run number(s) required but not given.")
 

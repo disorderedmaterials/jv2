@@ -75,9 +75,8 @@ class Backend : public QObject
     // Search across all journals for matching runs
     void search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
                 const HttpRequestWorker::HttpRequestHandler &handler = {});
-    // Go to cycle containing specified run number
-    void goToCycle(const QString &journalDirectory, const QString &runNo,
-                   const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Find journal containing specified run number
+    void findJournal(const JournalSource *source, int runNo, const HttpRequestWorker::HttpRequestHandler &handler = {});
 
     /*
      * NeXuS Endpoints

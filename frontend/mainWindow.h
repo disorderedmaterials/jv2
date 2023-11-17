@@ -91,10 +91,12 @@ class MainWindow : public QMainWindow
     void on_actionEditSources_triggered();
 
     private:
-    // Handle get journal updates result
-    void handleGetJournalUpdates(HttpRequestWorker *workers);
     // Handle returned journal information for an instrument
     void handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad = {});
+    // Handle get journal updates result
+    void handleGetJournalUpdates(HttpRequestWorker *workers);
+    // Handle jump to journal
+    void handleJumpToJournal(HttpRequestWorker *worker);
 
     /*
      * Instruments
@@ -139,14 +141,17 @@ class MainWindow : public QMainWindow
     // Return integer list of currently-selected run numbers
     std::vector<int> selectedRunNumbers() const;
     // Select and show specified run number in table (if it exists)
-    bool highlightRunNumber(int runNumber);
+    void highlightRunNumber(int runNumber);
 
     private slots:
     void on_actionRefreshJournal_triggered();
     void on_actionJumpTo_triggered();
-
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
+
+    private:
+    // Handle run data returned for a whole journal
+    void handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight = {});
 
     /*
      * Journal Generation
@@ -182,10 +187,6 @@ class MainWindow : public QMainWindow
     private:
     // Perform error check on http result
     bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
-    // Handle run data returned for a whole journal
-    void handleCompleteJournalRunData(HttpRequestWorker *worker);
-    // Handle jump to specified run number
-    void handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber);
 
     /*
      * Settings

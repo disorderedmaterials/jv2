@@ -248,3 +248,39 @@ void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
         runDataModel_.appendData(worker->jsonResponse().array());
     }
 }
+
+// Handle jump to journal
+void MainWindow::handleJumpToJournal(HttpRequestWorker *worker)
+{
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to select run number within journal"))
+    {
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+        return;
+    }
+
+    // Get data from the response
+    auto journalName = worker->jsonResponse()["journal_display_name"].toString();
+    auto runNumber = worker->jsonResponse()["run_number"].toInt();
+
+    // Find the named journal in the current source
+    auto optJournal = currentJournalSource()->findJournal(journalName);
+    if (!optJournal)
+        return;
+
+    // If this is the current journal just jump to the run number if provided
+    if (&optJournal->get() == &currentJournal())
+    {
+        if (runNumber > 0)
+            highlightRunNumber(runNumber);
+        return;
+    }
+
+    // Otherwise set the new journal, load it, and highlight the run number if provided
+    currentJournalSource()->setCurrentJournal(journalName);
+    updateForCurrentSource();
+
+    // Now have a new current journal, so retrieve it
+    backend_.getJournal(currentJournalSource(),
+                        [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker, runNumber); });
+}

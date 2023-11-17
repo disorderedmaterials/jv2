@@ -20,6 +20,7 @@ class SourceType(Enum):
     Unknown = 0
     Network = 1
     Generated = 2
+    InternalTest = 3
 
 
 class Journal:
@@ -104,11 +105,17 @@ class Journal:
             ) == self._last_modified
         elif self._source_type == SourceType.Generated:
             return True
+        elif self._source_type == SourceType.InternalTest:
+            return True
 
         return False
 
     def get_run_data(self) -> None:
-        """Get run data content and parse it with ElementTree"""
+        """Get run data content for the journal"""
+        # For test sources, do nothing
+        if self._source_type == SourceType.InternalTest:
+            return
+
         # Check the cache for the data first
         if jv2backend.userCache.has_data(self._parent_library_key,
                                          self.filename):
@@ -140,6 +147,25 @@ class Journal:
         # Write new data to the cache
         jv2backend.userCache.put_data(self._parent_library_key, self.filename,
                                       json.dumps(self._run_data), self.last_modified)
+
+    def get_file_size(self) -> int:
+        """Get the 'on disk' size of the journal file"""
+        # Check the cache for the data first
+        if jv2backend.userCache.has_data(self._parent_library_key,
+                                         self.filename):
+            return jv2backend.userCache.get_file_size(
+                self._parent_library_key,
+                self.filename
+            )
+        elif self._source_type == SourceType.Network:
+            # Try to retrieve from source
+            response = requests.head(self.get_file_url(), timeout=3)
+            response.raise_for_status()
+            return int(response.headers["Content-length"])
+        elif self._source_type == SourceType.InternalTest:
+            return 0
+        else:
+            raise RuntimeError("Can't get the file size.")
 
     # ---------------- Run Data
 
@@ -223,6 +249,13 @@ class Journal:
     def get_run_count(self) -> int:
         """Return the number of runs listed within this Journal"""
         return len(self._run_data)
+
+    def get_first_run_number(self) -> Optional[int]:
+        """Return the run number of the first run in the journal"""
+        if len(self._run_number_ranges) == 0:
+            return None
+        else:
+            return self._run_number_ranges[0].first
 
     def get_last_run_number(self) -> Optional[int]:
         """Return the run number of the last run in the journal"""

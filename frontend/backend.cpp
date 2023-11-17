@@ -165,11 +165,13 @@ void Backend::search(const JournalSource *source, const std::map<QString, QStrin
     postRequest(createRoute("journals/search"), data, handler);
 }
 
-// Go to cycle containing specified run number
-void Backend::goToCycle(const QString &journalDirectory, const QString &runNo,
-                        const HttpRequestWorker::HttpRequestHandler &handler)
+// Find journal containing specified run number
+void Backend::findJournal(const JournalSource *source, int runNo, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    createRequest(createRoute("journals/goToCycle", journalDirectory, runNo), handler);
+    auto data = source->sourceObjectData();
+    data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
+
+    postRequest(createRoute("journals/findJournal"), data, handler);
 }
 
 /*

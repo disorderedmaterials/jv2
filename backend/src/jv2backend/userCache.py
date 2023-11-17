@@ -3,7 +3,6 @@
 
 from platformdirs import user_data_dir
 from pathlib import Path
-from io import BytesIO
 import os.path
 import hashlib
 import datetime
@@ -135,4 +134,14 @@ def get_mtime(source_id: str, data_name: str) -> datetime.datetime:
     except Exception as exc:
         logging.warning(f"Couldn't read cached mtime "
                         f"{_cache_file_mtime(source_id, data_name)} for "
+                        f"({source_id}, {data_name}): {str(exc)}")
+
+
+def get_file_size(source_id: str, data_name: str) -> int:
+    """Retrieve the file size of the cached data on disk"""
+    try:
+        return os.path.getsize(_cache_file(source_id, data_name))
+    except Exception as exc:
+        logging.warning(f"Couldn't read cached file size of "
+                        f"{_cache_file(source_id, data_name)} for "
                         f"({source_id}, {data_name}): {str(exc)}")

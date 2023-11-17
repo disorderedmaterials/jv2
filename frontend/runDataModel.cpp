@@ -16,10 +16,10 @@ RunDataModel::RunDataModel() : QAbstractTableModel() {}
 // Get Json data at row specified
 QJsonObject RunDataModel::getData(int row) const
 {
-    if (!jsonData_)
+    if (!runData_)
         return {};
 
-    return jsonData_->get()[row].toObject();
+    return runData_->get()[row].toObject();
 }
 
 // Get Json data at index specified
@@ -33,16 +33,16 @@ QJsonObject RunDataModel::getData(const QModelIndex &index) const { return getDa
 void RunDataModel::setData(QJsonArray &array)
 {
     beginResetModel();
-    jsonData_ = array;
+    runData_ = array;
     endResetModel();
 }
 
 // Append supplied data to the current data
 void RunDataModel::appendData(const QJsonArray &newData)
 {
-    if (!jsonData_)
+    if (!runData_)
         throw(std::runtime_error("Tried to append data in RunDataModel but no current data reference is set.\n"));
-    auto &currentData = jsonData_->get();
+    auto &currentData = runData_->get();
 
     beginInsertRows(QModelIndex(), currentData.size(), currentData.size() + newData.count() - 1);
     foreach (auto &item, newData)
@@ -71,11 +71,26 @@ QString RunDataModel::getData(const QString &targetData, const QModelIndex &inde
     return getData(targetData, index.row());
 }
 
+// Get index of first matching data
+const QModelIndex RunDataModel::indexOfData(const QString &targetData, const QString &value) const
+{
+    const auto &data = runData_->get();
+
+    for (auto n = 0; n < data.size(); ++n)
+    {
+        auto dataObj = data[n].toObject();
+        if (dataObj[targetData] == value)
+            return index(n, 0);
+    }
+
+    return {};
+}
+
 /*
  * QAbstractTableModel Overrides
  */
 
-int RunDataModel::rowCount(const QModelIndex &parent) const { return jsonData_ ? jsonData_->get().size() : 0; }
+int RunDataModel::rowCount(const QModelIndex &parent) const { return runData_ ? runData_->get().size() : 0; }
 
 int RunDataModel::columnCount(const QModelIndex &parent) const
 {
@@ -84,7 +99,7 @@ int RunDataModel::columnCount(const QModelIndex &parent) const
 
 QVariant RunDataModel::data(const QModelIndex &index, int role) const
 {
-    if (!jsonData_ || !horizontalHeaders_)
+    if (!runData_ || !horizontalHeaders_)
         return {};
 
     if (role != Qt::DisplayRole)
