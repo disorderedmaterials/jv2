@@ -8,18 +8,6 @@
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
-namespace
-{
-// This must match that defined in backend/config module
-constexpr auto ENVIRON_NAME_PREFIX = "JV2_";
-
-/**
- * Take a program argument name and convert to a backend environment variable name.
- * Replace '-' with '_' and add prefix
- */
-QString argToEnvironName(QString argName) { return ENVIRON_NAME_PREFIX + argName.replace("-", "_").toUpper(); }
-} // namespace
-
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
     configureProcessArgs(args);
@@ -56,21 +44,20 @@ void Backend::configureProcessArgs(const QCommandLineParser &args)
                 << "120"
                 << "--timeout"
                 << "120";
-    if (!args.isSet(Args::LogLevel))
-        backendArgs << "--log-level"
-                    << "debug";
+    if (args.isSet(CLIArgs::LogLevel))
+        backendArgs << "--log-level" << args.value(CLIArgs::LogLevel);
     backendArgs << "jv2backend.app:create_app()";
 
     process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
-// Configure backend process environments
+// Configure backend process environment
 void Backend::configureEnvironment(const QCommandLineParser &args)
 {
     QProcessEnvironment env;
-    if (args.isSet(Args::LogLevel))
-        env.insert(argToEnvironName(Args::LogLevel), args.value(Args::LogLevel));
+    //    if (args.isSet(CLIArgs::AdditionalOption))
+    //        env.insert(CLIArgs::argToEnvironName(CLIArgs::AdditionalOption), args.value(CLIArgs::AdditionalOption));
 
     env.insert(QProcessEnvironment::systemEnvironment());
     process_.setProcessEnvironment(env);
