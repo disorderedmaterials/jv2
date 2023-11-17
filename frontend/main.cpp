@@ -55,13 +55,7 @@ CommandLineParseResult parseCommandLine(const QApplication &app, QCommandLinePar
     parser->setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
     parser->setApplicationDescription("Journal Viewer 2");
     auto helpOption = parser->addHelpOption();
-    // clang-format off
-    parser->addOptions({
-        {Args::LogLevel, "Log level for the backend. Matches gunicorn log levels: info, debug", "loglevel"},
-        {Args::RunLocatorClass, "Name of class used to located run data. Fully-qualified Python module.class name is required.", "class"},
-        {Args::RunLocatorPrefix, "A prefix given to the run locator, setting the base path for all run files.", "prefix"}
-    });
-    // clang-format on
+    parser->addOptions({{Args::LogLevel, "Log level for the backend. Matches gunicorn log levels: info, debug", "loglevel"}});
 
     if (!parser->parse(app.arguments()))
     {

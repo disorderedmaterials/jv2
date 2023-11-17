@@ -69,17 +69,9 @@ void Backend::configureProcessArgs(const QCommandLineParser &args)
 void Backend::configureEnvironment(const QCommandLineParser &args)
 {
     QProcessEnvironment env;
-    if (args.isSet(Args::RunLocatorClass))
-        env.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
-    if (args.isSet(Args::RunLocatorPrefix))
-        env.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
+    if (args.isSet(Args::LogLevel))
+        env.insert(argToEnvironName(Args::LogLevel), args.value(Args::LogLevel));
 
-    if (env.isEmpty())
-    {
-        qDebug() << "Configured additional environment variables for backend:";
-        for (const auto &keyValue : env.toStringList())
-            qDebug() << keyValue;
-    }
     env.insert(QProcessEnvironment::systemEnvironment());
     process_.setProcessEnvironment(env);
 }
