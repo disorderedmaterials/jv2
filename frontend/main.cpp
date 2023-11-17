@@ -17,9 +17,11 @@ int main(int argc, char *argv[])
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
     parser.setApplicationDescription("Journal Viewer 2");
     auto helpOption = parser.addHelpOption();
-    parser.addOptions({{CLIArgs::LogLevel, "Log level for the backend. Matches gunicorn log levels: info, debug", "loglevel"},
-                       {CLIArgs::NoIDAaaS, "Don't automatically define the IDAaaS source"},
-                       {CLIArgs::NoISISArchive, "Don't automatically define the ISIS Archive source"}});
+    parser.addOptions(
+        {{CLIArgs::ISISArchiveDirectory, "Path to directory / mountpoint containing main ISIS Archive run data", "directory"},
+         {CLIArgs::LogLevel, "Log level for the backend. Matches gunicorn log levels: info, debug", "log level"},
+         {CLIArgs::NoIDAaaS, "Don't automatically define the IDAaaS source"},
+         {CLIArgs::NoISISArchive, "Don't automatically define the ISIS Archive source"}});
 
     if (!parser.parse(QApplication::arguments()))
     {

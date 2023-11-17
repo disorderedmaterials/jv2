@@ -26,7 +26,11 @@ void MainWindow::setUpStandardJournalSources(QCommandLineParser &cliParser)
         isisArchive->setJournalOrganisationByInstrument(Instrument::PathType::AltNDXName);
         isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName);
         isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
-        isisArchive->setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString());
+        isisArchive->setRunDataLocation(settings
+                                            .value("ISISArchiveDataUrl", cliParser.isSet(CLIArgs::ISISArchiveDirectory)
+                                                                             ? cliParser.value(CLIArgs::ISISArchiveDirectory)
+                                                                             : "/archive")
+                                            .toString());
     }
 
     // IDAaaS RB Directories

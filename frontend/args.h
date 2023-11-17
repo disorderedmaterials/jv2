@@ -13,6 +13,7 @@ namespace CLIArgs
 const inline static QString LogLevel = QStringLiteral("log-level");
 const inline static QString NoIDAaaS = QStringLiteral("no-idaaas");
 const inline static QString NoISISArchive = QStringLiteral("no-isis-archive");
+const inline static QString ISISArchiveDirectory = QStringLiteral("isis-archive-dir");
 
 /*
  * Environment Variables
