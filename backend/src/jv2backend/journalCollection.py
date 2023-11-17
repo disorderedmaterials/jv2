@@ -341,43 +341,37 @@ class JournalCollection:
         if journal is not None:
             return journal
 
-        # Not in an existing loaded journal, so try to find it
-        # Set up a temporary List of first and last run numbers
-        journal_info = []
-        for jf in self._journals:
-            if jf.has_run_data():
-                journal_info.append(IntegerRange(jf.get_first_run_number(),
-                                                 jf.get_last_run_number()))
-            else:
-                journal_info.append(IntegerRange())
-
-        # Determine list index limits for where the requested run is
+        # Not in an existing loaded journal, so determine list index limits
+        # for where the requested run is
         left = 0
-        M = len(self._journals) - 1
-        right = M
-
-        # file_sizes = []
-        # for jf in self._journals:
-        #     file_sizes.append(jf.get_file_size())
-        # logging.debug(file_sizes)
+        last_index = len(self._journals) - 1
+        right = last_index
 
         while left != right:
             # Get our best limits
-            for n in range(left, right):
+            for n in range(0, last_index + 1):
                 # Leftmost limit
                 if self._journals[n].has_run_data():
-                    if self._journals[n].get_last_run_number() <= run_number:
-                        left = n if left < n else left
+                    logging.debug(f"Journal at {n} has runs from {self._journals[n].get_first_run_number()} to {self._journals[n].get_last_run_number()}")
+                    if self._journals[n].get_first_run_number() <= run_number:
+                        left = n
 
                 # Rightmost limit (working backwards)
                 if self._journals[-(n+1)].has_run_data():
-                    if self._journals[-(n+1)].get_first_run_number() >= run_number:
-                        right = M-n if right > M-n else right
+                    logging.debug(f"and journal at {last_index-n} has runs from {self._journals[-(n+1)].get_first_run_number()} to {self._journals[-(n+1)].get_last_run_number()}")
+                    if self._journals[-(n+1)].get_last_run_number() >= run_number:
+                        right = last_index-n
 
-            # We will assume that journals contain roughly the same amount of data.
-            # This is obviously not true, but without some measure of file size
-            # (which we don't have consistently across source types)
+            # Journal located?
             logging.debug(f"LIMITS ARE {left} < {run_number} < {right}")
+            if left == right:
+                return self._journals[left]
+
+            # Edge cases - if left == right == 0 then the run number requested
+            # is before the earliest journal available. Similarly, if both
+            # equal the last journal index, it is after our most recent data
+            if (left == right == 0) or (left == right == last_index):
+                return None
 
             # Retrieve run data for the journal at the centre of the specified range
             self._journals[left + int((right-left)/2)].get_run_data()

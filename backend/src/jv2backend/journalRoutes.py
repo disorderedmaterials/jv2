@@ -175,9 +175,9 @@ def add_routes(
         # Try to find the journal
         journal = collection.journal_for_run(run_number)
         if journal is None:
-            return make_response(
+            return make_response(jsonify(
                 {"Error": f"Run number {run_number} does not exist in any "
-                          f"journal within '{post_data.library_key()}'."},
+                          f"journal within '{post_data.library_key()}'."}),
                 200
             )
 
