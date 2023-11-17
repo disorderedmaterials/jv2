@@ -40,6 +40,8 @@ class RunDataModel : public QAbstractTableModel
     QString getData(const QString &targetData, int row) const;
     // Get named data for specified index
     QString getData(const QString &targetData, const QModelIndex &index) const;
+    // Get index of specified run number (if it exists)
+    const QModelIndex indexOfData(const QString &targetData, const QString &value) const;
 
     /*
      * QAbstractTableModel Overrides

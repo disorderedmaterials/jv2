@@ -105,31 +105,22 @@ std::vector<int> MainWindow::selectedRunNumbers() const
 }
 
 // Select and show specified run number in table (if it exists)
-bool MainWindow::highlightRunNumber(int runNumber)
+void MainWindow::highlightRunNumber(int runNumber)
 {
-    // ui_.RunDataTable->selectionModel()->clearSelection();
+    // Get the index of the specified run number in the underlying data
+    auto index = runDataModel_.indexOfData("run_number", QString::number(runNumber));
+    if (!index.isValid())
+        return;
 
-    // searchString_ = "";
-    // updateSearch(searchString_);
+    auto filterIndex = runDataFilterProxy_.mapFromSource(index);
+    if (!filterIndex.isValid())
+        return;
 
-    // Find the run number in the current run data
-    for (auto row = 0; row < runDataModel_.rowCount(); ++row)
-        if (runDataModel_.getData("run_number", row).toInt() == runNumber)
-        {
-            // If grouping is enabled, turn it off
-            if (ui_.GroupRunsButton->isChecked())
-                ui_.GroupRunsButton->click();
+    ui_.RunDataTable->selectionModel()->setCurrentIndex(filterIndex,
+                                                        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    ui_.RunDataTable->scrollTo(filterIndex);
 
-            ui_.RunDataTable->selectionModel()->setCurrentIndex(
-                runDataModel_.index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-
-            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + currentJournal().name(), 5000);
-            return true;
-        }
-
-    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + currentJournal().name(), 5000);
-
-    return false;
+    statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + currentJournal().name(), 5000);
 }
 
 /*

@@ -71,6 +71,21 @@ QString RunDataModel::getData(const QString &targetData, const QModelIndex &inde
     return getData(targetData, index.row());
 }
 
+// Get index of first matching data
+const QModelIndex RunDataModel::indexOfData(const QString &targetData, const QString &value) const
+{
+    const auto &data = jsonData_->get();
+
+    for (auto n = 0; n < data.size(); ++n)
+    {
+        auto dataObj = data[n].toObject();
+        if (dataObj[targetData] == value)
+            return index(n, 0);
+    }
+
+    return {};
+}
+
 /*
  * QAbstractTableModel Overrides
  */

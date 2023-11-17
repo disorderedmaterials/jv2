@@ -141,7 +141,7 @@ class MainWindow : public QMainWindow
     // Return integer list of currently-selected run numbers
     std::vector<int> selectedRunNumbers() const;
     // Select and show specified run number in table (if it exists)
-    bool highlightRunNumber(int runNumber);
+    void highlightRunNumber(int runNumber);
 
     private slots:
     void on_actionRefreshJournal_triggered();
