@@ -8,18 +8,6 @@
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
-namespace
-{
-// This must match that defined in backend/config module
-constexpr auto ENVIRON_NAME_PREFIX = "JV2_";
-
-/**
- * Take a program argument name and convert to a backend environment variable name.
- * Replace '-' with '_' and add prefix
- */
-QString argToEnvironName(QString argName) { return ENVIRON_NAME_PREFIX + argName.replace("-", "_").toUpper(); }
-} // namespace
-
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
     configureProcessArgs(args);
@@ -56,30 +44,21 @@ void Backend::configureProcessArgs(const QCommandLineParser &args)
                 << "120"
                 << "--timeout"
                 << "120";
-    if (!args.isSet(Args::LogLevel))
-        backendArgs << "--log-level"
-                    << "debug";
+    if (args.isSet(CLIArgs::LogLevel))
+        backendArgs << "--log-level" << args.value(CLIArgs::LogLevel);
     backendArgs << "jv2backend.app:create_app()";
 
     process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
-// Configure backend process environments
+// Configure backend process environment
 void Backend::configureEnvironment(const QCommandLineParser &args)
 {
     QProcessEnvironment env;
-    if (args.isSet(Args::RunLocatorClass))
-        env.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
-    if (args.isSet(Args::RunLocatorPrefix))
-        env.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
+    //    if (args.isSet(CLIArgs::AdditionalOption))
+    //        env.insert(CLIArgs::argToEnvironName(CLIArgs::AdditionalOption), args.value(CLIArgs::AdditionalOption));
 
-    if (env.isEmpty())
-    {
-        qDebug() << "Configured additional environment variables for backend:";
-        for (const auto &keyValue : env.toStringList())
-            qDebug() << keyValue;
-    }
     env.insert(QProcessEnvironment::systemEnvironment());
     process_.setProcessEnvironment(env);
 }

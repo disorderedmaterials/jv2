@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2023 Team JournalViewer and contributors
 
+#include "args.h"
 #include "journalSourcesDialog.h"
 #include "mainWindow.h"
+#include <QCommandLineParser>
 #include <QDomDocument>
 #include <QMessageBox>
 #include <QSettings>
@@ -12,24 +14,34 @@
  */
 
 // Set up standard journal sources
-void MainWindow::setUpStandardJournalSources()
+void MainWindow::setUpStandardJournalSources(QCommandLineParser &cliParser)
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 
     // The main ISIS Archive
-    auto &isisArchive =
-        journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
-    isisArchive->setJournalOrganisationByInstrument(Instrument::PathType::AltNDXName);
-    isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName);
-    isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
-    isisArchive->setRunDataLocation(settings.value("ISISArchiveDataUrl", "/archive").toString());
+    if (!cliParser.isSet(CLIArgs::NoISISArchive))
+    {
+        auto &isisArchive =
+            journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
+        isisArchive->setJournalOrganisationByInstrument(Instrument::PathType::AltNDXName);
+        isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName);
+        isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
+        isisArchive->setRunDataLocation(settings
+                                            .value("ISISArchiveDataUrl", cliParser.isSet(CLIArgs::ISISArchiveDirectory)
+                                                                             ? cliParser.value(CLIArgs::ISISArchiveDirectory)
+                                                                             : "/archive")
+                                            .toString());
+    }
 
     // IDAaaS RB Directories
-    auto &idaaasRB =
-        journalSources_.emplace_back(std::make_unique<JournalSource>("IDAaaS", JournalSource::IndexingType::Generated));
-    idaaasRB->setRunDataOrganisationByInstrument(Instrument::PathType::Name, true);
-    idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache");
-    idaaasRB->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
+    if (!cliParser.isSet(CLIArgs::NoIDAaaS))
+    {
+        auto &idaaasRB =
+            journalSources_.emplace_back(std::make_unique<JournalSource>("IDAaaS", JournalSource::IndexingType::Generated));
+        idaaasRB->setRunDataOrganisationByInstrument(Instrument::PathType::Name, true);
+        idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache");
+        idaaasRB->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
+    }
 }
 
 // Find the specified journal source
@@ -78,7 +90,8 @@ void MainWindow::setCurrentJournalSource(JournalSource *source, std::optional<QS
 
     updateForCurrentSource();
 
-    backend_.getJournalIndex(currentJournalSource(), [&](HttpRequestWorker *worker) { handleListJournals(worker); });
+    backend_.getJournalIndex(currentJournalSource(),
+                             [&](HttpRequestWorker *worker) { handleListJournals(worker, goToJournal); });
 }
 
 // Return current journal source

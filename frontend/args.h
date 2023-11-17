@@ -5,9 +5,25 @@
 
 #include <QString>
 
-struct Args
+namespace CLIArgs
 {
-    const inline static QString LogLevel = QStringLiteral("log-level");
-    const inline static QString RunLocatorClass = QStringLiteral("run-locator-class");
-    const inline static QString RunLocatorPrefix = QStringLiteral("run-locator-prefix");
-};
+/*
+ * Argument Name Strings
+ */
+const inline static QString LogLevel = QStringLiteral("log-level");
+const inline static QString NoIDAaaS = QStringLiteral("no-idaaas");
+const inline static QString NoISISArchive = QStringLiteral("no-isis-archive");
+const inline static QString ISISArchiveDirectory = QStringLiteral("isis-archive-dir");
+
+/*
+ * Environment Variables
+ */
+// Environment variable prefix - must match that defined in backend/config module
+constexpr auto ENVIRON_NAME_PREFIX = "JV2_";
+
+/**
+ * Take a program argument name and convert to a backend environment variable name.
+ * Replace '-' with '_' and add prefix
+ */
+QString argToEnvironName(QString argName);
+}; // namespace CLIArgs
