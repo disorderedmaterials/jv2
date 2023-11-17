@@ -20,7 +20,7 @@ class RunDataModel : public QAbstractTableModel
 
     private:
     // journal source for the model
-    OptionalReferenceWrapper<QJsonArray> jsonData_;
+    OptionalReferenceWrapper<QJsonArray> runData_;
     OptionalReferenceWrapper<const Instrument::RunDataColumns> horizontalHeaders_;
 
     private:
