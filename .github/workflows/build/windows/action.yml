@@ -13,7 +13,7 @@ runs:
 
   - name: Remove GCC
     shell: bash
-    run: choco -y uninstall mingw
+    run: choco uninstall mingw
 
   - name: Setup MSVC Compiler
     uses: ilammy/msvc-dev-cmd@v1
