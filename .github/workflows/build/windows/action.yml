@@ -11,9 +11,11 @@ runs:
       version: ${{ env.qtVersion }}
       modules: qtcharts
 
-  - name: Remove GCC
+  - name: Remove /usr/bun/link
     shell: bash
-    run: choco uninstall mingw
+    run: |
+      echo "Removing /usr/bin/link.exe since it will conflict with our MSVC paths..."
+      rm -rf /usr/bin/link.exe
 
   - name: Setup MSVC Compiler
     uses: ilammy/msvc-dev-cmd@v1
@@ -43,7 +45,6 @@ runs:
 
       python3 -m pip install h5py nuitka
 
-      link.exe -v
       python3 -m nuitka --standalone --windows-disable-console backend/src/jv2backend/app.py
       ls -R
 
