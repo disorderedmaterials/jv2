@@ -39,6 +39,7 @@ runs:
 
       python3 -m pip install h5py nuitka
 
+      link.exe -v
       python3 -m nuitka --standalone --windows-disable-console backend/src/jv2backend/app.py
       ls -R
 
