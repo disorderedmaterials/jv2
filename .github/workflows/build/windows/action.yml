@@ -45,7 +45,7 @@ runs:
 
       python3 -m pip install h5py nuitka
 
-      python3 -m nuitka --standalone --windows-disable-console backend/src/jv2backend/app.py
+      python3 -m nuitka --standalone --onefile --assume-yes-for-downloads --windows-disable-console backend/src/jv2backend/app.py
       ls -R
 
   - name: Upload Raw Build Artifacts
