@@ -11,6 +11,10 @@ runs:
       version: ${{ env.qtVersion }}
       modules: qtcharts
 
+  - name: Remove GCC
+    shell: bash
+    run: choco uninstall gcc
+
   - name: Setup MSVC Compiler
     uses: ilammy/msvc-dev-cmd@v1
 
