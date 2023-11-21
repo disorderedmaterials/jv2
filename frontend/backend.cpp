@@ -49,9 +49,9 @@ void Backend::configureProcessArgs(const QCommandLineParser &args)
     //        backendArgs << "--log-level" << args.value(CLIArgs::LogLevel);
     //    backendArgs << "jv2backend.app:create_app()";
     process_.setProgram("python3.10");
-    backendArgs << "-m" << "jv2backend";
-    backendArgs << "-b"
-                << bindAddress();
+    backendArgs << "-m"
+                << "jv2backend";
+    backendArgs << "-b" << bindAddress();
 
     process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
