@@ -2,9 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import argparse
-import jv2.app
+from .jv2 import app
 import gunicorn.app.base
-
 
 # Set up command-line arguments
 parser = argparse.ArgumentParser(description="The JournalViewer 2 backend.")
@@ -37,6 +36,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         return self.application
     
 gunicorn_options = {
-    'bind': '%s:%s' % ('127.0.0.1', '8080')
+    'bind': '%s:%s' % ('127.0.0.1', '5000'),
+    "log-level": "DEBUG"
 }
-StandaloneApplication(jv2.app.create_app(True), gunicorn_options).run()
+StandaloneApplication(app.create_app(True), gunicorn_options).run()

@@ -6,9 +6,9 @@ import typing
 import datetime
 from typing import Optional
 from io import BytesIO
-from jv2.utils import url_join, lm_to_datetime
-from jv2.classes.integerRange import IntegerRange
-import jv2.main.userCache
+from backend.jv2.utils import url_join, lm_to_datetime
+from backend.jv2.classes.integerRange import IntegerRange
+import backend.jv2.main.userCache
 import xml.etree.ElementTree as ElementTree
 from enum import Enum
 import requests
@@ -117,9 +117,9 @@ class Journal:
             return
 
         # Check the cache for the data first
-        if jv2.main.userCache.has_data(self._parent_library_key,
+        if backend.jv2.main.userCache.has_data(self._parent_library_key,
                                          self.filename):
-            data, mtime = jv2.main.userCache.get_data(
+            data, mtime = backend.jv2.main.userCache.get_data(
                 self._parent_library_key,
                 self.filename
             )
@@ -145,7 +145,7 @@ class Journal:
                                f"{str(self._source_type)}.")
 
         # Write new data to the cache
-        jv2.main.userCache.put_data(self._parent_library_key, self.filename,
+        backend.jv2.main.userCache.put_data(self._parent_library_key, self.filename,
                                       json.dumps(self._run_data), self.last_modified)
 
     def get_file_size(self) -> int:

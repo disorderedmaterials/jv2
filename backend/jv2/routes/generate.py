@@ -4,19 +4,19 @@
 import logging
 from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
-from jv2.utils import url_join
-from jv2.classes.collection import JournalCollection
-from jv2.classes.journal import SourceType
-from jv2.classes.requestData import RequestData, InvalidRequest
-import jv2.main.library
-import jv2.main.generator
+from backend.jv2.utils import url_join
+from backend.jv2.classes.collection import JournalCollection
+from backend.jv2.classes.journal import SourceType
+from backend.jv2.classes.requestData import RequestData, InvalidRequest
+import backend.jv2.main.library
+import backend.jv2.main.generator
 import datetime
 
 
 def add_routes(
     app: Flask,
-    journalGenerator: jv2.main.generator.JournalGenerator,
-    journalLibrary: jv2.main.library.JournalLibrary
+    journalGenerator: backend.jv2.main.generator.JournalGenerator,
+    journalLibrary: backend.jv2.main.library.JournalLibrary
 ) -> Flask:
     """Add journal generation routes to the given Flask application."""
 

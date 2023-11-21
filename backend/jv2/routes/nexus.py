@@ -6,15 +6,15 @@ import logging
 
 from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
-from jv2.classes.requestData import RequestData, InvalidRequest
-import jv2.main.nexus
-import jv2.main.library
+from backend.jv2.classes.requestData import RequestData, InvalidRequest
+import backend.jv2.main.nexus
+import backend.jv2.main.library
 import json
 
 
 def add_routes(
     app: Flask,
-    journalLibrary: jv2.main.library.JournalLibrary
+    journalLibrary: backend.jv2.main.library.JournalLibrary
 ) -> Flask:
     """Add routes to the given Flask application."""
 

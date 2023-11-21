@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2.classes.journal import Journal, SourceType
-from jv2.utils import url_join
-import jv2.main.selector
+from backend.jv2.classes.journal import Journal, SourceType
+from backend.jv2.utils import url_join
+import backend.jv2.main.selector
 import datetime
 import pytest
 import xml.etree.ElementTree as ElementTree
@@ -54,7 +54,7 @@ def test_run_data_does_not_contain_run_number(_example_journal, run_number):
 
 @pytest.mark.parametrize("case_sensitive", [True, False])
 def test_search_by_user_name_field_uses_a_contains_check_not_exact_match(_example_journal, case_sensitive):
-    search_results = jv2.main.selector.select(_example_journal.run_data, "user_name", "devlin", case_sensitive)
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "user_name", "devlin", case_sensitive)
 
     if case_sensitive:
         assert len(search_results) == 0
@@ -64,16 +64,16 @@ def test_search_by_user_name_field_uses_a_contains_check_not_exact_match(_exampl
 
 @pytest.mark.parametrize("case_sensitive", [True, False])
 def test_search_by_experiment_identifier_uses_exact_string_matching(_example_journal, case_sensitive):
-    search_results = jv2.main.selector.select(_example_journal.run_data, "experiment_identifier", "123456", case_sensitive)
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "experiment_identifier", "123456", case_sensitive)
     assert len(search_results) == 0
 
-    search_results = jv2.main.selector.select(_example_journal.run_data, "experiment_identifier", "1234567", case_sensitive)
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "experiment_identifier", "1234567", case_sensitive)
     assert len(search_results) == 3
 
 
 @pytest.mark.parametrize("case_sensitive", [True, False])
 def test_search_by_title_uses_a_contains_check_and_not_exact_match(_example_journal, case_sensitive):
-    search_results = jv2.main.selector.select(_example_journal.run_data, "title", "science", case_sensitive)
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "title", "science", case_sensitive)
     if case_sensitive:
         assert len(search_results) == 0
     else:
@@ -81,10 +81,10 @@ def test_search_by_title_uses_a_contains_check_and_not_exact_match(_example_jour
 
 
 def test_search_by_run_number_uses_a_range_check_assuming_user_gives_start_end(_example_journal):
-    search_results = jv2.main.selector.select(_example_journal.run_data, "run_number", "10-1000")
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "run_number", "10-1000")
     assert len(search_results) == 0
 
-    search_results = jv2.main.selector.select(_example_journal.run_data, "run_number", "1-5")
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "run_number", "1-5")
     assert len(search_results) == 3
 
     assert 1 in search_results
@@ -93,7 +93,7 @@ def test_search_by_run_number_uses_a_range_check_assuming_user_gives_start_end(_
 
 
 def test_search_by_run_number_uses_a_range_check_given_range_operator(_example_journal):
-    search_results = jv2.main.selector.select(_example_journal.run_data, "run_number", ">6")
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "run_number", ">6")
     assert len(search_results) == 2
 
     assert 8 in search_results
@@ -101,7 +101,7 @@ def test_search_by_run_number_uses_a_range_check_given_range_operator(_example_j
 
 
 def test_search_by_start_time_treating_input_as_datetime_and_equivalent_to_start_date(_example_journal):
-    search_results = jv2.main.selector.select(_example_journal.run_data, "start_time", "2023/02/03-2023/02/04")
+    search_results = backend.jv2.main.selector.select(_example_journal.run_data, "start_time", "2023/02/03-2023/02/04")
 
     assert len(search_results) == 2
 

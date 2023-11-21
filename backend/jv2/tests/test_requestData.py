@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2.classes.requestData import RequestData, InvalidRequest
-from jv2.main.library import JournalLibrary
-from jv2.classes.collection import JournalCollection
-from jv2.classes.journal import Journal, SourceType
+from backend.jv2.classes.requestData import RequestData, InvalidRequest
+from backend.jv2.main.library import JournalLibrary
+from backend.jv2.classes.collection import JournalCollection
+from backend.jv2.classes.journal import Journal, SourceType
 import datetime
 import pytest
 
