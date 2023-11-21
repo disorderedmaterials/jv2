@@ -13,11 +13,11 @@ runs:
       shell: bash
       run: |
         cd jv2backend
-        python3 -mpip install ".[test]"
+        python3 -mpip install ".[tests]"
         python3 -mpytest ./ --junitxml=test-results.xml
 
     - name: Publish Test Results
       if: always()
       uses: EnricoMi/publish-unit-test-result-action/composite@v2
       with:
-        junit_files: 'backend/src/test-results.xml'
+        junit_files: 'jv2backend/test-results.xml'
