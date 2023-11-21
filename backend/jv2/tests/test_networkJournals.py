@@ -4,11 +4,11 @@
 import pytest
 import logging
 from pathlib import Path
-from jv2backend.utils import url_join
-from jv2backend.app import create_app
-from jv2backend.requestData import RequestData
-from jv2backend.journal import SourceType
-import jv2backend.journalLibrary
+from jv2.utils import url_join
+from jv2.app import create_app
+from jv2.classes.requestData import RequestData
+from jv2.classes.journal import SourceType
+import jv2.main.library
 import datetime
 import requests_mock
 import json
@@ -56,7 +56,7 @@ def _create_request_dict(updated_keys: {} = {}) -> {}:
     result.update(updated_keys)
     return result
 
-def _get_library_index(library: jv2backend.journalLibrary.JournalLibrary) -> str:
+def _get_library_index(library: jv2.main.library.JournalLibrary) -> str:
     """Retrieve library index"""
     return json.loads(library.get_index(
         SourceType.Network,
@@ -98,7 +98,7 @@ def app(requests_mock):
 
 
 def test_parse_isis_journal_index(app):
-    library = jv2backend.journalLibrary.JournalLibrary({})
+    library = jv2.main.library.JournalLibrary({})
 
     with app.app_context():
         response = _get_library_index(library)
@@ -114,7 +114,7 @@ def test_parse_isis_journal_index(app):
 
 @pytest.mark.parametrize("journal_file", [FAKE_JOURNAL_FILE_A, FAKE_JOURNAL_FILE_B])
 def test_parse_isis_journal_file(app, journal_file):
-    library = jv2backend.journalLibrary.JournalLibrary({})
+    library = jv2.main.library.JournalLibrary({})
 
     run_data_request = RequestData(_create_request_dict({"journalFilename": journal_file}), require_journal_file=True)
 
@@ -129,7 +129,7 @@ def test_parse_isis_journal_file(app, journal_file):
         assert len(journal_response) == 3
 
 def test_missing_journal_file(app):
-    library = jv2backend.journalLibrary.JournalLibrary({})
+    library = jv2.main.library.JournalLibrary({})
 
     with app.app_context():
         index_response = _get_library_index(library)
@@ -142,7 +142,7 @@ def test_missing_journal_file(app):
 
 
 def test_get_journal_file_updates(app):
-    library = jv2backend.journalLibrary.JournalLibrary({})
+    library = jv2.main.library.JournalLibrary({})
 
     # Assemble the collection in the library and load in the full journal data
     with app.app_context():
@@ -185,7 +185,7 @@ def test_get_journal_file_updates(app):
         assert updates_response[1]["run_number"] == str(last_run_number0)
 
 def test_get_journal_file_updates_for_empty_journal(app):
-    library = jv2backend.journalLibrary.JournalLibrary({})
+    library = jv2.main.library.JournalLibrary({})
 
     # Assemble the collection in the library
     with app.app_context():

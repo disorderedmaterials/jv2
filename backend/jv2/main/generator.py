@@ -9,9 +9,9 @@ import hashlib
 import datetime
 import json
 import copy
-from jv2backend.utils import url_join
-from jv2backend.journalCollection import JournalCollection
-import jv2backend.userCache
+from jv2.utils import url_join
+from jv2.classes.collection import JournalCollection
+import jv2.main.userCache
 from threading import Thread, Event, Lock
 
 

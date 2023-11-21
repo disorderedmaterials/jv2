@@ -5,9 +5,9 @@
 import logging
 from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
-from jv2backend.utils import url_join
-from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journalLibrary import JournalLibrary
+from jv2.utils import url_join
+from jv2.classes.requestData import RequestData, InvalidRequest
+from jv2.main.library import JournalLibrary
 
 
 def add_routes(

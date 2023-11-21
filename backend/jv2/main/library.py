@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from jv2backend.journalCollection import JournalCollection
-from jv2backend.journal import Journal, SourceType
+from jv2.classes.collection import JournalCollection
+from jv2.classes.journal import Journal, SourceType
 import requests
 import logging
 import lxml.etree as etree
