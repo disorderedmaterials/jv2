@@ -6,9 +6,9 @@ import typing
 import datetime
 from typing import Optional
 from io import BytesIO
-from backend.jv2.utils import url_join, lm_to_datetime
-from backend.jv2.classes.integerRange import IntegerRange
-import backend.jv2.main.userCache
+from jv2backend.utils import url_join, lm_to_datetime
+from jv2backend.classes.integerRange import IntegerRange
+import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
 from enum import Enum
 import requests
@@ -117,9 +117,9 @@ class Journal:
             return
 
         # Check the cache for the data first
-        if backend.jv2.main.userCache.has_data(self._parent_library_key,
+        if jv2backend.main.userCache.has_data(self._parent_library_key,
                                          self.filename):
-            data, mtime = backend.jv2.main.userCache.get_data(
+            data, mtime = jv2backend.main.userCache.get_data(
                 self._parent_library_key,
                 self.filename
             )
@@ -145,15 +145,15 @@ class Journal:
                                f"{str(self._source_type)}.")
 
         # Write new data to the cache
-        backend.jv2.main.userCache.put_data(self._parent_library_key, self.filename,
+        jv2backend.main.userCache.put_data(self._parent_library_key, self.filename,
                                       json.dumps(self._run_data), self.last_modified)
 
     def get_file_size(self) -> int:
         """Get the 'on disk' size of the journal file"""
         # Check the cache for the data first
-        if jv2.main.userCache.has_data(self._parent_library_key,
+        if jv2backend.main.userCache.has_data(self._parent_library_key,
                                          self.filename):
-            return jv2.main.userCache.get_file_size(
+            return jv2backend.main.userCache.get_file_size(
                 self._parent_library_key,
                 self.filename
             )

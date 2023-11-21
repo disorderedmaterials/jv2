@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from backend.jv2.classes.collection import JournalCollection
-from backend.jv2.classes.journal import Journal, SourceType
+from jv2backend.classes.collection import JournalCollection
+from jv2backend.classes.journal import Journal, SourceType
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 import datetime

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from backend.jv2.classes.integerRange import IntegerRange
+from jv2backend.classes.integerRange import IntegerRange
 
 
 def test_basic_constructor():

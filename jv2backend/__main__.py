@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import argparse
-from .jv2 import app
+from . import app
 import gunicorn.app.base
 
 # Set up command-line arguments

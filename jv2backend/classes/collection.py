@@ -5,11 +5,11 @@ from __future__ import annotations
 import typing
 import datetime
 from io import BytesIO
-from backend.jv2.utils import url_join, lm_to_datetime
-import backend.jv2.main.selector
-from backend.jv2.classes.journal import Journal, SourceType
-from backend.jv2.classes.integerRange import IntegerRange
-import backend.jv2.main.userCache
+from jv2backend.utils import url_join, lm_to_datetime
+import jv2backend.main.selector
+from jv2backend.classes.journal import Journal, SourceType
+from jv2backend.classes.integerRange import IntegerRange
+import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
 import logging
 import json
@@ -166,9 +166,9 @@ class JournalCollection:
         parameter passed in the request_data object.
         """
         # Check the cache for the data first
-        if backend.jv2.main.userCache.has_data(self._library_key,
+        if jv2backend.main.userCache.has_data(self._library_key,
                                                self._index_filename):
-            data, mtime = backend.jv2.main.userCache.get_data(
+            data, mtime = jv2backend.main.userCache.get_data(
                 self._library_key,
                 self._index_filename
             )
@@ -458,7 +458,7 @@ class JournalCollection:
             # If it is ever a size of zero we have excluded all runs
             logging.debug("Starting loop over run data...")
             for field in search_terms:
-                matches = backend.jv2.main.selector.select(jf.run_data if matches is None
+                matches = jv2backend.main.selector.select(jf.run_data if matches is None
                                           else matches,
                                           field,
                                           search_terms[field],

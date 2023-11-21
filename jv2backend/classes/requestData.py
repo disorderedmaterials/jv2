@@ -2,8 +2,8 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import typing
-from backend.jv2.utils import url_join
-from backend.jv2.classes.journal import SourceType
+from jv2backend.utils import url_join
+from jv2backend.classes.journal import SourceType
 import logging
 
 class InvalidRequest(Exception):

@@ -31,7 +31,7 @@ runs:
     shell: bash
     run: |
       cd frontend/build/bin
-      windeployqt.exe jv2.exe
+      windeployqt.exe jv2backend.exe
 
   - name: Setup Python
     uses: actions/setup-python@v4

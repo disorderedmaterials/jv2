@@ -4,11 +4,11 @@
 """Defines the Flask endpoints that are server-related"""
 from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
-import backend.jv2.main.generator
+import jv2backend.main.generator
 
 def add_routes(
     app: Flask,
-    journalGenerator: backend.jv2.main.generator.JournalGenerator
+    journalGenerator: jv2backend.main.generator.JournalGenerator
 ) -> Flask:
     """Add routes to the given Flask application."""
 
