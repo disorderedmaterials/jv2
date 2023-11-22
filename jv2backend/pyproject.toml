@@ -1,5 +1,23 @@
+[project]
+name = "jv2backend"
+version = "1.2.0"
+description = "Backend for Journal Viewer 2"
+dependencies = [
+    "pytest", "requests-mock", "h5py", "requests", "lxml",
+    "gunicorn", "waitress"
+]
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["."]  # list of folders that contain the packages (["."] by default)
+include = ["jv2backend"]  # package names should match these glob patterns (["*"] by default)
+exclude = ["jv2backend.tests"]  # exclude packages matching these glob patterns (empty by default)
+
+[project.scripts]
+jv2backend = "jv2backend.__main__:main"
+
 [build-system]
-requires = ["setuptools >= 40.6.0", "wheel", "pytest", "requests-mock"]
+requires = ["setuptools >= 40.6.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]

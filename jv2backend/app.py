@@ -5,13 +5,13 @@
 import logging
 import logging.config
 from flask import Flask
-import jv2backend.routes.journal
-import jv2backend.routes.generate
-import jv2backend.routes.nexus
-import jv2backend.routes.server
-import jv2backend.main.library
-import jv2backend.main.generator
-import jv2backend.main.userCache
+import routes.journal
+import routes.generate
+import routes.nexus
+import routes.server
+import main.library
+import main.generator
+import main.userCache
 import xml.etree.ElementTree as ElementTree
 
 
@@ -27,14 +27,14 @@ def create_app(activate_cache: bool = True) -> Flask:
     configure_logging(app)
 
     # Create our main objects
-    journal_generator = jv2backend.main.generator.JournalGenerator()
-    journal_library = jv2backend.main.library.JournalLibrary({})
+    journal_generator = main.generator.JournalGenerator()
+    journal_library = main.library.JournalLibrary({})
 
     # Register Flask routes
-    jv2backend.routes.server.add_routes(app, journal_generator)
-    jv2backend.routes.journal.add_routes(app, journal_library)
-    jv2backend.routes.generate.add_routes(app, journal_generator, journal_library)
-    jv2backend.routes.nexus.add_routes(app, journal_library)
+    routes.server.add_routes(app, journal_generator)
+    routes.journal.add_routes(app, journal_library)
+    routes.generate.add_routes(app, journal_generator, journal_library)
+    routes.nexus.add_routes(app, journal_library)
 
     # Register XML namespaces
     ElementTree.register_namespace( '', "http://definition.nexusformat.org/schema/3.0")
