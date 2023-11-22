@@ -3,8 +3,9 @@ name = "jv2backend"
 version = "1.2.0"
 description = "Backend for Journal Viewer 2"
 dependencies = [
-    "pytest", "requests-mock", "h5py", "requests", "lxml", "flask",
-    "gunicorn", "waitress"
+    "h5py", "requests", "lxml", "flask", "platformdirs",
+    "gunicorn", "waitress",
+    "pytest", "requests-mock"
 ]
 requires-python = ">=3.10"
 
