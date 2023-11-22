@@ -11,7 +11,7 @@ runs:
       version: ${{ env.qtVersion }}
       modules: qtcharts
 
-  - name: Remove /usr/bun/link
+  - name: Remove /usr/bin/link
     shell: bash
     run: |
       echo "Removing /usr/bin/link.exe since it will conflict with our MSVC paths..."
@@ -31,7 +31,7 @@ runs:
     shell: bash
     run: |
       cd frontend/build/bin
-      windeployqt.exe jv2backend.exe
+      windeployqt.exe jv2.exe
 
   - name: Setup Python
     uses: actions/setup-python@v4
@@ -43,9 +43,9 @@ runs:
     run: |
       set -ex
 
-      python3 -m pip install h5py nuitka
+      python3 -m pip install nuitka
 
-      python3 -m nuitka --standalone --onefile --assume-yes-for-downloads --windows-disable-console backend/src/jv2backend/app.py
+      python3 -m nuitka --standalone --onefile --assume-yes-for-downloads --windows-disable-console backend/src/jv2backend/__main__.py
       ls -R
 
   - name: Upload Raw Build Artifacts
