@@ -8,13 +8,8 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 
-[tool.setuptools.packages.find]
-where = ["."]  # list of folders that contain the packages (["."] by default)
-include = ["jv2backend"]  # package names should match these glob patterns (["*"] by default)
-exclude = ["jv2backend.tests"]  # exclude packages matching these glob patterns (empty by default)
-
 [project.scripts]
-jv2backend = "jv2backend.__main__:main"
+jv2backend = "jv2backend.app:go"
 
 [build-system]
 requires = ["setuptools >= 40.6.0", "wheel"]
