@@ -15,8 +15,6 @@ import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
 import argparse
 import gunicorn.app.base
-import argparse
-import gunicorn.app.base
 
 
 def go():
