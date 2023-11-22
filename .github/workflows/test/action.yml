@@ -13,7 +13,7 @@ runs:
       shell: bash
       run: |
         cd backend
-        python3 -mpip install ".[test]"
+        python3 -mpip install ".[test]" pytest requests-mock
         cd src/jv2backend
         python3 -mpytest ./ --junitxml=test-results.xml
 

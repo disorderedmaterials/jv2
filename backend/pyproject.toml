@@ -4,8 +4,7 @@ version = "1.2.0"
 description = "Backend for Journal Viewer 2"
 dependencies = [
     "h5py", "requests", "lxml", "flask", "platformdirs",
-    "gunicorn", "waitress",
-    "pytest", "requests-mock"
+    "gunicorn", "waitress"
 ]
 requires-python = ">=3.10"
 
