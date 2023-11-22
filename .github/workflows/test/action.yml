@@ -21,4 +21,4 @@ runs:
       if: always()
       uses: EnricoMi/publish-unit-test-result-action/composite@v2
       with:
-        junit_files: 'jv2backend/test-results.xml'
+        junit_files: 'backend/src/jv2backend/test-results.xml'
