@@ -39,17 +39,12 @@ void Backend::configureProcessArgs(const QCommandLineParser &args)
 {
     QStringList backendArgs;
 
-    // TODO Add CLI option to choose backend
-    //    process_.setProgram("gunicorn");
-    //    backendArgs << "--bind" << Backend::bindAddress() << "--graceful-timeout"
-    //                << "120"
-    //                << "--timeout"
-    //                << "120";
-    //    if (args.isSet(CLIArgs::LogLevel))
-    //        backendArgs << "--log-level" << args.value(CLIArgs::LogLevel);
-    //    backendArgs << "jv2backend.app:create_app()";
     process_.setProgram("jv2backend");
     backendArgs << "-b" << bindAddress();
+    if (args.isSet(CLIArgs::DebugBackend))
+        backendArgs << "-d";
+    if (args.isSet(CLIArgs::UseWaitress))
+        backendArgs << "-w";
 
     process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
