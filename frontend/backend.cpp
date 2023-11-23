@@ -10,8 +10,17 @@
 
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
-    configureProcessArgs(args);
-    configureEnvironment(args);
+    QStringList backendArgs;
+
+    process_.setProgram("jv2backend");
+    backendArgs << "-b" << bindAddress();
+    if (args.isSet(CLIArgs::DebugBackend))
+        backendArgs << "-d";
+    if (args.isSet(CLIArgs::UseWaitress))
+        backendArgs << "-w";
+
+    process_.setArguments(backendArgs);
+    process_.setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
 /*
@@ -32,33 +41,6 @@ HttpRequestWorker *Backend::postRequest(const QString &url, const QJsonObject &d
 HttpRequestWorker *Backend::createRequest(const QString &url, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     return new HttpRequestWorker(manager_, url, handler);
-}
-
-// Configure backend process arguments
-void Backend::configureProcessArgs(const QCommandLineParser &args)
-{
-    QStringList backendArgs;
-
-    process_.setProgram("jv2backend");
-    backendArgs << "-b" << bindAddress();
-    if (args.isSet(CLIArgs::DebugBackend))
-        backendArgs << "-d";
-    if (args.isSet(CLIArgs::UseWaitress))
-        backendArgs << "-w";
-
-    process_.setArguments(backendArgs);
-    process_.setProcessChannelMode(QProcess::ForwardedChannels);
-}
-
-// Configure backend process environment
-void Backend::configureEnvironment(const QCommandLineParser &args)
-{
-    QProcessEnvironment env;
-    //    if (args.isSet(CLIArgs::AdditionalOption))
-    //        env.insert(CLIArgs::argToEnvironName(CLIArgs::AdditionalOption), args.value(CLIArgs::AdditionalOption));
-
-    env.insert(QProcessEnvironment::systemEnvironment());
-    process_.setProcessEnvironment(env);
 }
 
 /*
