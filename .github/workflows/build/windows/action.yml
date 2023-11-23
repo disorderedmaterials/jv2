@@ -49,14 +49,13 @@ runs:
       cp pyproject.toml.win pyproject.toml
       python3 -m pip install .
 
-      python3 -m nuitka --standalone --onefile --assume-yes-for-downloads --windows-disable-console backend/src/jv2backend/__main__.py
-      ls -R
+      python3 -m nuitka --standalone --onefile --assume-yes-for-downloads src/jv2backend
 
   - name: Upload Raw Build Artifacts
     uses: actions/upload-artifact@v3
     with:
       name: windows-build
       path: |
-        ${{ github.workspace }}\frontend
+        ${{ github.workspace }}\frontend\build\bin
         ${{ github.workspace }}\backend
       if-no-files-found: error
