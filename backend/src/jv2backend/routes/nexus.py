@@ -51,7 +51,7 @@ def add_routes(
                     jsonify({"Error": f"Unable to find data file for run "
                              "{run}"}), 200
                 )
-            logpaths.extend(jv2backend.nexus.logpaths_from_path(data_files[run]))
+            logpaths.extend(jv2backend.main.nexus.logpaths_from_path(data_files[run]))
 
         return make_response(jsonify(logpaths), 200)
 
@@ -94,11 +94,11 @@ def add_routes(
                 )
 
             run_data = {}
-            nxsfile, first_group = jv2backend.nexus.open_at(data_files[run], 0)
+            nxsfile, first_group = jv2backend.main.nexus.open_at(data_files[run], 0)
 
             run_data["runNumber"] = str(run)
-            run_data["timeRange"] = [jv2backend.nexus.timerange(first_group)]
-            run_data["data"] = jv2backend.nexus.logvalues(first_group[log_value])
+            run_data["timeRange"] = [jv2backend.main.nexus.timerange(first_group)]
+            run_data["data"] = jv2backend.main.nexus.logvalues(first_group[log_value])
 
             log_value_data[run] = run_data
 
@@ -147,11 +147,11 @@ def add_routes(
         spectrum_type = post_data.parameter("spectrumType")
         if spectrum_type == "monitor":
             return make_response(
-                jsonify(jv2backend.nexus.get_monitor_count(data_file)),
+                jsonify(jv2backend.main.nexus.get_monitor_count(data_file)),
                 200)
         elif spectrum_type == "detector":
             return make_response(
-                jsonify(jv2backend.nexus.get_detector_count(data_file)),
+                jsonify(jv2backend.main.nexus.get_detector_count(data_file)),
                 200)
         else:
             return make_response(
@@ -198,12 +198,12 @@ def add_routes(
             if run is None:
                 continue
             if spectrum_type == "monitor":
-                spectra.append(jv2backend.nexus.get_monitor_spectrum(
+                spectra.append(jv2backend.main.nexus.get_monitor_spectrum(
                     data_files[run],
                     spectrum_id)
                 )
             elif spectrum_type == "detector":
-                spectra.append(jv2backend.nexus.get_detector_spectrum(
+                spectra.append(jv2backend.main.nexus.get_detector_spectrum(
                     data_files[run],
                     spectrum_id)
                 )
@@ -243,7 +243,7 @@ def add_routes(
             )
 
         return make_response(
-            jv2backend.nexus.nonzero_spectra_ratio(data_file),
+            jv2backend.main.nexus.nonzero_spectra_ratio(data_file),
             200
         )
 
