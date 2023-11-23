@@ -45,6 +45,10 @@ runs:
 
       python3 -m pip install nuitka
 
+      cd backend
+      cp pyproject.toml.win pyproject.toml
+      python3 -m pip install .
+
       python3 -m nuitka --standalone --onefile --assume-yes-for-downloads --windows-disable-console backend/src/jv2backend/__main__.py
       ls -R
 
