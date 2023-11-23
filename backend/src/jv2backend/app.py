@@ -14,82 +14,6 @@ import jv2backend.main.generator
 import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
 import argparse
-import gunicorn.app.base
-
-
-def go():
-    # Set up command-line arguments
-    parser = argparse.ArgumentParser(description="The JournalViewer 2 backend.")
-    parser.add_argument('-b', metavar='bind',
-                        type=str, required=True,
-                        help="Address to bind to (e.g. 127.0.0.1:5000)",
-                        )
-
-
-    args = parser.parse_args()
-
-    # We will launch our Flask app with gunicorn on Linux/OSX but revert to
-    # waitress on Windows
-
-
-    class StandaloneApplication(gunicorn.app.base.BaseApplication):
-
-        def __init__(self, app, options=None):
-            self.options = options or {}
-            self.application = app
-            super().__init__()
-
-        def load_config(self):
-            config = {key: value for key, value in self.options.items()
-                      if key in self.cfg.settings and value is not None}
-            for key, value in config.items():
-                self.cfg.set(key.lower(), value)
-
-        def load(self):
-            return self.application
-
-    gunicorn_options = {
-        'bind': '%s:%s' % ('127.0.0.1', '5000'),
-        "log-level": "DEBUG"
-    }
-    StandaloneApplication(jv2backend.app.create_app(True), gunicorn_options).run()
-
-def go():
-    # Set up command-line arguments
-    parser = argparse.ArgumentParser(description="The JournalViewer 2 backend.")
-    parser.add_argument('-b', metavar='bind',
-                        type=str, required=True,
-                        help="Address to bind to (e.g. 127.0.0.1:5000)",
-                        )
-
-
-    args = parser.parse_args()
-
-    # We will launch our Flask app with gunicorn on Linux/OSX but revert to
-    # waitress on Windows
-
-
-    class StandaloneApplication(gunicorn.app.base.BaseApplication):
-
-        def __init__(self, app, options=None):
-            self.options = options or {}
-            self.application = app
-            super().__init__()
-
-        def load_config(self):
-            config = {key: value for key, value in self.options.items()
-                      if key in self.cfg.settings and value is not None}
-            for key, value in config.items():
-                self.cfg.set(key.lower(), value)
-
-        def load(self):
-            return self.application
-
-    gunicorn_options = {
-        'bind': '%s:%s' % ('127.0.0.1', '5000'),
-        "log-level": "DEBUG"
-    }
-    StandaloneApplication(create_app(True), gunicorn_options).run()
 
 
 def create_app(activate_cache: bool = True) -> Flask:
@@ -101,7 +25,6 @@ def create_app(activate_cache: bool = True) -> Flask:
     :param activate_cache: Whether to employ the user cache.
     """
     app = Flask(__name__)
-    configure_logging(app)
 
     # Create our main objects
     journal_generator = jv2backend.main.generator.JournalGenerator()
@@ -124,18 +47,73 @@ def create_app(activate_cache: bool = True) -> Flask:
     return app
 
 
-def configure_logging(app: Flask) -> Flask:
-    """_summary_
+def go_gunicorn(jv2app: Flask, args):
+    import gunicorn.app.base
 
-    :param app: Flask app to configure
-    """
-    # Match logging handlers and configuration with gunicorn
-    wsgi_logger = logging.getLogger('gunicorn.error')
-    if not wsgi_logger:
-        wsgi_logger = logging.getLogger('waitress')
-    app.logger.handlers = wsgi_logger.handlers
-    app.logger.setLevel(wsgi_logger.level)
-    root = logging.getLogger()
-    root.setLevel(wsgi_logger.level)
+    class GUnicornApplication(gunicorn.app.base.BaseApplication):
 
-    return app
+        def __init__(self, app, options=None):
+            self.options = options or {}
+            self.application = app
+            super().__init__()
+
+        def load_config(self):
+            config = {key: value for key, value in self.options.items()
+                      if key in self.cfg.settings and value is not None}
+            for key, value in config.items():
+                self.cfg.set(key.lower(), value)
+
+        def load(self):
+            return self.application
+
+    # Set up the server options
+    options = {
+        'bind': args.bind,
+    }
+    if args.debug:
+        options["log-level"] = "INFO"
+    GUnicornApplication(jv2app, options).run()
+
+def go_waitress(jv2app: Flask, args):
+    from waitress import serve
+
+    serve(jv2app, listen=args.bind)
+
+
+
+def go():
+    # Set up command-line arguments
+    parser = argparse.ArgumentParser(description="The JournalViewer 2 backend.")
+    parser.add_argument('-b', '--bind',
+                        type=str, required=True,
+                        help="Address to bind to (e.g. 127.0.0.1:5000)"
+                        )
+    parser.add_argument('-w', '--waitress',
+                        action='store_true',
+                        help="Whether to use waitress over gunicorn."
+                        )
+    parser.add_argument('-d', '--debug',
+                        action='store_true',
+                        help="Enable debug logging from the WSGI server."
+                        )
+
+    args = parser.parse_args()
+
+    # Create the Flask app
+    app = create_app(True)
+
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "root": {
+                "level": "DEBUG" if args.debug else "INFO",
+            },
+        }
+    )
+
+    # We will launch our Flask app with gunicorn on Linux/OSX unless waitress
+    # is requested specifically
+    if args.waitress:
+        go_waitress(app, args)
+    else:
+        go_gunicorn(app, args)
