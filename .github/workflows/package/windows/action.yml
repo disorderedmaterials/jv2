@@ -40,7 +40,8 @@ runs:
       echo "Executable installer is $exe, basename is $exeBase"
 
       # Create Zip from Exe
-      innoextract.exe $exe -d $exeBase
+      innoextract.exe $exe -d$exeBase
+      ls -R
       mv "${exeBase}\app\bin\*" $exeBase
       mv "${exeBase}\app" ./
       ls -R
