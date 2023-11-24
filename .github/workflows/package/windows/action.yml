@@ -19,7 +19,6 @@ runs:
     shell: bash
     run: |
       set -ex
-      ls -R build/
 
       export Qt6_DIR="${{ github.workspace }}\build\frontend\build\bin"
       export FRONTEND_DIR="${{ github.workspace }}\build\frontend\build\bin"
@@ -28,8 +27,8 @@ runs:
       # Run Inno Setup Compiler
       iscc.exe -O./ ./ci/windows/jv2.iss
       exe=$(ls JournalViewer2*.exe)
-      exeBase=$(basename $exe)
-      echo "Executable installer is $exe, basename is $exeBase"
+      echo "Executable installer is $exe"
+      cp $exe packages
 
   - name: Create Zip
     shell: bash
@@ -37,16 +36,15 @@ runs:
       set -ex
 
       exe=$(ls -1 JournalViewer2*.exe)
-      echo "Executable installer is ${exe}"
-      
+      exeBase=$(basename $exe)
+      echo "Executable installer is $exe, basename is $exeBase"
+
       # Create Zip from Exe
-      innoextract.exe $exe.Name -d $exe.BaseName
-      mv "$($exe.BaseName)\app\bin\*" $exe.BaseName
+      innoextract.exe $exe -d $exeBase
+      mv "$($exe.BaseName)\app\bin\*" $exeBase
       mv "$($exe.BaseName)\app" ./
-      #rm -Force "$($exe.BaseName)\app"
-      $zip = $exe.BaseName + ".zip"
-      zip -r $zip $exe.BaseName
+      #rm -Force "$($exeBase)\app"
+      zip -r "${exeBase}.zip" $exeBase
 
       mkdir packages
-      mv $zip packages
-      mv $exe.Name packages
+      mv "${exeBase}.zip" packages
