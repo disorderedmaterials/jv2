@@ -27,8 +27,8 @@ runs:
       
       # Run Inno Setup Compiler
       iscc.exe -O./ ./ci/windows/jv2.iss
-      exe=${ls *.exe}
-      exeBase=${basename $exe}
+      exe=$(ls JournalViewer2*.exe)
+      exeBase=$(basename $exe)
       echo "Executable installer is $exe, basename is $exeBase"
 
   - name: Create Zip
@@ -36,7 +36,7 @@ runs:
     run: |
       set -ex
 
-      exe=${ls -1 JournalViewer2*.exe}
+      exe=$(ls -1 JournalViewer2*.exe)
       echo "Executable installer is ${exe}"
       
       # Create Zip from Exe
