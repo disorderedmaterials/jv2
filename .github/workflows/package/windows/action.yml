@@ -36,14 +36,16 @@ runs:
       set -ex
 
       exe=$(ls -1 JournalViewer2*.exe)
-      exeBase=$(basename $exe)
+      exeBase=${exe/.exe}
       echo "Executable installer is $exe, basename is $exeBase"
 
       # Create Zip from Exe
       innoextract.exe $exe -d $exeBase
-      mv "$($exe.BaseName)\app\bin\*" $exeBase
-      mv "$($exe.BaseName)\app" ./
-      #rm -Force "$($exeBase)\app"
+      mv "${exeBase}\app\bin\*" $exeBase
+      mv "${exeBase}\app" ./
+      ls -R
+      rm -rf ${exeBase}\app
+      ls -R
       zip -r "${exeBase}.zip" $exeBase
 
       mkdir packages
