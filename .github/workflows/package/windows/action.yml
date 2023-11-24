@@ -36,7 +36,7 @@ runs:
     run: |
       set -ex
 
-      exe=$(ls -1 *.exe)
+      exe=${ls -1 JournalViewer2*.exe}
       echo "Executable installer is ${exe}"
       
       # Create Zip from Exe
