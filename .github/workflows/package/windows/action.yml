@@ -41,13 +41,10 @@ runs:
 
       # Create Zip from Exe
       innoextract.exe $exe -d$exeBase
-      ls -R
       mv ${exeBase}/app/bin/* $exeBase
       mv ${exeBase}/app ./
-      ls -R
       rm -rf ${exeBase}/app
-      ls -R
       zip -r "${exeBase}.zip" $exeBase
 
-      mkdir packages
-      mv "${exeBase}.zip" packages
+      # Copy to packages directory (created in previous step)
+      mv ${exeBase}.zip packages
