@@ -28,6 +28,9 @@ runs:
       iscc.exe -O./ ./ci/windows/jv2.iss
       exe=$(ls JournalViewer2*.exe)
       echo "Executable installer is $exe"
+
+      # Copy to packages directory
+      mkdir packages
       cp $exe packages
 
   - name: Create Zip
