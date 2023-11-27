@@ -11,6 +11,12 @@ runs:
       version: ${{ env.qtVersion }}
       modules: qtcharts
 
+  - name: Remove /usr/bin/link
+    shell: bash
+    run: |
+      echo "Removing /usr/bin/link.exe since it will conflict with our MSVC paths..."
+      rm -rf /usr/bin/link.exe
+
   - name: Setup MSVC Compiler
     uses: ilammy/msvc-dev-cmd@v1
 
@@ -37,16 +43,19 @@ runs:
     run: |
       set -ex
 
-      python3 -m pip install h5py
+      python3 -m pip install nuitka
 
       cd backend
-      python3 -m pip wheel --wheel-dir=wheels .
+      cp pyproject.toml.win pyproject.toml
+      python3 -m pip install .
+
+      python3 -m nuitka --standalone --onefile --assume-yes-for-downloads src/jv2backend
 
   - name: Upload Raw Build Artifacts
     uses: actions/upload-artifact@v3
     with:
       name: windows-build
       path: |
-        frontend
-        backend
+        ${{ github.workspace }}\frontend\build\bin
+        ${{ github.workspace }}\backend
       if-no-files-found: error

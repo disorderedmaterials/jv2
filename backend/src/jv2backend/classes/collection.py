@@ -6,10 +6,10 @@ import typing
 import datetime
 from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
-import jv2backend.select as Selector
-from jv2backend.journal import Journal, SourceType
-from jv2backend.integerRange import IntegerRange
-import jv2backend.userCache
+import jv2backend.main.selector
+from jv2backend.classes.journal import Journal, SourceType
+from jv2backend.classes.integerRange import IntegerRange
+import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
 import logging
 import json
@@ -166,9 +166,9 @@ class JournalCollection:
         parameter passed in the request_data object.
         """
         # Check the cache for the data first
-        if jv2backend.userCache.has_data(self._library_key,
-                                         self._index_filename):
-            data, mtime = jv2backend.userCache.get_data(
+        if jv2backend.main.userCache.has_data(self._library_key,
+                                               self._index_filename):
+            data, mtime = jv2backend.main.userCache.get_data(
                 self._library_key,
                 self._index_filename
             )
@@ -281,24 +281,31 @@ class JournalCollection:
 
         # If we already have this journal file in the collection, check its
         # modification time, returning the current data if up-to-date
+        logging.debug(f"get_updates: Checking mtime for {j.display_name}....")
         if j.is_up_to_date():
+            logging.debug("get_updates: ...up-to-date so returning None")
             return json.dumps(None)
 
         # Changed, so read full data and store the whole thing, storing the
         # current last run number before we set the new data
         old_last_run_number = j.get_last_run_number()
+        logging.debug(
+            f"get_updates: Last run number known is {old_last_run_number}"
+            )
         try:
-            j.get_run_data()
+            j.get_run_data(ignore_cache=True)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
             return json.dumps({"Error": str(exc)})
 
         # If our old last run number is None then we had no data so return all
         if old_last_run_number is None:
+            logging.debug(f"get_updates: ...returning all available data.")
             return j.get_run_data_as_json_array()
 
         # If the old run numbers are the same, nothing to update
         if old_last_run_number == j.get_last_run_number():
+            logging.debug(f"get_updates: ...no new data, returning None.")
             return json.dumps(None)
 
         # Return any new runs after the previous last known run number
@@ -458,7 +465,7 @@ class JournalCollection:
             # If it is ever a size of zero we have excluded all runs
             logging.debug("Starting loop over run data...")
             for field in search_terms:
-                matches = Selector.select(jf.run_data if matches is None
+                matches = jv2backend.main.selector.select(jf.run_data if matches is None
                                           else matches,
                                           field,
                                           search_terms[field],

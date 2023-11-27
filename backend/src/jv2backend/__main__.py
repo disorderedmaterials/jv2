@@ -7,3 +7,8 @@ import sys
 import os.path
 sys.argv[0] = os.path.dirname(sys.argv[0])
 
+import jv2backend.app
+
+
+if __name__ == "__main__":
+    jv2backend.app.go()

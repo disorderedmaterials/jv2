@@ -10,8 +10,8 @@ import datetime
 import json
 import copy
 from jv2backend.utils import url_join
-from jv2backend.journalCollection import JournalCollection
-import jv2backend.userCache
+from jv2backend.classes.collection import JournalCollection
+import jv2backend.main.userCache
 from threading import Thread, Event, Lock
 
 

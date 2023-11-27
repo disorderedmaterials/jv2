@@ -23,7 +23,7 @@ runs:
   - name: Download Artifacts
     uses: actions/download-artifact@v3
     with:
-      name: packages
+      name: linux-packages
       path: ${{ github.workspace }}/packages
 
   - name: Download Prerequisites

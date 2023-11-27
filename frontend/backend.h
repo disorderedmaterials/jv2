@@ -41,10 +41,6 @@ class Backend : public QObject
                                    const HttpRequestWorker::HttpRequestHandler &handler);
     // Create a request
     HttpRequestWorker *createRequest(const QString &url, const HttpRequestWorker::HttpRequestHandler &handler = {});
-    // Configure backend process arguments
-    void configureProcessArgs(const QCommandLineParser &args);
-    // Configure backend process environment
-    void configureEnvironment(const QCommandLineParser &args);
 
     public slots:
     // Start the backend process

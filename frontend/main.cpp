@@ -21,7 +21,9 @@ int main(int argc, char *argv[])
         {{CLIArgs::ISISArchiveDirectory, "Path to directory / mountpoint containing main ISIS Archive run data", "directory"},
          {CLIArgs::LogLevel, "Log level for the backend. Matches gunicorn log levels: info, debug", "log level"},
          {CLIArgs::NoIDAaaS, "Don't automatically define the IDAaaS source"},
-         {CLIArgs::NoISISArchive, "Don't automatically define the ISIS Archive source"}});
+         {CLIArgs::NoISISArchive, "Don't automatically define the ISIS Archive source"},
+         {CLIArgs::UseWaitress, "Use waitress instead of gunicorn (Windows only)"},
+         {CLIArgs::DebugBackend, "Enable debug logging in backend"}});
 
     if (!parser.parse(QApplication::arguments()))
     {

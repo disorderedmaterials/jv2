@@ -20,7 +20,6 @@ bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString
 
     // Response error?
     auto response = worker->jsonResponse().object();
-    qDebug() << worker->response();
     if (response.contains("Error"))
     {
         statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource()->name()), 3000);

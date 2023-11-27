@@ -1,0 +1,59 @@
+name: Package
+description: Package Windows artifacts
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Download Raw Build Artifacts
+    uses: actions/download-artifact@v3
+    with:
+      name: windows-build
+      path: ${{ github.workspace }}\build
+
+  - name: Install Prerequisites
+    shell: bash
+    run: choco install -y zip innoextract
+
+  - name: Create Installer
+    shell: bash
+    run: |
+      set -ex
+
+      export Qt6_DIR="${{ github.workspace }}\build\frontend\build\bin"
+      export FRONTEND_DIR="${{ github.workspace }}\build\frontend\build\bin"
+      export BACKEND_DIR="${{ github.workspace }}\build\backend"
+      
+      # Run Inno Setup Compiler
+      iscc.exe -O./ ./ci/windows/jv2.iss
+      exe=$(ls JournalViewer2*.exe)
+      echo "Executable installer is $exe"
+
+      # Copy to packages directory
+      mkdir packages
+      cp $exe packages
+
+  - name: Create Zip
+    shell: bash
+    run: |
+      set -ex
+
+      exe=$(ls -1 JournalViewer2*.exe)
+      exeBase=${exe/.exe}
+      echo "Executable installer is $exe, basename is $exeBase"
+
+      # Create Zip from Exe
+      innoextract.exe $exe -d$exeBase
+      mv ${exeBase}/app/bin/* $exeBase
+      mv ${exeBase}/app ./
+      rm -rf ${exeBase}/app
+      zip -r "${exeBase}.zip" $exeBase
+
+      # Copy to packages directory (created in previous step)
+      mv ${exeBase}.zip packages
+
+  - name: Upload Package Artifacts
+    uses: actions/upload-artifact@v3
+    with:
+      name: windows-packages
+      path: ${{ github.workspace }}/packages
