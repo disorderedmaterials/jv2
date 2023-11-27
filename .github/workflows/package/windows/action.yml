@@ -48,3 +48,9 @@ runs:
 
       # Copy to packages directory (created in previous step)
       mv ${exeBase}.zip packages
+
+  - name: Upload Package Artifacts
+    uses: actions/upload-artifact@v3
+    with:
+      name: windows-packages
+      path: ${{ github.workspace }}/packages
