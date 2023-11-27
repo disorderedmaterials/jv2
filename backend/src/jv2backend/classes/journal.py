@@ -110,15 +110,15 @@ class Journal:
 
         return False
 
-    def get_run_data(self) -> None:
+    def get_run_data(self, ignore_cache: bool = False) -> None:
         """Get run data content for the journal"""
         # For test sources, do nothing
         if self._source_type == SourceType.InternalTest:
             return
 
         # Check the cache for the data first
-        if jv2backend.main.userCache.has_data(self._parent_library_key,
-                                         self.filename):
+        if not ignore_cache and jv2backend.main.userCache.has_data(
+                self._parent_library_key, self.filename):
             data, mtime = jv2backend.main.userCache.get_data(
                 self._parent_library_key,
                 self.filename
@@ -126,12 +126,13 @@ class Journal:
             run_dict = json.loads(data)
 
             # Need to convert our run number keys from str -> int
-            self.run_data = {int(run_no):run_dict[run_no]
+            self.run_data = {int(run_no): run_dict[run_no]
                              for run_no in run_dict}
             self._last_modified = mtime
             return
 
-        # Not present in the user cache, so try to obtain it
+        # Not present in the user cache, or we are deliberately ignoring the
+        # cache, so try to obtain it
         if self._source_type == SourceType.Network:
             response = requests.get(self.get_file_url(), timeout=3)
             response.raise_for_status()
