@@ -45,8 +45,6 @@ Source: "JournalViewer2.ico"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "{#QtDir}\bin\Qt6Gui.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Core.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
-Source: "{#QtDir}\bin\Qt6OpenGL.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
-Source: "{#QtDir}\bin\Qt6OpenGLWidgets.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Svg.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Widgets.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
 Source: "{#QtDir}\bin\Qt6Network.dll"; DestDir: "{app}\bin\jv2"; Flags: ignoreversion
