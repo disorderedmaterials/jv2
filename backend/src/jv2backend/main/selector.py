@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Team JournalViewer and contributors
 
 import datetime
-from jv2backend.integerRange import IntegerRange
+from jv2backend.classes.integerRange import IntegerRange
 
 # Format of start time search string
 USERINPUT_DT_FORMAT_STR = "%Y/%m/%d"

@@ -420,6 +420,86 @@
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="GeneratingPage">
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QLabel" name="GeneratingPageLabel">
+              <property name="text">
+               <string>GeneratingJournals</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="GeneratingTreeView"/>
+            </item>
+            <item>
+             <widget class="QWidget" name="GeneratingPageWidget" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout_17">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <item>
+                  <spacer name="horizontalSpacer_5">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="GeneratingCancelButton">
+                   <property name="text">
+                    <string>Cancel</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_6">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QProgressBar" name="GeneratingProgressBar">
+                 <property name="value">
+                  <number>24</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="GeneratingInfoLabel">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
           <widget class="QWidget" name="ErrorPage">
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
@@ -528,7 +608,6 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
-    <addaction name="actionRefresh"/>
     <addaction name="separator"/>
     <addaction name="actionFind"/>
     <addaction name="actionFindNext"/>
@@ -539,8 +618,32 @@
     <addaction name="separator"/>
     <addaction name="actionSearchEverywhere"/>
    </widget>
+   <widget class="QMenu" name="menuJournal">
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>&amp;Journal</string>
+    </property>
+    <addaction name="actionRefreshJournal"/>
+   </widget>
+   <widget class="QMenu" name="menuSources">
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="title">
+     <string>&amp;Sources</string>
+    </property>
+    <addaction name="actionEditSources"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuJournal"/>
+   <addaction name="menuSources"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionMassSearchRBNo">
@@ -618,7 +721,7 @@
     <string>Ctrl+J</string>
    </property>
   </action>
-  <action name="actionRefresh">
+  <action name="actionRefreshJournal">
    <property name="text">
     <string>&amp;Refresh</string>
    </property>
@@ -634,6 +737,11 @@
   <action name="actionSearchEverywhere">
    <property name="text">
     <string>&amp;Search Everywhere...</string>
+   </property>
+  </action>
+  <action name="actionEditSources">
+   <property name="text">
+    <string>Edit Sources...</string>
    </property>
   </action>
  </widget>

@@ -115,8 +115,8 @@ def logvalues(h5group: h5.Group) -> MutableSequence[Tuple[float, float]]:
     ]
 
 
-def spectra_count(filepath: Path) -> int:
-    """Return the number of spectra in the detector_1
+def get_detector_count(filepath: Path) -> int:
+    """Return the number of spectra in detector_1
 
     :param filepath: A path to a NeXus file
     :return: The number of spectra
@@ -125,7 +125,8 @@ def spectra_count(filepath: Path) -> int:
         return len(group_at(h5file, 0)[NXStrings.DetectorPrefix + "1"][NXStrings.Counts][0])  # type: ignore
 
 
-def spectrum(filepath: Path, spectrum: int) -> Sequence[Tuple[float, float]]:
+def get_detector_spectrum(filepath: Path,
+                          spectrum: int) -> Sequence[Tuple[float, float]]:
     """Return a single spectra of data from a file as a list of (tof,signal) pairs
 
     If the TOF values are bin edges then they are converted to bin centres.
@@ -140,8 +141,23 @@ def spectrum(filepath: Path, spectrum: int) -> Sequence[Tuple[float, float]]:
         )
 
 
-def monitor_spectrum(filepath: Path, monitor: int) -> Sequence[Tuple[float, float]]:
-    """Return a single spectra of data from a file as a list of (tof,signal) pairs
+def get_monitor_count(filepath: Path) -> int:
+    """Return the number of monitors in the first group
+
+    :param filepath: A path to a NeXus file
+    :return: The number of spectra
+    """
+    with h5.File(filepath) as h5file:
+        first_group = group_at(h5file, 0)
+        return len(
+            [key for key in first_group.keys() if _MonitorRE.match(key) is not None]
+        )
+
+
+def get_monitor_spectrum(filepath: Path,
+                         monitor: int) -> Sequence[Tuple[float, float]]:
+    """Return a single monitor spectrum from a file as a list of (tof,signal)
+    pairs
 
     If the TOF values are bin edges then they are converted to bin centres.
     :param filepath: Path to a HDF5 file
@@ -152,19 +168,6 @@ def monitor_spectrum(filepath: Path, monitor: int) -> Sequence[Tuple[float, floa
         monitor_group = group_at(h5file, 0)[NXStrings.MonitorPrefix + str(monitor)]
         return _tof_signal_points(
             monitor_group[NXStrings.ToF], monitor_group[NXStrings.Data][0][0]
-        )
-
-
-def monitor_count(filepath: Path) -> int:
-    """Return the number of monitors in the first group
-
-    :param filepath: A path to a NeXus file
-    :return: The number of spectra
-    """
-    with h5.File(filepath) as h5file:
-        first_group = group_at(h5file, 0)
-        return len(
-            [key for key in first_group.keys() if _MonitorRE.match(key) is not None]
         )
 
 

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2backend.journalCollection import JournalCollection
-from jv2backend.journal import Journal, SourceType
+from jv2backend.classes.collection import JournalCollection
+from jv2backend.classes.journal import Journal, SourceType
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 import datetime
@@ -16,7 +16,7 @@ def _fake_server_data_dir() -> Path:
 
 @pytest.fixture
 def _example_collection(_fake_server_data_dir):
-    collection = JournalCollection(SourceType.Generated,
+    collection = JournalCollection(SourceType.InternalTest,
                                    "FakeKey",
                                    "/a/local/disk",
                                    "index.xml",

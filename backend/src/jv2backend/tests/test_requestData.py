@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (c) 2023 Team JournalViewer and contributors
 
-from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journalLibrary import JournalLibrary
-from jv2backend.journalCollection import JournalCollection
-from jv2backend.journal import Journal, SourceType
+from jv2backend.classes.requestData import RequestData, InvalidRequest
+from jv2backend.main.library import JournalLibrary
+from jv2backend.classes.collection import JournalCollection
+from jv2backend.classes.journal import Journal, SourceType
 import datetime
 import pytest
 
@@ -100,3 +100,64 @@ def test_run_data_directory_required_and_provided():
         pytest.fail(f"Unexpected exception: {exc}")
 
     assert data.run_data_root_url == POST_RUN_DATA_ROOT_URL
+
+
+def test_single_parameter_required():
+    post_data = {
+        "sourceID": POST_SOURCE_ID,
+        "sourceType": POST_JOURNAL_SOURCE_TYPE,
+        "alpha": "man"
+    }
+
+    try:
+        data = RequestData(post_data, require_parameters="alpha")
+    except Exception as exc:
+        pytest.fail(f"Unexpected exception: {exc}")
+
+    assert data.parameter("alpha") == "man"
+
+
+def test_multiple_parameter_required():
+    post_data = {
+        "sourceID": POST_SOURCE_ID,
+        "sourceType": POST_JOURNAL_SOURCE_TYPE,
+        "alpha": "man",
+        "beta": "band"
+    }
+
+    try:
+        data = RequestData(post_data, require_parameters="alpha,beta")
+    except Exception as exc:
+        pytest.fail(f"Unexpected exception: {exc}")
+
+    assert data.parameter("alpha") == "man"
+    assert data.parameter("beta") == "band"
+
+
+def test_multiple_parameter_required_but_not_all_provided():
+    post_data = {
+        "sourceID": POST_SOURCE_ID,
+        "sourceType": POST_JOURNAL_SOURCE_TYPE,
+        "beta": "band"
+    }
+
+    with pytest.raises(InvalidRequest) as exc:
+        data = RequestData(post_data, require_parameters="alpha,beta")
+    assert str(exc.value) == "Additional parameter 'alpha' required but was not provided."
+
+
+def test_unknown_parameter_requested():
+    post_data = {
+        "sourceID": POST_SOURCE_ID,
+        "sourceType": POST_JOURNAL_SOURCE_TYPE,
+        "alpha": "man"
+    }
+
+    try:
+        data = RequestData(post_data, require_parameters="alpha")
+    except Exception as exc:
+        pytest.fail(f"Unexpected exception: {exc}")
+
+    with pytest.raises(RuntimeError) as exc:
+        value = data.parameter("beta")
+    assert str(exc.value) == "The parameter 'beta' is not in the request data."

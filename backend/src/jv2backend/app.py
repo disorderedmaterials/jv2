@@ -3,38 +3,38 @@
 
 """Define the Flask instance and backend API routes"""
 import logging
+import logging.config
 from flask import Flask
-
-from jv2backend import config
-import jv2backend.journalRoutes
-import jv2backend.generateRoutes
-import jv2backend.nexusRoutes
-import jv2backend.serverRoutes
-import jv2backend.journalLibrary
-import jv2backend.generator
-import jv2backend.userCache
+import jv2backend.routes.journal
+import jv2backend.routes.generate
+import jv2backend.routes.nexus
+import jv2backend.routes.server
+import jv2backend.main.library
+import jv2backend.main.generator
+import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
+import argparse
 
 
-def create_app(inside_gunicorn: bool = True, activate_cache: bool = True) -> Flask:
-    """Create the Flask application and define
-    the routes served by the backend. See config.py for configuration settings
+def create_app(activate_cache: bool = True) -> Flask:
+    """Create the Flask application and define the routes served by the
+    backend.
 
-    :param inside_gunicorn: Whether the app has been run by gunicorn and
-                            not directly
+    See config.py for configuration settings
+
+    :param activate_cache: Whether to employ the user cache.
     """
     app = Flask(__name__)
-    configure_logging(app, inside_gunicorn)
 
     # Create our main objects
-    journalGenerator = jv2backend.generator.JournalGenerator()
-    journalLibrary = jv2backend.journalLibrary.JournalLibrary({})
+    journal_generator = jv2backend.main.generator.JournalGenerator()
+    journal_library = jv2backend.main.library.JournalLibrary({})
 
     # Register Flask routes
-    jv2backend.serverRoutes.add_routes(app)
-    jv2backend.journalRoutes.add_routes(app, journalLibrary)
-    jv2backend.generateRoutes.add_routes(app, journalGenerator, journalLibrary)
-    jv2backend.nexusRoutes.add_routes(app, journalLibrary)
+    jv2backend.routes.server.add_routes(app, journal_generator)
+    jv2backend.routes.journal.add_routes(app, journal_library)
+    jv2backend.routes.generate.add_routes(app, journal_generator, journal_library)
+    jv2backend.routes.nexus.add_routes(app, journal_library)
 
     # Register XML namespaces
     ElementTree.register_namespace( '', "http://definition.nexusformat.org/schema/3.0")
@@ -42,50 +42,78 @@ def create_app(inside_gunicorn: bool = True, activate_cache: bool = True) -> Fla
 
     # Initialise and activate the user data cache
     if activate_cache:
-        jv2backend.userCache.initialise()
+        jv2backend.main.userCache.initialise()
 
     return app
 
 
-def configure_logging(app: Flask, inside_gunicorn: bool) -> Flask:
-    """_summary_
+def go_gunicorn(jv2app: Flask, args):
+    import gunicorn.app.base
 
-    :param app: Flask app to configure
-    :param inside_gunicorn: Whether the app has been run by gunicorn and
-                            not directly
-    """
-    if inside_gunicorn:
-        # Match logging handlers and configuration with gunicorn
-        gunicorn_logger = logging.getLogger('gunicorn.error')
-        app.logger.handlers = gunicorn_logger.handlers
-        app.logger.setLevel(gunicorn_logger.level)
-        root = logging.getLogger()
-        root.setLevel(gunicorn_logger.level)
+    class GUnicornApplication(gunicorn.app.base.BaseApplication):
+
+        def __init__(self, app, options=None):
+            self.options = options or {}
+            self.application = app
+            super().__init__()
+
+        def load_config(self):
+            config = {key: value for key, value in self.options.items()
+                      if key in self.cfg.settings and value is not None}
+            for key, value in config.items():
+                self.cfg.set(key.lower(), value)
+
+        def load(self):
+            return self.application
+
+    # Set up the server options
+    options = {
+        'bind': args.bind,
+    }
+    if args.debug:
+        options["log-level"] = "INFO"
+    GUnicornApplication(jv2app, options).run()
+
+def go_waitress(jv2app: Flask, args):
+    from waitress import serve
+
+    serve(jv2app, listen=args.bind)
+
+
+
+def go():
+    # Set up command-line arguments
+    parser = argparse.ArgumentParser(description="The JournalViewer 2 backend.")
+    parser.add_argument('-b', '--bind',
+                        type=str, required=True,
+                        help="Address to bind to (e.g. 127.0.0.1:5000)"
+                        )
+    parser.add_argument('-w', '--waitress',
+                        action='store_true',
+                        help="Whether to use waitress over gunicorn."
+                        )
+    parser.add_argument('-d', '--debug',
+                        action='store_true',
+                        help="Enable debug logging from the WSGI server."
+                        )
+
+    args = parser.parse_args()
+
+    # Create the Flask app
+    app = create_app(True)
+
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "root": {
+                "level": "DEBUG" if args.debug else "INFO",
+            },
+        }
+    )
+
+    # We will launch our Flask app with gunicorn on Linux/OSX unless waitress
+    # is requested specifically
+    if args.waitress:
+        go_waitress(app, args)
     else:
-        logging.config.dictConfig(
-            {
-                "version": 1,
-                "root": {
-                    "level": config.get("logger_level"),
-                },
-            }
-        )
-
-    return app
-
-
-# In future add any command-line arguments here
-def main():  # pragma: no cover
-    """Start the backend"""
-    app = create_app()
-
-    # It is assumed that running this directly will only
-    # be used during development so we activate debugging.
-    # In production use a WSGI server such as gunicorn
-    # and pass the create_app function to it
-    app.run(debug=False)
-
-
-# On running this module as main, start the server
-if __name__ == "__main__":
-    main()  # pragma: no cover
+        go_gunicorn(app, args)

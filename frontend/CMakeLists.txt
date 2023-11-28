@@ -50,6 +50,7 @@ qt6_add_executable(
   # Backend
   backend.cpp
   # Main Window
+  args.h
   data.cpp
   filtering.cpp
   finding.cpp
@@ -77,16 +78,19 @@ qt6_add_executable(
   journalModel.h
   journalSourceModel.cpp
   journalSourceModel.h
-  jsonTableModel.cpp
-  jsonTableModel.h
-  jsonTableFilterProxy.cpp
-  jsonTableFilterProxy.h
+  runDataModel.cpp
+  runDataModel.h
+  runDataFilterProxy.cpp
+  runDataFilterProxy.h
   # Widgets
   chartView.cpp
   chartView.h
   graphWidget.cpp
   graphWidget.h
   graphWidget.ui
+  journalSourcesDialog.cpp
+  journalSourcesDialog.h
+  journalSourcesDialog.ui
   searchDialog.cpp
   searchDialog.h
   searchDialog.ui

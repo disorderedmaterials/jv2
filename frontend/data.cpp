@@ -105,47 +105,36 @@ std::vector<int> MainWindow::selectedRunNumbers() const
 }
 
 // Select and show specified run number in table (if it exists)
-bool MainWindow::highlightRunNumber(int runNumber)
+void MainWindow::highlightRunNumber(int runNumber)
 {
-    // ui_.RunDataTable->selectionModel()->clearSelection();
+    // Get the index of the specified run number in the underlying data
+    auto index = runDataModel_.indexOfData("run_number", QString::number(runNumber));
+    if (!index.isValid())
+        return;
 
-    // searchString_ = "";
-    // updateSearch(searchString_);
+    auto filterIndex = runDataFilterProxy_.mapFromSource(index);
+    if (!filterIndex.isValid())
+        return;
 
-    // Find the run number in the current run data
-    for (auto row = 0; row < runDataModel_.rowCount(); ++row)
-        if (runDataModel_.getData("run_number", row).toInt() == runNumber)
-        {
-            // If grouping is enabled, turn it off
-            if (ui_.GroupRunsButton->isChecked())
-                ui_.GroupRunsButton->click();
+    ui_.RunDataTable->selectionModel()->setCurrentIndex(filterIndex,
+                                                        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    ui_.RunDataTable->scrollTo(filterIndex);
 
-            ui_.RunDataTable->selectionModel()->setCurrentIndex(
-                runDataModel_.index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-
-            statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + currentJournal().name(), 5000);
-            return true;
-        }
-
-    statusBar()->showMessage("Run " + QString::number(runNumber) + " not present in " + currentJournal().name(), 5000);
-
-    return false;
+    statusBar()->showMessage("Jumped to run " + QString::number(runNumber) + " in " + currentJournal().name(), 5000);
 }
 
 /*
  * UI
  */
 
-void MainWindow::on_actionRefresh_triggered()
+void MainWindow::on_actionRefreshJournal_triggered()
 {
     if (!currentJournalSource_)
         return;
-    auto &journalSource = currentJournalSource();
-    auto optJournal = journalSource.currentJournal();
-    if (!optJournal)
-        return;
 
-    backend_.getJournalUpdates(journalSource, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    auto optJournal = currentJournalSource_->currentJournal();
+
+    backend_.getJournalUpdates(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
 // Jump to run number
@@ -156,12 +145,12 @@ void MainWindow::on_actionJumpTo_triggered()
     auto &inst = currentInstrument()->get();
 
     auto ok = false;
-    int runNo = QInputDialog::getInt(this, tr("Jump To"), tr("Run number to jump to:"), 0, 1, 2147483647, 1, &ok);
+    int runNo = QInputDialog::getInt(this, tr("Jump To"), tr("Run number to jump to:"), 1, 1, 2147483647, 1, &ok);
     if (!ok)
         return;
 
-    //    backend_.goToCycle(inst.journalDirectory(), QString::number(runNo),
-    //                       [=](HttpRequestWorker *workerProxy) { handleSelectRunNoInCycle(workerProxy, runNo); });
+    backend_.findJournal(currentJournalSource(), runNo,
+                         [=](HttpRequestWorker *workerProxy) { handleJumpToJournal(workerProxy); });
 }
 
 // Run data context menu requested
@@ -206,10 +195,53 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotDetector)
     {
-        getSpectrumCount();
+        backend_.getNexusSpectrumCount(currentJournalSource(), "detector", selectedRunNumbers().front(),
+                                       [=](HttpRequestWorker *worker) { plotSpectra(worker); });
     }
     else if (selectedAction == plotMonitor)
     {
-        getMonitorCount();
+        backend_.getNexusSpectrumCount(currentJournalSource(), "monitor", selectedRunNumbers().front(),
+                                       [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
     }
+}
+
+/*
+ * Network Handling
+ */
+
+// Handle run data returned for a whole journal
+void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight)
+{
+    runData_ = QJsonArray();
+    runDataModel_.setData(runData_);
+
+    // Check network reply
+    if (networkRequestHasError(worker, "trying to retrieve run data for the journal"))
+    {
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+        return;
+    }
+
+    // Turn off grouping
+    if (ui_.GroupRunsButton->isChecked())
+        ui_.GroupRunsButton->setChecked(false);
+
+    // Get desired fields and titles from config files
+    runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
+                                          : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
+    runData_ = worker->jsonResponse().array();
+
+    // Set table data
+    runDataModel_.setHorizontalHeaders(runDataColumns_);
+    runDataModel_.setData(runData_);
+
+    ui_.RunDataTable->resizeColumnsToContents();
+    updateSearch(searchString_);
+    ui_.RunFilterEdit->clear();
+
+    updateForCurrentSource(JournalSource::JournalSourceState::OK);
+
+    // Highlight / go to specific run number if requested
+    if (runNumberToHighlight)
+        highlightRunNumber(*runNumberToHighlight);
 }

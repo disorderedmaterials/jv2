@@ -22,9 +22,9 @@ def json_response(result: Any) -> FlaskResponse:
 
 def _join_slash(a: str, b: str):
     """Join two strings together with a forward slash"""
-    if a is None or len(a) is 0:
+    if a is None or len(a) == 0:
         return b
-    elif b is None or len(b) is 0:
+    elif b is None or len(b) == 0:
         return a
     else:
         return a.rstrip('/') + '/' + b.lstrip('/')

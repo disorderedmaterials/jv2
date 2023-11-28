@@ -52,7 +52,7 @@ void MainWindow::handleSearchResult(HttpRequestWorker *worker)
     ui_.RunFilterEdit->clear();
 
     // Set the journal state
-    currentJournalSource().setShowingSearchedData();
+    currentJournalSource()->setShowingSearchedData();
 
     updateForCurrentSource(JournalSource::JournalSourceState::OK);
 }

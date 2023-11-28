@@ -4,9 +4,11 @@
 """Defines the Flask endpoints that are server-related"""
 from flask import Flask, jsonify
 from flask.wrappers import Response as FlaskResponse
+import jv2backend.main.generator
 
 def add_routes(
     app: Flask,
+    journalGenerator: jv2backend.main.generator.JournalGenerator
 ) -> Flask:
     """Add routes to the given Flask application."""
 
@@ -16,5 +18,14 @@ def add_routes(
         """Return that we are ready
         """
         return jsonify('READY', 200)
+
+    @app.route("/shutdown")
+    def shutdown() -> FlaskResponse:
+        """Prepare for nice shutdown
+        """
+        journalGenerator.stop_scan()
+
+        return jsonify('OK', 200)
+
 
     return app

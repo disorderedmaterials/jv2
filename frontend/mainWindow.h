@@ -4,14 +4,15 @@
 #pragma once
 
 #include "backend.h"
+#include "genericTreeModel.h"
 #include "httpRequestWorker.h"
 #include "instrumentModel.h"
 #include "journalModel.h"
 #include "journalSource.h"
 #include "journalSourceModel.h"
-#include "jsonTableFilterProxy.h"
-#include "jsonTableModel.h"
 #include "lock.h"
+#include "runDataFilterProxy.h"
+#include "runDataModel.h"
 #include "ui_mainWindow.h"
 #include <QChart>
 #include <QCheckBox>
@@ -63,9 +64,9 @@ class MainWindow : public QMainWindow
      */
     private:
     // Known journal sources
-    std::vector<JournalSource> journalSources_;
+    std::vector<std::unique_ptr<JournalSource>> journalSources_;
     // Currently selected journal source (if any)
-    OptionalReferenceWrapper<JournalSource> currentJournalSource_;
+    JournalSource *currentJournalSource_;
     // Model for available journal sources
     JournalSourceModel journalSourceModel_;
     // Model for available journals
@@ -73,13 +74,13 @@ class MainWindow : public QMainWindow
 
     private:
     // Set up standard journal sources
-    void setUpStandardJournalSources();
-    // Set current journal source
-    void setCurrentJournalSource(OptionalReferenceWrapper<JournalSource> optSource, std::optional<QString> goToJournal = {});
+    void setUpStandardJournalSources(QCommandLineParser &cliParser);
     // Find the specified journal source
-    OptionalReferenceWrapper<JournalSource> findJournalSource(const QString &name);
+    JournalSource *findJournalSource(const QString &name);
+    // Set current journal source
+    void setCurrentJournalSource(JournalSource *source, std::optional<QString> goToJournal = {});
     // Return current journal source
-    JournalSource &currentJournalSource() const;
+    JournalSource *currentJournalSource() const;
     // Return selected journal in current source (assuming one is selected)
     Journal &currentJournal() const;
 
@@ -87,12 +88,15 @@ class MainWindow : public QMainWindow
     void on_JournalSourceComboBox_currentIndexChanged(int index);
     void on_JournalComboBox_currentIndexChanged(int index);
     void on_JournalComboBackToJournalsButton_clicked(bool checked);
+    void on_actionEditSources_triggered();
 
     private:
-    // Handle get journal updates result
-    void handleGetJournalUpdates(HttpRequestWorker *workers);
     // Handle returned journal information for an instrument
     void handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad = {});
+    // Handle get journal updates result
+    void handleGetJournalUpdates(HttpRequestWorker *workers);
+    // Handle jump to journal
+    void handleJumpToJournal(HttpRequestWorker *worker);
 
     /*
      * Instruments
@@ -121,8 +125,8 @@ class MainWindow : public QMainWindow
      */
     private:
     QJsonArray runData_, groupedRunData_;
-    JsonTableModel runDataModel_;
-    JsonTableFilterProxy runDataFilterProxy_;
+    RunDataModel runDataModel_;
+    RunDataFilterProxy runDataFilterProxy_;
     Instrument::RunDataColumns runDataColumns_, groupedRunDataColumns_;
 
     private:
@@ -137,23 +141,45 @@ class MainWindow : public QMainWindow
     // Return integer list of currently-selected run numbers
     std::vector<int> selectedRunNumbers() const;
     // Select and show specified run number in table (if it exists)
-    bool highlightRunNumber(int runNumber);
+    void highlightRunNumber(int runNumber);
 
     private slots:
-    void on_actionRefresh_triggered();
+    void on_actionRefreshJournal_triggered();
     void on_actionJumpTo_triggered();
-
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
+
+    private:
+    // Handle run data returned for a whole journal
+    void handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight = {});
 
     /*
      * Journal Generation
      */
     private:
+    // Current source being generated (if any)
+    JournalSource *sourceBeingGenerated_{nullptr};
+    // Map of sort keys to run data files
+    std::map<QString, std::vector<QString>> scannedFiles_;
+
+    private:
+    // Model for scanned journal files
+    GenericTreeModel generatorScannedFilesModel_;
+    // Update journal generation page for specified source
+    void updateGenerationPage(int nCompleted, const QString &lastFileProcessed);
+
+    private slots:
+    void on_GeneratingCancelButton_clicked(bool checked);
+
+    private:
     // Handle returned directory list result
-    void handleListDataDirectory(JournalSource &source, HttpRequestWorker *worker);
-    // Handle returned journal generation result
-    void handleScanResult(JournalSource &source, HttpRequestWorker *worker);
+    void handleGenerateList(HttpRequestWorker *worker);
+    // Handle / monitor the generation background scan
+    void handleGenerateBackgroundScan();
+    // Handle journal generation finalisation
+    void handleGenerateFinalise(HttpRequestWorker *worker);
+    // Handle journal generation background scan termination
+    void handleGenerateBackgroundScanStop(HttpRequestWorker *worker);
 
     /*
      * Network Handling
@@ -161,10 +187,6 @@ class MainWindow : public QMainWindow
     private:
     // Perform error check on http result
     bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
-    // Handle run data returned for a whole journal
-    void handleCompleteJournalRunData(HttpRequestWorker *worker);
-    // Handle jump to specified run number
-    void handleSelectRunNoInCycle(HttpRequestWorker *worker, int runNumber);
 
     /*
      * Settings
@@ -242,8 +264,6 @@ class MainWindow : public QMainWindow
     void handleMonSpectraCharting(HttpRequestWorker *worker);
     void plotSpectra(HttpRequestWorker *count);
     void plotMonSpectra(HttpRequestWorker *count);
-    void getSpectrumCount();
-    void getMonitorCount();
 
     // Normalisation options
     void muAmps(QString runs, bool checked, QString);

@@ -43,5 +43,5 @@ runs:
     if: ${{ inputs.cacheOnly == 'false' }}
     uses: actions/upload-artifact@v3
     with:
-      name: packages
+      name: linux-packages
       path: ${{ github.workspace }}/packages

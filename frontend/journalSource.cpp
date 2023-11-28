@@ -30,45 +30,6 @@ JournalSource::IndexingType JournalSource::indexingType(const QString &typeStrin
         throw(std::runtime_error("IndexingType string can't be converted to a IndexingType.\n"));
 }
 
-// Return text string for specified DataOrganisationType
-QString JournalSource::dataOrganisationType(JournalSource::DataOrganisationType type)
-{
-    switch (type)
-    {
-        case (DataOrganisationType::Directory):
-            return "Directory";
-        case (DataOrganisationType::RBNumber):
-            return "RBNumber";
-        default:
-            throw(std::runtime_error("DataOrganisationType not known and can't be converted to a QString.\n"));
-    }
-}
-
-// Return sort key associated to specified DataOrganisationType
-QString JournalSource::dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type)
-{
-    switch (type)
-    {
-        case (DataOrganisationType::Directory):
-            return "data_directory";
-        case (DataOrganisationType::RBNumber):
-            return "experiment_identifier";
-        default:
-            throw(std::runtime_error("DataOrganisationType not known and can't be converted to a QString.\n"));
-    }
-}
-
-// Convert text string to DataOrganisationType
-JournalSource::DataOrganisationType JournalSource::dataOrganisationType(QString typeString)
-{
-    if (typeString.toLower() == "directory")
-        return DataOrganisationType::Directory;
-    else if (typeString.toLower() == "rbnumber")
-        return DataOrganisationType::RBNumber;
-    else
-        throw(std::runtime_error("DataOrganisationType string can't be converted to a DataOrganisationType.\n"));
-}
-
 JournalSource::JournalSource(QString name, IndexingType type, bool userDefined)
     : name_(name), type_(type), userDefined_(userDefined)
 {
@@ -78,8 +39,14 @@ JournalSource::JournalSource(QString name, IndexingType type, bool userDefined)
  * Basic Data
  */
 
-// Return name (used for display)
+// Set name
+void JournalSource::setName(const QString &name) { name_ = name; }
+
+// Return name
 const QString &JournalSource::name() const { return name_; }
+
+// Set type
+void JournalSource::setType(IndexingType type) { type_ = type; }
 
 // Return type
 JournalSource::IndexingType JournalSource::type() const { return type_; }
@@ -92,7 +59,7 @@ bool JournalSource::isUserDefined() const { return userDefined_; }
  */
 
 // Set journal data
-void JournalSource::setJournalData(const QString &journalRootUrl, const QString &indexFilename)
+void JournalSource::setJournalLocation(const QString &journalRootUrl, const QString &indexFilename)
 {
     journalRootUrl_ = journalRootUrl;
     journalIndexFilename_ = indexFilename;
@@ -177,33 +144,35 @@ OptionalReferenceWrapper<Journal> JournalSource::currentJournal() const { return
 // Return whether the source requires an instrument to be specified
 bool JournalSource::instrumentRequired() const
 {
-    return journalOrganisationByInstrument_ != Instrument::InstrumentPathType::None ||
-           runDataOrganisationByInstrument_ != Instrument::InstrumentPathType::None;
+    return journalOrganisationByInstrument_ != Instrument::PathType::None ||
+           runDataOrganisationByInstrument_ != Instrument::PathType::None;
 }
 
 // Set instrument-dependent journal organisation for this source
-void JournalSource::setJournalOrganisationByInstrument(Instrument::InstrumentPathType pathType)
+void JournalSource::setJournalOrganisationByInstrument(Instrument::PathType pathType, bool upperCased)
 {
     journalOrganisationByInstrument_ = pathType;
+    journalOrganisationByInstrumentUpperCased_ = upperCased;
 }
 
 // Return instrument-dependent journal organisation for this source
-Instrument::InstrumentPathType JournalSource::journalOrganisationByInstrument() const
-{
-    return journalOrganisationByInstrument_;
-}
+Instrument::PathType JournalSource::journalOrganisationByInstrument() const { return journalOrganisationByInstrument_; }
+
+// Return whether the instrument path component for journals should be uppercased
+bool JournalSource::isJournalOrganisationByInstrumentUppercased() const { return journalOrganisationByInstrumentUpperCased_; }
 
 // Set instrument-dependent run data organisation for this source
-void JournalSource::setRunDataOrganisationByInstrument(Instrument::InstrumentPathType pathType)
+void JournalSource::setRunDataOrganisationByInstrument(Instrument::PathType pathType, bool upperCased)
 {
     runDataOrganisationByInstrument_ = pathType;
+    runDataOrganisationByInstrumentUpperCased_ = upperCased;
 }
 
 // Return instrument-dependent run data organisation for this source
-Instrument::InstrumentPathType JournalSource::runDataOrganisationByInstrument() const
-{
-    return runDataOrganisationByInstrument_;
-}
+Instrument::PathType JournalSource::runDataOrganisationByInstrument() const { return runDataOrganisationByInstrument_; }
+
+// Return whether the instrument path component for run data should be uppercased
+bool JournalSource::isRunDataOrganisationByInstrumentUppercased() const { return runDataOrganisationByInstrumentUpperCased_; }
 
 // Set current instrument
 void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst) { currentInstrument_ = optInst; }
@@ -212,21 +181,120 @@ void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrume
 OptionalReferenceWrapper<const Instrument> JournalSource::currentInstrument() const { return currentInstrument_; }
 
 /*
+ * Source ID
+ */
+
+// Return our source ID
+QString JournalSource::sourceID() const
+{
+    return instrumentRequired() ? QString("%1/%2").arg(name_, currentInstrument()->get().name()) : name_;
+}
+
+/*
  * Associated Run Data
  */
 
 // Set run data location
-void JournalSource::setRunDataLocation(const QString &runDataRootUrl, DataOrganisationType pathType)
-{
-    runDataRootUrl_ = runDataRootUrl;
-    runDataOrganisation_ = pathType;
-}
+void JournalSource::setRunDataLocation(const QString &runDataRootUrl) { runDataRootUrl_ = runDataRootUrl; }
 
 // Return root URL containing associated run data
 const QString &JournalSource::runDataRootUrl() const { return runDataRootUrl_; }
 
+/*
+ * Generated Data Organisation
+ */
+
+// Return text string for specified DataOrganisationType
+QString JournalSource::dataOrganisationType(JournalSource::DataOrganisationType type)
+{
+    switch (type)
+    {
+        case (DataOrganisationType::Directory):
+            return "Directory";
+        case (DataOrganisationType::RBNumber):
+            return "RBNumber";
+        default:
+            throw(std::runtime_error("DataOrganisationType not known and can't be converted to a QString.\n"));
+    }
+}
+
+// Return sort key associated to specified DataOrganisationType
+QString JournalSource::dataOrganisationTypeSortKey(JournalSource::DataOrganisationType type)
+{
+    switch (type)
+    {
+        case (DataOrganisationType::Directory):
+            return "data_directory";
+        case (DataOrganisationType::RBNumber):
+            return "experiment_identifier";
+        default:
+            throw(std::runtime_error("DataOrganisationType not known and can't be converted to a QString.\n"));
+    }
+}
+
+// Convert text string to DataOrganisationType
+JournalSource::DataOrganisationType JournalSource::dataOrganisationType(QString typeString)
+{
+    if (typeString.toLower() == "directory")
+        return DataOrganisationType::Directory;
+    else if (typeString.toLower() == "rbnumber")
+        return DataOrganisationType::RBNumber;
+    else
+        throw(std::runtime_error("DataOrganisationType string can't be converted to a DataOrganisationType.\n"));
+}
+
+// Set run data organisation type
+void JournalSource::setDataOrganisation(JournalSource::DataOrganisationType orgType) { dataOrganisation_ = orgType; }
+
 // Return run data organisation
-JournalSource::DataOrganisationType JournalSource::runDataOrganisation() const { return runDataOrganisation_; }
+JournalSource::DataOrganisationType JournalSource::dataOrganisation() const { return dataOrganisation_; }
+
+/*
+ * Object Data
+ */
+
+// Return basic object data ready for network request
+QJsonObject JournalSource::sourceObjectData() const
+{
+    QJsonObject data;
+    // Basic source information
+    data["sourceID"] = name_;
+    data["sourceType"] = indexingType(type_);
+
+    // Journal Location
+    if (type_ == IndexingType::Network)
+    {
+        data["journalRootUrl"] =
+            journalOrganisationByInstrument_ != Instrument::PathType::None && currentInstrument_
+                ? QString("%1/%2").arg(journalRootUrl_,
+                                       currentInstrument_->get().pathComponent(journalOrganisationByInstrument_,
+                                                                               journalOrganisationByInstrumentUpperCased_))
+                : journalRootUrl_;
+    }
+    data["journalFilename"] = journalIndexFilename();
+
+    // Current instrument
+    if (currentInstrument_)
+        data["instrument"] = currentInstrument_->get().name();
+
+    // Run data location
+    data["runDataRootUrl"] =
+        runDataOrganisationByInstrument_ != Instrument::PathType::None && currentInstrument_
+            ? QString("%1/%2").arg(runDataRootUrl_,
+                                   currentInstrument_->get().pathComponent(runDataOrganisationByInstrument_,
+                                                                           runDataOrganisationByInstrumentUpperCased_))
+            : runDataRootUrl_;
+
+    return data;
+}
+
+// Return current journal data read for network request
+QJsonObject JournalSource::currentJournalObjectData() const
+{
+    QJsonObject data = sourceObjectData();
+    data["journalFilename"] = currentJournal_ ? currentJournal_->get().filename() : "UNKNOWN";
+    return data;
+}
 
 /*
  * State
@@ -252,35 +320,3 @@ void JournalSource::stopShowingSearchedData()
 
 // Return whether the source is currently showing searched data
 bool JournalSource::showingSearchedData() const { return journalBeforeSearchedData_.has_value(); }
-
-/*
- * Object Data
- */
-
-// Return basic object data ready for network request
-QJsonObject JournalSource::sourceObjectData() const
-{
-    QJsonObject data;
-    data["sourceID"] = name_;
-    data["sourceType"] = indexingType(type_);
-    data["journalRootUrl"] =
-        currentInstrument_
-            ? QString("%1/%2").arg(journalRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
-            : journalRootUrl_;
-    data["journalFilename"] = journalIndexFilename();
-    if (currentInstrument_)
-        data["instrument"] = currentInstrument_->get().name();
-    data["runDataRootUrl"] =
-        currentInstrument_
-            ? QString("%1/%2").arg(runDataRootUrl_, currentInstrument_->get().pathComponent(journalOrganisationByInstrument_))
-            : runDataRootUrl_;
-    return data;
-}
-
-// Return current journal data read for network request
-QJsonObject JournalSource::currentJournalObjectData() const
-{
-    QJsonObject data = sourceObjectData();
-    data["journalFilename"] = currentJournal_ ? currentJournal_->get().filename() : "UNKNOWN";
-    return data;
-}

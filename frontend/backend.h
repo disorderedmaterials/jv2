@@ -37,13 +37,10 @@ class Backend : public QObject
         return result;
     }
     // Create a POST request
-    HttpRequestWorker *postRequest(const QString &url, const QJsonObject &data, HttpRequestWorker::HttpRequestHandler handler);
+    HttpRequestWorker *postRequest(const QString &url, const QJsonObject &data,
+                                   const HttpRequestWorker::HttpRequestHandler &handler);
     // Create a request
-    HttpRequestWorker *createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Configure backend process arguments
-    void configureProcessArgs(const QCommandLineParser &args);
-    // Configure backend process environment
-    void configureEnvironment(const QCommandLineParser &args);
+    HttpRequestWorker *createRequest(const QString &url, const HttpRequestWorker::HttpRequestHandler &handler = {});
 
     public slots:
     // Start the backend process
@@ -59,53 +56,56 @@ class Backend : public QObject
      */
     public:
     // Ping backend to see if it's alive
-    void ping(HttpRequestWorker::HttpRequestHandler handler = {});
+    void ping(const HttpRequestWorker::HttpRequestHandler &handler = {});
 
     /*
      * Journal Endpoints
      */
     public:
     // Get journal index for the specified source
-    void getJournalIndex(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getJournalIndex(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Get journal file at the specified location
-    void getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getJournal(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Get any updates to the specified current journal in the specified source
-    void getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getJournalUpdates(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Search across all journals for matching runs
-    void search(const JournalSource &source, const std::map<QString, QString> &searchTerms,
-                HttpRequestWorker::HttpRequestHandler handler = {});
-    // Go to cycle containing specified run number
-    void goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
+                const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Find journal containing specified run number
+    void findJournal(const JournalSource *source, int runNo, const HttpRequestWorker::HttpRequestHandler &handler = {});
 
     /*
      * NeXuS Endpoints
      */
     public:
     // Get NeXuS log values present in specified run files
-    void getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
-                        HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusFields(const JournalSource *source, const std::vector<int> &runNos,
+                        const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Get NeXuS log value data for specified run files
-    void getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
-                              HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor range for specified run number
-    void getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS monitor spectrum for specified run numbers
-    void getNexusMonitor(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                         HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS spectrum range for specified run numbers
-    void getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Get NeXuS detector spectra for specified run numbers
-    void getNexusDetector(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                          HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusLogValueData(const JournalSource *source, const std::vector<int> &runNos, const QString &logValue,
+                              const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Get NeXuS spectrum count for specified run number
+    void getNexusSpectrumCount(const JournalSource *source, const QString &spectrumType, int runNo,
+                               const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Get NeXuS spectrum for specified run numbers
+    void getNexusSpectrum(const JournalSource *source, const QString &spectrumType, int monitorId,
+                          const std::vector<int> &runNos, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Get NeXuS detector spectra analysis for specified run number
-    void getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler = {});
+    void getNexusDetectorAnalysis(const JournalSource *source, int runNo,
+                                  const HttpRequestWorker::HttpRequestHandler &handler = {});
 
     /*
      * Generation Endpoints
      */
     public:
-    // List data directory for the specified source
-    void listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
-    // Generate journals for the specified source
-    void generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler = {});
+    // Generate data file list for the specified source
+    void generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Scan data files discovered in the specified source
+    void generateBackgroundScan(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Request update on background scan
+    void generateBackgroundScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Stop background scan
+    void generateBackgroundScanStop(const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Finalise journals from scanned data
+    void generateFinalise(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
 };

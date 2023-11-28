@@ -3,7 +3,7 @@
 
 import typing
 from jv2backend.utils import url_join
-from jv2backend.journal import SourceType
+from jv2backend.classes.journal import SourceType
 import logging
 
 class InvalidRequest(Exception):
@@ -24,7 +24,7 @@ class RequestData:
                  require_journal_file=False,
                  require_data_directory=False,
                  require_run_numbers=False,
-                 require_parameter=None,
+                 require_parameters=None,
                  require_value_map=False) -> None:
         """Store recognised items in the POST data. We can make various
          stipulations on the contents:
@@ -34,7 +34,8 @@ class RequestData:
         require_data_directory: Whether a 'runDataRootUrl' must be provided
               require_filename: Whether a 'filename' must be provided
            require_run_numbers: Whether one or more run numbers are expected
-             require_parameter: Name of an additional parameter to expect
+            require_parameters: Comma-separated list of additional parameters
+                                to expect as part of the request
              require_value_map: Whether a map of key=value is expected
         """
         self._source_id: str = None
@@ -43,9 +44,9 @@ class RequestData:
         self._journal_filename: str = None
         self._instrument: str = None
         self._run_data_root_url: str = None
-        self._parameter: str = None
+        self._parameters: typing.Dict[str, str] = {}
         self._run_numbers: typing.List[int] = []
-        self._value_map: typing.Dict[str, str]
+        self._value_map: typing.Dict[str, str] = {}
 
         # Source ID / type always required - ID in conjunction with the
         # optional 'directory' makes up our unique library key for the
@@ -80,17 +81,19 @@ class RequestData:
 
         # Were run number(s) provided / required?
         if "runNumbers" in requestData:
-            self._run_numbers = requestData["runNumbers"]
+            for run in requestData["runNumbers"]:
+                self._run_numbers.append(int(run))
         if require_run_numbers and len(self._run_numbers) == 0:
             raise InvalidRequest("Run number(s) required but not given.")
 
-        # Was an additional parameter provided / required?
-        if require_parameter is not None:
-            if require_parameter in requestData:
-                self._parameter = requestData[require_parameter]
+        # Were additional parameters required?
+        params = ([] if require_parameters is None
+                  else require_parameters.split(","))
+        for p in params:
+            if p in requestData:
+                self._parameters[p] = requestData[p]
             else:
-                raise InvalidRequest(f"Additional parameter "
-                                     f"'{require_parameter}' "
+                raise InvalidRequest(f"Additional parameter '{p}' "
                                      f"required but was not provided.")
 
         # Was a value map provided / required?
@@ -148,10 +151,12 @@ class RequestData:
         """Return the run numbers (if given)"""
         return self._run_numbers
 
-    @property
-    def parameter(self) -> str:
-        """Return the additional parameter (if given)"""
-        return self._parameter
+    def parameter(self, name: str) -> str:
+        """Return the additional named parameter (if given)"""
+        if name in self._parameters:
+            return self._parameters[name]
+
+        raise RuntimeError(f"The parameter '{name}' is not in the request data.")
 
     @property
     def value_map(self) -> {}:

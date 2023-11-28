@@ -6,8 +6,8 @@ import logging
 from flask import Flask, jsonify, request, make_response
 from flask.wrappers import Response as FlaskResponse
 from jv2backend.utils import url_join
-from jv2backend.requestData import RequestData, InvalidRequest
-from jv2backend.journalLibrary import JournalLibrary
+from jv2backend.classes.requestData import RequestData, InvalidRequest
+from jv2backend.main.library import JournalLibrary
 
 
 def add_routes(
@@ -35,7 +35,7 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Listing journals for {post_data.source_id}: "
+        logging.debug(f"Listing journals for {post_data.library_key()}: "
                       f"{post_data.journal_file_url()}")
 
         # Parse the journal index
@@ -144,29 +144,46 @@ def add_routes(
             200
         )
 
-    # ---- TO BE CONVERTED TO REMOVE CYCLE / INSTRUMENT SPECIFICS
+    @app.post("/journals/findJournal")
+    def find_journal_for_run() -> FlaskResponse:
+        """Find the journal containing the run number.
 
+        In addition to basic source information the POST data should contain
+        the target run number.
 
-    @app.route("/journals/goToCycle/<instrument>/<run>")
-    def getGoToCycle(instrument, run):
-        """Find the cycle containing the run.
-
-        :param instrument: The instrument name
-        :param run: The run number
-        :return: The journal filename containing the run or "Not Found" if no
-                 run is found
+        :return: The journal name containing the run, or None
         """
         try:
-            result = journalLocator.filename_for_run(instrument, run)
-        except Exception as exc:
-            return make_response(
-                jsonify(f"Error finding {run} for {instrument}: {exc}"), 200
+            post_data = RequestData(request.json,
+                                    require_run_numbers=True)
+        except InvalidRequest as exc:
+            return jsonify({"Error": str(exc)})
+
+        run_number = post_data.run_numbers[0]
+
+        logging.debug(f"Find journal for run '{run_number}' in "
+                      f"{post_data.library_key()}...")
+
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(jsonify(
+                {"Error": f"No collection '{post_data.library_key()}' "
+                          f"currently exists."}),
+                200
             )
 
-        if result is not None:
-            return result
-        else:
-            return "Not Found"
+        # Try to find the journal
+        journal = collection.journal_for_run(run_number)
+        if journal is None:
+            return make_response(jsonify(
+                {"Error": f"Run number {run_number} does not exist in any "
+                          f"journal within '{post_data.library_key()}'."}),
+                200
+            )
+
+        return make_response(jsonify(
+            {"journal_display_name": journal.display_name,
+             "run_number": run_number}), 200)
 
     # ------------------------ End Routes -------------------------
 

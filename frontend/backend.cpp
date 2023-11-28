@@ -8,22 +8,19 @@
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
-namespace
-{
-// This must match that defined in backend/config module
-constexpr auto ENVIRON_NAME_PREFIX = "JV2_";
-
-/**
- * Take a program argument name and convert to a backend environment variable name.
- * Replace '-' with '_' and add prefix
- */
-QString argToEnvironName(QString argName) { return ENVIRON_NAME_PREFIX + argName.replace("-", "_").toUpper(); }
-} // namespace
-
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
-    configureProcessArgs(args);
-    configureEnvironment(args);
+    QStringList backendArgs;
+
+    process_.setProgram("jv2backend");
+    backendArgs << "-b" << bindAddress();
+    if (args.isSet(CLIArgs::DebugBackend))
+        backendArgs << "-d";
+    if (args.isSet(CLIArgs::UseWaitress))
+        backendArgs << "-w";
+
+    process_.setArguments(backendArgs);
+    process_.setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
 /*
@@ -35,53 +32,15 @@ QString Backend::bindAddress() const { return "127.0.0.1:5000"; };
 
 // Create a POST request
 HttpRequestWorker *Backend::postRequest(const QString &url, const QJsonObject &data,
-                                        HttpRequestWorker::HttpRequestHandler handler)
+                                        const HttpRequestWorker::HttpRequestHandler &handler)
 {
     return new HttpRequestWorker(manager_, url, data, handler);
 }
 
 // Create a request
-HttpRequestWorker *Backend::createRequest(const QString &url, HttpRequestWorker::HttpRequestHandler handler)
+HttpRequestWorker *Backend::createRequest(const QString &url, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     return new HttpRequestWorker(manager_, url, handler);
-}
-
-// Configure backend process arguments
-void Backend::configureProcessArgs(const QCommandLineParser &args)
-{
-    process_.setProgram("gunicorn");
-    QStringList backendArgs;
-
-    backendArgs << "--bind" << Backend::bindAddress() << "--graceful-timeout"
-                << "120"
-                << "--timeout"
-                << "120";
-    if (!args.isSet(Args::LogLevel))
-        backendArgs << "--log-level"
-                    << "debug";
-    backendArgs << "jv2backend.app:create_app()";
-
-    process_.setArguments(backendArgs);
-    process_.setProcessChannelMode(QProcess::ForwardedChannels);
-}
-
-// Configure backend process environments
-void Backend::configureEnvironment(const QCommandLineParser &args)
-{
-    QProcessEnvironment env;
-    if (args.isSet(Args::RunLocatorClass))
-        env.insert(argToEnvironName(Args::RunLocatorClass), args.value(Args::RunLocatorClass));
-    if (args.isSet(Args::RunLocatorPrefix))
-        env.insert(argToEnvironName(Args::RunLocatorPrefix), args.value(Args::RunLocatorPrefix));
-
-    if (env.isEmpty())
-    {
-        qDebug() << "Configured additional environment variables for backend:";
-        for (const auto &keyValue : env.toStringList())
-            qDebug() << keyValue;
-    }
-    env.insert(QProcessEnvironment::systemEnvironment());
-    process_.setProcessEnvironment(env);
 }
 
 /*
@@ -112,6 +71,10 @@ void Backend::start()
 void Backend::stop()
 {
     qDebug() << "Stopping backend process with pid " << process_.processId();
+
+    // Gracefully inform the backend to quit
+    createRequest(createRoute("shutdown"));
+
     process_.terminate();
     process_.waitForFinished();
 }
@@ -121,35 +84,35 @@ void Backend::stop()
  */
 
 // Ping backend to see if its alive
-void Backend::ping(HttpRequestWorker::HttpRequestHandler handler) { createRequest(createRoute("ping"), handler); }
+void Backend::ping(const HttpRequestWorker::HttpRequestHandler &handler) { createRequest(createRoute("ping"), handler); }
 
 /*
  * Journal Endpoints
  */
 
 // Get journal index for the specified source
-void Backend::getJournalIndex(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getJournalIndex(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("journals/index"), source.sourceObjectData(), handler);
+    postRequest(createRoute("journals/index"), source->sourceObjectData(), handler);
 }
 
 // Get current journal file for the specified source
-void Backend::getJournal(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getJournal(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("journals/get"), source.currentJournalObjectData(), handler);
+    postRequest(createRoute("journals/get"), source->currentJournalObjectData(), handler);
 }
 
 // Get any updates to the specified current journal in the specified source
-void Backend::getJournalUpdates(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getJournalUpdates(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("journals/getUpdates"), source.currentJournalObjectData(), handler);
+    postRequest(createRoute("journals/getUpdates"), source->currentJournalObjectData(), handler);
 }
 
 // Search across all journals for matching runs
-void Backend::search(const JournalSource &source, const std::map<QString, QString> &searchTerms,
-                     HttpRequestWorker::HttpRequestHandler handler)
+void Backend::search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
+                     const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
 
     QJsonObject query;
     query["caseSensitive"] = "false";
@@ -161,10 +124,13 @@ void Backend::search(const JournalSource &source, const std::map<QString, QStrin
     postRequest(createRoute("journals/search"), data, handler);
 }
 
-// Go to cycle containing specified run number
-void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, HttpRequestWorker::HttpRequestHandler handler)
+// Find journal containing specified run number
+void Backend::findJournal(const JournalSource *source, int runNo, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    createRequest(createRoute("journals/goToCycle", journalDirectory, runNo), handler);
+    auto data = source->sourceObjectData();
+    data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
+
+    postRequest(createRoute("journals/findJournal"), data, handler);
 }
 
 /*
@@ -172,10 +138,10 @@ void Backend::goToCycle(const QString &journalDirectory, const QString &runNo, H
  */
 
 // Get NeXuS log values present in specified run files
-void Backend::getNexusFields(const JournalSource &source, const std::vector<int> &runNos,
-                             HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusFields(const JournalSource *source, const std::vector<int> &runNos,
+                             const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
 
     QJsonArray runNumbers;
     for (auto i : runNos)
@@ -186,10 +152,10 @@ void Backend::getNexusFields(const JournalSource &source, const std::vector<int>
 }
 
 // Get NeXuS log value data for specified run files
-void Backend::getNexusLogValueData(const JournalSource &source, const std::vector<int> &runNos, const QString &logValue,
-                                   HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusLogValueData(const JournalSource *source, const std::vector<int> &runNos, const QString &logValue,
+                                   const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
 
     QJsonArray runNumbers;
     for (auto i : runNos)
@@ -200,45 +166,24 @@ void Backend::getNexusLogValueData(const JournalSource &source, const std::vecto
     postRequest(createRoute("runData/nexus/getLogValueData"), data, handler);
 }
 
-// Get NeXuS monitor range for specified run numbers in the given cycle
-void Backend::getNexusMonitorRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
+// Get NeXuS spectrum count for specified run number
+void Backend::getNexusSpectrumCount(const JournalSource *source, const QString &spectrumType, int runNo,
+                                    const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
-    data["runNumber"] = runNo;
+    auto data = source->sourceObjectData();
+    data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
+    data["spectrumType"] = spectrumType;
 
-    postRequest(createRoute("runData/nexus/getMonitorRange"), data, handler);
+    postRequest(createRoute("runData/nexus/getSpectrumCount"), data, handler);
 }
 
-// Get NeXuS monitor spectrum for specified run numbers in the given cycle
-void Backend::getNexusMonitor(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                              HttpRequestWorker::HttpRequestHandler handler)
+// Get NeXuS spectrum for specified run numbers
+void Backend::getNexusSpectrum(const JournalSource *source, const QString &spectrumType, int monitorId,
+                               const std::vector<int> &runNos, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
+    auto data = source->sourceObjectData();
     data["spectrumId"] = monitorId;
-
-    QJsonArray runNumbers;
-    for (auto i : runNos)
-        runNumbers.append(i);
-    data["runNumbers"] = runNumbers;
-
-    postRequest(createRoute("runData/nexus/getMonitorSpectrum"), data, handler);
-}
-
-// Get NeXuS spectrum range for specified run number
-void Backend::getNexusSpectrumRange(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
-{
-    auto data = source.sourceObjectData();
-    data["runNumber"] = runNo;
-
-    postRequest(createRoute("runData/nexus/getSpectrumRange"), data, handler);
-}
-
-// Get NeXuS detector spectra for specified run numbers in the given cycle
-void Backend::getNexusDetector(const JournalSource &source, const std::vector<int> &runNos, int monitorId,
-                               HttpRequestWorker::HttpRequestHandler handler)
-{
-    auto data = source.sourceObjectData();
-    data["spectrumId"] = monitorId;
+    data["spectrumType"] = spectrumType;
 
     QJsonArray runNumbers;
     for (auto i : runNos)
@@ -249,10 +194,11 @@ void Backend::getNexusDetector(const JournalSource &source, const std::vector<in
 }
 
 // Get NeXuS detector spectra analysis for specified run numbers in the given cycle [FIXME - bad name]
-void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, HttpRequestWorker::HttpRequestHandler handler)
+void Backend::getNexusDetectorAnalysis(const JournalSource *source, int runNo,
+                                       const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    auto data = source.sourceObjectData();
-    data["runNumber"] = runNo;
+    auto data = source->sourceObjectData();
+    data["runNumbers"] = runNo;
 
     postRequest(createRoute("runData/nexus/getDetectorAnalysis"), data, handler);
 }
@@ -261,21 +207,39 @@ void Backend::getNexusDetectorAnalysis(const JournalSource &source, int runNo, H
  * Generation Endpoints
  */
 
-// List data directory for the specified source
-void Backend::listDataDirectory(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+// Generate data file list for the specified source
+void Backend::generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("generate/list"), source.sourceObjectData(), handler);
+    postRequest(createRoute("generate/list"), source->currentJournalObjectData(), handler);
 }
 
-// Generate journals for the specified source
-void Backend::generateJournals(const JournalSource &source, HttpRequestWorker::HttpRequestHandler handler)
+// Scan data files discovered in the specified source
+void Backend::generateBackgroundScan(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
     // Only for disk-based sources
-    if (source.type() == JournalSource::IndexingType::Network)
-        throw(std::runtime_error("Can't generate journals for a network source.\n"));
+    if (source->type() == JournalSource::IndexingType::Network)
+        throw(std::runtime_error("Can't generate journals for a network source->\n"));
 
-    auto data = source.sourceObjectData();
-    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source.runDataOrganisation());
+    postRequest(createRoute("generate/scan"), source->sourceObjectData(), handler);
+}
 
-    postRequest(createRoute("generate/go"), data, handler);
+// Request update on background scan
+void Backend::generateBackgroundScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    createRequest(createRoute("generate/scanUpdate"), handler);
+}
+
+// Stop background scan
+void Backend::generateBackgroundScanStop(const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    createRequest(createRoute("generate/stop"), handler);
+}
+
+// Finalise journals from scanned data
+void Backend::generateFinalise(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    auto data = source->currentJournalObjectData();
+    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source->dataOrganisation());
+
+    postRequest(createRoute("generate/finalise"), data, handler);
 }
