@@ -38,7 +38,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        include:
+          - os: macos-latest
+            osx_cmake_target: x86_64
+            osx_conan_target: x86_64
+          - os: macos-latest
+            osx_cmake_target: arm64
+            osx_conan_target: armv8
+          - os: ubuntu-latest
+          - os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -52,8 +60,7 @@ jobs:
     needs: Build
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
+      matrix: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout

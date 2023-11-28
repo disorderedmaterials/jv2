@@ -10,7 +10,31 @@ runs:
     with:
       python-version: ${{ env.pythonVersion }}
 
-  - name: Install Development Dependencies
+  - name: Install Intel Development Dependencies
+    if: ${{ env.OSX_CMAKE_TARGET == 'x86_64' }}
+    shell: bash
+    run: |
+      set -ex
+      brew update-reset
+      brew install ninja glfw3 glew
+      pip3 install conan
+
+  - name: Install Silicon Development Dependencies
+    if: ${{ env.OSX_CMAKE_TARGET == 'arm64' }}
+    shell: bash
+    run: |
+      set -ex
+      brew update-reset
+      brew install ninja
+      pip3 install conan
+      PACKAGES=(glfw3 glew)
+      for PACKAGE in "${PACKAGES[@]}"
+      do
+        brew fetch --force --bottle-tag=arm64_monterey $PACKAGE
+        brew install $(brew --cache --bottle-tag=arm64_monterey $PACKAGE)
+      done
+
+  - name: Install Intel Development Dependencies
     shell: bash
     run: |
       set -ex
@@ -33,11 +57,11 @@ runs:
     run: |
       cd frontend
       cmake --preset ci-macos
-      cmake --build --preset build
+      cmake --build --preset build -DCMAKE_OSX_ARCHITECTURES:string=${{ env.OSX_CMAKE_TARGET }}
 
       # Deploy Conan dependencies for ease
       mkdir deploy && cd deploy
-      conan install ../build/ -g deploy --settings build_type=Release --settings compiler=apple-clang --settings compiler.version=14.0 --settings compiler.libcxx=libc++ --settings compiler.cppstd=17
+      conan install ../build/ -g deploy --settings build_type=Release --settings compiler=apple-clang --settings compiler.version=14.0 --settings compiler.libcxx=libc++ --settings compiler.cppstd=17 --settings arch=${{ env.OSX_CONAN_TARGET }}
 
   - name: Build Backend
     shell: bash
@@ -48,7 +72,7 @@ runs:
   - name: Upload Raw Build Artifacts
     uses: actions/upload-artifact@v3
     with:
-      name: osx-build
+      name: osx-build-${{ env.OSX_CMAKE_TARGET }}
       path: |
         frontend
         backend
