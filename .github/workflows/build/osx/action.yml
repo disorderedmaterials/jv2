@@ -60,7 +60,6 @@ runs:
       cmake --build --preset build -DCMAKE_OSX_ARCHITECTURES:string=${{ env.OSX_CMAKE_TARGET }}
 
       # Deploy Conan dependencies for ease
-      conan profile new default --detect
       mkdir deploy && cd deploy
       conan install ../build/ --deployer=full_deploy --settings build_type=Release --settings compiler=apple-clang --settings compiler.version=14.0 --settings compiler.libcxx=libc++ --settings compiler.cppstd=17 --settings arch=${{ env.OSX_CONAN_TARGET }}
 
