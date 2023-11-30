@@ -17,7 +17,7 @@ runs:
       set -ex
       brew update-reset
       brew install ninja glfw3 glew
-      pip3 install conan
+      pip3 install conan=1.58.0
 
   - name: Install Silicon Development Dependencies
     if: ${{ env.OSX_CMAKE_TARGET == 'arm64' }}
@@ -26,21 +26,13 @@ runs:
       set -ex
       brew update-reset
       brew install ninja
-      pip3 install conan
+      pip3 install conan=1.58.0
       PACKAGES=(glfw3 glew)
       for PACKAGE in "${PACKAGES[@]}"
       do
         brew fetch --force --bottle-tag=arm64_monterey $PACKAGE
         brew install $(brew --cache --bottle-tag=arm64_monterey $PACKAGE)
       done
-
-  - name: Install Intel Development Dependencies
-    shell: bash
-    run: |
-      set -ex
-      brew update-reset
-      brew install ninja glfw3 glew
-      pip3 install conan
 
   - name: Probe conan Setup Location
     shell: bash
@@ -62,7 +54,7 @@ runs:
       # Deploy Conan dependencies for ease
       mkdir deploy && cd deploy
       conan profile detect
-      conan install ../build/ --deployer=full_deploy --settings build_type=Release --settings compiler=apple-clang --settings compiler.version=14.0 --settings compiler.libcxx=libc++ --settings compiler.cppstd=17 --settings arch=${{ env.OSX_CONAN_TARGET }}
+      conan install ../build/ -g deploy --settings build_type=Release --settings compiler=apple-clang --settings compiler.version=14.0 --settings compiler.libcxx=libc++ --settings compiler.cppstd=17 --settings arch=${{ env.OSX_CONAN_TARGET }}
 
   - name: Build Backend
     shell: bash
