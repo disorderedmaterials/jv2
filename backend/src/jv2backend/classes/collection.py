@@ -8,13 +8,21 @@ from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import jv2backend.main.selector
 from jv2backend.classes.journal import Journal, SourceType
-from jv2backend.classes.integerRange import IntegerRange
 import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
 import logging
 import json
 import requests
 import lxml.etree as etree
+from threading import Thread, Event, Lock
+
+
+_ACQUISITION_THREAD = None
+_STOP_ACQUISITION_EVENT = Event()
+_ACQUISITION_THREAD_JOURNAL_MUTEX = Lock()
+_ACQUISITION_THREAD_COMPLETE_MUTEX = Lock()
+_ACQUISITION_THREAD_NUM_COMPLETED_MUTEX = Lock()
+
 
 class JournalCollection:
     """Defines a collection of journal files relating to a specific instrument,
@@ -256,15 +264,6 @@ class JournalCollection:
 
         return j.get_run_data_as_json_array()
 
-    def get_all_journal_data(self) -> None:
-        """Retrieve all run data for all journals listed in the collection
-        """
-        # Loop over defined journal files. If run_data is already present we
-        # assume it's up-to-date.
-        for journal in [j for j in self._journals if j.run_data is None]:
-            logging.debug(f"Obtaining journal {journal.filename}")
-            journal.get_run_data()
-
     def get_updates(self, journal_filename: str) -> str:
         """Check if the journal index files has been modified since the last
         retrieval and return new runs added after the last known.
@@ -491,3 +490,100 @@ class JournalCollection:
         for journal in self._journals:
             basic.append(journal.get_journal_as_dict())
         return json.dumps(basic)
+
+
+# Threading Class to Acquire all Journal RunData in a
+class AcquisitionThread(Thread):
+    def __init__(self, collection: JournalCollection):
+        Thread.__init__(self)
+        self._collection = collection
+        self._num_completed = 0
+        self._complete = False
+
+    def run(self):
+        global _ACQUISITION_THREAD_JOURNAL_MUTEX, _STOP_ACQUISITION_EVENT
+        global _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX
+        global _ACQUISITION_THREAD_COMPLETE_MUTEX
+
+        error = None
+
+        for j in self._collection.journals:
+            if _STOP_ACQUISITION_EVENT.is_set():
+                break
+
+            with _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX:
+                self._num_completed = self._num_completed + 1
+
+            if j.has_run_data():
+                logging.debug(f"Skipping {j.filename} as data are present...")
+                continue
+
+            logging.debug(f"Acquiring run data for {j.filename}...")
+            with _ACQUISITION_THREAD_JOURNAL_MUTEX:
+                try:
+                    j.get_run_data()
+                except (requests.HTTPError, requests.ConnectionError,
+                        FileNotFoundError) as exc:
+                    error = str(exc)
+                    break
+                except etree.XMLSyntaxError as exc:
+                    error = str(exc)
+                    break
+
+        with _ACQUISITION_THREAD_COMPLETE_MUTEX:
+            self._complete = True
+
+        return json.dumps("OK" if error is None else {"Error": error})
+
+    def get_update(self) -> ():
+        """Return an update on the acquisition"""
+        global _ACQUISITION_THREAD_JOURNAL_MUTEX, _ACQUISITION_THREAD_COMPLETE_MUTEX
+
+        with _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX:
+            n = self._num_completed
+
+        with _ACQUISITION_THREAD_COMPLETE_MUTEX:
+            complete = self._complete
+
+        return json.dumps(
+            {
+                "num_completed": n,
+                "complete": complete
+            }
+        )
+
+
+class JournalAcquirer:
+    """Journal file acquirer"""
+
+    def acquire_all_data(self, collection: JournalCollection) -> str:
+        """Retrieve all run data for all journals listed in the collection
+        """
+        # Loop over defined journal files. If run_data is already present we
+        # assume it's up-to-date.
+        global _ACQUISITION_THREAD, _STOP_ACQUISITION_EVENT
+        _ACQUISITION_THREAD = AcquisitionThread(collection)
+        _STOP_ACQUISITION_EVENT.clear()
+        _ACQUISITION_THREAD.start()
+        logging.debug("Started acquisition thread...")
+        return json.dumps(None)
+
+    def get_acquisition_update(self) -> str:
+        """Get an update on the current scan"""
+        global _ACQUISITION_THREAD
+        if _ACQUISITION_THREAD is not None:
+            return _ACQUISITION_THREAD.get_update()
+        return json.dumps("NOT_RUNNING")
+
+    def stop_acquisition(self) -> str:
+        """Stop any scan currently in progress"""
+        global _ACQUISITION_THREAD
+        if _ACQUISITION_THREAD is None:
+            return json.dumps("NOT RUNNING")
+        if _ACQUISITION_THREAD.is_alive():
+            _STOP_ACQUISITION_EVENT.set()
+            _ACQUISITION_THREAD.join()
+
+        _ACQUISITION_THREAD = None
+
+        return json.dumps("OK")

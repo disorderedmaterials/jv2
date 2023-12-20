@@ -7,11 +7,13 @@ import logging.config
 from flask import Flask
 import jv2backend.routes.journal
 import jv2backend.routes.generate
+import jv2backend.routes.acquisition
 import jv2backend.routes.nexus
 import jv2backend.routes.server
 import jv2backend.main.library
 import jv2backend.main.generator
 import jv2backend.main.userCache
+import jv2backend.classes.collection
 import xml.etree.ElementTree as ElementTree
 import argparse
 
@@ -29,10 +31,12 @@ def create_app(activate_cache: bool = True) -> Flask:
     # Create our main objects
     journal_generator = jv2backend.main.generator.JournalGenerator()
     journal_library = jv2backend.main.library.JournalLibrary({})
+    journal_acquirer = jv2backend.classes.collection.JournalAcquirer()
 
     # Register Flask routes
     jv2backend.routes.server.add_routes(app, journal_generator)
     jv2backend.routes.journal.add_routes(app, journal_library)
+    jv2backend.routes.acquisition.add_routes(app, journal_acquirer, journal_library)
     jv2backend.routes.generate.add_routes(app, journal_generator, journal_library)
     jv2backend.routes.nexus.add_routes(app, journal_library)
 
