@@ -167,9 +167,50 @@ void MainWindow::on_actionEditSources_triggered()
     storeUserJournalSources();
 }
 
+void MainWindow::on_actionAcquireAllJournalsForSource_triggered()
+{
+    if (!currentJournalSource_)
+        return;
+
+    backend_.acquireAllJournals(currentJournalSource(), [=](HttpRequestWorker *worker) { handleAcquireAllJournals(); });
+}
+
 /*
  * Network Handling
  */
+
+void MainWindow::handleAcquireAllJournals()
+{
+    // Create a timer to ping the backend for an update after 1000 ms
+    auto *pingTimer = new QTimer;
+    pingTimer->setSingleShot(true);
+    pingTimer->setInterval(1000);
+    connect(pingTimer, &QTimer::timeout,
+            [&]()
+            {
+                backend_.acquireAllJournalsUpdate(
+                    [this](HttpRequestWorker *worker)
+                    {
+                        if (worker->response().startsWith("\"NOT_RUNNING"))
+                        {
+                            statusBar()->showMessage("Acquisition of all journals failed...", 5000);
+                        }
+                        else
+                        {
+                            // Update the generator page of the stack
+                            auto nCompleted = worker->jsonResponse()["num_completed"].toInt();
+                            printf("NUM_COMPLETED = %i\n", nCompleted);
+
+                            // Complete?
+                            if (worker->jsonResponse()["complete"].toBool())
+                                printf("ALL DONE!\n");
+                            else
+                                handleAcquireAllJournals();
+                        }
+                    });
+            });
+    pingTimer->start();
+}
 
 // Handle returned journal information for an instrument
 void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad)

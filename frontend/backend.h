@@ -73,6 +73,12 @@ class Backend : public QObject
                 const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Find journal containing specified run number
     void findJournal(const JournalSource *source, int runNo, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Get all journals for source in background
+    void acquireAllJournals(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Request update on background scan
+    void acquireAllJournalsUpdate(const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Stop background scan
+    void acquireAllJournalsStop(const HttpRequestWorker::HttpRequestHandler &handler = {});
 
     /*
      * NeXuS Endpoints

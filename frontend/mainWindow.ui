@@ -639,6 +639,7 @@
      <string>&amp;Sources</string>
     </property>
     <addaction name="actionEditSources"/>
+    <addaction name="actionAcquireAllJournalsForSource"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -742,6 +743,11 @@
   <action name="actionEditSources">
    <property name="text">
     <string>Edit Sources...</string>
+   </property>
+  </action>
+  <action name="actionAcquireAllJournalsForSource">
+   <property name="text">
+    <string>Acquire All Journals</string>
    </property>
   </action>
  </widget>

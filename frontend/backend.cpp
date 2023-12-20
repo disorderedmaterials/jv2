@@ -133,6 +133,24 @@ void Backend::findJournal(const JournalSource *source, int runNo, const HttpRequ
     postRequest(createRoute("journals/findJournal"), data, handler);
 }
 
+// Get all journals for source in background
+void Backend::acquireAllJournals(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    postRequest(createRoute("acquire"), source->sourceObjectData(), handler);
+}
+
+// Request update on background journal acquisition scan
+void Backend::acquireAllJournalsUpdate(const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    createRequest(createRoute("acquire/update"), handler);
+}
+
+// Stop background journal acquisition scan
+void Backend::acquireAllJournalsStop(const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    createRequest(createRoute("acquire/stop"), handler);
+}
+
 /*
  * NeXuS Endpoints
  */

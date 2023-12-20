@@ -89,6 +89,7 @@ class MainWindow : public QMainWindow
     void on_JournalComboBox_currentIndexChanged(int index);
     void on_JournalComboBackToJournalsButton_clicked(bool checked);
     void on_actionEditSources_triggered();
+    void on_actionAcquireAllJournalsForSource_triggered();
 
     private:
     // Handle returned journal information for an instrument
@@ -97,6 +98,8 @@ class MainWindow : public QMainWindow
     void handleGetJournalUpdates(HttpRequestWorker *workers);
     // Handle jump to journal
     void handleJumpToJournal(HttpRequestWorker *worker);
+    // Handle acquire all journal data update
+    void handleAcquireAllJournals();
 
     /*
      * Instruments
