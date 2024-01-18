@@ -23,6 +23,7 @@ _STOP_ACQUISITION_EVENT = Event()
 _ACQUISITION_THREAD_JOURNAL_MUTEX = Lock()
 _ACQUISITION_THREAD_COMPLETE_MUTEX = Lock()
 _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX = Lock()
+_ACQUISITION_THREAD_LAST_FILENAME_MUTEX = Lock()
 
 
 class JournalCollection:
@@ -526,6 +527,7 @@ class AcquisitionThread(Thread):
         global _ACQUISITION_THREAD_JOURNAL_MUTEX, _STOP_ACQUISITION_EVENT
         global _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX
         global _ACQUISITION_THREAD_COMPLETE_MUTEX
+        global _ACQUISITION_THREAD_LAST_FILENAME_MUTEX
 
         error = None
 
@@ -541,6 +543,9 @@ class AcquisitionThread(Thread):
                 continue
 
             logging.debug(f"Acquiring run data for {j.filename}...")
+            with _ACQUISITION_THREAD_LAST_FILENAME_MUTEX:
+                self._last_filename = j.filename
+
             with _ACQUISITION_THREAD_JOURNAL_MUTEX:
                 try:
                     j.get_run_data()
@@ -567,9 +572,13 @@ class AcquisitionThread(Thread):
         with _ACQUISITION_THREAD_COMPLETE_MUTEX:
             complete = self._complete
 
+        with _ACQUISITION_THREAD_LAST_FILENAME_MUTEX:
+            last_filename = self._last_filename
+
         return json.dumps(
             {
                 "num_completed": n,
+                "last_filename": last_filename,
                 "complete": complete
             }
         )
