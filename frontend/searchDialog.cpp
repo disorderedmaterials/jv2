@@ -8,6 +8,20 @@ SearchDialog::SearchDialog(QWidget *parent) : QDialog(parent)
 {
     ui_.setupUi(this);
     ui_.ExperimentIdentifierEdit->setValidator(new QIntValidator(0, 9999999, this));
+
+    // Connect check boxes to button update function
+    connect(ui_.RunTitleCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
+    connect(ui_.RunNumberCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
+    connect(ui_.UserCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
+    connect(ui_.RunNumberCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
+}
+
+// Update button states to reflect selected options
+void SearchDialog::updateButtonStates(bool dummy)
+{
+    auto searchEnabled = ui_.RunTitleCheckBox->isChecked() || ui_.RunNumberCheckBox->isChecked() ||
+                         ui_.UserCheckBox->isChecked() || ui_.RunNumberCheckBox->isChecked();
+    ui_.SearchButton->setEnabled(searchEnabled);
 }
 
 void SearchDialog::on_CancelButton_clicked(bool checked) { reject(); }
