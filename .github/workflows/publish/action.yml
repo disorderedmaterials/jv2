@@ -15,10 +15,10 @@ runs:
   using: "composite"
   steps:
 
-  - name: Install singularity
-    uses: eWaterCycle/setup-singularity@v7
+  - name: Install Apptainer
+    uses: eWaterCycle/setup-apptainer@v2
     with:
-      singularity-version: 3.8.3
+      apptainer-version: 1.2.5
 
   - name: Download Artifacts
     uses: actions/download-artifact@v4
@@ -38,16 +38,16 @@ runs:
     shell: bash
     run: |
       echo "Release tag will be: continuous"
-      singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
-      ${SINGULARITY_ROOT}/bin/singularity push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:continuous
+      apptainer remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
+      ${SINGULARITY_ROOT}/bin/apptainer push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:continuous
 
   - name: Publish on Harbor (Release)
     if: ${{ inputs.publishHarbor == 'true' && inputs.isRelease == 'true' }}
     shell: bash
     run: |
       echo "Release tag will be: latest"
-      singularity remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
-      ${SINGULARITY_ROOT}/bin/singularity push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:latest
+      apptainer remote login --username ${HARBOR_USER} --password ${HARBOR_SECRET} docker://harbor.stfc.ac.uk
+      ${SINGULARITY_ROOT}/bin/apptainer push packages/jv2-${{ env.jv2Version }}.sif oras://harbor.stfc.ac.uk/isis_disordered_materials/jv2:latest
 
   - name: Publish on GitHub (Continuous)
     if: ${{ inputs.publishGitHub == 'true' && inputs.isRelease == 'false' }}
