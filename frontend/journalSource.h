@@ -189,6 +189,7 @@ class JournalSource
         Loading,
         OK,
         Generating,
+        Acquiring,
         Error
     };
 

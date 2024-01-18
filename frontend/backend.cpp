@@ -108,6 +108,12 @@ void Backend::getJournalUpdates(const JournalSource *source, const HttpRequestWo
     postRequest(createRoute("journals/getUpdates"), source->currentJournalObjectData(), handler);
 }
 
+// Get number of uncached journals for specified source
+void Backend::getUncachedJournalCount(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    postRequest(createRoute("journals/getUncachedJournalCount"), source->currentJournalObjectData(), handler);
+}
+
 // Search across all journals for matching runs
 void Backend::search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
                      const HttpRequestWorker::HttpRequestHandler &handler)

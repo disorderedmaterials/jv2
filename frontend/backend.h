@@ -68,6 +68,8 @@ class Backend : public QObject
     void getJournal(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Get any updates to the specified current journal in the specified source
     void getJournalUpdates(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Get number of uncached journals for specified source
+    void getUncachedJournalCount(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Search across all journals for matching runs
     void search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
                 const HttpRequestWorker::HttpRequestHandler &handler = {});

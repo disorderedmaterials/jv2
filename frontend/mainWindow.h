@@ -95,11 +95,9 @@ class MainWindow : public QMainWindow
     // Handle returned journal information for an instrument
     void handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad = {});
     // Handle get journal updates result
-    void handleGetJournalUpdates(HttpRequestWorker *workers);
+    void handleGetJournalUpdates(HttpRequestWorker *worker);
     // Handle jump to journal
     void handleJumpToJournal(HttpRequestWorker *worker);
-    // Handle acquire all journal data update
-    void handleAcquireAllJournals();
 
     /*
      * Instruments
@@ -239,10 +237,23 @@ class MainWindow : public QMainWindow
     /*
      * Search Everywhere
      */
+    private:
+    // Current source being acquired (if any)
+    JournalSource *sourceBeingAcquired_{nullptr};
+
     private slots:
     void on_actionSearchEverywhere_triggered();
+    void on_AcquisitionCancelButton_clicked(bool checked);
 
     private:
+    // Update journal acquisition page for specified source
+    void updateAcquisitionPage(int nCompleted, const QString &lastJournalProcessed);
+
+    private:
+    // Handle pre-search result
+    void handlePreSearchResult(HttpRequestWorker *worker);
+    // Handle acquire all journal data for search
+    void handleAcquireAllJournalsForSearch();
     // Handle search result
     void handleSearchResult(HttpRequestWorker *worker);
 
