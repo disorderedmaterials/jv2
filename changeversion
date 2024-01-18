@@ -42,7 +42,7 @@ then
 fi
 
 # Get current version number from correct target
-CURRENT_VERSION=$(grep '#define JV2VERSION' src/frontend/version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g')
+CURRENT_VERSION=$(grep '#define JV2VERSION' frontend/version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g')
 
 PARTS=($(echo $CURRENT_VERSION | tr "." " "))
 MAJOR=${PARTS[0]}
@@ -97,10 +97,10 @@ then
   # Program (main/version.h)
   if [ "$CHECK" = "false" ]
   then
-    sed -i -e "s/#define JV2VERSION \"[0-9\.]\+\(.*\)\"/#define JV2VERSION \"$MAJOR.$MINOR.$PATCH\"\1/g" src/frontend/version.h
+    sed -i -e "s/#define JV2VERSION \"[0-9\.]\+\(.*\)\"/#define JV2VERSION \"$MAJOR.$MINOR.$PATCH\"\1/g" frontend/version.h
   fi
   echo -n "           version.h (Program Version) : "
-  grep '#define JV2VERSION' src/frontend/version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g'
+  grep '#define JV2VERSION' frontend/version.h | sed -e 's/#define JV2VERSION "\([0-9a-z\.]\+\).*"/\1/g'
   
   
   # Flake (flake.nix)
@@ -125,8 +125,6 @@ then
   grep 'set(VERSION_MINOR' ${CMAKELISTS} | sed -e 's/set(VERSION_MINOR \"\([0-9\.]\+\)\")/\1/g'
   echo -n "                       (Patch Version) : "
   grep 'set(VERSION_PATCH' ${CMAKELISTS} | sed -e 's/set(VERSION_PATCH \"\([0-9\.]\+\)\")/\1/g'
-  echo -n "                     (Project Version) : "
-  grep '  VERSION ' ${CMAKELISTS} | sed -e 's/  VERSION \([0-9\.]\+\)/\1/g'
 
 
   # Windows build files
@@ -135,7 +133,7 @@ then
   then
     sed -i -e "s/#define MyAppVersion \"[0-9\.]*\"/#define MyAppVersion \"$MAJOR.$MINOR.$PATCH\"/g" -e "s/OutputBaseFilename=jv2-[0-9\.]*-Win64/OutputBaseFilename=jv2-$MAJOR.$MINOR.$PATCH-Win64/g" ${ISSFILE}
   fi
-  echo -n "    dissolve-gui.iss (Program Version) : "
+  echo -n "             jv2.iss (Program Version) : "
   grep 'define MyAppVersion' ${ISSFILE}| sed -e 's/#define MyAppVersion \"\([0-9\.]*\)\"/\1/g'
 fi
 
