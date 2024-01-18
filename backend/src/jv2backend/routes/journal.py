@@ -111,6 +111,34 @@ def add_routes(
             200
         )
 
+
+    @app.post("/journals/getUncachedJournalCount")
+    def get_uncached_journal_count():
+        """Gets the total number of uncached journals for the source.
+
+        :return: A JSON-formatted number of uncached journals
+        """
+        try:
+            post_data = RequestData(request.json)
+        except InvalidRequest as exc:
+            return make_response(jsonify({"Error": str(exc)}), 200)
+
+        logging.debug(f"Get uncached journal count for source"
+                      "{post_data.library_key()}")
+
+        collection = journalLibrary[post_data.library_key()]
+        if collection is None:
+            return make_response(jsonify(
+                {"Error": f"No collection '{post_data.library_key()}' "
+                          f"currently exists."}),
+                200
+            )
+
+        return make_response(
+            jsonify(collection.get_uncached_journal_count()),
+            200
+        )
+
     @app.post("/journals/search")
     def search() -> FlaskResponse:
         """Search over all available journals in a target source for any runs

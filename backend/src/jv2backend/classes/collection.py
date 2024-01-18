@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ElementTree
 import logging
 import json
 import requests
+import functools
 import lxml.etree as etree
 from threading import Thread, Event, Lock
 
@@ -310,6 +311,27 @@ class JournalCollection:
         # Return any new runs after the previous last known run number
         return Journal.convert_run_data_to_json_array(
             j.get_run_data_after(old_last_run_number)
+        )
+
+    def get_uncached_journal_count(self) -> int:
+        """Get the number of journal files currently uncached and requiring
+        retrieval.
+
+        :return: The number of uncached journals for this collection
+        """
+        # If the source is not a Network type then we already have everything
+        if self._source_type is not SourceType.Network:
+            return 0
+
+        # Network type so check the cache for each
+        return functools.reduce(
+            lambda x, y:
+            x + (1 if not jv2backend.main.userCache.has_data(
+                    self._library_key,
+                    y.filename
+                    )
+                 else 0),
+            self._journals, 0
         )
 
     # ---------------- File Location
