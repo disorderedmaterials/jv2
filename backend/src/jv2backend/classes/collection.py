@@ -486,8 +486,9 @@ class JournalCollection:
             # If the current 'matches' is None then search the whole run data
             # If it is not, then search it instead (chaining searches)
             # If it is ever a size of zero we have excluded all runs
-            logging.debug("Starting loop over run data...")
+            logging.debug("Starting loop over search terms...")
             for field in search_terms:
+                logging.debug(f"... search '{field}' for '{search_terms[field]}'.")
                 matches = jv2backend.main.selector.select(jf.run_data if matches is None
                                           else matches,
                                           field,
@@ -499,6 +500,7 @@ class JournalCollection:
                     break
 
             if matches is None:
+                logging.debug(f"Journal {jf.filename} matched zero runs.")
                 continue
 
             logging.debug(f"Journal {jf.filename} matched {len(matches)} runs.")
