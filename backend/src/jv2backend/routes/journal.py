@@ -8,6 +8,7 @@ from flask.wrappers import Response as FlaskResponse
 from jv2backend.utils import url_join
 from jv2backend.classes.requestData import RequestData, InvalidRequest
 from jv2backend.main.library import JournalLibrary
+import jv2backend.classes.journal
 
 
 def add_routes(
@@ -168,7 +169,9 @@ def add_routes(
             )
 
         return make_response(
-            collection.search(post_data.value_map),
+            jv2backend.classes.journal.Journal.convert_run_data_to_json_array(
+                collection.search(post_data.value_map)
+            ),
             200
         )
 
