@@ -478,6 +478,7 @@ class JournalCollection:
 
         for jf in self._journals:
             logging.debug(f"Journal {jf.filename} .....")
+            jf.get_run_data()
             if not jf.has_run_data:
                 continue
             matches = None
