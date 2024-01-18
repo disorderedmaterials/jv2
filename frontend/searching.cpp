@@ -91,6 +91,9 @@ void MainWindow::handleAcquireAllJournalsForSearch()
                     if (worker->response().startsWith("\"NOT_RUNNING"))
                     {
                         statusBar()->showMessage("Acquisition of journals failed...", 5000);
+                        if (currentJournalSource() == sourceBeingAcquired_)
+                            updateForCurrentSource(JournalSource::JournalSourceState::Error);
+                        sourceBeingAcquired_ = nullptr;
                     }
                     else
                     {
