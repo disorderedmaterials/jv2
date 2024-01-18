@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Copyright (c) 2023 Team JournalSourceViewer and contributors
+// Copyright (c) 2024 Team JournalSourceViewer and contributors
 
 #include "journalSourceModel.h"
 #include "uniqueName.h"

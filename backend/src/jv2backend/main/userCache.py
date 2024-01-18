@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (c) 2023 Team JournalViewer and contributors
+# Copyright (c) 2024 Team JournalViewer and contributors
 
 from platformdirs import user_data_dir
 from pathlib import Path
