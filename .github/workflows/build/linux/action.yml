@@ -41,7 +41,7 @@ runs:
 
   - name: Upload Package Artifacts
     if: ${{ inputs.cacheOnly == 'false' }}
-    uses: actions/upload-artifact@v3
+    uses: actions/upload-artifact@v4
     with:
-      name: linux-packages
+      name: packages-linux
       path: ${{ github.workspace }}/packages

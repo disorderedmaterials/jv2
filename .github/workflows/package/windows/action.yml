@@ -30,8 +30,8 @@ runs:
       echo "Executable installer is $exe"
 
       # Copy to packages directory
-      mkdir packages
-      cp $exe packages
+      mkdir packages-installer
+      cp $exe packages-installer
 
   - name: Create Zip
     shell: bash
@@ -42,6 +42,7 @@ runs:
       exeBase=${exe/.exe}
       echo "Executable installer is $exe, basename is $exeBase"
 
+
       # Create Zip from Exe
       innoextract.exe $exe -d$exeBase
       mv ${exeBase}/app/bin/* $exeBase
@@ -50,10 +51,17 @@ runs:
       zip -r "${exeBase}.zip" $exeBase
 
       # Copy to packages directory (created in previous step)
-      mv ${exeBase}.zip packages
+      mkdir packages-zip
+      mv ${exeBase}.zip packages-zip
 
-  - name: Upload Package Artifacts
-    uses: actions/upload-artifact@v3
+  - name: Upload Package Artifacts (Installer)
+    uses: actions/upload-artifact@v4
     with:
-      name: windows-packages
-      path: ${{ github.workspace }}/packages
+      name: packages-windows-installer
+      path: ${{ github.workspace }}/packages-installer
+
+  - name: Upload Package Artifacts (Zip)
+    uses: actions/upload-artifact@v4
+    with:
+      name: packages-windows-zip
+      path: ${{ github.workspace }}/packages-zip
