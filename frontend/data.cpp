@@ -216,7 +216,7 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker, std::op
     runDataModel_.setData(runData_);
 
     // Check network reply
-    if (networkRequestHasError(worker, "trying to retrieve run data for the journal"))
+    if (networkReplyHasError(worker, "trying to retrieve run data for the journal"))
     {
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;

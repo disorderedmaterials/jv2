@@ -186,7 +186,7 @@ class MainWindow : public QMainWindow
      */
     private:
     // Perform error check on http result
-    bool networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription);
+    bool networkReplyHasError(HttpRequestWorker *worker, const QString &taskDescription);
 
     /*
      * Settings

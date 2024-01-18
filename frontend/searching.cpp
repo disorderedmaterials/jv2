@@ -28,7 +28,7 @@ void MainWindow::handleSearchResult(HttpRequestWorker *worker)
     runDataModel_.setData(runData_);
 
     // Check network reply
-    if (networkRequestHasError(worker, "trying to search across journals"))
+    if (networkReplyHasError(worker, "trying to search across journals"))
     {
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;

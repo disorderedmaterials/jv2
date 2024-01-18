@@ -35,7 +35,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
 void MainWindow::handleGenerateList(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (networkRequestHasError(worker, "trying to list data directory"))
+    if (networkReplyHasError(worker, "trying to list data directory"))
     {
         sourceBeingGenerated_ = nullptr;
         return;
@@ -145,7 +145,7 @@ void MainWindow::handleGenerateBackgroundScan()
 void MainWindow::handleGenerateFinalise(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (networkRequestHasError(worker, "trying to generate journals for directory"))
+    if (networkReplyHasError(worker, "trying to generate journals for directory"))
         return;
 
     // Success?
@@ -171,6 +171,6 @@ void MainWindow::handleGenerateFinalise(HttpRequestWorker *worker)
 void MainWindow::handleGenerateBackgroundScanStop(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (networkRequestHasError(worker, "trying to stop run data scan for directory"))
+    if (networkReplyHasError(worker, "trying to stop run data scan for directory"))
         return;
 }

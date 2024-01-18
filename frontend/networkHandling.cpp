@@ -6,7 +6,7 @@
 #include <QTimer>
 
 // Perform error check on http result
-bool MainWindow::networkRequestHasError(HttpRequestWorker *worker, const QString &taskDescription)
+bool MainWindow::networkReplyHasError(HttpRequestWorker *worker, const QString &taskDescription)
 {
     // Communications error with the backend?
     if (worker->errorType() != QNetworkReply::NoError)
