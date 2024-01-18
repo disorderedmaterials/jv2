@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Search Everywhere</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
