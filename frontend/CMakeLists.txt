@@ -7,7 +7,7 @@ set(DESCRIPTION
     "Journal data browsing, searching, and plotting for the ISIS Facility")
 set(AUTHOR "Team JV2")
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "2")
+set(VERSION_MINOR "99")
 set(VERSION_PATCH "0")
 
 # Global CMake settings

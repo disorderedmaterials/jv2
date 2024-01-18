@@ -9,7 +9,7 @@
     { self, nixpkgs, future, outdated, flake-utils, bundlers, qt-idaaas }:
     let
 
-      version = "1.2.0";
+      version = "1.99.0";
       base_libs = pkgs: with pkgs; [ cmake ninja ];
       pylibs = pkgs:
         with pkgs; [
