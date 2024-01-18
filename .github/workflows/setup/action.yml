@@ -18,3 +18,7 @@ runs:
       VERSION=`grep "#define JV2VERSION" frontend/version.h | sed "s/.*\"\(.*\)\"/\1/g"`
       echo "JV2 code version is ${VERSION}"
       echo "jv2Version=${VERSION}" >> ${GITHUB_ENV}
+
+      SHORT_HASH=$(git rev-parse --short HEAD)
+      echo "Current short hash is ${SHORT_HASH}"
+      echo "jv2ShortHash=${SHORT_HASH}" >> ${GITHUB_ENV}

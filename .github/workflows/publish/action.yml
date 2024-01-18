@@ -55,7 +55,7 @@ runs:
       echo "Release tag will be: continuous"
       echo "Release name will be: 'Continuous (${{ env.jv2Version }})'"
       export GITHUB_TOKEN=${{ github.token }}
-      ./update-release -r disorderedmaterials/jv2 -t continuous -n "Continuous (${{ env.jv2Version }})" -b "Continuous release from \`main\` branch. Built $(date)." -e packages/*
+      ./update-release -r disorderedmaterials/jv2 -t continuous -n "Continuous (${{ env.jv2Version }})" -b "Continuous release from \`develop\` branch @ ${{ env.jv2ShortHash }}. Built $(date)." -e packages/*
 
   - name: Publish on GitHub (Release)
     if: ${{ inputs.publishGitHub == 'true' && inputs.isRelease == 'true' }}
