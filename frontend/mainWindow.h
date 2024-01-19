@@ -44,8 +44,6 @@ class MainWindow : public QMainWindow
     private:
     // Update the UI accordingly for the current source, updating its state if required
     void updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState = {});
-    // Update the error page
-    void setErrorPage(const QString &errorTitle, const QString &errorText);
 
     private slots:
     void removeTab(int index);
@@ -182,7 +180,7 @@ class MainWindow : public QMainWindow
     void handleGenerateBackgroundScanStop(HttpRequestWorker *worker);
 
     /*
-     * Network Handling
+     * Error Handling
      */
     private:
     // Backend Error Codes
@@ -198,6 +196,11 @@ class MainWindow : public QMainWindow
     private:
     // Perform check for errors on http request, returning the handled error
     QString handleRequestError(HttpRequestWorker *worker, const QString &taskDescription);
+    // Update the error page
+    void setErrorPage(const QString &errorTitle, const QString &errorText);
+
+    private slots:
+    void on_ErrorOKButton_clicked(bool checked);
 
     /*
      * Settings

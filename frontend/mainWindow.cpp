@@ -125,14 +125,6 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         journalAutoUpdateTimer_.stop();
 }
 
-// Update the error page
-void MainWindow::setErrorPage(const QString &errorTitle, const QString &errorText)
-{
-    ui_.ErrorLabel->setText(errorTitle);
-    ui_.ErrorInfoLabel->setText(errorText);
-    ui_.ErrorRetryButton->setEnabled(false);
-}
-
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
 
 /*

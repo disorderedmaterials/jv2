@@ -42,3 +42,12 @@ QString MainWindow::handleRequestError(HttpRequestWorker *worker, const QString 
 
     return NoError;
 }
+
+// Update the error page
+void MainWindow::setErrorPage(const QString &errorTitle, const QString &errorText)
+{
+    ui_.ErrorLabel->setText(errorTitle);
+    ui_.ErrorInfoLabel->setText(errorText);
+}
+
+void MainWindow::on_ErrorOKButton_clicked(bool checked) { updateForCurrentSource(JournalSource::JournalSourceState::OK); }
