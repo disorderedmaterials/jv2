@@ -108,6 +108,12 @@ void Backend::getJournalUpdates(const JournalSource *source, const HttpRequestWo
     postRequest(createRoute("journals/getUpdates"), source->currentJournalObjectData(), handler);
 }
 
+// Get number of uncached journals for specified source
+void Backend::getUncachedJournalCount(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    postRequest(createRoute("journals/getUncachedJournalCount"), source->currentJournalObjectData(), handler);
+}
+
 // Search across all journals for matching runs
 void Backend::search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
                      const HttpRequestWorker::HttpRequestHandler &handler)
@@ -131,6 +137,24 @@ void Backend::findJournal(const JournalSource *source, int runNo, const HttpRequ
     data["runNumbers"] = QJsonArray({QJsonValue(runNo)});
 
     postRequest(createRoute("journals/findJournal"), data, handler);
+}
+
+// Get all journals for source in background
+void Backend::acquireAllJournals(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    postRequest(createRoute("acquire"), source->sourceObjectData(), handler);
+}
+
+// Request update on background journal acquisition scan
+void Backend::acquireAllJournalsUpdate(const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    createRequest(createRoute("acquire/update"), handler);
+}
+
+// Stop background journal acquisition scan
+void Backend::acquireAllJournalsStop(const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    createRequest(createRoute("acquire/stop"), handler);
 }
 
 /*

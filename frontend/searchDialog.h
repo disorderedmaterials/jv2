@@ -23,6 +23,8 @@ class SearchDialog : public QDialog
     Ui::SearchDialog ui_;
 
     private slots:
+    // Update button states to reflect selected options
+    void updateButtonStates(bool dummy);
     void on_CancelButton_clicked(bool checked);
     void on_SearchButton_clicked(bool checked);
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from jv2backend.classes.collection import JournalCollection
 from jv2backend.classes.journal import SourceType
+import jv2backend.main.userCache
 import requests
 import logging
 import lxml.etree as etree
@@ -34,15 +35,20 @@ class JournalLibrary:
     def list(self):
         """List contents of library"""
         for c in self._collections:
+            collection = self._collections[c]
             logging.debug(f"Collection '{c}' contains "
-                          f"{self._collections[c].get_journal_count()} "
+                          f"{collection.get_journal_count()} "
                           f"journal files:")
             for j in self._collections[c].journals:
                 if j.has_run_data():
                     logging.debug(f"     {j.get_file_url()} "
                                   f"({j.get_run_count()} run data)")
                 else:
-                    logging.debug(f"     {j.get_file_url()} (not yet loaded)")
+                    if jv2backend.main.userCache.has_data(collection.library_key,
+                                                          j.filename):
+                        logging.debug(f"     {j.get_file_url()} (in cache)")
+                    else:
+                        logging.debug(f"     {j.get_file_url()} (not yet loaded)")
 
     # ---------------- Work Functions
 

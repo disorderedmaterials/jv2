@@ -8,13 +8,23 @@ from io import BytesIO
 from jv2backend.utils import url_join, lm_to_datetime
 import jv2backend.main.selector
 from jv2backend.classes.journal import Journal, SourceType
-from jv2backend.classes.integerRange import IntegerRange
 import jv2backend.main.userCache
 import xml.etree.ElementTree as ElementTree
 import logging
 import json
 import requests
+import functools
 import lxml.etree as etree
+from threading import Thread, Event, Lock
+
+
+_ACQUISITION_THREAD = None
+_STOP_ACQUISITION_EVENT = Event()
+_ACQUISITION_THREAD_JOURNAL_MUTEX = Lock()
+_ACQUISITION_THREAD_COMPLETE_MUTEX = Lock()
+_ACQUISITION_THREAD_NUM_COMPLETED_MUTEX = Lock()
+_ACQUISITION_THREAD_LAST_FILENAME_MUTEX = Lock()
+
 
 class JournalCollection:
     """Defines a collection of journal files relating to a specific instrument,
@@ -256,15 +266,6 @@ class JournalCollection:
 
         return j.get_run_data_as_json_array()
 
-    def get_all_journal_data(self) -> None:
-        """Retrieve all run data for all journals listed in the collection
-        """
-        # Loop over defined journal files. If run_data is already present we
-        # assume it's up-to-date.
-        for journal in [j for j in self._journals if j.run_data is None]:
-            logging.debug(f"Obtaining journal {journal.filename}")
-            journal.get_run_data()
-
     def get_updates(self, journal_filename: str) -> str:
         """Check if the journal index files has been modified since the last
         retrieval and return new runs added after the last known.
@@ -311,6 +312,27 @@ class JournalCollection:
         # Return any new runs after the previous last known run number
         return Journal.convert_run_data_to_json_array(
             j.get_run_data_after(old_last_run_number)
+        )
+
+    def get_uncached_journal_count(self) -> int:
+        """Get the number of journal files currently uncached and requiring
+        retrieval.
+
+        :return: The number of uncached journals for this collection
+        """
+        # If the source is not a Network type then we already have everything
+        if self._source_type is not SourceType.Network:
+            return 0
+
+        # Network type so check the cache for each
+        return functools.reduce(
+            lambda x, y:
+            x + (1 if not jv2backend.main.userCache.has_data(
+                    self._library_key,
+                    y.filename
+                    )
+                 else 0),
+            self._journals, 0
         )
 
     # ---------------- File Location
@@ -456,6 +478,7 @@ class JournalCollection:
 
         for jf in self._journals:
             logging.debug(f"Journal {jf.filename} .....")
+            jf.get_run_data()
             if not jf.has_run_data:
                 continue
             matches = None
@@ -463,8 +486,9 @@ class JournalCollection:
             # If the current 'matches' is None then search the whole run data
             # If it is not, then search it instead (chaining searches)
             # If it is ever a size of zero we have excluded all runs
-            logging.debug("Starting loop over run data...")
+            logging.debug("Starting loop over search terms...")
             for field in search_terms:
+                logging.debug(f"... search '{field}' for '{search_terms[field]}'.")
                 matches = jv2backend.main.selector.select(jf.run_data if matches is None
                                           else matches,
                                           field,
@@ -476,6 +500,7 @@ class JournalCollection:
                     break
 
             if matches is None:
+                logging.debug(f"Journal {jf.filename} matched zero runs.")
                 continue
 
             logging.debug(f"Journal {jf.filename} matched {len(matches)} runs.")
@@ -491,3 +516,108 @@ class JournalCollection:
         for journal in self._journals:
             basic.append(journal.get_journal_as_dict())
         return json.dumps(basic)
+
+
+# Threading Class to Acquire all Journal RunData in a
+class AcquisitionThread(Thread):
+    def __init__(self, collection: JournalCollection):
+        Thread.__init__(self)
+        self._collection = collection
+        self._num_completed = 0
+        self._complete = False
+
+    def run(self):
+        global _ACQUISITION_THREAD_JOURNAL_MUTEX, _STOP_ACQUISITION_EVENT
+        global _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX
+        global _ACQUISITION_THREAD_COMPLETE_MUTEX
+        global _ACQUISITION_THREAD_LAST_FILENAME_MUTEX
+
+        error = None
+
+        for j in self._collection.journals:
+            if _STOP_ACQUISITION_EVENT.is_set():
+                break
+
+            with _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX:
+                self._num_completed = self._num_completed + 1
+
+            if j.has_run_data():
+                logging.debug(f"Skipping {j.filename} as data are present...")
+                continue
+
+            logging.debug(f"Acquiring run data for {j.filename}...")
+            with _ACQUISITION_THREAD_LAST_FILENAME_MUTEX:
+                self._last_filename = j.filename
+
+            with _ACQUISITION_THREAD_JOURNAL_MUTEX:
+                try:
+                    j.get_run_data()
+                except (requests.HTTPError, requests.ConnectionError,
+                        FileNotFoundError) as exc:
+                    error = str(exc)
+                    break
+                except etree.XMLSyntaxError as exc:
+                    error = str(exc)
+                    break
+
+        with _ACQUISITION_THREAD_COMPLETE_MUTEX:
+            self._complete = True
+
+        return json.dumps("OK" if error is None else {"Error": error})
+
+    def get_update(self) -> ():
+        """Return an update on the acquisition"""
+        global _ACQUISITION_THREAD_JOURNAL_MUTEX, _ACQUISITION_THREAD_COMPLETE_MUTEX
+
+        with _ACQUISITION_THREAD_NUM_COMPLETED_MUTEX:
+            n = self._num_completed
+
+        with _ACQUISITION_THREAD_COMPLETE_MUTEX:
+            complete = self._complete
+
+        with _ACQUISITION_THREAD_LAST_FILENAME_MUTEX:
+            last_filename = self._last_filename
+
+        return json.dumps(
+            {
+                "num_completed": n,
+                "last_filename": last_filename,
+                "complete": complete
+            }
+        )
+
+
+class JournalAcquirer:
+    """Journal file acquirer"""
+
+    def acquire_all_data(self, collection: JournalCollection) -> str:
+        """Retrieve all run data for all journals listed in the collection
+        """
+        # Loop over defined journal files. If run_data is already present we
+        # assume it's up-to-date.
+        global _ACQUISITION_THREAD, _STOP_ACQUISITION_EVENT
+        _ACQUISITION_THREAD = AcquisitionThread(collection)
+        _STOP_ACQUISITION_EVENT.clear()
+        _ACQUISITION_THREAD.start()
+        logging.debug("Started acquisition thread...")
+        return json.dumps(None)
+
+    def get_acquisition_update(self) -> str:
+        """Get an update on the current scan"""
+        global _ACQUISITION_THREAD
+        if _ACQUISITION_THREAD is not None:
+            return _ACQUISITION_THREAD.get_update()
+        return json.dumps("NOT_RUNNING")
+
+    def stop_acquisition(self) -> str:
+        """Stop any scan currently in progress"""
+        global _ACQUISITION_THREAD
+        if _ACQUISITION_THREAD is None:
+            return json.dumps("NOT RUNNING")
+        if _ACQUISITION_THREAD.is_alive():
+            _STOP_ACQUISITION_EVENT.set()
+            _ACQUISITION_THREAD.join()
+
+        _ACQUISITION_THREAD = None
+
+        return json.dumps("OK")

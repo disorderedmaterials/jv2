@@ -68,11 +68,19 @@ class Backend : public QObject
     void getJournal(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Get any updates to the specified current journal in the specified source
     void getJournalUpdates(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Get number of uncached journals for specified source
+    void getUncachedJournalCount(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Search across all journals for matching runs
     void search(const JournalSource *source, const std::map<QString, QString> &searchTerms,
                 const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Find journal containing specified run number
     void findJournal(const JournalSource *source, int runNo, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Get all journals for source in background
+    void acquireAllJournals(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Request update on background scan
+    void acquireAllJournalsUpdate(const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Stop background scan
+    void acquireAllJournalsStop(const HttpRequestWorker::HttpRequestHandler &handler = {});
 
     /*
      * NeXuS Endpoints

@@ -81,6 +81,8 @@ class JournalSource
     std::vector<Journal> &journals();
     // Find named journal
     OptionalReferenceWrapper<Journal> findJournal(const QString &name);
+    // Set current journal being displayed
+    void setCurrentJournal(Journal &journal);
     // Set current journal being displayed by name
     void setCurrentJournal(QString name);
     // Set current journal being displayed by index
@@ -187,6 +189,7 @@ class JournalSource
         Loading,
         OK,
         Generating,
+        Acquiring,
         Error
     };
 
