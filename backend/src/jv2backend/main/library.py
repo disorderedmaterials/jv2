@@ -90,8 +90,8 @@ class JournalLibrary:
         except FileNotFoundError:
             return json.dumps("Index File Not Found")
         except (requests.HTTPError, requests.ConnectionError) as exc:
-            return json.dumps({"Error": str(exc)})
+            return json.dumps({"NetworkError": str(exc)})
         except etree.XMLSyntaxError as exc:
-            return json.dumps({"Error": str(exc)})
+            return json.dumps({"XMLParseError": str(exc)})
 
         return collection.to_basic_json()

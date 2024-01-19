@@ -31,7 +31,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_run_numbers=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
@@ -48,7 +48,7 @@ def add_routes(
         for run in data_files:
             if data_files[run] is None:
                 return make_response(
-                    jsonify({"Error": f"Unable to find data file for run "
+                    jsonify({"FileNotFoundError": f"Unable to find data file for run "
                              "{run}"}), 200
                 )
             logpaths.extend(jv2backend.main.nexus.logpaths_from_path(data_files[run]))
@@ -70,7 +70,7 @@ def add_routes(
                                     require_run_numbers=True,
                                     require_parameters="logValue")
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
@@ -89,7 +89,7 @@ def add_routes(
         for run in data_files:
             if data_files[run] is None:
                 return make_response(
-                    jsonify({"Error": f"Unable to find data file for run "
+                    jsonify({"FileNotFoundError": f"Unable to find data file for run "
                                       "{run}"}), 200
                 )
 
@@ -125,7 +125,7 @@ def add_routes(
                                     require_run_numbers=True,
                                     require_parameters="spectrumType")
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
@@ -140,7 +140,7 @@ def add_routes(
         data_file = collection.locate_data_file(run_number)
         if data_file is None:
             return make_response(
-                jsonify({"Error": f"Unable to find data file for run "
+                jsonify({"FileNotFoundError": f"Unable to find data file for run "
                                   "{run}"}), 200
             )
 
@@ -155,7 +155,7 @@ def add_routes(
                 200)
         else:
             return make_response(
-                json.dumps({"Error": f"Unrecognised spectrum type "
+                json.dumps({"InvalidRequestError": f"Unrecognised spectrum type "
                                      f"'{spectrum_type}'"}),
                 200)
 
@@ -175,7 +175,7 @@ def add_routes(
                                     require_run_numbers=True,
                                     require_parameters="spectrumId,spectrumType")
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
@@ -223,7 +223,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_run_numbers=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
@@ -238,7 +238,7 @@ def add_routes(
         data_file = collection.locate_data_file(run_number)
         if data_file is None:
             return make_response(
-                jsonify({"Error": f"Unable to find data file for run "
+                jsonify({"FileNotFoundError": f"Unable to find data file for run "
                                   "{run}"}), 200
             )
 

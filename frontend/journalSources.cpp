@@ -184,7 +184,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     journalModel_.setData(std::nullopt);
 
     // Check network reply
-    if (handleCommonRequestError(worker, "trying to list journals"))
+    if (handleRequestErrors(worker, "trying to list journals"))
     {
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
@@ -266,15 +266,21 @@ void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
 void MainWindow::handleJumpToJournal(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (handleCommonRequestError(worker, "trying to select run number within journal"))
+    if (handleRequestErrors(worker, "trying to select run number within journal"))
     {
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
     }
 
     // Get data from the response
     auto journalName = worker->jsonResponse()["journal_display_name"].toString();
     auto runNumber = worker->jsonResponse()["run_number"].toInt();
+
+    // If the journal name is empty then no containing journal could be found
+    if (journalName.isEmpty())
+    {
+        QMessageBox::information(this, "Not Found", QString("Run number %1 could not be found in any journal").arg(runNumber));
+        return;
+    }
 
     // Find the named journal in the current source
     auto optJournal = currentJournalSource()->findJournal(journalName);

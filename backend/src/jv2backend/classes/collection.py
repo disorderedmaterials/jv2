@@ -234,7 +234,7 @@ class JournalCollection:
         j = self[journal_filename]
         if j is None:
             return json.dumps(
-                {"Error": f"Journal {journal_filename} not in collection."}
+                {"JournalNotFoundError": f"Journal {journal_filename} not in collection."}
             )
 
         # If we already have run data for the journal, check its modtime and
@@ -250,9 +250,9 @@ class JournalCollection:
             j.get_run_data()
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return json.dumps({"Error": str(exc)})
+            return json.dumps({"NetworkError": str(exc)})
         except etree.XMLSyntaxError as exc:
-            return json.dumps({"Error": str(exc)})
+            return json.dumps({"XMLParseError": str(exc)})
 
         return j.get_run_data_as_json_array()
 
@@ -276,7 +276,7 @@ class JournalCollection:
         j = self[journal_filename]
         if j is None:
             return json.dumps(
-                {"Error": f"Journal {journal_filename} not in collection."}
+                {"JournalNotFoundError": f"Journal {journal_filename} not in collection."}
             )
 
         # If we already have this journal file in the collection, check its
@@ -296,7 +296,7 @@ class JournalCollection:
             j.get_run_data(ignore_cache=True)
         except (requests.HTTPError, requests.ConnectionError,
                 FileNotFoundError) as exc:
-            return json.dumps({"Error": str(exc)})
+            return json.dumps({"NetworkError": str(exc)})
 
         # If our old last run number is None then we had no data so return all
         if old_last_run_number is None:

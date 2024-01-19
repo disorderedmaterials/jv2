@@ -186,12 +186,17 @@ class MainWindow : public QMainWindow
      */
     private:
     // Backend Error Codes
-    const inline static QString NoBackendError = QStringLiteral("NoBackendError");
+    const inline static QString NoError = QStringLiteral("NoError");
+    const inline static QString InvalidRequestError = QStringLiteral("InvalidRequestError");
+    const inline static QString NetworkError = QStringLiteral("NetworkError");
+    const inline static QString XMLParseError = QStringLiteral("XMLParseError");
     const inline static QString CollectionNotFoundError = QStringLiteral("CollectionNotFoundError");
+    const inline static QString JournalNotFoundError = QStringLiteral("JournalNotFoundError");
+    const inline static QString FileNotFoundError = QStringLiteral("FileNotFoundError");
 
     private:
-    // Perform check for common errors on http request
-    bool handleCommonRequestError(HttpRequestWorker *worker, const QString &taskDescription);
+    // Perform check for errors on http request
+    bool handleRequestErrors(HttpRequestWorker *worker, const QString &taskDescription);
 
     /*
      * Settings
