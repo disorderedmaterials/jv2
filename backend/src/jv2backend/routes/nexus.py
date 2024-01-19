@@ -51,7 +51,10 @@ def add_routes(
                     jsonify({"FileNotFoundError": f"Unable to find data file for run "
                              "{run}"}), 200
                 )
-            logpaths.extend(jv2backend.main.nexus.logpaths_from_path(data_files[run]))
+            try:
+                logpaths.extend(jv2backend.main.nexus.logpaths_from_path(data_files[run]))
+            except FileNotFoundError as exc:
+                return make_response(jsonify({"FileNotFoundError": str(exc)}), 200)
 
         return make_response(jsonify(logpaths), 200)
 
@@ -94,7 +97,10 @@ def add_routes(
                 )
 
             run_data = {}
-            nxsfile, first_group = jv2backend.main.nexus.open_at(data_files[run], 0)
+            try:
+                nxsfile, first_group = jv2backend.main.nexus.open_at(data_files[run], 0)
+            except FileNotFoundError as exc:
+                return make_response(jsonify({"FileNotFoundError": str(exc)}), 200)
 
             run_data["runNumber"] = str(run)
             run_data["timeRange"] = [jv2backend.main.nexus.timerange(first_group)]
