@@ -36,8 +36,8 @@ def add_routes(
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
-                                  f"does not exist."}), 200
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
+                                                          f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
 
@@ -75,7 +75,7 @@ def add_routes(
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
@@ -130,7 +130,7 @@ def add_routes(
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
@@ -180,7 +180,7 @@ def add_routes(
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
@@ -228,7 +228,7 @@ def add_routes(
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]

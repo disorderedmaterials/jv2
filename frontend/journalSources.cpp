@@ -184,7 +184,7 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     journalModel_.setData(std::nullopt);
 
     // Check network reply
-    if (networkReplyHasError(worker, "trying to list journals"))
+    if (handleCommonRequestError(worker, "trying to list journals"))
     {
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;
@@ -266,7 +266,7 @@ void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
 void MainWindow::handleJumpToJournal(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (networkReplyHasError(worker, "trying to select run number within journal"))
+    if (handleCommonRequestError(worker, "trying to select run number within journal"))
     {
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return;

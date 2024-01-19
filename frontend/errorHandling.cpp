@@ -5,8 +5,8 @@
 #include <QNetworkReply>
 #include <QTimer>
 
-// Perform error check on http result
-bool MainWindow::networkReplyHasError(HttpRequestWorker *worker, const QString &taskDescription)
+// Perform check for common errors on http request
+bool MainWindow::handleCommonRequestError(HttpRequestWorker *worker, const QString &taskDescription)
 {
     // Communications error with the backend?
     if (worker->errorType() != QNetworkReply::NoError)
@@ -18,13 +18,15 @@ bool MainWindow::networkReplyHasError(HttpRequestWorker *worker, const QString &
         return true;
     }
 
-    // Response error?
     auto response = worker->jsonResponse().object();
-    if (response.contains("Error"))
+
+    // Collection not found?
+    if (response.contains(CollectionNotFoundError))
     {
-        statusBar()->showMessage(QString("Response error for source %1").arg(currentJournalSource()->name()), 3000);
-        setErrorPage("Response Error", QString("The backend failed while %1.\nThe response returned was: %2")
-                                           .arg(taskDescription, response["Error"].toString()));
+        statusBar()->showMessage(QString("Collection error for source %1").arg(currentJournalSource()->name()), 3000);
+        setErrorPage(
+            "Collection Error",
+            QString("Collection not found while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
         return true;
     }

@@ -70,8 +70,8 @@ def add_routes(
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(
-                jsonify({"Error": f"No library '{post_data.library_key()}' "
-                               f"currently exists."}), 200
+                jsonify({"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                                          f"currently exists."}), 200
             )
 
         return make_response(
@@ -101,8 +101,8 @@ def add_routes(
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(jsonify(
-                {"Error": f"No collection '{post_data.library_key()}' "
-                          f"currently exists."}),
+                {"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                            f"currently exists."}),
                 200
             )
 
@@ -134,8 +134,8 @@ def add_routes(
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(jsonify(
-                {"Error": f"No collection '{post_data.library_key()}' "
-                          f"currently exists."}),
+                {"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                            f"currently exists."}),
                 200
             )
 
@@ -167,8 +167,8 @@ def add_routes(
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(jsonify(
-                {"Error": f"No collection '{post_data.library_key()}' "
-                          f"currently exists."}),
+                {"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                            f"currently exists."}),
                 200
             )
 

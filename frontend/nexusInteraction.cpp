@@ -70,7 +70,7 @@ void MainWindow::showStatus(qreal x, qreal y, QString title)
 void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (networkReplyHasError(worker, "trying to plot a spectrum"))
+    if (handleCommonRequestError(worker, "trying to plot a spectrum"))
         return;
 
     auto *chart = new QChart();
@@ -131,7 +131,7 @@ void MainWindow::handleSpectraCharting(HttpRequestWorker *worker)
 void MainWindow::handleMonSpectraCharting(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (networkReplyHasError(worker, "trying to plot a monitor spectrum"))
+    if (handleCommonRequestError(worker, "trying to plot a monitor spectrum"))
         return;
 
     auto *chart = new QChart();

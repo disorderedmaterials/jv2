@@ -185,8 +185,13 @@ class MainWindow : public QMainWindow
      * Network Handling
      */
     private:
-    // Perform error check on http result
-    bool networkReplyHasError(HttpRequestWorker *worker, const QString &taskDescription);
+    // Backend Error Codes
+    const inline static QString NoBackendError = QStringLiteral("NoBackendError");
+    const inline static QString CollectionNotFoundError = QStringLiteral("CollectionNotFoundError");
+
+    private:
+    // Perform check for common errors on http request
+    bool handleCommonRequestError(HttpRequestWorker *worker, const QString &taskDescription);
 
     /*
      * Settings
