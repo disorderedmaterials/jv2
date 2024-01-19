@@ -184,11 +184,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
     journalModel_.setData(std::nullopt);
 
     // Check network reply
-    if (handleRequestErrors(worker, "trying to list journals"))
-    {
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+    if (handleRequestError(worker, "trying to list journals") != NoError)
         return;
-    }
 
     // Special case - for cache or disk-based sources we may get an error stating that the index file was not found.
     // This may just be because it hasn't been generated yet, so we can offer to do it now...
@@ -266,10 +263,8 @@ void MainWindow::handleGetJournalUpdates(HttpRequestWorker *worker)
 void MainWindow::handleJumpToJournal(HttpRequestWorker *worker)
 {
     // Check network reply
-    if (handleRequestErrors(worker, "trying to select run number within journal"))
-    {
+    if (handleRequestError(worker, "trying to select run number within journal") != NoError)
         return;
-    }
 
     // Get data from the response
     auto journalName = worker->jsonResponse()["journal_display_name"].toString();

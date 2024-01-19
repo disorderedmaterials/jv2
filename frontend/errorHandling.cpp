@@ -5,8 +5,8 @@
 #include <QNetworkReply>
 #include <QTimer>
 
-// Perform check for errors on http request
-bool MainWindow::handleRequestErrors(HttpRequestWorker *worker, const QString &taskDescription)
+// Perform check for errors on http request, returning the handled error
+QString MainWindow::handleRequestError(HttpRequestWorker *worker, const QString &taskDescription)
 {
     // Communications error with the backend?
     if (worker->errorType() != QNetworkReply::NoError)
@@ -15,7 +15,7 @@ bool MainWindow::handleRequestErrors(HttpRequestWorker *worker, const QString &t
         setErrorPage("Network Error", QString("A network error was encountered while %1.\nThe error returned was: %2")
                                           .arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return true;
+        return QNetworkReplyError;
     }
 
     auto response = worker->jsonResponse().object();
@@ -24,22 +24,21 @@ bool MainWindow::handleRequestErrors(HttpRequestWorker *worker, const QString &t
     if (response.contains(InvalidRequestError))
     {
         statusBar()->showMessage("Request Error", 3000);
-        setErrorPage(
-            "Invalid Request Error",
-            QString("The backend didn't like our request while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
+        setErrorPage("Invalid Request Error",
+                     QString("The backend didn't like our request while %1.\nThe error returned was: %2")
+                         .arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return true;
+        return InvalidRequestError;
     }
 
     // Network error?
     if (response.contains(NetworkError))
     {
         statusBar()->showMessage("Network Error", 3000);
-        setErrorPage(
-            "Invalid Request Error",
-            QString("Network file retrieval failed while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
+        setErrorPage("Invalid Request Error", QString("Network file retrieval failed while %1.\nThe error returned was: %2")
+                                                  .arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return true;
+        return NetworkError;
     }
 
     // XML parsing error?
@@ -50,7 +49,7 @@ bool MainWindow::handleRequestErrors(HttpRequestWorker *worker, const QString &t
             "XML Error",
             QString("XML parsing failed while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return true;
+        return XMLParseError;
     }
 
     // Collection not found?
@@ -61,7 +60,7 @@ bool MainWindow::handleRequestErrors(HttpRequestWorker *worker, const QString &t
             "Collection Not Found",
             QString("Collection not found while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return true;
+        return CollectionNotFoundError;
     }
 
     // Journal not found?
@@ -72,7 +71,7 @@ bool MainWindow::handleRequestErrors(HttpRequestWorker *worker, const QString &t
             "Journal Not Found",
             QString("Journal not found while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return true;
+        return JournalNotFoundError;
     }
 
     // File not found?
@@ -83,8 +82,8 @@ bool MainWindow::handleRequestErrors(HttpRequestWorker *worker, const QString &t
             "File Not Found",
             QString("File not found while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
         updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return true;
+        return FileNotFoundError;
     }
 
-    return false;
+    return NoError;
 }

@@ -15,7 +15,7 @@
 void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
 {
     // Check for errors
-    if (handleRequestErrors(worker, "retrieving log values from run"))
+    if (handleRequestError(worker, "retrieving log values from run") != NoError)
         return;
 
     // Iterate over logs extracted from the target run data and construct our mapped values
@@ -62,7 +62,7 @@ void MainWindow::handleCreateSELogPlot(HttpRequestWorker *worker)
     auto *relTimeChartView = new ChartView(relTimeChart, window);
 
     // Check network reply
-    if (handleRequestErrors(worker, "trying to graph a log value"))
+    if (handleRequestError(worker, "trying to graph a log value") != NoError)
         return;
 
     // The expected result from the backend is as follows:

@@ -187,6 +187,7 @@ class MainWindow : public QMainWindow
     private:
     // Backend Error Codes
     const inline static QString NoError = QStringLiteral("NoError");
+    const inline static QString QNetworkReplyError = QStringLiteral("QNetworkReplyError");
     const inline static QString InvalidRequestError = QStringLiteral("InvalidRequestError");
     const inline static QString NetworkError = QStringLiteral("NetworkError");
     const inline static QString XMLParseError = QStringLiteral("XMLParseError");
@@ -195,8 +196,8 @@ class MainWindow : public QMainWindow
     const inline static QString FileNotFoundError = QStringLiteral("FileNotFoundError");
 
     private:
-    // Perform check for errors on http request
-    bool handleRequestErrors(HttpRequestWorker *worker, const QString &taskDescription);
+    // Perform check for errors on http request, returning the handled error
+    QString handleRequestError(HttpRequestWorker *worker, const QString &taskDescription);
 
     /*
      * Settings

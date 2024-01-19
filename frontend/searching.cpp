@@ -28,11 +28,8 @@ void MainWindow::handleSearchResult(HttpRequestWorker *worker)
     runDataModel_.setData(runData_);
 
     // Check network reply
-    if (handleRequestErrors(worker, "trying to search across journals"))
-    {
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+    if (handleRequestError(worker, "trying to search across journals") != NoError)
         return;
-    }
 
     // Turn off grouping
     if (ui_.GroupRunsButton->isChecked())

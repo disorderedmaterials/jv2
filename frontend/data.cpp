@@ -216,11 +216,8 @@ void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker, std::op
     runDataModel_.setData(runData_);
 
     // Check network reply
-    if (handleRequestErrors(worker, "trying to retrieve run data for the journal"))
-    {
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+    if (handleRequestError(worker, "trying to retrieve run data for the journal") != NoError)
         return;
-    }
 
     // Turn off grouping
     if (ui_.GroupRunsButton->isChecked())
