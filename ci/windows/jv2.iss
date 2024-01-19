@@ -41,7 +41,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#FrontendDir}\jv2.exe"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "..\..\extra\JournalViewer2.ico"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "..\..\extra\jv2.ico"; DestDir: "{app}\bin"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "{#QtDir}\Qt6Gui.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "{#QtDir}\Qt6Core.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
@@ -62,8 +62,8 @@ Source: "{#BackendDir}\jv2backend.exe"; DestDir: "{app}\bin"; Flags: ignoreversi
 Source: "C:\Windows\System32\D3DCompiler_47.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; IconFilename: "{app}\bin\JournalViewer2.ico"; Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; WorkingDir: "{app}\bin"
-Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\jv2\JournalViewer2.ico"; Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; WorkingDir: "{app}\bin"; Tasks: desktopicon
+Name: "{group}\{#MyAppName}"; IconFilename: "{app}\bin\jv2.ico"; Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; WorkingDir: "{app}\bin"
+Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\jv2\jv2.ico"; Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; WorkingDir: "{app}\bin"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
