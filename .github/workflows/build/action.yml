@@ -17,10 +17,6 @@ runs:
     with:
       cacheOnly: ${{ inputs.cacheOnly }}
 
-  - name: Build (Linux)
-    if: runner.os == 'Linux'
-    uses: "./.github/workflows/build/linux"
-
   - name: Build (OSX)
     if: runner.os == 'MacOS'
     uses: "./.github/workflows/build/osx"
