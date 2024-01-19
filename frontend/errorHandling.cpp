@@ -3,7 +3,6 @@
 
 #include "mainWindow.h"
 #include <QNetworkReply>
-#include <QTimer>
 
 // Perform check for errors on http request, returning the handled error
 QString MainWindow::handleRequestError(HttpRequestWorker *worker, const QString &taskDescription)
@@ -18,71 +17,27 @@ QString MainWindow::handleRequestError(HttpRequestWorker *worker, const QString 
         return QNetworkReplyError;
     }
 
+    // Error message parts (formatted error type, error page pre-text) associated to error return types
+    std::map<QString, std::pair<QString, QString>> errorParts = {
+        {InvalidRequestError, {"Invalid Request", "The backend didn't like our request"}},
+        {NetworkError, {"Network Error", "Network file retrieval failed"}},
+        {XMLParseError, {"XML Parse Error", "XML parsing failed"}},
+        {CollectionNotFoundError, {"Collection Not Found", "Collection not found"}},
+        {JournalNotFoundError, {"Journal Not Found", "Journal not found"}},
+        {FileNotFoundError, {"File Not Found", "File not found"}}};
+
+    // Check response for recognised error types
     auto response = worker->jsonResponse().object();
-
-    // Invalid request?
-    if (response.contains(InvalidRequestError))
+    for (auto &&[errorKey, errorData] : errorParts)
     {
-        statusBar()->showMessage("Request Error", 3000);
-        setErrorPage("Invalid Request Error",
-                     QString("The backend didn't like our request while %1.\nThe error returned was: %2")
-                         .arg(taskDescription, worker->errorString()));
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return InvalidRequestError;
-    }
-
-    // Network error?
-    if (response.contains(NetworkError))
-    {
-        statusBar()->showMessage("Network Error", 3000);
-        setErrorPage("Invalid Request Error", QString("Network file retrieval failed while %1.\nThe error returned was: %2")
-                                                  .arg(taskDescription, worker->errorString()));
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return NetworkError;
-    }
-
-    // XML parsing error?
-    if (response.contains(XMLParseError))
-    {
-        statusBar()->showMessage("Parsing Error", 3000);
-        setErrorPage(
-            "XML Error",
-            QString("XML parsing failed while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return XMLParseError;
-    }
-
-    // Collection not found?
-    if (response.contains(CollectionNotFoundError))
-    {
-        statusBar()->showMessage(QString("Collection error for source %1").arg(currentJournalSource()->name()), 3000);
-        setErrorPage(
-            "Collection Not Found",
-            QString("Collection not found while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return CollectionNotFoundError;
-    }
-
-    // Journal not found?
-    if (response.contains(JournalNotFoundError))
-    {
-        statusBar()->showMessage(QString("Journal error for source %1").arg(currentJournalSource()->name()), 3000);
-        setErrorPage(
-            "Journal Not Found",
-            QString("Journal not found while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return JournalNotFoundError;
-    }
-
-    // File not found?
-    if (response.contains(FileNotFoundError))
-    {
-        statusBar()->showMessage(QString("File error for source %1").arg(currentJournalSource()->name()), 3000);
-        setErrorPage(
-            "File Not Found",
-            QString("File not found while %1.\nThe error returned was: %2").arg(taskDescription, worker->errorString()));
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
-        return FileNotFoundError;
+        if (response.contains(errorKey))
+        {
+            statusBar()->showMessage(errorData.first, 3000);
+            setErrorPage(errorData.first, QString("%1 while %2.\nThe error returned was: %3")
+                                              .arg(errorData.second, taskDescription, response[errorKey].toString()));
+            updateForCurrentSource(JournalSource::JournalSourceState::Error);
+            return errorKey;
+        }
     }
 
     return NoError;
