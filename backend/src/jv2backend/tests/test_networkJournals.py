@@ -103,7 +103,7 @@ def test_parse_isis_journal_index(app):
     with app.app_context():
         response = _get_library_index(library)
 
-    assert "Error" not in response
+    assert "NetworkError" not in response
     assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
     assert len(response) == 3
@@ -120,12 +120,12 @@ def test_parse_isis_journal_file(app, journal_file):
 
     with app.app_context():
         index_response = _get_library_index(library)
-        assert "Error" not in index_response
+        assert "NetworkError" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
         collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
         journal_response = json.loads(collection.get_journal_data(journal_file))
-        assert "Error" not in journal_response
+        assert "NetworkError" not in journal_response
         assert len(journal_response) == 3
 
 def test_missing_journal_file(app):
@@ -133,12 +133,12 @@ def test_missing_journal_file(app):
 
     with app.app_context():
         index_response = _get_library_index(library)
-        assert "Error" not in index_response
+        assert "NetworkError" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
         collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
         journal_response = json.loads(collection.get_journal_data(FAKE_JOURNAL_FILE_MISSING))
-        assert "Error" in journal_response
+        assert "NetworkError" in journal_response
 
 
 def test_get_journal_file_updates(app):
@@ -147,14 +147,14 @@ def test_get_journal_file_updates(app):
     # Assemble the collection in the library and load in the full journal data
     with app.app_context():
         index_response = _get_library_index(library)
-        assert "Error" not in index_response
+        assert "NetworkError" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
     collection = library["TestID/" + FAKE_INSTRUMENT_NAME]
 
     with app.app_context():
         journal_response = json.loads(collection.get_journal_data(FAKE_JOURNAL_FILE_A))
-        assert "Error" not in journal_response
+        assert "NetworkError" not in journal_response
         assert len(journal_response) == 3
 
     # Get the target journal
@@ -190,7 +190,7 @@ def test_get_journal_file_updates_for_empty_journal(app):
     # Assemble the collection in the library
     with app.app_context():
         index_response = _get_library_index(library)
-        assert "Error" not in index_response
+        assert "NetworkError" not in index_response
         assert "TestID/" + FAKE_INSTRUMENT_NAME in library
 
     # Try to update current journal (which currently has zero data)

@@ -52,6 +52,7 @@ qt6_add_executable(
   # Main Window
   args.h
   data.cpp
+  errorHandling.cpp
   filtering.cpp
   finding.cpp
   generation.cpp
@@ -63,7 +64,6 @@ qt6_add_executable(
   mainWindow.cpp
   mainWindow.h
   mainWindow.ui
-  networkHandling.cpp
   nexusInteraction.cpp
   searching.cpp
   settings.cpp

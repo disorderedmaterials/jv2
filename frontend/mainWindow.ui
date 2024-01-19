@@ -354,7 +354,7 @@
            </sizepolicy>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="LoadingPage">
            <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -588,8 +588,14 @@
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
              <widget class="QLabel" name="ErrorLabel">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="text">
-               <string>Network Error</string>
+               <string>Error Type</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -615,9 +621,9 @@
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="ErrorRetryButton">
+                  <widget class="QPushButton" name="ErrorOKButton">
                    <property name="text">
-                    <string>Retry</string>
+                    <string>OK</string>
                    </property>
                   </widget>
                  </item>

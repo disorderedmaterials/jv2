@@ -34,7 +34,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_journal_file=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"Listing journals for {post_data.library_key()}: "
                       f"{post_data.journal_file_url()}")
@@ -61,7 +61,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_journal_file=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"Get journal {post_data.journal_file_url()} "
                       f"from '{post_data.library_key()}'")
@@ -71,8 +71,8 @@ def add_routes(
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(
-                jsonify({"Error": f"No library '{post_data.library_key()}' "
-                               f"currently exists."}), 200
+                jsonify({"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                                          f"currently exists."}), 200
             )
 
         return make_response(
@@ -94,7 +94,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_journal_file=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"Get journal {post_data.journal_file_url()} updates "
                       f"from source {post_data.library_key()}")
@@ -102,8 +102,8 @@ def add_routes(
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(jsonify(
-                {"Error": f"No collection '{post_data.library_key()}' "
-                          f"currently exists."}),
+                {"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                            f"currently exists."}),
                 200
             )
 
@@ -156,15 +156,15 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_value_map=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"Search {post_data.library_key()}...")
 
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(jsonify(
-                {"Error": f"No collection '{post_data.library_key()}' "
-                          f"currently exists."}),
+                {"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                            f"currently exists."}),
                 200
             )
 
@@ -188,7 +188,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_run_numbers=True)
         except InvalidRequest as exc:
-            return jsonify({"Error": str(exc)})
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         run_number = post_data.run_numbers[0]
 
@@ -198,23 +198,16 @@ def add_routes(
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
             return make_response(jsonify(
-                {"Error": f"No collection '{post_data.library_key()}' "
-                          f"currently exists."}),
+                {"CollectionNotFoundError": f"No collection '{post_data.library_key()}' "
+                                            f"currently exists."}),
                 200
             )
 
         # Try to find the journal
         journal = collection.journal_for_run(run_number)
-        if journal is None:
-            return make_response(jsonify(
-                {"Error": f"Run number {run_number} does not exist in any "
-                          f"journal within '{post_data.library_key()}'."}),
-                200
-            )
-
         return make_response(jsonify(
             {"journal_display_name": journal.display_name,
-             "run_number": run_number}), 200)
+             "run_number": run_number if journal is not None else -1}), 200)
 
     # ------------------------ End Routes -------------------------
 

@@ -34,7 +34,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_data_directory=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"List NeXuS files in data directory "
                       f"{post_data.run_data_root_url}...")
@@ -57,7 +57,7 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_data_directory=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"Scan NeXuS files discovered in "
                       f"{post_data.run_data_root_url}")
@@ -93,7 +93,7 @@ def add_routes(
                                     require_data_directory=True,
                                     require_parameters="sortKey")
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"Generate journals for '{post_data.library_key()}' "
                       f"from NeXuS files in {post_data.run_data_root_url}")

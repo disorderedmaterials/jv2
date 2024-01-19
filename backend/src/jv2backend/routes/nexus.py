@@ -31,13 +31,13 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_run_numbers=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
-                                  f"does not exist."}), 200
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
+                                                          f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
 
@@ -48,10 +48,13 @@ def add_routes(
         for run in data_files:
             if data_files[run] is None:
                 return make_response(
-                    jsonify({"Error": f"Unable to find data file for run "
+                    jsonify({"FileNotFoundError": f"Unable to find data file for run "
                              "{run}"}), 200
                 )
-            logpaths.extend(jv2backend.main.nexus.logpaths_from_path(data_files[run]))
+            try:
+                logpaths.extend(jv2backend.main.nexus.logpaths_from_path(data_files[run]))
+            except FileNotFoundError as exc:
+                return make_response(jsonify({"FileNotFoundError": str(exc)}), 200)
 
         return make_response(jsonify(logpaths), 200)
 
@@ -70,12 +73,12 @@ def add_routes(
                                     require_run_numbers=True,
                                     require_parameters="logValue")
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
@@ -89,12 +92,15 @@ def add_routes(
         for run in data_files:
             if data_files[run] is None:
                 return make_response(
-                    jsonify({"Error": f"Unable to find data file for run "
+                    jsonify({"FileNotFoundError": f"Unable to find data file for run "
                                       "{run}"}), 200
                 )
 
             run_data = {}
-            nxsfile, first_group = jv2backend.main.nexus.open_at(data_files[run], 0)
+            try:
+                nxsfile, first_group = jv2backend.main.nexus.open_at(data_files[run], 0)
+            except FileNotFoundError as exc:
+                return make_response(jsonify({"FileNotFoundError": str(exc)}), 200)
 
             run_data["runNumber"] = str(run)
             run_data["timeRange"] = [jv2backend.main.nexus.timerange(first_group)]
@@ -125,12 +131,12 @@ def add_routes(
                                     require_run_numbers=True,
                                     require_parameters="spectrumType")
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
@@ -140,7 +146,7 @@ def add_routes(
         data_file = collection.locate_data_file(run_number)
         if data_file is None:
             return make_response(
-                jsonify({"Error": f"Unable to find data file for run "
+                jsonify({"FileNotFoundError": f"Unable to find data file for run "
                                   "{run}"}), 200
             )
 
@@ -155,7 +161,7 @@ def add_routes(
                 200)
         else:
             return make_response(
-                json.dumps({"Error": f"Unrecognised spectrum type "
+                json.dumps({"InvalidRequestError": f"Unrecognised spectrum type "
                                      f"'{spectrum_type}'"}),
                 200)
 
@@ -175,12 +181,12 @@ def add_routes(
                                     require_run_numbers=True,
                                     require_parameters="spectrumId,spectrumType")
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
@@ -223,12 +229,12 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_run_numbers=True)
         except InvalidRequest as exc:
-            return make_response(jsonify({"Error": str(exc)}), 200)
+            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         # Check for valid collection
         if post_data.library_key() not in journalLibrary:
             return make_response(
-                jsonify({"Error": f"Collection {post_data.library_key()} "
+                jsonify({"CollectionNotFoundError": f"Collection {post_data.library_key()} "
                                   f"does not exist."}), 200
             )
         collection = journalLibrary[post_data.library_key()]
@@ -238,7 +244,7 @@ def add_routes(
         data_file = collection.locate_data_file(run_number)
         if data_file is None:
             return make_response(
-                jsonify({"Error": f"Unable to find data file for run "
+                jsonify({"FileNotFoundError": f"Unable to find data file for run "
                                   "{run}"}), 200
             )
 
