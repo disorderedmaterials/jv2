@@ -16,7 +16,11 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>JournalViewer2</string>
+   <string>JournalViewer</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/icons/icons/jv2.svg</normaloff>:/icons/icons/jv2.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="enabled">
