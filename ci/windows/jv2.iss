@@ -29,7 +29,7 @@ DefaultGroupName={#MyAppName}
 LicenseFile=..\..\LICENSE.txt
 OutputDir=..\..\
 OutputBaseFilename=JournalViewer2-{#MyAppVersion}-Win64
-SetupIconFile=JournalViewer2.ico
+SetupIconFile=../../extra/jv2.ico
 Compression=lzma
 SolidCompression=yes
 
