@@ -29,7 +29,7 @@ void MainWindow::setUpStandardJournalSources(QCommandLineParser &cliParser)
         isisArchive->setRunDataLocation(settings
                                             .value("ISISArchiveDataUrl", cliParser.isSet(CLIArgs::ISISArchiveDirectory)
                                                                              ? cliParser.value(CLIArgs::ISISArchiveDirectory)
-                                                                             : "/NOTarchive")
+                                                                             : "/archive")
                                             .toString());
     }
 
