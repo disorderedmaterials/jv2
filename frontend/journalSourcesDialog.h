@@ -46,6 +46,7 @@ class JournalSourcesDialog : public QDialog
     void on_JournalInstrumentPathUppercaseCheck_clicked(bool checked);
     // Run Data Location
     void on_RunDataRootURLEdit_editingFinished();
+    void on_RunDataRootURLSelectButton_clicked(bool checked);
     void on_RunDataInstrumentPathCombo_currentIndexChanged(int index);
     void on_RunDataInstrumentPathUppercaseCheck_clicked(bool checked);
     // Journal Data Organisation

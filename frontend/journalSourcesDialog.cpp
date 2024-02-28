@@ -2,6 +2,7 @@
 // Copyright (c) 2024 Team JournalViewer and contributors
 
 #include "journalSourcesDialog.h"
+#include <QFileDialog>
 
 JournalSourcesDialog::JournalSourcesDialog(QWidget *parent) : QDialog(parent)
 {
@@ -130,6 +131,16 @@ void JournalSourcesDialog::on_RunDataRootURLEdit_editingFinished()
         return;
 
     currentSource_->setRunDataLocation(ui_.RunDataRootURLEdit->text());
+}
+
+void JournalSourcesDialog::on_RunDataRootURLSelectButton_clicked(bool checked)
+{
+    auto dir = QFileDialog::getExistingDirectory(this, "Choose Run Data Location", ui_.RunDataRootURLEdit->text());
+    if (dir.isEmpty())
+        return;
+
+    ui_.RunDataRootURLEdit->setText(dir);
+    currentSource_->setRunDataLocation(dir);
 }
 
 void JournalSourcesDialog::on_RunDataInstrumentPathCombo_currentIndexChanged(int index)
