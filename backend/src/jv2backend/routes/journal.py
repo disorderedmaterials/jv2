@@ -124,8 +124,8 @@ def add_routes(
         except InvalidRequest as exc:
             return make_response(jsonify({"Error": str(exc)}), 200)
 
-        logging.debug(f"Get uncached journal count for source"
-                      "{post_data.library_key()}")
+        logging.debug(f"Get uncached journal count for source "
+                      f"{post_data.library_key()}")
 
         collection = journalLibrary[post_data.library_key()]
         if collection is None:
