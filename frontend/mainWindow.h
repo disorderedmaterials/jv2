@@ -87,6 +87,7 @@ class MainWindow : public QMainWindow
     void on_JournalComboBox_currentIndexChanged(int index);
     void on_JournalComboBackToJournalsButton_clicked(bool checked);
     void on_actionEditSources_triggered();
+    void on_actionRegenerateSource_triggered();
 
     private:
     // Handle returned journal information for an instrument
