@@ -111,6 +111,16 @@ then
   echo -n "           flake.nix (Program Version) : "
   grep " version =" flake.nix | sed -e "s/\W*version = \"\(.*\)\";/\1/"
 
+  # PyProject Files
+  if [ "$CHECK" = "false" ]
+  then
+    sed -i -e "s/version = \".*\"/version = \"$MAJOR.$MINOR.$PATCH\"/" backend/pyproject.toml*
+  fi
+  echo -n "      pyproject.toml (Program Version) : "
+  grep "version =" backend/pyproject.toml | sed -e "s/\W*version = \"\(.*\)\"/\1/"
+  echo -n "  pyproject.toml.win (Program Version) : "
+  grep "version =" backend/pyproject.toml.win | sed -e "s/\W*version = \"\(.*\)\"/\1/"
+
 
   # CMakeLists.txt
   CMAKELISTS=frontend/CMakeLists.txt
