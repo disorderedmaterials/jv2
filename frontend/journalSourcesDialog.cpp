@@ -24,10 +24,12 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     Locker updateLock(widgetUpdateLock_);
 
     // Overall group control
-    ui_.SourceTypGroup->setEnabled(currentSource_);
-    ui_.JournalLocationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Network);
-    ui_.RunDataLocationGroup->setEnabled(currentSource_);
-    ui_.DataOrganisationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Generated);
+    ui_.SourceTypGroup->setEnabled(currentSource_ && currentSource_->isUserDefined());
+    ui_.JournalLocationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined() &&
+                                         currentSource_->type() == JournalSource::IndexingType::Network);
+    ui_.RunDataLocationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined());
+    ui_.DataOrganisationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined() &&
+                                          currentSource_->type() == JournalSource::IndexingType::Generated);
     ui_.RemoveSourceButton->setEnabled(currentSource_ && currentSource_->isUserDefined());
 
     if (!currentSource_)
