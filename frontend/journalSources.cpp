@@ -167,15 +167,6 @@ void MainWindow::on_actionEditSources_triggered()
     storeUserJournalSources();
 }
 
-void MainWindow::on_actionAcquireAllJournalsForSource_triggered()
-{
-    if (!currentJournalSource_)
-        return;
-
-    backend_.acquireAllJournals(currentJournalSource(),
-                                [=](HttpRequestWorker *worker) { handleAcquireAllJournalsForSearch(); });
-}
-
 /*
  * Network Handling
  */
