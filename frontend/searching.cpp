@@ -114,6 +114,8 @@ void MainWindow::handleAcquireAllJournalsForSearch()
 
                             sourceBeingAcquired_ = nullptr;
 
+                            updateForCurrentSource(JournalSource::JournalSourceState::OK);
+
                             on_actionSearchEverywhere_triggered();
                         }
                         else
