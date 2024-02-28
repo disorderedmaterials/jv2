@@ -69,6 +69,8 @@ void MainWindow::handlePreSearchResult(HttpRequestWorker *worker)
         SearchDialog searchDialog(this);
 
         auto queryParameters = searchDialog.getQuery();
+        if (queryParameters.empty())
+            return;
         backend_.search(currentJournalSource(), queryParameters,
                         [=](HttpRequestWorker *worker) { handleSearchResult(worker); });
     }
