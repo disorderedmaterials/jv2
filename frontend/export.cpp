@@ -17,7 +17,8 @@ void MainWindow::exportRunDataAsText()
 
     // Get a file name to save under
     static QDir currentDirectory;
-    auto fileName = QFileDialog::getSaveFileName(this, "Save data as text file", currentDirectory.path());
+    auto fileName = QFileDialog::getSaveFileName(this, "Save data as text file", currentDirectory.path(), {}, {},
+                                                 QFileDialog::DontUseNativeDialog);
     if (fileName.isEmpty())
         return;
 
