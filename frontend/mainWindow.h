@@ -58,6 +58,16 @@ class MainWindow : public QMainWindow
     void closeEvent(QCloseEvent *event) override;
 
     /*
+     * Export
+     */
+    private:
+    // Export run data as text
+    void exportRunDataAsText();
+
+    private slots:
+    void on_actionExportAsText_triggered();
+
+    /*
      * Journal Sources
      */
     private:

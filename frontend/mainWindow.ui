@@ -690,6 +690,18 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuExport">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="title">
+      <string>Export</string>
+     </property>
+     <addaction name="actionExportAsText"/>
+    </widget>
+    <addaction name="menuExport"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -843,6 +855,11 @@
   <action name="actionRegenerateSource">
    <property name="text">
     <string>Regenerate Source...</string>
+   </property>
+  </action>
+  <action name="actionExportAsText">
+   <property name="text">
+    <string>As Text</string>
    </property>
   </action>
  </widget>
