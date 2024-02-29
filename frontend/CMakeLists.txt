@@ -8,7 +8,7 @@ set(DESCRIPTION
 set(AUTHOR "Team JV2")
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "99")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 
 # Global CMake settings
 set(CMAKE_CXX_STANDARD 17)
