@@ -53,6 +53,7 @@ qt6_add_executable(
   args.h
   data.cpp
   errorHandling.cpp
+  export.cpp
   filtering.cpp
   finding.cpp
   generation.cpp
