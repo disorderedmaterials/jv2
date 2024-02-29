@@ -258,14 +258,14 @@ class JournalGenerator:
             )
 
         # Store in the user cache
-        jv2backend.userCache.put_data(collection.library_key,
-                                      collection.get_index_file_url(),
-                                      collection.to_basic_json(),
-                                      datetime.datetime.now())
+        jv2backend.main.userCache.put_data(collection.library_key,
+                                           collection.get_index_file_url(),
+                                           collection.to_basic_json(),
+                                           datetime.datetime.now())
         for journal in collection.journals:
-            jv2backend.userCache.put_data(collection.library_key,
-                                          journal.filename,
-                                          json.dumps(journal.run_data),
-                                          datetime.datetime.now())
+            jv2backend.main.userCache.put_data(collection.library_key,
+                                               journal.filename,
+                                               json.dumps(journal.run_data),
+                                               datetime.datetime.now())
 
         return json.dumps("SUCCESS")

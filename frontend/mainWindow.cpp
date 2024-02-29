@@ -83,6 +83,7 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     {
         ui_.InstrumentComboBox->setEnabled(false);
         ui_.JournalComboBox->setEnabled(false);
+        ui_.actionRegenerateSource->setEnabled(false);
         journalModel_.setData(std::nullopt);
 
         setErrorPage("No Journal Source", "There is no current journal source set, so nothing to display.");
@@ -123,6 +124,9 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
         journalAutoUpdateTimer_.start();
     else
         journalAutoUpdateTimer_.stop();
+
+    // Set state of source-related controls
+    ui_.actionRegenerateSource->setEnabled(currentJournalSource_->type() == JournalSource::IndexingType::Generated);
 }
 
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }

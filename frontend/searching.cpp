@@ -30,7 +30,7 @@ void MainWindow::on_AcquisitionCancelButton_clicked(bool checked)
 void MainWindow::updateAcquisitionPage(int nCompleted, const QString &lastJournalProcessed)
 {
     ui_.AcquisitionProgressBar->setValue(nCompleted);
-    ui_.AcquisitionInfoLabel->setText(QString("Last journal processed was '%1')").arg(lastJournalProcessed));
+    ui_.AcquisitionInfoLabel->setText(QString("Last journal processed was '%1'...").arg(lastJournalProcessed));
 }
 
 /*
@@ -69,6 +69,8 @@ void MainWindow::handlePreSearchResult(HttpRequestWorker *worker)
         SearchDialog searchDialog(this);
 
         auto queryParameters = searchDialog.getQuery();
+        if (queryParameters.empty())
+            return;
         backend_.search(currentJournalSource(), queryParameters,
                         [=](HttpRequestWorker *worker) { handleSearchResult(worker); });
     }
@@ -111,6 +113,8 @@ void MainWindow::handleAcquireAllJournalsForSearch()
                                 QString("Journal acquisition completed for source '%1'.\n").arg(sourceBeingAcquired_->name()));
 
                             sourceBeingAcquired_ = nullptr;
+
+                            updateForCurrentSource(JournalSource::JournalSourceState::OK);
 
                             on_actionSearchEverywhere_triggered();
                         }

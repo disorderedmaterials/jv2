@@ -167,13 +167,24 @@ void MainWindow::on_actionEditSources_triggered()
     storeUserJournalSources();
 }
 
-void MainWindow::on_actionAcquireAllJournalsForSource_triggered()
+void MainWindow::on_actionRegenerateSource_triggered()
 {
-    if (!currentJournalSource_)
-        return;
-
-    backend_.acquireAllJournals(currentJournalSource(),
-                                [=](HttpRequestWorker *worker) { handleAcquireAllJournalsForSearch(); });
+    // Check if another source is being generated...
+    if (sourceBeingGenerated_)
+    {
+        QMessageBox::warning(this, "Error",
+                             QString("Can't generate indices for '%1' because another generation "
+                                     "process is currently active (for '%2').")
+                                 .arg(currentJournalSource_->sourceID(), sourceBeingGenerated_->sourceID()));
+    }
+    else if (QMessageBox::question(
+                 this, "Regenerate Source Indices",
+                 QString("This will completely regenerate all index files for '%1'.\nAre you sure you want to proceed?")
+                     .arg(currentJournalSource_->sourceID())) == QMessageBox::StandardButton::Yes)
+    {
+        sourceBeingGenerated_ = currentJournalSource_;
+        backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker) { handleGenerateList(worker); });
+    }
 }
 
 /*

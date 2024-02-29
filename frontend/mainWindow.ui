@@ -678,7 +678,7 @@
      <x>0</x>
      <y>0</y>
      <width>938</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -733,7 +733,8 @@
      <string>&amp;Sources</string>
     </property>
     <addaction name="actionEditSources"/>
-    <addaction name="actionAcquireAllJournalsForSource"/>
+    <addaction name="separator"/>
+    <addaction name="actionRegenerateSource"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -839,9 +840,9 @@
     <string>Edit Sources...</string>
    </property>
   </action>
-  <action name="actionAcquireAllJournalsForSource">
+  <action name="actionRegenerateSource">
    <property name="text">
-    <string>Acquire All Journals</string>
+    <string>Regenerate Source...</string>
    </property>
   </action>
  </widget>

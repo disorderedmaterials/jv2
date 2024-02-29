@@ -2,6 +2,7 @@
 // Copyright (c) 2024 Team JournalViewer and contributors
 
 #include "journalSourcesDialog.h"
+#include <QFileDialog>
 
 JournalSourcesDialog::JournalSourcesDialog(QWidget *parent) : QDialog(parent)
 {
@@ -23,10 +24,12 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     Locker updateLock(widgetUpdateLock_);
 
     // Overall group control
-    ui_.SourceTypGroup->setEnabled(currentSource_);
-    ui_.JournalLocationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Network);
-    ui_.RunDataLocationGroup->setEnabled(currentSource_);
-    ui_.DataOrganisationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Generated);
+    ui_.SourceTypGroup->setEnabled(currentSource_ && currentSource_->isUserDefined());
+    ui_.JournalLocationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined() &&
+                                         currentSource_->type() == JournalSource::IndexingType::Network);
+    ui_.RunDataLocationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined());
+    ui_.DataOrganisationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined() &&
+                                          currentSource_->type() == JournalSource::IndexingType::Generated);
     ui_.RemoveSourceButton->setEnabled(currentSource_ && currentSource_->isUserDefined());
 
     if (!currentSource_)
@@ -130,6 +133,16 @@ void JournalSourcesDialog::on_RunDataRootURLEdit_editingFinished()
         return;
 
     currentSource_->setRunDataLocation(ui_.RunDataRootURLEdit->text());
+}
+
+void JournalSourcesDialog::on_RunDataRootURLSelectButton_clicked(bool checked)
+{
+    auto dir = QFileDialog::getExistingDirectory(this, "Choose Run Data Location", ui_.RunDataRootURLEdit->text());
+    if (dir.isEmpty())
+        return;
+
+    ui_.RunDataRootURLEdit->setText(dir);
+    currentSource_->setRunDataLocation(dir);
 }
 
 void JournalSourcesDialog::on_RunDataInstrumentPathCombo_currentIndexChanged(int index)
