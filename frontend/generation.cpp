@@ -32,7 +32,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
  */
 
 // Handle returned directory list result
-void MainWindow::handleGenerateList(HttpRequestWorker *worker)
+void MainWindow::handleGenerateList(HttpRequestWorker *worker, bool updateCurrentCollection)
 {
     // Check network reply
     if (handleRequestError(worker, "trying to list data directory") != NoError)
@@ -89,13 +89,21 @@ void MainWindow::handleGenerateList(HttpRequestWorker *worker)
     updateForCurrentSource(JournalSource::JournalSourceState::Generating);
 
     // Begin the background file scan
-    backend_.generateBackgroundScan(sourceBeingGenerated_,
-                                    [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(); });
+    if (updateCurrentCollection)
+        backend_.generateBackgroundUpdate(sourceBeingGenerated_,
+                                          [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(scanWorker); });
+    else
+        backend_.generateBackgroundScan(sourceBeingGenerated_,
+                                        [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(scanWorker); });
 }
 
 // Handle / monitor the generation background scan
-void MainWindow::handleGenerateBackgroundScan()
+void MainWindow::handleGenerateBackgroundScan(HttpRequestWorker *worker)
 {
+    // Check network reply
+    if (handleRequestError(worker, "trying to perform background scan") != NoError)
+        return;
+
     if (!sourceBeingGenerated_)
         throw(std::runtime_error("No target source for generation is set.\n"));
 
@@ -134,7 +142,7 @@ void MainWindow::handleGenerateBackgroundScan()
                                 backend_.generateFinalise(sourceBeingGenerated_,
                                                           [=](HttpRequestWorker *worker) { handleGenerateFinalise(worker); });
                             else
-                                handleGenerateBackgroundScan();
+                                handleGenerateBackgroundScan(worker);
                         }
                     });
             });

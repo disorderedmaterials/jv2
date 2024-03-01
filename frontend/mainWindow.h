@@ -182,7 +182,7 @@ class MainWindow : public QMainWindow
     // Handle returned directory list result
     void handleGenerateList(HttpRequestWorker *worker);
     // Handle / monitor the generation background scan
-    void handleGenerateBackgroundScan();
+    void handleGenerateBackgroundScan(HttpRequestWorker *worker);
     // Handle journal generation finalisation
     void handleGenerateFinalise(HttpRequestWorker *worker);
     // Handle journal generation background scan termination
