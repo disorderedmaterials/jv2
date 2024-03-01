@@ -17,6 +17,9 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Set the window title
     setWindowTitle(QString("JournalViewer 2 (v%1)").arg(JV2VERSION));
 
+    // Make sure the Loading page is visibiel immediately
+    ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::Loading);
+
     // Set up standard journal sources and get any user-defined ones
     setUpStandardJournalSources(cliParser);
     getUserJournalSources();
