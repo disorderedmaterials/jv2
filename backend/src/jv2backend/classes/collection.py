@@ -457,6 +457,19 @@ class JournalCollection:
             result[i] = self.locate_data_file(i)
         return result
 
+    def find_data_file(self, filename: str) -> (Journal, {}):
+        """Search all journals for the data filename (e.g. INST000001234.nxs)
+        and return the Journal it exists in along with the run data, or a pair
+        of None for not found.
+        """
+        for jf in self._journals:
+            jf.get_run_data()
+            data = jf.get_run_for_file(filename)
+            if data is not None:
+                return jf, data
+
+        return None, None
+
     # ---------------- Search
 
     def search(self, search_terms: {}) -> {}:

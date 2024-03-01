@@ -132,7 +132,18 @@ void MainWindow::on_actionRefreshJournal_triggered()
     if (!currentJournalSource_)
         return;
 
-    backend_.getJournalUpdates(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    if (currentJournalSource_->type() == JournalSource::IndexingType::Network)
+        backend_.getJournalUpdates(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    else
+    {
+        if (sourceBeingGenerated_)
+            ui_.statusbar->showMessage("Can't refresh a generated source while another is being generated...");
+        else
+        {
+            sourceBeingGenerated_ = currentJournalSource_;
+            backend_.generateList(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGenerateList(worker, true); });
+        }
+    }
 }
 
 // Jump to run number

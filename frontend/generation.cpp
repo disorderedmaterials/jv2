@@ -182,3 +182,29 @@ void MainWindow::handleGenerateBackgroundScanStop(HttpRequestWorker *worker)
     if (handleRequestError(worker, "trying to stop run data scan for directory") != NoError)
         return;
 }
+
+// Handle get generated journal updates result
+void MainWindow::handleGetGeneratedJournalUpdates(HttpRequestWorker *worker)
+{
+    printf("HERE WE ARE.\n");
+
+    // Check network reply
+    if (handleRequestError(worker, "trying to list data directory") != NoError)
+    {
+        sourceBeingGenerated_ = nullptr;
+        return;
+    }
+
+    qDebug() << worker->response();
+
+    // Result contains the number of NeXuS files found and the target dir
+    const auto receivedData = worker->jsonResponse().object();
+    auto nFilesFound = receivedData["num_files"].toInt();
+    auto dataDirectory = receivedData["data_directory"].toString();
+    qDebug() << nFilesFound;
+    qDebug() << dataDirectory;
+
+    // Begin the background file scan
+    //    backend_.generateUpdate(sourceBeingGenerated_, [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan();
+    //    });
+}

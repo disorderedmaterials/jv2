@@ -110,6 +110,8 @@ class Backend : public QObject
     void generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Scan data files discovered in the specified source
     void generateBackgroundScan(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Check available files against journal source data, returning info on updates
+    void generateBackgroundUpdate(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Request update on background scan
     void generateBackgroundScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Stop background scan

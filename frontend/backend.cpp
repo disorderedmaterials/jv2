@@ -252,6 +252,15 @@ void Backend::generateBackgroundScan(const JournalSource *source, const HttpRequ
     postRequest(createRoute("generate/scan"), source->sourceObjectData(), handler);
 }
 
+// Check available files against journal source data, returning info on updates
+void Backend::generateBackgroundUpdate(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+{
+    auto data = source->currentJournalObjectData();
+    data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source->dataOrganisation());
+
+    postRequest(createRoute("generate/update"), data, handler);
+}
+
 // Request update on background scan
 void Backend::generateBackgroundScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler)
 {

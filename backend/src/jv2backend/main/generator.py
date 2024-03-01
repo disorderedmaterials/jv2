@@ -25,9 +25,10 @@ _GENERATOR_THREAD_COMPLETE_MUTEX = Lock()
 
 # Threading
 class GeneratorThread(Thread):
-    def __init__(self, discovered_files: typing.Dict[str, typing.Any]):
+    def __init__(self, discovered_files: typing.Dict[str, typing.Any], existing_collection: JournalCollection = None):
         Thread.__init__(self)
         self._discovered_files = discovered_files
+        self._existing_collection = existing_collection
         self._run_data = []
         self._complete = False
 
@@ -66,9 +67,20 @@ class GeneratorThread(Thread):
 
                 logging.debug(f"... {f}")
 
-                # Get attributes from the file
-                with _GENERATOR_THREAD_RUN_DATA_MUTEX:
-                    self._run_data.append(self._create_journal_entry(directory, f))
+                # If we have an existing collection we try to find the file.
+                # Otherwise we just get the attributes and append to _run_data
+                if self._existing_collection is None:
+                    with _GENERATOR_THREAD_RUN_DATA_MUTEX:
+                        self._run_data.append(
+                            self._create_journal_entry(directory, f)
+                        )
+                else:
+                    jf, data = self._existing_collection.find_data_file(f)
+                    if jf is None:
+                        logging.debug(f"Failed to find journal entry for {f}")
+                    elif data["data_directory"] != directory:
+                        logging.debug(f"Found journal entry for {f} but the file has been moved")
+                        logging.debug(f"  -> {jf.data_directory} vs {directory}")
 
         with _GENERATOR_THREAD_COMPLETE_MUTEX:
             self._complete = True
@@ -147,6 +159,7 @@ class JournalGenerator:
 
     def __init__(self) -> None:
         self._discovered_files: typing.Dict[str, typing.Any] = {}
+        self._existing_collection: JournalCollection = None
 
     def list_files(self, data_directory: str, root_re_selector: str) -> str:
         """List available NeXuS files in a directory.
@@ -194,19 +207,23 @@ class JournalGenerator:
             }
         )
 
-    def scan(self) -> str:
-        """Generate an index file containing journal information
-
-        :param collection: Target collection for new journals
-        :param sort_key: Attribute on which to sort run data into journals
-
-        Search all folders in the data file directory and generate a set of
+    def scan(self, existing_collection: JournalCollection = None) -> str:
+        """Search all folders in the data file directory and generate a set of
         journal files describing the found data.
+
+        If an existing collection is supplied then it is updated, rather than
+        being generated from scratch.
         """
+        logging.debug("I am here...")
+        self._existing_collection = existing_collection
+
+        logging.debug("sdfsdfsdf...")
         # Create the generator thread
         global _GENERATOR_THREAD, _STOP_GENERATOR_EVENT
-        _GENERATOR_THREAD = GeneratorThread(self._discovered_files)
+        _GENERATOR_THREAD = GeneratorThread(self._discovered_files, self._existing_collection)
         _STOP_GENERATOR_EVENT.clear()
+
+        # Start the generator thread and return
         _GENERATOR_THREAD.start()
         logging.debug("Started generator thread...")
         return json.dumps(None)
