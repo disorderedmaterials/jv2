@@ -132,8 +132,6 @@ void MainWindow::on_actionRefreshJournal_triggered()
     if (!currentJournalSource_)
         return;
 
-    auto optJournal = currentJournalSource_->currentJournal();
-
     backend_.getJournalUpdates(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
 }
 
