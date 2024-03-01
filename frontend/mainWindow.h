@@ -102,6 +102,8 @@ class MainWindow : public QMainWindow
     private:
     // Handle returned journal information for an instrument
     void handleListJournals(HttpRequestWorker *worker, std::optional<QString> journalToLoad = {});
+    // Handle run data returned for a whole journal
+    void handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight = {});
     // Handle get journal updates result
     void handleGetJournalUpdates(HttpRequestWorker *worker);
     // Handle jump to journal
@@ -157,10 +159,6 @@ class MainWindow : public QMainWindow
     void on_actionJumpTo_triggered();
     // Run data context menu requested
     void runDataContextMenuRequested(QPoint pos);
-
-    private:
-    // Handle run data returned for a whole journal
-    void handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight = {});
 
     /*
      * Journal Generation
