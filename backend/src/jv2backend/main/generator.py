@@ -161,13 +161,14 @@ class JournalGenerator:
         self._discovered_files = {}
         for rootDir, dirs, files in os.walk(data_directory):
             for f in files:
-                if f.lower().endswith(".nxs"):
+                if (f.lower().endswith(".nxs") and
+                    os.access(url_join(rootDir, f), os.R_OK)):
                     if rootDir not in self._discovered_files:
                         self._discovered_files[rootDir] = []
                     self._discovered_files[rootDir].append(f)
 
         num_files = sum(len(runs) for runs in self._discovered_files.values())
-        logging.debug(f"Found {num_files} NeXus files over \
+        logging.debug(f"Found {num_files} accessible NeXuS files over \
                       {len(self._discovered_files)} unique directories \
                       in root directory {data_directory}.")
 
