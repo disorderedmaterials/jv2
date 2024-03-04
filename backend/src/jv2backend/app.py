@@ -74,6 +74,8 @@ def go_gunicorn(jv2app: Flask, args):
     options = {
         'bind': args.bind,
     }
+    if args.timeout:
+        options["timeout"] = args.timeout
     if args.debug:
         options["log-level"] = "INFO"
     GUnicornApplication(jv2app, options).run()
@@ -81,7 +83,7 @@ def go_gunicorn(jv2app: Flask, args):
 def go_waitress(jv2app: Flask, args):
     from waitress import serve
 
-    serve(jv2app, listen=args.bind)
+    serve(jv2app, listen=args.bind, channel_timeout=args.timeout)
 
 
 
@@ -92,13 +94,17 @@ def go():
                         type=str, required=True,
                         help="Address to bind to (e.g. 127.0.0.1:5000)"
                         )
-    parser.add_argument('-w', '--waitress',
-                        action='store_true',
-                        help="Whether to use waitress over gunicorn."
-                        )
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         help="Enable debug logging from the WSGI server."
+                        )
+    parser.add_argument('-t', '--timeout',
+                        type=int, default=120,
+                        help="Set request timeout (in second) for the server."
+                        )
+    parser.add_argument('-w', '--waitress',
+                        action='store_true',
+                        help="Whether to use waitress over gunicorn."
                         )
 
     args = parser.parse_args()

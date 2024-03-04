@@ -14,6 +14,7 @@ Backend::Backend(const QCommandLineParser &args) : process_()
 
     process_.setProgram("jv2backend");
     backendArgs << "-b" << bindAddress();
+    backendArgs << "-t" << "300";
     if (args.isSet(CLIArgs::DebugBackend))
         backendArgs << "-d";
     if (args.isSet(CLIArgs::UseWaitress))
