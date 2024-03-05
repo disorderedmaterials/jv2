@@ -200,6 +200,12 @@ void JournalSource::setRunDataLocation(const QString &runDataRootUrl) { runDataR
 // Return root URL containing associated run data
 const QString &JournalSource::runDataRootUrl() const { return runDataRootUrl_; }
 
+// Set regular expression to select directories directly under the root URL
+void JournalSource::setRunDataRootRegexp(const QString &regexp) { runDataRootRegexp_ = regexp; }
+
+// Return regular expression to select directories directly under the root URL
+const QString &JournalSource::runDataRootRegexp() const { return runDataRootRegexp_; }
+
 /*
  * Generated Data Organisation
  */

@@ -124,6 +124,7 @@ void MainWindow::storeUserJournalSources() const
 
         // Run Data
         settings.setValue("RunDataRootUrl", source->runDataRootUrl());
+        settings.setValue("RunDataRootRegExp", source->runDataRootRegexp());
         settings.setValue("RunDataPathType", Instrument::pathType(source->runDataOrganisationByInstrument()));
         settings.setValue("RunDataPathTypeUppercased", source->isRunDataOrganisationByInstrumentUppercased());
 
@@ -163,6 +164,7 @@ void MainWindow::getUserJournalSources()
 
         // Run Data
         source->setRunDataLocation(settings.value("RunDataRootUrl").toString());
+        source->setRunDataRootRegexp(settings.value("RunDataRootRegExp").toString());
         source->setRunDataOrganisationByInstrument(
             Instrument::pathType(
                 settings.value("RunDataPathType", Instrument::pathType(Instrument::PathType::None)).toString()),
