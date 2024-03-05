@@ -48,6 +48,7 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     ui_.JournalInstrumentPathUppercaseCheck->setChecked(currentSource_->isJournalOrganisationByInstrumentUppercased());
     // -- Run Data Location
     ui_.RunDataRootURLEdit->setText(currentSource_->runDataRootUrl());
+    ui_.RunDataRootRegExpEdit->setText(currentSource_->runDataRootRegexp());
     ui_.RunDataInstrumentPathCombo->setCurrentIndex(currentSource_->runDataOrganisationByInstrument());
     ui_.RunDataInstrumentPathUppercaseCheck->setChecked(currentSource_->isRunDataOrganisationByInstrumentUppercased());
     // -- Data Organisation
@@ -133,6 +134,14 @@ void JournalSourcesDialog::on_RunDataRootURLEdit_editingFinished()
         return;
 
     currentSource_->setRunDataLocation(ui_.RunDataRootURLEdit->text());
+}
+
+void JournalSourcesDialog::on_RunDataRootRegExpEdit_editingFinished()
+{
+    if (widgetUpdateLock_ || !currentSource_)
+        return;
+
+    currentSource_->setRunDataRootRegexp(ui_.RunDataRootRegExpEdit->text());
 }
 
 void JournalSourcesDialog::on_RunDataRootURLSelectButton_clicked(bool checked)
