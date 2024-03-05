@@ -247,7 +247,7 @@ void Backend::generateBackgroundScan(const JournalSource *source, const HttpRequ
 {
     // Only for disk-based sources
     if (source->type() == JournalSource::IndexingType::Network)
-        throw(std::runtime_error("Can't generate journals for a network source->\n"));
+        throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
     postRequest(createRoute("generate/scan"), source->sourceObjectData(), handler);
 }
