@@ -236,6 +236,9 @@ void Backend::getNexusDetectorAnalysis(const JournalSource *source, int runNo,
 // Generate data file list for the specified source
 void Backend::generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
+    auto data = source->currentJournalObjectData();
+    data["rootRegExpSelector"] = source->runDataRootRegexp();
+
     postRequest(createRoute("generate/list"), source->currentJournalObjectData(), handler);
 }
 
