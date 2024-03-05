@@ -41,7 +41,7 @@ void MainWindow::setUpStandardJournalSources(QCommandLineParser &cliParser)
         idaaasRB->setRunDataOrganisationByInstrument(Instrument::PathType::Name, true);
         idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache");
         idaaasRB->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
-        idaaasRB->setRunDataRootRegexp("[0-9]\\+");
+        idaaasRB->setRunDataRootRegExp("[0-9]\\+");
     }
 }
 
