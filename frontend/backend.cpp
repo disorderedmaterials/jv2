@@ -239,7 +239,7 @@ void Backend::generateList(const JournalSource *source, const HttpRequestWorker:
     auto data = source->currentJournalObjectData();
     data["rootRegExpSelector"] = source->runDataRootRegExp();
 
-    postRequest(createRoute("generate/list"), source->currentJournalObjectData(), handler);
+    postRequest(createRoute("generate/list"), data, handler);
 }
 
 // Scan data files discovered in the specified source
