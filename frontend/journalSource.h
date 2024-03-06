@@ -136,12 +136,18 @@ class JournalSource
     private:
     // Root URL containing associated run data
     QString runDataRootUrl_;
+    // Regular expression to select directories directly under the root URL
+    QString runDataRootRegExp_;
 
     public:
     // Set run data location
     void setRunDataLocation(const QString &runDataRootUrl);
     // Return root URL containing associated run data
     const QString &runDataRootUrl() const;
+    // Set regular expression to select directories directly under the root URL
+    void setRunDataRootRegExp(const QString &regexp);
+    // Return regular expression to select directories directly under the root URL
+    const QString &runDataRootRegExp() const;
 
     /*
      * Generated Data Organisation

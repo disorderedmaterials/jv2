@@ -32,7 +32,8 @@ def add_routes(
         """
         try:
             post_data = RequestData(request.json,
-                                    require_data_directory=True)
+                                    require_data_directory=True,
+                                    require_parameters="rootRegExpSelector")
         except InvalidRequest as exc:
             return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
@@ -40,7 +41,8 @@ def add_routes(
                       f"{post_data.run_data_root_url}...")
 
         return make_response(
-            journalGenerator.list_files(post_data.run_data_root_url),
+            journalGenerator.list_files(post_data.run_data_root_url,
+                                              post_data.parameter("rootRegExpSelector")),
             200
         )
 

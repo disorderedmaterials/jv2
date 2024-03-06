@@ -9,6 +9,7 @@ import hashlib
 import datetime
 import json
 import copy
+import re
 from jv2backend.utils import url_join
 from jv2backend.classes.collection import JournalCollection
 import jv2backend.main.userCache
@@ -147,19 +148,32 @@ class JournalGenerator:
     def __init__(self) -> None:
         self._discovered_files: typing.Dict[str, typing.Any] = {}
 
-    def list_files(self, data_directory: str) -> str:
+    def list_files(self, data_directory: str, root_re_selector: str) -> str:
         """List available NeXuS files in a directory.
 
         :param data_directory: Target data directory to scan
+        :param root_re_selector: Regular expression used to match relevant
+                                 directories in the root
         :return: A JSON response with the number of NeXuS files located
         """
         # Check if a scan is already in progress
         # TODO
 
+        # Strip off any trailing slashes from the root_directory
+        data_directory.rstrip("/\\")
+
         # First step, create a dict of all available nxs files in the target
         # directory, organised by folder name
         self._discovered_files = {}
         for rootDir, dirs, files in os.walk(data_directory):
+            # If this is the root (i.e. == "data_directory" then apply the
+            # regexp selector.
+            if rootDir == data_directory:
+                dirs[:] = [d for d in dirs if re.match(root_re_selector, d)]
+                logging.debug(f"Root dirs after RE selector "
+                              f"'{root_re_selector}': {dirs}")
+
+            # Process files in this directory
             for f in files:
                 if (f.lower().endswith(".nxs") and
                     os.access(url_join(rootDir, f), os.R_OK)):

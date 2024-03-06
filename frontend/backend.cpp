@@ -236,7 +236,10 @@ void Backend::getNexusDetectorAnalysis(const JournalSource *source, int runNo,
 // Generate data file list for the specified source
 void Backend::generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    postRequest(createRoute("generate/list"), source->currentJournalObjectData(), handler);
+    auto data = source->currentJournalObjectData();
+    data["rootRegExpSelector"] = source->runDataRootRegExp();
+
+    postRequest(createRoute("generate/list"), data, handler);
 }
 
 // Scan data files discovered in the specified source
@@ -244,7 +247,7 @@ void Backend::generateBackgroundScan(const JournalSource *source, const HttpRequ
 {
     // Only for disk-based sources
     if (source->type() == JournalSource::IndexingType::Network)
-        throw(std::runtime_error("Can't generate journals for a network source->\n"));
+        throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
     postRequest(createRoute("generate/scan"), source->sourceObjectData(), handler);
 }
