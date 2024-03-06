@@ -141,7 +141,8 @@ void MainWindow::on_actionRefreshJournal_triggered()
         else
         {
             sourceBeingGenerated_ = currentJournalSource_;
-            backend_.generateList(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGenerateList(worker, true); });
+            backend_.generateList(currentJournalSource_, [=](HttpRequestWorker *worker)
+                                  { handleGenerateList(worker, Backend::JournalGenerationStyle::UpdateAll); });
         }
     }
 }

@@ -233,6 +233,20 @@ void Backend::getNexusDetectorAnalysis(const JournalSource *source, int runNo,
  * Generation Endpoints
  */
 
+// Return text for journal generation style
+QString Backend::journalGenerationStyle(JournalGenerationStyle style)
+{
+    switch (style)
+    {
+        case (JournalGenerationStyle::Full):
+            return "full";
+        case (JournalGenerationStyle::UpdateAll):
+            return "updateAll";
+        default:
+            throw(std::runtime_error("Unrecognised JournalGenerationStyle so can't return text for it.\n"));
+    }
+}
+
 // Generate data file list for the specified source
 void Backend::generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
 {
@@ -243,41 +257,39 @@ void Backend::generateList(const JournalSource *source, const HttpRequestWorker:
 }
 
 // Scan data files discovered in the specified source
-void Backend::generateBackgroundScan(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::generateScan(const JournalSource *source, JournalGenerationStyle generationStyle,
+                           const HttpRequestWorker::HttpRequestHandler &handler)
 {
     // Only for disk-based sources
     if (source->type() == JournalSource::IndexingType::Network)
         throw(std::runtime_error("Can't generate journals for a network source.\n"));
 
-    postRequest(createRoute("generate/scan"), source->sourceObjectData(), handler);
-}
-
-// Check available files against journal source data, returning info on updates
-void Backend::generateBackgroundUpdate(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
-{
     auto data = source->currentJournalObjectData();
     data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source->dataOrganisation());
+    data["scanType"] = journalGenerationStyle(generationStyle);
 
-    postRequest(createRoute("generate/update"), data, handler);
+    postRequest(createRoute("generate/scan"), data, handler);
 }
 
 // Request update on background scan
-void Backend::generateBackgroundScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::generateScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler)
 {
     createRequest(createRoute("generate/scanUpdate"), handler);
 }
 
 // Stop background scan
-void Backend::generateBackgroundScanStop(const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::generateScanStop(const HttpRequestWorker::HttpRequestHandler &handler)
 {
-    createRequest(createRoute("generate/stop"), handler);
+    createRequest(createRoute("generate/stopScan"), handler);
 }
 
 // Finalise journals from scanned data
-void Backend::generateFinalise(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler)
+void Backend::generateFinalise(const JournalSource *source, JournalGenerationStyle generationStyle,
+                               const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source->currentJournalObjectData();
     data["sortKey"] = JournalSource::dataOrganisationTypeSortKey(source->dataOrganisation());
+    data["scanType"] = journalGenerationStyle(generationStyle);
 
     postRequest(createRoute("generate/finalise"), data, handler);
 }

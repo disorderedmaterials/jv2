@@ -180,15 +180,13 @@ class MainWindow : public QMainWindow
 
     private:
     // Handle returned directory list result
-    void handleGenerateList(HttpRequestWorker *worker, bool updateCurrentCollection = false);
+    void handleGenerateList(HttpRequestWorker *worker, Backend::JournalGenerationStyle generationStyle);
     // Handle / monitor the generation background scan
-    void handleGenerateBackgroundScan(HttpRequestWorker *worker);
+    void handleGenerateScan(HttpRequestWorker *worker, Backend::JournalGenerationStyle generationStyle);
     // Handle journal generation finalisation
     void handleGenerateFinalise(HttpRequestWorker *worker);
     // Handle journal generation background scan termination
-    void handleGenerateBackgroundScanStop(HttpRequestWorker *worker);
-    // Handle get generated journal updates result
-    void handleGetGeneratedJournalUpdates(HttpRequestWorker *worker);
+    void handleGenerateScanStop(HttpRequestWorker *worker);
 
     /*
      * Error Handling

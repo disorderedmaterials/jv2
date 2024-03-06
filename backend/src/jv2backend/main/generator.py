@@ -78,9 +78,21 @@ class GeneratorThread(Thread):
                     jf, data = self._existing_collection.find_data_file(f)
                     if jf is None:
                         logging.debug(f"Failed to find journal entry for {f}")
+                        with _GENERATOR_THREAD_RUN_DATA_MUTEX:
+                            self._run_data.append(
+                                self._create_journal_entry(directory, f)
+                            )
                     elif data["data_directory"] != directory:
                         logging.debug(f"Found journal entry for {f} but the file has been moved")
                         logging.debug(f"  -> {jf.data_directory} vs {directory}")
+                        data["data_directory"] = directory
+                        with _GENERATOR_THREAD_RUN_DATA_MUTEX:
+                            self._run_data.append(data)
+                    else:
+                        logging.debug(f"Found journal entry for {f} and it is where it should be")
+                        logging.debug(f"  -> {jf.data_directory} == {directory}")
+                        with _GENERATOR_THREAD_RUN_DATA_MUTEX:
+                            self._run_data.append(data)
 
         with _GENERATOR_THREAD_COMPLETE_MUTEX:
             self._complete = True
@@ -214,10 +226,8 @@ class JournalGenerator:
         If an existing collection is supplied then it is updated, rather than
         being generated from scratch.
         """
-        logging.debug("I am here...")
         self._existing_collection = existing_collection
 
-        logging.debug("sdfsdfsdf...")
         # Create the generator thread
         global _GENERATOR_THREAD, _STOP_GENERATOR_EVENT
         _GENERATOR_THREAD = GeneratorThread(self._discovered_files, self._existing_collection)

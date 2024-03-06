@@ -57,21 +57,30 @@ def add_routes(
         """
         try:
             post_data = RequestData(request.json,
-                                    require_data_directory=True)
+                                    require_data_directory=True,
+                                    require_parameters="sortKey,scanType")
         except InvalidRequest as exc:
             return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
         logging.debug(f"Scan NeXuS files discovered in "
                       f"{post_data.run_data_root_url}")
 
-        return make_response(journalGenerator.scan(), 200)
+        if post_data.parameter("scanType") == "full":
+            logging.debug("... Performing full scan")
+            return make_response(journalGenerator.scan(), 200)
+        elif post_data.parameter("scanType") == "updateAll":
+            logging.debug("... Updating all files in existing collection")
+            return make_response(
+                journalGenerator.scan(journalLibrary[post_data.library_key()]),
+                200
+            )
 
     @app.get("/generate/scanUpdate")
     def scan_update() -> FlaskResponse:
         """Provide an update on the current background scan"""
         return make_response(journalGenerator.get_scan_update(), 200)
 
-    @app.get("/generate/stop")
+    @app.get("/generate/stopScan")
     def scan_stop() -> FlaskResponse:
         """Stop the current background scan"""
         return make_response(journalGenerator.stop_scan(), 200)
@@ -93,13 +102,14 @@ def add_routes(
             post_data = RequestData(request.json,
                                     require_journal_file=True,
                                     require_data_directory=True,
-                                    require_parameters="sortKey")
+                                    require_parameters="sortKey,scanType")
         except InvalidRequest as exc:
             return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
 
-        logging.debug(f"Generate journals for '{post_data.library_key()}' "
+        logging.debug(f"Finalise journal generation for '{post_data.library_key()}' "
                       f"from NeXuS files in {post_data.run_data_root_url}")
 
+        # Create a new collection, overwriting any potential old one
         journalLibrary[post_data.library_key()] = JournalCollection(
             SourceType.Generated,
             post_data.library_key(),
@@ -109,35 +119,10 @@ def add_routes(
             datetime.datetime.now()
         )
 
+        # Generate the full journal data
         return make_response(
             journalGenerator.generate(journalLibrary[post_data.library_key()],
                                       post_data.parameter("sortKey")),
             200
         )
-
-    @app.post("/generate/update")
-    def update() -> FlaskResponse:
-        """Updates journals and accompanying index file for a target dir
-
-        The POST data should contain:
-          runDataRootUrl: The data file directory to scan
-
-        :return: A JSON-formatted list of new run data
-        """
-        try:
-            post_data = RequestData(request.json,
-                                    require_journal_file=True,
-                                    require_data_directory=True,
-                                    require_parameters="sortKey")
-        except InvalidRequest as exc:
-            return make_response(jsonify({"InvalidRequestError": str(exc)}), 200)
-
-        logging.debug(f"Update journals from NeXuS files discovered in "
-                      f"{post_data.run_data_root_url}")
-
-        return make_response(
-            journalGenerator.scan(journalLibrary[post_data.library_key()]),
-            200
-        )
-
     return app

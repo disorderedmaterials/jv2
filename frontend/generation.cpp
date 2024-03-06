@@ -24,7 +24,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
             this, "Stop Journal Generation?",
             QString("Are you sure you want to cancel journal generation for '%1'?\nAll progress to date will be lost.")
                 .arg(sourceBeingGenerated_->sourceID())) == QMessageBox::StandardButton::Yes)
-        backend_.generateBackgroundScanStop([&](HttpRequestWorker *worker) { handleGenerateBackgroundScanStop(worker); });
+        backend_.generateScanStop([&](HttpRequestWorker *worker) { handleGenerateScanStop(worker); });
 }
 
 /*
@@ -32,7 +32,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
  */
 
 // Handle returned directory list result
-void MainWindow::handleGenerateList(HttpRequestWorker *worker, bool updateCurrentCollection)
+void MainWindow::handleGenerateList(HttpRequestWorker *worker, Backend::JournalGenerationStyle generationStyle)
 {
     // Check network reply
     if (handleRequestError(worker, "trying to list data directory") != NoError)
@@ -89,16 +89,12 @@ void MainWindow::handleGenerateList(HttpRequestWorker *worker, bool updateCurren
     updateForCurrentSource(JournalSource::JournalSourceState::Generating);
 
     // Begin the background file scan
-    if (updateCurrentCollection)
-        backend_.generateBackgroundUpdate(sourceBeingGenerated_,
-                                          [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(scanWorker); });
-    else
-        backend_.generateBackgroundScan(sourceBeingGenerated_,
-                                        [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(scanWorker); });
+    backend_.generateScan(sourceBeingGenerated_, generationStyle,
+                          [=](HttpRequestWorker *scanWorker) { handleGenerateScan(scanWorker, generationStyle); });
 }
 
 // Handle / monitor the generation background scan
-void MainWindow::handleGenerateBackgroundScan(HttpRequestWorker *worker)
+void MainWindow::handleGenerateScan(HttpRequestWorker *worker, Backend::JournalGenerationStyle generationStyle)
 {
     // Check network reply
     if (handleRequestError(worker, "trying to perform background scan") != NoError)
@@ -112,10 +108,10 @@ void MainWindow::handleGenerateBackgroundScan(HttpRequestWorker *worker)
     pingTimer->setSingleShot(true);
     pingTimer->setInterval(1000);
     connect(pingTimer, &QTimer::timeout,
-            [&]()
+            [=]()
             {
-                backend_.generateBackgroundScanUpdate(
-                    [this](HttpRequestWorker *worker)
+                backend_.generateScanUpdate(
+                    [=](HttpRequestWorker *worker)
                     {
                         if (worker->response().startsWith("\"NOT_RUNNING"))
                         {
@@ -139,10 +135,10 @@ void MainWindow::handleGenerateBackgroundScan(HttpRequestWorker *worker)
 
                             // Complete?
                             if (worker->jsonResponse()["complete"].toBool())
-                                backend_.generateFinalise(sourceBeingGenerated_,
+                                backend_.generateFinalise(sourceBeingGenerated_, generationStyle,
                                                           [=](HttpRequestWorker *worker) { handleGenerateFinalise(worker); });
                             else
-                                handleGenerateBackgroundScan(worker);
+                                handleGenerateScan(worker, generationStyle);
                         }
                     });
             });
@@ -176,35 +172,9 @@ void MainWindow::handleGenerateFinalise(HttpRequestWorker *worker)
     sourceBeingGenerated_ = nullptr;
 }
 
-void MainWindow::handleGenerateBackgroundScanStop(HttpRequestWorker *worker)
+void MainWindow::handleGenerateScanStop(HttpRequestWorker *worker)
 {
     // Check network reply
     if (handleRequestError(worker, "trying to stop run data scan for directory") != NoError)
         return;
-}
-
-// Handle get generated journal updates result
-void MainWindow::handleGetGeneratedJournalUpdates(HttpRequestWorker *worker)
-{
-    printf("HERE WE ARE.\n");
-
-    // Check network reply
-    if (handleRequestError(worker, "trying to list data directory") != NoError)
-    {
-        sourceBeingGenerated_ = nullptr;
-        return;
-    }
-
-    qDebug() << worker->response();
-
-    // Result contains the number of NeXuS files found and the target dir
-    const auto receivedData = worker->jsonResponse().object();
-    auto nFilesFound = receivedData["num_files"].toInt();
-    auto dataDirectory = receivedData["data_directory"].toString();
-    qDebug() << nFilesFound;
-    qDebug() << dataDirectory;
-
-    // Begin the background file scan
-    //    backend_.generateUpdate(sourceBeingGenerated_, [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan();
-    //    });
 }

@@ -184,7 +184,8 @@ void MainWindow::on_actionRegenerateSource_triggered()
                      .arg(currentJournalSource_->sourceID())) == QMessageBox::StandardButton::Yes)
     {
         sourceBeingGenerated_ = currentJournalSource_;
-        backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker) { handleGenerateList(worker); });
+        backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker)
+                              { handleGenerateList(worker, Backend::JournalGenerationStyle::Full); });
     }
 }
 
@@ -228,7 +229,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
                                            .arg(currentJournalSource_->sourceID())) == QMessageBox::StandardButton::Yes)
         {
             sourceBeingGenerated_ = currentJournalSource_;
-            backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker) { handleGenerateList(worker); });
+            backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker)
+                                  { handleGenerateList(worker, Backend::JournalGenerationStyle::Full); });
         }
 
         return;

@@ -106,16 +106,24 @@ class Backend : public QObject
      * Generation Endpoints
      */
     public:
+    // Journal Generation Styles
+    enum class JournalGenerationStyle
+    {
+        Full,
+        UpdateAll
+    };
+    // Return text for journal generation style
+    static QString journalGenerationStyle(JournalGenerationStyle style);
     // Generate data file list for the specified source
     void generateList(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
-    // Scan data files discovered in the specified source
-    void generateBackgroundScan(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
-    // Check available files against journal source data, returning info on updates
-    void generateBackgroundUpdate(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    // Perform scan of data files discovered in the specified source
+    void generateScan(const JournalSource *source, JournalGenerationStyle generationStyle,
+                      const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Request update on background scan
-    void generateBackgroundScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler = {});
+    void generateScanUpdate(const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Stop background scan
-    void generateBackgroundScanStop(const HttpRequestWorker::HttpRequestHandler &handler = {});
+    void generateScanStop(const HttpRequestWorker::HttpRequestHandler &handler = {});
     // Finalise journals from scanned data
-    void generateFinalise(const JournalSource *source, const HttpRequestWorker::HttpRequestHandler &handler = {});
+    void generateFinalise(const JournalSource *source, JournalGenerationStyle generationStyle,
+                          const HttpRequestWorker::HttpRequestHandler &handler = {});
 };
