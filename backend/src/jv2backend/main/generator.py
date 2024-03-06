@@ -152,6 +152,8 @@ class JournalGenerator:
         """List available NeXuS files in a directory.
 
         :param data_directory: Target data directory to scan
+        :param root_re_selector: Regular expression used to match relevant
+                                 directories in the root
         :return: A JSON response with the number of NeXuS files located
         """
         # Check if a scan is already in progress
@@ -168,6 +170,8 @@ class JournalGenerator:
             # regexp selector.
             if rootDir == data_directory:
                 dirs[:] = [d for d in dirs if re.match(root_re_selector, d)]
+                logging.debug(f"Root dirs after RE selector "
+                              f"'{root_re_selector}': {dirs}")
 
             # Process files in this directory
             for f in files:
