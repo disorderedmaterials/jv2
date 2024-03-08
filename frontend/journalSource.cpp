@@ -54,6 +54,12 @@ JournalSource::IndexingType JournalSource::type() const { return type_; }
 // Return whether the source is user-defined
 bool JournalSource::isUserDefined() const { return userDefined_; }
 
+// Set whether the source should be available for use
+void JournalSource::setAvailable(bool available) { available_ = available; }
+
+// Return whether the source should be available for use
+bool JournalSource::isAvailable() const { return available_; }
+
 /*
  * Journal Data
  */

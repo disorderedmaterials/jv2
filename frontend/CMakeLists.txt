@@ -77,6 +77,8 @@ qt6_add_executable(
   instrumentModel.h
   journalModel.cpp
   journalModel.h
+  journalSourceFilterProxy.cpp
+  journalSourceFilterProxy.h
   journalSourceModel.cpp
   journalSourceModel.h
   runDataModel.cpp

@@ -8,7 +8,8 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(cliParser), runDataFilterProxy_(runDataModel_)
+MainWindow::MainWindow(QCommandLineParser &cliParser)
+    : QMainWindow(), backend_(cliParser), journalSourceFilterProxy_(journalSourceModel_), runDataFilterProxy_(runDataModel_)
 {
     ui_.setupUi(this);
 
@@ -39,7 +40,7 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
     // Connect models
-    ui_.JournalSourceComboBox->setModel(&journalSourceModel_);
+    ui_.JournalSourceComboBox->setModel(&journalSourceFilterProxy_);
     ui_.InstrumentComboBox->setModel(&instrumentModel_);
     ui_.JournalComboBox->setModel(&journalModel_);
 

@@ -9,6 +9,7 @@
 #include "instrumentModel.h"
 #include "journalModel.h"
 #include "journalSource.h"
+#include "journalSourceFilterProxy.h"
 #include "journalSourceModel.h"
 #include "lock.h"
 #include "runDataFilterProxy.h"
@@ -75,8 +76,10 @@ class MainWindow : public QMainWindow
     std::vector<std::unique_ptr<JournalSource>> journalSources_;
     // Currently selected journal source (if any)
     JournalSource *currentJournalSource_;
-    // Model for available journal sources
+    // Model for journal sources
     JournalSourceModel journalSourceModel_;
+    // Filter proxy for journal sources
+    JournalSourceFilterProxy journalSourceFilterProxy_;
     // Model for available journals
     JournalModel journalModel_;
 

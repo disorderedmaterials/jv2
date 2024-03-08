@@ -40,6 +40,8 @@ class JournalSource
     IndexingType type_;
     // Whether the source is user-defined
     bool userDefined_{false};
+    // Whether the source should be available for use
+    bool available_{true};
 
     public:
     // Set name
@@ -52,6 +54,10 @@ class JournalSource
     IndexingType type() const;
     // Return whether the source is user-defined
     bool isUserDefined() const;
+    // Set whether the source should be available for use
+    void setAvailable(bool available);
+    // Return whether the source should be available for use
+    bool isAvailable() const;
 
     /*
      * Journal Data
