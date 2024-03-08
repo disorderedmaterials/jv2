@@ -165,7 +165,7 @@ void JournalSource::setJournalOrganisationByInstrument(Instrument::PathType path
 Instrument::PathType JournalSource::journalOrganisationByInstrument() const { return journalOrganisationByInstrument_; }
 
 // Return whether the instrument path component for journals should be uppercased
-bool JournalSource::isJournalOrganisationByInstrumentUppercased() const { return journalOrganisationByInstrumentUpperCased_; }
+bool JournalSource::isJournalOrganisationByInstrumentUpperCased() const { return journalOrganisationByInstrumentUpperCased_; }
 
 // Set instrument-dependent run data organisation for this source
 void JournalSource::setRunDataOrganisationByInstrument(Instrument::PathType pathType, bool upperCased)
@@ -178,7 +178,7 @@ void JournalSource::setRunDataOrganisationByInstrument(Instrument::PathType path
 Instrument::PathType JournalSource::runDataOrganisationByInstrument() const { return runDataOrganisationByInstrument_; }
 
 // Return whether the instrument path component for run data should be uppercased
-bool JournalSource::isRunDataOrganisationByInstrumentUppercased() const { return runDataOrganisationByInstrumentUpperCased_; }
+bool JournalSource::isRunDataOrganisationByInstrumentUpperCased() const { return runDataOrganisationByInstrumentUpperCased_; }
 
 // Set current instrument
 void JournalSource::setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst) { currentInstrument_ = optInst; }
@@ -332,3 +332,73 @@ void JournalSource::stopShowingSearchedData()
 
 // Return whether the source is currently showing searched data
 bool JournalSource::showingSearchedData() const { return journalBeforeSearchedData_.has_value(); }
+
+/*
+ * Settings Storage
+ */
+
+// Store data in the supplied QSettings
+void JournalSource::toSettings(QSettings &settings) const
+{
+    // Basic information
+    settings.setValue("Name", name_);
+    settings.setValue("Type", JournalSource::indexingType(type_));
+
+    // Journal Data
+    if (type_ == JournalSource::IndexingType::Network)
+    {
+        settings.setValue("JournalRootUrl", journalRootUrl_);
+        settings.setValue("JournalIndexFilename", journalIndexFilename_);
+        settings.setValue("JournalPathType", Instrument::pathType(journalOrganisationByInstrument_));
+        settings.setValue("JournalPathTypeUpperCased", journalOrganisationByInstrumentUpperCased_);
+    }
+    else
+    {
+        settings.remove("JournalRootUrl");
+        settings.remove("JournalIndexFilename");
+        settings.remove("JournalPathType");
+    }
+
+    // Run Data
+    settings.setValue("RunDataRootUrl", runDataRootUrl_);
+    settings.setValue("RunDataRootRegExp", runDataRootRegExp_);
+    settings.setValue("RunDataPathType", Instrument::pathType(runDataOrganisationByInstrument_));
+    settings.setValue("RunDataPathTypeUpperCased", runDataOrganisationByInstrumentUpperCased_);
+
+    // Generated Data Organisation
+    if (type_ == JournalSource::IndexingType::Generated)
+        settings.setValue("DataOrganisation", JournalSource::dataOrganisationType(dataOrganisation_));
+    else
+        settings.remove("DataOrganisation");
+}
+
+// Retrieve data from the supplied QSettings
+void JournalSource::fromSettings(const QSettings &settings)
+{
+    // Journal Data
+    if (type_ == JournalSource::IndexingType::Network)
+    {
+        journalRootUrl_ = settings.value("JournalRootUrl").toString();
+        journalIndexFilename_ = settings.value("JournalIndexFilename").toString();
+
+        journalOrganisationByInstrument_ = Instrument::pathType(
+            settings.value("JournalPathType", Instrument::pathType(Instrument::PathType::None)).toString());
+        journalOrganisationByInstrumentUpperCased_ = settings.value("JournalPathTypeUpperCased").toBool();
+    }
+
+    // Run Data
+    runDataRootUrl_ = settings.value("RunDataRootUrl").toString();
+    runDataRootRegExp_ = settings.value("RunDataRootRegExp").toString();
+    runDataOrganisationByInstrument_ =
+        Instrument::pathType(settings.value("RunDataPathType", Instrument::pathType(Instrument::PathType::None)).toString());
+    runDataOrganisationByInstrumentUpperCased_ = settings.value("RunDataPathTypeUpperCased").toBool();
+
+    // Generated Data Organisation
+    if (type_ == JournalSource::IndexingType::Generated)
+    {
+        dataOrganisation_ = JournalSource::dataOrganisationType(
+            settings
+                .value("DataOrganisation", JournalSource::dataOrganisationType(JournalSource::DataOrganisationType::Directory))
+                .toString());
+    }
+}

@@ -45,12 +45,12 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     ui_.JournalRootURLEdit->setText(currentSource_->journalRootUrl());
     ui_.JournalIndexFileEdit->setText(currentSource_->journalIndexFilename());
     ui_.JournalInstrumentPathCombo->setCurrentIndex(currentSource_->journalOrganisationByInstrument());
-    ui_.JournalInstrumentPathUppercaseCheck->setChecked(currentSource_->isJournalOrganisationByInstrumentUppercased());
+    ui_.JournalInstrumentPathUppercaseCheck->setChecked(currentSource_->isJournalOrganisationByInstrumentUpperCased());
     // -- Run Data Location
     ui_.RunDataRootURLEdit->setText(currentSource_->runDataRootUrl());
     ui_.RunDataRootRegExpEdit->setText(currentSource_->runDataRootRegExp());
     ui_.RunDataInstrumentPathCombo->setCurrentIndex(currentSource_->runDataOrganisationByInstrument());
-    ui_.RunDataInstrumentPathUppercaseCheck->setChecked(currentSource_->isRunDataOrganisationByInstrumentUppercased());
+    ui_.RunDataInstrumentPathUppercaseCheck->setChecked(currentSource_->isRunDataOrganisationByInstrumentUpperCased());
     // -- Data Organisation
     ui_.DataOrganisationCombo->setCurrentIndex(currentSource_->dataOrganisation());
 }
