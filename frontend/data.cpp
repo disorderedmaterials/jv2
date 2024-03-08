@@ -132,9 +132,19 @@ void MainWindow::on_actionRefreshJournal_triggered()
     if (!currentJournalSource_)
         return;
 
-    auto optJournal = currentJournalSource_->currentJournal();
-
-    backend_.getJournalUpdates(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    if (currentJournalSource_->type() == JournalSource::IndexingType::Network)
+        backend_.getJournalUpdates(currentJournalSource_, [=](HttpRequestWorker *worker) { handleGetJournalUpdates(worker); });
+    else
+    {
+        if (sourceBeingGenerated_)
+            ui_.statusbar->showMessage("Can't refresh a generated source while another is being generated...");
+        else
+        {
+            sourceBeingGenerated_ = currentJournalSource_;
+            backend_.generateList(currentJournalSource_, [=](HttpRequestWorker *worker)
+                                  { handleGenerateList(worker, Backend::JournalGenerationStyle::UpdateAll); });
+        }
+    }
 }
 
 // Jump to run number
@@ -203,42 +213,4 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
         backend_.getNexusSpectrumCount(currentJournalSource(), "monitor", selectedRunNumbers().front(),
                                        [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
     }
-}
-
-/*
- * Network Handling
- */
-
-// Handle run data returned for a whole journal
-void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight)
-{
-    runData_ = QJsonArray();
-    runDataModel_.setData(runData_);
-
-    // Check network reply
-    if (handleRequestError(worker, "trying to retrieve run data for the journal") != NoError)
-        return;
-
-    // Turn off grouping
-    if (ui_.GroupRunsButton->isChecked())
-        ui_.GroupRunsButton->setChecked(false);
-
-    // Get desired fields and titles from config files
-    runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
-                                          : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
-    runData_ = worker->jsonResponse().array();
-
-    // Set table data
-    runDataModel_.setHorizontalHeaders(runDataColumns_);
-    runDataModel_.setData(runData_);
-
-    ui_.RunDataTable->resizeColumnsToContents();
-    updateSearch(searchString_);
-    ui_.RunFilterEdit->clear();
-
-    updateForCurrentSource(JournalSource::JournalSourceState::OK);
-
-    // Highlight / go to specific run number if requested
-    if (runNumberToHighlight)
-        highlightRunNumber(*runNumberToHighlight);
 }

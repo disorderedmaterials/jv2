@@ -24,7 +24,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
             this, "Stop Journal Generation?",
             QString("Are you sure you want to cancel journal generation for '%1'?\nAll progress to date will be lost.")
                 .arg(sourceBeingGenerated_->sourceID())) == QMessageBox::StandardButton::Yes)
-        backend_.generateBackgroundScanStop([&](HttpRequestWorker *worker) { handleGenerateBackgroundScanStop(worker); });
+        backend_.generateScanStop([&](HttpRequestWorker *worker) { handleGenerateScanStop(worker); });
 }
 
 /*
@@ -32,7 +32,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
  */
 
 // Handle returned directory list result
-void MainWindow::handleGenerateList(HttpRequestWorker *worker)
+void MainWindow::handleGenerateList(HttpRequestWorker *worker, Backend::JournalGenerationStyle generationStyle)
 {
     // Check network reply
     if (handleRequestError(worker, "trying to list data directory") != NoError)
@@ -89,13 +89,17 @@ void MainWindow::handleGenerateList(HttpRequestWorker *worker)
     updateForCurrentSource(JournalSource::JournalSourceState::Generating);
 
     // Begin the background file scan
-    backend_.generateBackgroundScan(sourceBeingGenerated_,
-                                    [&](HttpRequestWorker *scanWorker) { handleGenerateBackgroundScan(); });
+    backend_.generateScan(sourceBeingGenerated_, generationStyle,
+                          [=](HttpRequestWorker *scanWorker) { handleGenerateScan(scanWorker, generationStyle); });
 }
 
 // Handle / monitor the generation background scan
-void MainWindow::handleGenerateBackgroundScan()
+void MainWindow::handleGenerateScan(HttpRequestWorker *worker, Backend::JournalGenerationStyle generationStyle)
 {
+    // Check network reply
+    if (handleRequestError(worker, "trying to perform background scan") != NoError)
+        return;
+
     if (!sourceBeingGenerated_)
         throw(std::runtime_error("No target source for generation is set.\n"));
 
@@ -104,10 +108,10 @@ void MainWindow::handleGenerateBackgroundScan()
     pingTimer->setSingleShot(true);
     pingTimer->setInterval(1000);
     connect(pingTimer, &QTimer::timeout,
-            [&]()
+            [=]()
             {
-                backend_.generateBackgroundScanUpdate(
-                    [this](HttpRequestWorker *worker)
+                backend_.generateScanUpdate(
+                    [=](HttpRequestWorker *worker)
                     {
                         if (worker->response().startsWith("\"NOT_RUNNING"))
                         {
@@ -131,10 +135,10 @@ void MainWindow::handleGenerateBackgroundScan()
 
                             // Complete?
                             if (worker->jsonResponse()["complete"].toBool())
-                                backend_.generateFinalise(sourceBeingGenerated_,
+                                backend_.generateFinalise(sourceBeingGenerated_, generationStyle,
                                                           [=](HttpRequestWorker *worker) { handleGenerateFinalise(worker); });
                             else
-                                handleGenerateBackgroundScan();
+                                handleGenerateScan(worker, generationStyle);
                         }
                     });
             });
@@ -168,7 +172,7 @@ void MainWindow::handleGenerateFinalise(HttpRequestWorker *worker)
     sourceBeingGenerated_ = nullptr;
 }
 
-void MainWindow::handleGenerateBackgroundScanStop(HttpRequestWorker *worker)
+void MainWindow::handleGenerateScanStop(HttpRequestWorker *worker)
 {
     // Check network reply
     if (handleRequestError(worker, "trying to stop run data scan for directory") != NoError)

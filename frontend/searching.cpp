@@ -23,7 +23,7 @@ void MainWindow::on_AcquisitionCancelButton_clicked(bool checked)
             this, "Stop Journal Acquisition?",
             QString("Are you sure you want to cancel journal acquisition for '%1'?").arg(sourceBeingGenerated_->sourceID())) ==
         QMessageBox::StandardButton::Yes)
-        backend_.generateBackgroundScanStop([&](HttpRequestWorker *worker) { handleGenerateBackgroundScanStop(worker); });
+        backend_.generateScanStop([&](HttpRequestWorker *worker) { handleGenerateScanStop(worker); });
 }
 
 // Update journal acquisition page for specified source

@@ -276,6 +276,26 @@ class Journal:
         else:
             return None
 
+    def get_run_for_file(self, filename: str) -> typing.Dict:
+        """Return the data for the specified filename if we have it.
+
+        :param run_number: Run number of interest
+        :return: A Dict describing the run, or None if not found
+        """
+        for run_number in self._run_data:
+            data = self._run_data[run_number]
+            # The journal entry may contain the full data_directory and filename
+            # information if we generated it. Otherwise we have to assume the
+            # stored 'data_directory' and use the 'name' attribute.
+            if "data_directory" in data and "filename" in data:
+                if data["filename"] == filename:
+                    return data
+            else:
+                if (data["name"] + ".nxs") == filename:
+                    return data
+
+        return None
+
     def get_run_data_after(self, run_number: int) -> {}:
         """Return data for all run numbers after the supplied run number
         (i.e. with higher numbers)

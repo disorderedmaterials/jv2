@@ -184,7 +184,8 @@ void MainWindow::on_actionRegenerateSource_triggered()
                      .arg(currentJournalSource_->sourceID())) == QMessageBox::StandardButton::Yes)
     {
         sourceBeingGenerated_ = currentJournalSource_;
-        backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker) { handleGenerateList(worker); });
+        backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker)
+                              { handleGenerateList(worker, Backend::JournalGenerationStyle::Full); });
     }
 }
 
@@ -228,7 +229,8 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
                                            .arg(currentJournalSource_->sourceID())) == QMessageBox::StandardButton::Yes)
         {
             sourceBeingGenerated_ = currentJournalSource_;
-            backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker) { handleGenerateList(worker); });
+            backend_.generateList(currentJournalSource(), [&](HttpRequestWorker *worker)
+                                  { handleGenerateList(worker, Backend::JournalGenerationStyle::Full); });
         }
 
         return;
@@ -250,6 +252,40 @@ void MainWindow::handleListJournals(HttpRequestWorker *worker, std::optional<QSt
 
     // Now have a new current journal, so retrieve it
     backend_.getJournal(currentJournalSource(), [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker); });
+}
+
+// Handle run data returned for a whole journal
+void MainWindow::handleCompleteJournalRunData(HttpRequestWorker *worker, std::optional<int> runNumberToHighlight)
+{
+    runData_ = QJsonArray();
+    runDataModel_.setData(runData_);
+
+    // Check network reply
+    if (handleRequestError(worker, "trying to retrieve run data for the journal") != NoError)
+        return;
+
+    // Turn off grouping
+    if (ui_.GroupRunsButton->isChecked())
+        ui_.GroupRunsButton->setChecked(false);
+
+    // Get desired fields and titles from config files
+    runDataColumns_ = currentInstrument() ? currentInstrument()->get().runDataColumns()
+                                          : Instrument::runDataColumns(Instrument::InstrumentType::Neutron);
+    runData_ = worker->jsonResponse().array();
+
+    // Set table data
+    runDataModel_.setHorizontalHeaders(runDataColumns_);
+    runDataModel_.setData(runData_);
+
+    ui_.RunDataTable->resizeColumnsToContents();
+    updateSearch(searchString_);
+    ui_.RunFilterEdit->clear();
+
+    updateForCurrentSource(JournalSource::JournalSourceState::OK);
+
+    // Highlight / go to specific run number if requested
+    if (runNumberToHighlight)
+        highlightRunNumber(*runNumberToHighlight);
 }
 
 // Handle get journal updates result
