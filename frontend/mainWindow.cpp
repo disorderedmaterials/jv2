@@ -21,9 +21,8 @@ MainWindow::MainWindow(QCommandLineParser &cliParser)
     // Make sure the Loading page is visible immediately
     ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::Loading);
 
-    // Set up standard journal sources and get any user-defined ones
-    setUpStandardJournalSources(cliParser);
-    getUserJournalSources();
+    // Set up journal sources
+    getJournalSourcesFromSettings(cliParser);
     journalSourceModel_.setData(journalSources_);
 
     // Get default instrument run data columns

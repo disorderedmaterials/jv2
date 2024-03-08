@@ -84,8 +84,6 @@ class MainWindow : public QMainWindow
     JournalModel journalModel_;
 
     private:
-    // Set up standard journal sources
-    void setUpStandardJournalSources(QCommandLineParser &cliParser);
     // Find the specified journal source
     JournalSource *findJournalSource(const QString &name);
     // Set current journal source
@@ -224,10 +222,10 @@ class MainWindow : public QMainWindow
     void storeRecentJournalSettings() const;
     // Get recent journal settings
     std::optional<QString> getRecentJournalSettings();
-    // Store user-defined journal sources
-    void storeUserJournalSources() const;
-    // Get user-defined journal sources
-    void getUserJournalSources();
+    // Store journal sources in settings
+    void storeJournalSourcesToSettings() const;
+    // Get journal sources from settings
+    void getJournalSourcesFromSettings(QCommandLineParser &cliParser);
 
     /*
      * Find in Current Journal

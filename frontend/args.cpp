@@ -12,8 +12,8 @@ CLIArgs::CLIArgs() : helpOption_(addHelpOption())
         {{CLIArgs::ISISArchiveDirectory, "Path to directory / mountpoint containing main ISIS Archive run data", "directory"},
          {CLIArgs::LogLevel, "Log level for the backend. Matches WSGI server log levels: (e.g. for gunicorn 'info' or 'debug')",
           "log level"},
-         {CLIArgs::NoIDAaaS, "Don't automatically define the IDAaaS source"},
-         {CLIArgs::NoISISArchive, "Don't automatically define the ISIS Archive source"},
+         {CLIArgs::HideIDAaaS, "Hide the IDAaaS source after initial creation"},
+         {CLIArgs::HideISISArchive, "Hide the ISIS Archive sources after initial creation"},
          {CLIArgs::UseWaitress, "Use waitress instead of gunicorn (Windows only)"},
          {CLIArgs::DebugBackend, "Enable debug logging in backend"}});
 }

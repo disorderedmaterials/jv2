@@ -25,8 +25,8 @@ class CLIArgs : public QCommandLineParser
      */
     public:
     const inline static QString LogLevel = QStringLiteral("log-level");
-    const inline static QString NoIDAaaS = QStringLiteral("no-idaaas");
-    const inline static QString NoISISArchive = QStringLiteral("no-isis-archive");
+    const inline static QString HideIDAaaS = QStringLiteral("hide-idaaas");
+    const inline static QString HideISISArchive = QStringLiteral("hide-isis-archive");
     const inline static QString ISISArchiveDirectory = QStringLiteral("isis-archive-dir");
     const inline static QString UseWaitress = QStringLiteral("use-waitress");
     const inline static QString DebugBackend = QStringLiteral("debug-backend");
