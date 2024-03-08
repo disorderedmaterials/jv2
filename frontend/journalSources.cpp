@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2024 Team JournalViewer and contributors
 
-#include "args.h"
 #include "journalSourcesDialog.h"
 #include "mainWindow.h"
 #include <QCommandLineParser>

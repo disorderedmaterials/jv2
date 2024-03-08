@@ -50,6 +50,7 @@ qt6_add_executable(
   # Backend
   backend.cpp
   # Main Window
+  args.cpp
   args.h
   data.cpp
   errorHandling.cpp
