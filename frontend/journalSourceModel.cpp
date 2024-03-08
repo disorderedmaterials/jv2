@@ -8,8 +8,18 @@
 JournalSourceModel::JournalSourceModel() : QAbstractListModel() {}
 
 /*
- * Private Functions
+ * Public Functions
  */
+
+// Set the source data for the model
+void JournalSourceModel::setData(OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> sources,
+                                 bool showAvailability)
+{
+    beginResetModel();
+    data_ = sources;
+    showAvailability_ = showAvailability;
+    endResetModel();
+}
 
 // Get JournalSource row specified
 JournalSource *JournalSourceModel::getData(int row) const
@@ -22,18 +32,6 @@ JournalSource *JournalSourceModel::getData(int row) const
 
 // Get JournalSource at index specified
 JournalSource *JournalSourceModel::getData(const QModelIndex &index) const { return getData(index.row()); }
-
-/*
- * Public Functions
- */
-
-// Set the source data for the model
-void JournalSourceModel::setData(OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> sources)
-{
-    beginResetModel();
-    data_ = sources;
-    endResetModel();
-}
 
 // Append new source to the end of the current data
 QModelIndex JournalSourceModel::appendNew()
@@ -62,10 +60,14 @@ int JournalSourceModel::columnCount(const QModelIndex &parent) const { return 1;
 Qt::ItemFlags JournalSourceModel::flags(const QModelIndex &index) const
 {
     auto *source = getData(index);
+
+    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     if (source->isUserDefined())
-        return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    else
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        flags.setFlag(Qt::ItemIsEditable);
+    if (showAvailability_)
+        flags.setFlag(Qt::ItemIsUserCheckable);
+
+    return flags;
 }
 
 QVariant JournalSourceModel::data(const QModelIndex &index, int role) const
@@ -73,11 +75,23 @@ QVariant JournalSourceModel::data(const QModelIndex &index, int role) const
     if (!data_)
         return {};
 
-    if (role != Qt::DisplayRole)
+    // Column zero is the only relevant one
+    if (index.column() != 0)
         return {};
 
-    // Get target data
-    return getData(index)->name();
+    switch (role)
+    {
+        case (Qt::DisplayRole):
+        case (Qt::EditRole):
+            return getData(index)->name();
+        case (Qt::CheckStateRole):
+            if (showAvailability_)
+                return getData(index)->isAvailable() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
+            else
+                return {};
+        default:
+            return {};
+    }
 }
 
 bool JournalSourceModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -85,20 +99,28 @@ bool JournalSourceModel::setData(const QModelIndex &index, const QVariant &value
     if (!data_)
         return false;
 
-    if (role == Qt::EditRole)
-    {
-        auto *source = getData(index);
+    // Column zero is the only relevant one
+    if (index.column() != 0)
+        return false;
 
-        switch (index.column())
-        {
-            // Name
-            case (0):
-                // Ensure uniqueness of name if we have a reference CoreData
-                source->setName(uniqueName(value.toString(), data_->get(), [](const auto &source) { return source->name(); }));
-                break;
-            default:
+    auto *source = getData(index);
+
+    switch (role)
+    {
+        case (Qt::EditRole):
+            // If this is not a user-defined source, no editing of the name is allowed
+            if (!source->isUserDefined())
                 return false;
-        }
+
+            // Ensure uniqueness of name
+            source->setName(uniqueName(value.toString(), data_->get(),
+                                       [source](const auto &other) { return other.get() == source ? "" : other->name(); }));
+            return true;
+        case (Qt::CheckStateRole):
+            source->setAvailable(value.value<Qt::CheckState>() == Qt::Checked);
+            return true;
+        default:
+            return false;
     }
 
     return false;

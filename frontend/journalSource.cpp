@@ -343,6 +343,8 @@ void JournalSource::toSettings(QSettings &settings) const
     // Basic information
     settings.setValue("Name", name_);
     settings.setValue("Type", JournalSource::indexingType(type_));
+    settings.setValue("UserDefined", userDefined_);
+    settings.setValue("Available", available_);
 
     // Journal Data
     if (type_ == JournalSource::IndexingType::Network)
@@ -375,6 +377,10 @@ void JournalSource::toSettings(QSettings &settings) const
 // Retrieve data from the supplied QSettings
 void JournalSource::fromSettings(const QSettings &settings)
 {
+    // Basics
+    userDefined_ = settings.value("UserDefined").toBool();
+    available_ = settings.value("Available").toBool();
+
     // Journal Data
     if (type_ == JournalSource::IndexingType::Network)
     {

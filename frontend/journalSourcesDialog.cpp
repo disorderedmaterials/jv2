@@ -55,12 +55,16 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
 
 void JournalSourcesDialog::on_AddNewSourceButton_clicked(bool checked)
 {
-
     auto index = sourceModel_.appendNew();
     ui_.SourcesListView->setCurrentIndex(index);
 }
 
-void JournalSourcesDialog::on_RemoveSourceButton_clicked(bool checked) {}
+void JournalSourcesDialog::on_RemoveSourceButton_clicked(bool checked)
+{
+    // Get the selected source
+    if (!currentSource_)
+        return;
+}
 
 /*
  * Source Type
@@ -191,7 +195,7 @@ void JournalSourcesDialog::on_CloseButton_clicked(bool checked) { accept(); }
 // Go
 void JournalSourcesDialog::go(std::vector<std::unique_ptr<JournalSource>> &sources)
 {
-    sourceModel_.setData(sources);
+    sourceModel_.setData(sources, true);
 
     exec();
 }

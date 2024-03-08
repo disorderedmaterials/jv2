@@ -117,8 +117,7 @@ void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
         auto &source = journalSources_.emplace_back(std::make_unique<JournalSource>(
             settings.value("Name", "NewSource").toString(),
             JournalSource::indexingType(
-                settings.value("Type", JournalSource::indexingType(JournalSource::IndexingType::Generated)).toString()),
-            true));
+                settings.value("Type", JournalSource::indexingType(JournalSource::IndexingType::Generated)).toString())));
 
         source->fromSettings(settings);
     }
