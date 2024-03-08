@@ -133,6 +133,12 @@ void MainWindow::on_actionEditSources_triggered()
     sourcesDialog.go(journalSources_);
 
     storeJournalSourcesToSettings();
+
+    Locker updateLocker(controlsUpdating_);
+    journalSourceModel_.setData(journalSources_);
+    updateLocker.unlock();
+
+    updateForCurrentSource();
 }
 
 void MainWindow::on_actionRegenerateSource_triggered()
