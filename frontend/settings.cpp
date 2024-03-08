@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2024 Team JournalViewer and contributors
 
+#include "args.h"
 #include "mainWindow.h"
+#include <QCommandLineParser>
 #include <QDomDocument>
 #include <QFile>
 #include <QInputDialog>
@@ -87,95 +89,68 @@ std::optional<QString> MainWindow::getRecentJournalSettings()
     return {};
 }
 
-// Store user-defined journal sources
-void MainWindow::storeUserJournalSources() const
+// Store journal sources in settings
+void MainWindow::storeJournalSourcesToSettings() const
 {
     // Loop over sources
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.beginGroup("UserSources");
-    settings.beginWriteArray("Source", std::count_if(journalSources_.begin(), journalSources_.end(),
-                                                     [](const auto &source) { return source->isUserDefined(); }));
+    settings.beginGroup("Sources");
+    settings.beginWriteArray("Source", journalSources_.size());
     auto index = 0;
     for (auto &source : journalSources_)
     {
-        if (!source->isUserDefined())
-            continue;
-
         settings.setArrayIndex(index++);
 
-        // Basic information
-        settings.setValue("Name", source->name());
-        settings.setValue("Type", JournalSource::indexingType(source->type()));
-
-        // Journal Data
-        if (source->type() == JournalSource::IndexingType::Network)
-        {
-            settings.setValue("JournalRootUrl", source->journalRootUrl());
-            settings.setValue("JournalIndexFilename", source->journalIndexFilename());
-            settings.setValue("JournalPathType", Instrument::pathType(source->journalOrganisationByInstrument()));
-            settings.setValue("JournalPathTypeUppercased", source->isJournalOrganisationByInstrumentUppercased());
-        }
-        else
-        {
-            settings.remove("JournalRootUrl");
-            settings.remove("JournalIndexFilename");
-            settings.remove("JournalPathType");
-        }
-
-        // Run Data
-        settings.setValue("RunDataRootUrl", source->runDataRootUrl());
-        settings.setValue("RunDataRootRegExp", source->runDataRootRegExp());
-        settings.setValue("RunDataPathType", Instrument::pathType(source->runDataOrganisationByInstrument()));
-        settings.setValue("RunDataPathTypeUppercased", source->isRunDataOrganisationByInstrumentUppercased());
-
-        // Generated Data Organisation
-        if (source->type() == JournalSource::IndexingType::Generated)
-            settings.setValue("DataOrganisation", JournalSource::dataOrganisationType(source->dataOrganisation()));
-        else
-            settings.remove("DataOrganisation");
+        source->toSettings(settings);
     }
 }
 
-// Get user-defined journal sources
-void MainWindow::getUserJournalSources()
+// Get journal sources from settings
+void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.beginGroup("UserSources");
-    auto nUserSources = settings.beginReadArray("Source");
-    for (auto index = 0; index < nUserSources; ++index)
+    settings.beginGroup("Sources");
+    auto nSources = settings.beginReadArray("Source");
+    for (auto index = 0; index < nSources; ++index)
     {
         settings.setArrayIndex(index);
         auto &source = journalSources_.emplace_back(std::make_unique<JournalSource>(
             settings.value("Name", "NewSource").toString(),
             JournalSource::indexingType(
-                settings.value("Type", JournalSource::indexingType(JournalSource::IndexingType::Generated)).toString()),
-            true));
+                settings.value("Type", JournalSource::indexingType(JournalSource::IndexingType::Generated)).toString())));
 
-        // Journal Data
-        if (source->type() == JournalSource::IndexingType::Network)
-        {
-            source->setJournalLocation(settings.value("JournalRootUrl").toString(),
-                                       settings.value("JournalIndexFilename").toString());
-            source->setJournalOrganisationByInstrument(
-                Instrument::pathType(
-                    settings.value("JournalPathType", Instrument::pathType(Instrument::PathType::None)).toString()),
-                settings.value("JournalPathTypeUppercased").toBool());
-        }
+        source->fromSettings(settings);
+    }
 
-        // Run Data
-        source->setRunDataLocation(settings.value("RunDataRootUrl").toString());
-        source->setRunDataRootRegExp(settings.value("RunDataRootRegExp").toString());
-        source->setRunDataOrganisationByInstrument(
-            Instrument::pathType(
-                settings.value("RunDataPathType", Instrument::pathType(Instrument::PathType::None)).toString()),
-            settings.value("RunDataPathTypeUppercased").toBool());
+    // Add default sources if not found unless prevented by CLI options
+    // -- The main ISIS Archive
+    if (!findJournalSource("ISIS Archive"))
+    {
+        auto &isisArchive =
+            journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
+        isisArchive->setJournalOrganisationByInstrument(Instrument::PathType::AltNDXName);
+        isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName);
+        isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
+        isisArchive->setRunDataLocation(settings
+                                            .value("ISISArchiveDataUrl", cliParser.isSet(CLIArgs::ISISArchiveDirectory)
+                                                                             ? cliParser.value(CLIArgs::ISISArchiveDirectory)
+                                                                             : "/archive")
+                                            .toString());
 
-        // Generated Data Organisation
-        if (source->type() == JournalSource::IndexingType::Generated)
-            source->setDataOrganisation(JournalSource::dataOrganisationType(
-                settings
-                    .value("DataOrganisation",
-                           JournalSource::dataOrganisationType(JournalSource::DataOrganisationType::Directory))
-                    .toString()));
+        if (cliParser.isSet(CLIArgs::HideISISArchive))
+            isisArchive->setAvailable(false);
+    }
+    // -- IDAaaS RB Directories
+    if (!findJournalSource("IDAaaS Data Cache"))
+    {
+        auto &idaaasDataCache = journalSources_.emplace_back(
+            std::make_unique<JournalSource>("IDAaaS Data Cache", JournalSource::IndexingType::Generated));
+        idaaasDataCache->setRunDataOrganisationByInstrument(Instrument::PathType::Name, true);
+        idaaasDataCache->setRunDataLocation("/mnt/ceph/instrument_data_cache");
+        idaaasDataCache->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
+        idaaasDataCache->setRunDataRootRegExp("^[0-9]+");
+
+        if (cliParser.isSet(CLIArgs::HideIDAaaS))
+            idaaasDataCache->setAvailable(false);
     }
 }

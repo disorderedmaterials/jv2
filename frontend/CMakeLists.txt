@@ -50,6 +50,7 @@ qt6_add_executable(
   # Backend
   backend.cpp
   # Main Window
+  args.cpp
   args.h
   data.cpp
   errorHandling.cpp
@@ -77,6 +78,8 @@ qt6_add_executable(
   instrumentModel.h
   journalModel.cpp
   journalModel.h
+  journalSourceFilterProxy.cpp
+  journalSourceFilterProxy.h
   journalSourceModel.cpp
   journalSourceModel.h
   runDataModel.cpp

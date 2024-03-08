@@ -8,7 +8,8 @@
 #include <QSettings>
 #include <QTimer>
 
-MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(cliParser), runDataFilterProxy_(runDataModel_)
+MainWindow::MainWindow(QCommandLineParser &cliParser)
+    : QMainWindow(), backend_(cliParser), journalSourceFilterProxy_(journalSourceModel_), runDataFilterProxy_(runDataModel_)
 {
     ui_.setupUi(this);
 
@@ -20,9 +21,8 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     // Make sure the Loading page is visible immediately
     ui_.MainStack->setCurrentIndex(JournalSource::JournalSourceState::Loading);
 
-    // Set up standard journal sources and get any user-defined ones
-    setUpStandardJournalSources(cliParser);
-    getUserJournalSources();
+    // Set up journal sources
+    getJournalSourcesFromSettings(cliParser);
     journalSourceModel_.setData(journalSources_);
 
     // Get default instrument run data columns
@@ -39,7 +39,7 @@ MainWindow::MainWindow(QCommandLineParser &cliParser) : QMainWindow(), backend_(
     groupedRunDataColumns_.emplace_back("Total Duration", "duration");
 
     // Connect models
-    ui_.JournalSourceComboBox->setModel(&journalSourceModel_);
+    ui_.JournalSourceComboBox->setModel(&journalSourceFilterProxy_);
     ui_.InstrumentComboBox->setModel(&instrumentModel_);
     ui_.JournalComboBox->setModel(&journalModel_);
 

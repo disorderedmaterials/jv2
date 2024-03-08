@@ -3,6 +3,7 @@
 
 #include "journalSourcesDialog.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 JournalSourcesDialog::JournalSourcesDialog(QWidget *parent) : QDialog(parent)
 {
@@ -24,12 +25,10 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     Locker updateLock(widgetUpdateLock_);
 
     // Overall group control
-    ui_.SourceTypGroup->setEnabled(currentSource_ && currentSource_->isUserDefined());
-    ui_.JournalLocationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined() &&
-                                         currentSource_->type() == JournalSource::IndexingType::Network);
-    ui_.RunDataLocationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined());
-    ui_.DataOrganisationGroup->setEnabled(currentSource_ && currentSource_->isUserDefined() &&
-                                          currentSource_->type() == JournalSource::IndexingType::Generated);
+    ui_.SourceTypGroup->setEnabled(currentSource_);
+    ui_.JournalLocationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Network);
+    ui_.RunDataLocationGroup->setEnabled(currentSource_);
+    ui_.DataOrganisationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Generated);
     ui_.RemoveSourceButton->setEnabled(currentSource_ && currentSource_->isUserDefined());
 
     if (!currentSource_)
@@ -45,24 +44,36 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     ui_.JournalRootURLEdit->setText(currentSource_->journalRootUrl());
     ui_.JournalIndexFileEdit->setText(currentSource_->journalIndexFilename());
     ui_.JournalInstrumentPathCombo->setCurrentIndex(currentSource_->journalOrganisationByInstrument());
-    ui_.JournalInstrumentPathUppercaseCheck->setChecked(currentSource_->isJournalOrganisationByInstrumentUppercased());
+    ui_.JournalInstrumentPathUppercaseCheck->setChecked(currentSource_->isJournalOrganisationByInstrumentUpperCased());
     // -- Run Data Location
     ui_.RunDataRootURLEdit->setText(currentSource_->runDataRootUrl());
     ui_.RunDataRootRegExpEdit->setText(currentSource_->runDataRootRegExp());
     ui_.RunDataInstrumentPathCombo->setCurrentIndex(currentSource_->runDataOrganisationByInstrument());
-    ui_.RunDataInstrumentPathUppercaseCheck->setChecked(currentSource_->isRunDataOrganisationByInstrumentUppercased());
+    ui_.RunDataInstrumentPathUppercaseCheck->setChecked(currentSource_->isRunDataOrganisationByInstrumentUpperCased());
     // -- Data Organisation
     ui_.DataOrganisationCombo->setCurrentIndex(currentSource_->dataOrganisation());
 }
 
 void JournalSourcesDialog::on_AddNewSourceButton_clicked(bool checked)
 {
-
     auto index = sourceModel_.appendNew();
     ui_.SourcesListView->setCurrentIndex(index);
 }
 
-void JournalSourcesDialog::on_RemoveSourceButton_clicked(bool checked) {}
+void JournalSourcesDialog::on_RemoveSourceButton_clicked(bool checked)
+{
+    // Get the selected source
+    if (!currentSource_)
+        return;
+
+    if (QMessageBox::question(
+            this, "Remove Source",
+            QString("Are you sure you want to remove the source '%1'?\nThis cannot be undone!").arg(currentSource_->name())) ==
+        QMessageBox::StandardButton::Yes)
+    {
+        sourceModel_.remove(ui_.SourcesListView->currentIndex());
+    }
+}
 
 /*
  * Source Type
@@ -193,7 +204,7 @@ void JournalSourcesDialog::on_CloseButton_clicked(bool checked) { accept(); }
 // Go
 void JournalSourcesDialog::go(std::vector<std::unique_ptr<JournalSource>> &sources)
 {
-    sourceModel_.setData(sources);
+    sourceModel_.setData(sources, true);
 
     exec();
 }

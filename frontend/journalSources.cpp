@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2024 Team JournalViewer and contributors
 
-#include "args.h"
 #include "journalSourcesDialog.h"
 #include "mainWindow.h"
 #include <QCommandLineParser>
@@ -12,38 +11,6 @@
 /*
  * Private Functions
  */
-
-// Set up standard journal sources
-void MainWindow::setUpStandardJournalSources(QCommandLineParser &cliParser)
-{
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-
-    // The main ISIS Archive
-    if (!cliParser.isSet(CLIArgs::NoISISArchive))
-    {
-        auto &isisArchive =
-            journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
-        isisArchive->setJournalOrganisationByInstrument(Instrument::PathType::AltNDXName);
-        isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName);
-        isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
-        isisArchive->setRunDataLocation(settings
-                                            .value("ISISArchiveDataUrl", cliParser.isSet(CLIArgs::ISISArchiveDirectory)
-                                                                             ? cliParser.value(CLIArgs::ISISArchiveDirectory)
-                                                                             : "/archive")
-                                            .toString());
-    }
-
-    // IDAaaS RB Directories
-    if (!cliParser.isSet(CLIArgs::NoIDAaaS))
-    {
-        auto &idaaasRB =
-            journalSources_.emplace_back(std::make_unique<JournalSource>("IDAaaS", JournalSource::IndexingType::Generated));
-        idaaasRB->setRunDataOrganisationByInstrument(Instrument::PathType::Name, true);
-        idaaasRB->setRunDataLocation("/mnt/ceph/instrument_data_cache");
-        idaaasRB->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
-        idaaasRB->setRunDataRootRegExp("^[0-9]+");
-    }
-}
 
 // Find the specified journal source
 JournalSource *MainWindow::findJournalSource(const QString &name)
@@ -165,7 +132,13 @@ void MainWindow::on_actionEditSources_triggered()
 
     sourcesDialog.go(journalSources_);
 
-    storeUserJournalSources();
+    storeJournalSourcesToSettings();
+
+    Locker updateLocker(controlsUpdating_);
+    journalSourceModel_.setData(journalSources_);
+    updateLocker.unlock();
+
+    updateForCurrentSource();
 }
 
 void MainWindow::on_actionRegenerateSource_triggered()

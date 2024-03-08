@@ -7,6 +7,7 @@
 #include "journal.h"
 #include "optionalRef.h"
 #include <QJsonObject>
+#include <QSettings>
 #include <QString>
 
 // Forward Declarations
@@ -40,6 +41,8 @@ class JournalSource
     IndexingType type_;
     // Whether the source is user-defined
     bool userDefined_{false};
+    // Whether the source should be available for use
+    bool available_{true};
 
     public:
     // Set name
@@ -52,6 +55,10 @@ class JournalSource
     IndexingType type() const;
     // Return whether the source is user-defined
     bool isUserDefined() const;
+    // Set whether the source should be available for use
+    void setAvailable(bool available);
+    // Return whether the source should be available for use
+    bool isAvailable() const;
 
     /*
      * Journal Data
@@ -111,13 +118,13 @@ class JournalSource
     // Return instrument-dependent journal organisation for this source
     Instrument::PathType journalOrganisationByInstrument() const;
     // Return whether the instrument path component for journals should be uppercased
-    bool isJournalOrganisationByInstrumentUppercased() const;
+    bool isJournalOrganisationByInstrumentUpperCased() const;
     // Set instrument-dependent run data organisation for this source
     void setRunDataOrganisationByInstrument(Instrument::PathType orgType, bool upperCased = false);
     // Return instrument-dependent run data organisation for this source
     Instrument::PathType runDataOrganisationByInstrument() const;
     // Return whether the instrument path component for run data should be uppercased
-    bool isRunDataOrganisationByInstrumentUppercased() const;
+    bool isRunDataOrganisationByInstrumentUpperCased() const;
     // Set current instrument
     void setCurrentInstrument(OptionalReferenceWrapper<const Instrument> optInst);
     // Return current instrument
@@ -216,4 +223,13 @@ class JournalSource
     void stopShowingSearchedData();
     // Return whether the source is currently showing searched data
     bool showingSearchedData() const;
+
+    /*
+     * Settings Storage
+     */
+    public:
+    // Store data in the supplied QSettings
+    void toSettings(QSettings &settings) const;
+    // Retrieve data from the supplied QSettings
+    void fromSettings(const QSettings &settings);
 };

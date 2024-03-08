@@ -16,16 +16,20 @@ class JournalSourceModel : public QAbstractListModel
     private:
     // JournalSource data for the model
     OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> data_;
+    // Whether to show availability as checkboxes
+    bool showAvailability_{false};
 
     public:
     // Set the source data for the model
-    void setData(OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> sources);
+    void setData(OptionalReferenceWrapper<std::vector<std::unique_ptr<JournalSource>>> sources, bool showAvailability = false);
     // Get JournalSource at row specified
     JournalSource *getData(int row) const;
     // Get JournalSource at index specified
     JournalSource *getData(const QModelIndex &index) const;
     // Append new source to the end of the current data
     QModelIndex appendNew();
+    // Remove the source at the specified index
+    void remove(const QModelIndex &index);
 
     /*
      * QAbstractTableModel Overrides

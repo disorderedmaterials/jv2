@@ -9,6 +9,7 @@
 #include "instrumentModel.h"
 #include "journalModel.h"
 #include "journalSource.h"
+#include "journalSourceFilterProxy.h"
 #include "journalSourceModel.h"
 #include "lock.h"
 #include "runDataFilterProxy.h"
@@ -75,14 +76,14 @@ class MainWindow : public QMainWindow
     std::vector<std::unique_ptr<JournalSource>> journalSources_;
     // Currently selected journal source (if any)
     JournalSource *currentJournalSource_;
-    // Model for available journal sources
+    // Model for journal sources
     JournalSourceModel journalSourceModel_;
+    // Filter proxy for journal sources
+    JournalSourceFilterProxy journalSourceFilterProxy_;
     // Model for available journals
     JournalModel journalModel_;
 
     private:
-    // Set up standard journal sources
-    void setUpStandardJournalSources(QCommandLineParser &cliParser);
     // Find the specified journal source
     JournalSource *findJournalSource(const QString &name);
     // Set current journal source
@@ -221,10 +222,10 @@ class MainWindow : public QMainWindow
     void storeRecentJournalSettings() const;
     // Get recent journal settings
     std::optional<QString> getRecentJournalSettings();
-    // Store user-defined journal sources
-    void storeUserJournalSources() const;
-    // Get user-defined journal sources
-    void getUserJournalSources();
+    // Store journal sources in settings
+    void storeJournalSourcesToSettings() const;
+    // Get journal sources from settings
+    void getJournalSourcesFromSettings(QCommandLineParser &cliParser);
 
     /*
      * Find in Current Journal
