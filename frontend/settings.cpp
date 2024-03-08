@@ -94,15 +94,11 @@ void MainWindow::storeJournalSourcesToSettings() const
 {
     // Loop over sources
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
-    settings.beginGroup("UserSources");
-    settings.beginWriteArray("Source", std::count_if(journalSources_.begin(), journalSources_.end(),
-                                                     [](const auto &source) { return source->isUserDefined(); }));
+    settings.beginGroup("Sources");
+    settings.beginWriteArray("Source", journalSources_.size());
     auto index = 0;
     for (auto &source : journalSources_)
     {
-        if (!source->isUserDefined())
-            continue;
-
         settings.setArrayIndex(index++);
 
         source->toSettings(settings);
@@ -145,8 +141,7 @@ void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
         if (cliParser.isSet(CLIArgs::HideISISArchive))
             isisArchive->setAvailable(false);
     }
-
-    // IDAaaS RB Directories
+    // -- IDAaaS RB Directories
     if (!findJournalSource("IDAaaS Data Cache"))
     {
         auto &idaaasDataCache = journalSources_.emplace_back(
