@@ -49,6 +49,18 @@ QModelIndex JournalSourceModel::appendNew()
     return index(currentData.size() - 1, 0);
 }
 
+// Remove the source at the specified index
+void JournalSourceModel::remove(const QModelIndex &index)
+{
+    if (!data_)
+        return;
+    auto &currentData = data_->get();
+
+    beginRemoveRows({}, index.row(), index.row());
+    currentData.erase(currentData.begin() + index.row());
+    endRemoveRows();
+}
+
 /*
  * QAbstractListModel Overrides
  */

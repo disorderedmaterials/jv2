@@ -3,6 +3,7 @@
 
 #include "journalSourcesDialog.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 JournalSourcesDialog::JournalSourcesDialog(QWidget *parent) : QDialog(parent)
 {
@@ -28,7 +29,7 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     ui_.JournalLocationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Network);
     ui_.RunDataLocationGroup->setEnabled(currentSource_);
     ui_.DataOrganisationGroup->setEnabled(currentSource_ && currentSource_->type() == JournalSource::IndexingType::Generated);
-    ui_.RemoveSourceButton->setEnabled(currentSource_);
+    ui_.RemoveSourceButton->setEnabled(currentSource_ && currentSource_->isUserDefined());
 
     if (!currentSource_)
         return;
@@ -64,6 +65,14 @@ void JournalSourcesDialog::on_RemoveSourceButton_clicked(bool checked)
     // Get the selected source
     if (!currentSource_)
         return;
+
+    if (QMessageBox::question(
+            this, "Remove Source",
+            QString("Are you sure you want to remove the source '%1'?\nThis cannot be undone!").arg(currentSource_->name())) ==
+        QMessageBox::StandardButton::Yes)
+    {
+        sourceModel_.remove(ui_.SourcesListView->currentIndex());
+    }
 }
 
 /*

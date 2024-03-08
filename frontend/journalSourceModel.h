@@ -28,6 +28,8 @@ class JournalSourceModel : public QAbstractListModel
     JournalSource *getData(const QModelIndex &index) const;
     // Append new source to the end of the current data
     QModelIndex appendNew();
+    // Remove the source at the specified index
+    void remove(const QModelIndex &index);
 
     /*
      * QAbstractTableModel Overrides
