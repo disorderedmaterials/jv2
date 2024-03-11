@@ -95,7 +95,7 @@ def go_waitress(jv2app: Flask, args):
         # worker.close()
         server.close()
 
-    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGQUIT, signal.SIGHUP):
+    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
         signal.signal(sig, handle_sig)
 
     server = create_server(jv2app, listen=args.bind, channel_timeout=args.timeout)
