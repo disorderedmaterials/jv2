@@ -25,6 +25,8 @@ class Backend : public QObject
     QProcess process_;
     // Network manager
     QNetworkAccessManager manager_;
+    // Whether we are using waitress-serve backend over gunicorn
+    bool waitressBackend_{false};
 
     private:
     // Return the backend bind address
