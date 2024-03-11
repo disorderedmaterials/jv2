@@ -80,11 +80,11 @@ def go_gunicorn(jv2app: Flask, args):
         options["log-level"] = "INFO"
     GUnicornApplication(jv2app, options).run()
 
+
 def go_waitress(jv2app: Flask, args):
     from waitress import serve
 
     serve(jv2app, listen=args.bind, channel_timeout=args.timeout)
-
 
 
 def go():
