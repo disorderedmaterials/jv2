@@ -106,6 +106,7 @@ qt6_add_executable(
   # Main
   main.cpp)
 
+set_target_properties(jv2 PROPERTIES WIN32_EXECUTABLE ON)
 target_link_libraries(jv2 PRIVATE Qt6::Core Qt6::Widgets Qt6::Network
                                   Qt6::Charts Qt6::Xml)
 
