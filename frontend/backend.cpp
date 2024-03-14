@@ -19,7 +19,10 @@ Backend::Backend(const QCommandLineParser &args) : process_()
     if (args.isSet(CLIArgs::DebugBackend))
         backendArgs << "-d";
     if (args.isSet(CLIArgs::UseWaitress))
+    {
         backendArgs << "-w";
+        waitressBackend_ = true;
+    }
 
     process_.setArguments(backendArgs);
     process_.setProcessChannelMode(QProcess::ForwardedChannels);
@@ -77,7 +80,12 @@ void Backend::stop()
     // Gracefully inform the backend to quit
     createRequest(createRoute("shutdown"));
 
-    process_.terminate();
+    // Send the TERM signal to gunicorn, but send the KILL signal to waitress. Dontcha just love cross-platform development?
+    if (waitressBackend_)
+        process_.kill();
+    else
+        process_.terminate();
+
     process_.waitForFinished();
 }
 

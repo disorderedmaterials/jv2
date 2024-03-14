@@ -80,11 +80,26 @@ def go_gunicorn(jv2app: Flask, args):
         options["log-level"] = "INFO"
     GUnicornApplication(jv2app, options).run()
 
+
+global server
 def go_waitress(jv2app: Flask, args):
-    from waitress import serve
+    from waitress.server import create_server
+    import signal
+    global server
 
-    serve(jv2app, listen=args.bind, channel_timeout=args.timeout)
+    # serve(jv2app, listen=args.bind, channel_timeout=args.timeout)
 
+    # signal handler, to do something before shutdown service
+    def handle_sig(sig, frame):
+        logging.warning(f"Got signal {sig}, now close worker...")
+        # worker.close()
+        server.close()
+
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(sig, handle_sig)
+
+    server = create_server(jv2app, listen=args.bind, channel_timeout=args.timeout)
+    server.run()
 
 
 def go():
