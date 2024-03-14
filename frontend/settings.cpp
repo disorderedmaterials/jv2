@@ -122,7 +122,7 @@ void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
         source->fromSettings(settings);
     }
 
-    // Add default sources if not found unless prevented by CLI options
+    // Add default sources if not found
     // -- The main ISIS Archive
     if (!findJournalSource("ISIS Archive"))
     {
@@ -136,9 +136,6 @@ void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
                                                                              ? cliParser.value(CLIArgs::ISISArchiveDirectory)
                                                                              : "/archive")
                                             .toString());
-
-        if (cliParser.isSet(CLIArgs::HideISISArchive))
-            isisArchive->setAvailable(false);
     }
     // -- IDAaaS RB Directories
     if (!findJournalSource("IDAaaS Data Cache"))
@@ -149,8 +146,17 @@ void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
         idaaasDataCache->setRunDataLocation("/mnt/ceph/instrument_data_cache");
         idaaasDataCache->setDataOrganisation(JournalSource::DataOrganisationType::RBNumber);
         idaaasDataCache->setRunDataRootRegExp("^[0-9]+");
-
-        if (cliParser.isSet(CLIArgs::HideIDAaaS))
-            idaaasDataCache->setAvailable(false);
     }
+
+    // Handle CLI options modifying default sources
+    auto *isisArchive = findJournalSource("ISIS Archive");
+    if (cliParser.isSet(CLIArgs::ISISArchiveDirectory))
+    {
+        isisArchive->setRunDataLocation(cliParser.value(CLIArgs::ISISArchiveDirectory));
+    }
+    if (cliParser.isSet(CLIArgs::HideISISArchive))
+        isisArchive->setAvailable(false);
+    auto *idaaasDataCache = findJournalSource("IDAaaS Data Cache");
+    if (cliParser.isSet(CLIArgs::HideIDAaaS))
+        idaaasDataCache->setAvailable(false);
 }

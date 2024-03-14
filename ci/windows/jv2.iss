@@ -11,7 +11,7 @@
 #define BackendDir GetEnv('BACKEND_DIR')
 #define FrontendDir GetEnv('FRONTEND_DIR')
 #define QtDir GetEnv('Qt6_DIR')
-#define BackendArgs "--use-waitress"
+#define BackendArgs "--use-waitress --isis-archive-dir=\\isis\inst$ --hide-idaaas"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -63,7 +63,7 @@ Source: "C:\Windows\System32\D3DCompiler_47.dll"; DestDir: "{app}\bin"; Flags: i
 
 [Icons]
 Name: "{group}\{#MyAppName}"; IconFilename: "{app}\bin\jv2.ico"; Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; WorkingDir: "{app}\bin"
-Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\jv2\jv2.ico"; Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; WorkingDir: "{app}\bin"; Tasks: desktopicon
+Name: "{commondesktop}\{#MyAppName}"; IconFilename: "{app}\bin\jv2.ico"; Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; WorkingDir: "{app}\bin"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\bin\jv2.exe"; Parameters: "{#BackendArgs}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
