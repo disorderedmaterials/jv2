@@ -11,7 +11,7 @@
 #define BackendDir GetEnv('BACKEND_DIR')
 #define FrontendDir GetEnv('FRONTEND_DIR')
 #define QtDir GetEnv('Qt6_DIR')
-#define BackendArgs "--use-waitress"
+#define BackendArgs "--use-waitress --isis-archive-dir=\\isis\inst$ --hide-idaaas"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
