@@ -9,7 +9,7 @@ CLIArgs::CLIArgs() : helpOption_(addHelpOption())
     setApplicationDescription("Journal Viewer 2");
 
     addOptions(
-        {{CLIArgs::ISISArchiveDirectory, "Path to directory / mountpoint containing main ISIS Archive run data", "directory"},
+        {{CLIArgs::ISISArchiveDirectory, "Path to directory / mountpoint containing main ISIS Archive run data directory"},
          {CLIArgs::LogLevel, "Log level for the backend. Matches WSGI server log levels: (e.g. for gunicorn 'info' or 'debug')",
           "log level"},
          {CLIArgs::HideIDAaaS, "Hide the IDAaaS source after initial creation"},
