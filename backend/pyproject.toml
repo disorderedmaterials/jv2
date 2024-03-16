@@ -1,6 +1,6 @@
 [project]
 name = "jv2backend"
-version = "1.99.0"
+version = "1.99.2"
 description = "Backend for Journal Viewer 2"
 dependencies = [
     "h5py", "requests", "lxml", "flask", "platformdirs",
