@@ -32,7 +32,7 @@ runs:
       base: develop
       add-paths: |
         README.md
-      commit-message: Update release version info.
+      commit-message: [${{ inputs.releaseVersion }}] Update Release Version Info
       delete-branch: true
       branch: automation/update-current-release-to-${{ inputs.releaseVersion }}
       title: Update website release info (v${{ inputs.releaseVersion }})
