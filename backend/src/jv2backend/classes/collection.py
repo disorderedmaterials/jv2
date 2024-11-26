@@ -14,6 +14,7 @@ import logging
 import json
 import requests
 import functools
+import os
 import lxml.etree as etree
 from threading import Thread, Event, Lock
 
@@ -439,7 +440,14 @@ class JournalCollection:
         if "data_directory" in data and "filename" in data:
             return url_join(data["data_directory"], data["filename"])
         else:
-            return url_join(jf.data_directory, data["name"] + ".nxs")
+            # The 'name' attribute may have more zero-padding than the actual filename
+            # (e.g. ALF) so we need to check the existence of both an 8- and 5-wide
+            # numbered file
+            if os.path.exists(url_join(jf.data_directory, data["name"] + ".nxs")):
+                return url_join(jf.data_directory, data["name"] + ".nxs")
+            else:
+                return url_join(jf.data_directory, data["instrument_name"] + f"{run_number:05}" + ".nxs")
+
 
     def locate_data_files(
             self, run_numbers: typing.List[int]
