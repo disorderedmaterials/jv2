@@ -163,7 +163,7 @@ void MainWindow::backendStarted(const QString &result)
 void MainWindow::waitForBackend()
 {
     // Set max number of pings to attempt
-    static int pingsRemaining = 5;
+    static int pingsRemaining = 10;
 
     --pingsRemaining;
 
