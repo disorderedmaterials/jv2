@@ -120,7 +120,9 @@ void MainWindow::handleGenerateScan(HttpRequestWorker *worker, Backend::JournalG
                             {
                                 if (sourceBeingGenerated_ == currentJournalSource_)
                                 {
-                                    setErrorPage("Journal Scan Failed", "Best complain to somebody about it...");
+                                    setErrorPage("Journal Scan Failed",
+                                                 "Best complain to somebody about it, unless you cancelled the operation "
+                                                 "yourself in which case it is very much your doing.");
                                     updateForCurrentSource(JournalSource::JournalSourceState::Error);
                                 }
                             }
