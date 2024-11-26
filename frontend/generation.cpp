@@ -24,7 +24,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
             this, "Stop Journal Generation?",
             QString("Are you sure you want to cancel journal generation for '%1'?\nAll progress to date will be lost.")
                 .arg(sourceBeingGenerated_->sourceID())) == QMessageBox::StandardButton::Yes)
-        backend_.generateScanStop([&](HttpRequestWorker *worker) { handleGenerateScanStop(worker); });
+        backend_.generateScanStop([=](HttpRequestWorker *worker) { handleGenerateScanStop(worker); });
 }
 
 /*
