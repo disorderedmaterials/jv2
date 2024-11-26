@@ -12,7 +12,7 @@
 void MainWindow::updateGenerationPage(int nCompleted, const QString &lastFileProcessed)
 {
     ui_.GeneratingProgressBar->setValue(nCompleted);
-    ui_.GeneratingInfoLabel->setText(QString("Last file processed was '%1')").arg(lastFileProcessed));
+    ui_.GeneratingInfoLabel->setText(QString("Last file processed was '%1'").arg(lastFileProcessed));
 }
 
 void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
