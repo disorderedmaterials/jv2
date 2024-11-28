@@ -1,0 +1,32 @@
+name: Publishing
+
+on:
+  workflow_call:
+    inputs:
+      isRelease:
+        type: bool
+        default: false
+
+jobs:
+
+  Publish:
+    needs: Package
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set Environment Variables
+      uses: "./.github/workflows/setup"
+    - name: Publish
+      uses: "./.github/workflows/publish"
+      with:
+        isRelease: ${{ inputs.isRelease }}
+      env:
+        HARBOR_USER: ${{ secrets.HARBOR_USER }}
+        HARBOR_SECRET: ${{ secrets.HARBOR_SECRET }}
+    - name: Update Version Information
+      if: ${{ inputs.isRelease == true }} 
+      uses: "./.github/workflows/update-release-info"
+      with:
+        releaseVersion: ${{ env.jv2Version }}
+
