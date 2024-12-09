@@ -184,19 +184,10 @@ void MainWindow::waitForBackend()
                     [this](HttpRequestWorker *worker)
                     {
                         if (worker->response().contains("READY"))
-                            prepare();
+                            getRecentJournalSettings();
                         else
                             waitForBackend();
                     });
             });
     pingTimer->start();
-}
-
-// Prepare initial state once the backend is ready
-void MainWindow::prepare()
-{
-    // Get recent journal settings - this will set directly the relevant data but not call the backend
-    auto requestedJournal = getRecentJournalSettings();
-
-    setCurrentJournalSource(currentJournalSource_, requestedJournal);
 }
