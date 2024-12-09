@@ -6,6 +6,11 @@ on:
       isRelease:
         type: boolean
         default: false
+    secrets:
+      HARBOR_USER:
+        description: "Username for Harbor access"
+      HARBOR_SECRET:
+        description: "Key for Harbor access"
 
 jobs:
 
