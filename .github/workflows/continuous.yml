@@ -19,4 +19,7 @@ jobs:
     needs: [BuildAndPackage]
     uses: "./.github/workflows/_publishing.yml"
     with:
-      isRelease: false
+      publishType: 'continuous'
+    secrets:
+      HARBOR_USER: ${{ secrets.HARBOR_USER }}
+      HARBOR_SECRET: ${{ secrets.HARBOR_SECRET }}
