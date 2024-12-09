@@ -19,6 +19,6 @@ runs:
 
     - name: Publish Test Results
       if: always()
-      uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      uses: EnricoMi/publish-unit-test-result-action/linux@v2
       with:
         junit_files: 'backend/src/jv2backend/test-results.xml'
