@@ -129,7 +129,7 @@ void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
         auto &isisArchive =
             journalSources_.emplace_back(std::make_unique<JournalSource>("ISIS Archive", JournalSource::IndexingType::Network));
         isisArchive->setJournalOrganisationByInstrument(Instrument::PathType::AltNDXName);
-        isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName);
+        isisArchive->setRunDataOrganisationByInstrument(Instrument::PathType::NDXName, true);
         isisArchive->setJournalLocation("http://data.isis.rl.ac.uk/journals", "journal_main.xml");
         isisArchive->setRunDataLocation(settings
                                             .value("ISISArchiveDataUrl", cliParser.isSet(CLIArgs::ISISArchiveDirectory)

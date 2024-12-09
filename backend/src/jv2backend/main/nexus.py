@@ -36,7 +36,7 @@ def logpaths_from_path(filepath: Path) -> Sequence[Sequence[str]]:
 
     See logpaths_from_file for full description
     """
-    with h5.File(filepath) as h5file:
+    with h5.File(filepath, 'r') as h5file:
         return logpaths_from_file(h5file)
 
 
@@ -81,7 +81,7 @@ def logdata_from_path(filepath: Path, fields: Sequence[str]) -> Sequence[Sequenc
     :param fields: A list of paths to log data in the file
     :return: List in form [[(time,value)...]] for each field
     """
-    h5file = h5.File(filepath)
+    h5file = h5.File(filepath, 'r')
     rundata = []
     for name in fields:
         rundata.append(h5file[name])
@@ -121,7 +121,7 @@ def get_detector_count(filepath: Path) -> int:
     :param filepath: A path to a NeXus file
     :return: The number of spectra
     """
-    with h5.File(filepath) as h5file:
+    with h5.File(filepath, 'r') as h5file:
         return len(group_at(h5file, 0)[NXStrings.DetectorPrefix + "1"][NXStrings.Counts][0])  # type: ignore
 
 
@@ -134,7 +134,7 @@ def get_detector_spectrum(filepath: Path,
     :param spectrum: _description_
     :return: A list of (tof,signal) pairs as float64
     """
-    with h5.File(filepath) as h5file:
+    with h5.File(filepath, 'r') as h5file:
         det1 = group_at(h5file, 0)[NXStrings.DetectorPrefix + "1"]
         return _tof_signal_points(
             det1[NXStrings.ToF], det1[NXStrings.Counts][0][spectrum]
@@ -147,7 +147,7 @@ def get_monitor_count(filepath: Path) -> int:
     :param filepath: A path to a NeXus file
     :return: The number of spectra
     """
-    with h5.File(filepath) as h5file:
+    with h5.File(filepath, 'r') as h5file:
         first_group = group_at(h5file, 0)
         return len(
             [key for key in first_group.keys() if _MonitorRE.match(key) is not None]
@@ -164,7 +164,7 @@ def get_monitor_spectrum(filepath: Path,
     :param monitor: The number of the monitor whose data should be returned
     :return: A list of (tof,signal) pairs as float64
     """
-    with h5.File(filepath) as h5file:
+    with h5.File(filepath, 'r') as h5file:
         monitor_group = group_at(h5file, 0)[NXStrings.MonitorPrefix + str(monitor)]
         return _tof_signal_points(
             monitor_group[NXStrings.ToF], monitor_group[NXStrings.Data][0][0]
@@ -177,7 +177,7 @@ def nonzero_spectra_ratio(filepath: Path) -> str:
     :param filepath: A path to a NeXus file
     :return: The nonzero_spectra ratio
     """
-    with h5.File(filepath) as h5file:
+    with h5.File(filepath, 'r') as h5file:
         counts = group_at(h5file, 0)[NXStrings.DetectorPrefix + "1"][NXStrings.Counts]  # type: ignore
         non_zero_count = np.count_nonzero(np.sum(counts[0], axis=1))  # type: ignore
         return f"{non_zero_count}/{len(counts[0])}"  # type: ignore
@@ -185,7 +185,7 @@ def nonzero_spectra_ratio(filepath: Path) -> str:
 
 def open_at(filepath: Path, index: int) -> Tuple[h5.File, h5.Group]:
     """Return the group at the index given"""
-    h5file = h5.File(filepath)
+    h5file = h5.File(filepath, 'r')
     return h5file, group_at(h5file, index)
 
 

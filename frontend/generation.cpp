@@ -12,7 +12,7 @@
 void MainWindow::updateGenerationPage(int nCompleted, const QString &lastFileProcessed)
 {
     ui_.GeneratingProgressBar->setValue(nCompleted);
-    ui_.GeneratingInfoLabel->setText(QString("Last file processed was '%1')").arg(lastFileProcessed));
+    ui_.GeneratingInfoLabel->setText(QString("Last file processed was '%1'").arg(lastFileProcessed));
 }
 
 void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
@@ -24,7 +24,7 @@ void MainWindow::on_GeneratingCancelButton_clicked(bool checked)
             this, "Stop Journal Generation?",
             QString("Are you sure you want to cancel journal generation for '%1'?\nAll progress to date will be lost.")
                 .arg(sourceBeingGenerated_->sourceID())) == QMessageBox::StandardButton::Yes)
-        backend_.generateScanStop([&](HttpRequestWorker *worker) { handleGenerateScanStop(worker); });
+        backend_.generateScanStop([=](HttpRequestWorker *worker) { handleGenerateScanStop(worker); });
 }
 
 /*
@@ -120,7 +120,9 @@ void MainWindow::handleGenerateScan(HttpRequestWorker *worker, Backend::JournalG
                             {
                                 if (sourceBeingGenerated_ == currentJournalSource_)
                                 {
-                                    setErrorPage("Journal Scan Failed", "Best complain to somebody about it...");
+                                    setErrorPage("Journal Scan Failed",
+                                                 "Best complain to somebody about it, unless you cancelled the operation "
+                                                 "yourself in which case it is very much your doing.");
                                     updateForCurrentSource(JournalSource::JournalSourceState::Error);
                                 }
                             }

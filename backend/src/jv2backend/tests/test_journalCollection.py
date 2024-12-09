@@ -101,7 +101,7 @@ def test_data_file_can_be_found_in_journal(_example_collection, _fake_server_dat
 
 @pytest.mark.parametrize("run_number", [1,2,3,4,5,7])
 def test_data_file_can_be_found_in_collection(_example_collection, _fake_server_data_dir, run_number):
-    assert _example_collection.locate_data_file(run_number) == str(_fake_server_data_dir / f"JVTEST0000000{run_number}.nxs")
+    assert _example_collection.locate_data_file(run_number) == str(_fake_server_data_dir / f"JVTEST0000{run_number}.nxs")
 
 
 @pytest.mark.parametrize("run_number", [1001,1002])

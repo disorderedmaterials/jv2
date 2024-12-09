@@ -3,5 +3,5 @@
 
 #pragma once
 
-#define JV2VERSION "1.99.0"
+#define JV2VERSION "1.99.3"
 #define JV2URL "https://github.com/disorderedmaterials/jv2"
