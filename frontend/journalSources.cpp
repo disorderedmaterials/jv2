@@ -134,9 +134,7 @@ void MainWindow::on_actionEditSources_triggered()
 
     storeJournalSourcesToSettings();
 
-    Locker updateLocker(controlsUpdating_);
     journalSourceModel_.setData(journalSources_);
-    updateLocker.unlock();
 
     updateForCurrentSource();
 }
