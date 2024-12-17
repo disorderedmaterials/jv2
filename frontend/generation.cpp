@@ -157,8 +157,14 @@ void MainWindow::handleGenerateFinalise(HttpRequestWorker *worker)
     // Success?
     if (!worker->response().startsWith("\"SUCCESS"))
     {
-        setErrorPage("Journal Generation Failed", "Something happened.");
-        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+        sourceBeingGenerated_->setState(JournalSource::JournalSourceState::Error);
+
+        if (sourceBeingGenerated_ == currentJournalSource_)
+        {
+            setErrorPage("Journal Generation Failed", "Something happened.");
+            updateForCurrentSource(JournalSource::JournalSourceState::Error);
+        }
+
         return;
     }
 
@@ -179,4 +185,15 @@ void MainWindow::handleGenerateScanStop(HttpRequestWorker *worker)
     // Check network reply
     if (handleRequestError(worker, "trying to stop run data scan for directory") != NoError)
         return;
+
+    sourceBeingGenerated_->setState(JournalSource::JournalSourceState::Error);
+
+    if (sourceBeingGenerated_ == currentJournalSource_)
+    {
+        setErrorPage("Journal Scan Cancelled",
+                     "Refreshing it at a later date will retain any already-accumulated data, so no worries.");
+        updateForCurrentSource(JournalSource::JournalSourceState::Error);
+    }
+
+    sourceBeingGenerated_ = nullptr;
 }
