@@ -49,44 +49,46 @@ void MainWindow::storeRecentJournalSettings() const
 }
 
 // Get recent journal settings
-std::optional<QString> MainWindow::getRecentJournalSettings()
+void MainWindow::getRecentJournalSettings()
 {
     QSettings settings(QSettings::IniFormat, QSettings::UserScope, "ISIS", "jv2");
 
     settings.beginGroup("Recent");
 
-    currentJournalSource_ = findJournalSource(settings.value("Source").toString());
-    if (!currentJournalSource_)
+    // Establish if we have a recent Source, and if it is valid / enabled
+    auto lastJournalSource = findJournalSource(settings.value("Source").toString());
+    if (!lastJournalSource || !lastJournalSource->isAvailable())
     {
-        // In case the specified source isn't found, set it to the default / first one available
-        if (journalSources_.empty())
-            currentJournalSource_ = nullptr;
-        else
-            currentJournalSource_ = journalSources_.front().get();
-
-        return {};
+        auto it = std::find_if(journalSources_.begin(), journalSources_.end(),
+                               [](const auto &source) { return source->isAvailable(); });
+        if (it != journalSources_.end())
+            lastJournalSource = it->get();
+    }
+    if (!lastJournalSource)
+    {
+        setCurrentJournalSource(nullptr);
+        return;
     }
 
     // Set up the rest of the source - instrument first, if relevant
-    if (currentJournalSource_->instrumentRequired())
+    if (lastJournalSource->instrumentRequired())
     {
-        if (!settings.contains("Instrument"))
-            return {};
-
-        // Get the instrument and set the journals source here so we load relevant journals
-        auto optInst = findInstrument(settings.value("Instrument").toString());
-        currentJournalSource_->setCurrentInstrument(optInst.value_or(instruments_.front()));
-
-        // If there was no valid instrument specified we can exit now
-        if (!optInst)
-            return {};
+        if (settings.contains("Instrument"))
+        {
+            // Get the instrument and set the journals source here so we load relevant journals
+            auto optInst = findInstrument(settings.value("Instrument").toString());
+            if (optInst)
+                lastJournalSource->setCurrentInstrument(*optInst);
+            else
+            {
+                setCurrentJournalSource(lastJournalSource);
+                return;
+            }
+        }
     }
 
-    // Specific journal?  We can't set this directly, so need
-    if (settings.contains("Journal"))
-        return settings.value("Journal").toString();
-
-    return {};
+    // Finally, check for a specific journal to go to
+    setCurrentJournalSource(lastJournalSource, settings.contains("Journal") ? settings.value("Journal").toString() : QString());
 }
 
 // Store journal sources in settings

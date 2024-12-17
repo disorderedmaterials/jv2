@@ -52,8 +52,6 @@ class MainWindow : public QMainWindow
     void backendStarted(const QString &result);
     // Ping backend to see if it's ready
     void waitForBackend();
-    // Prepare initial state once the backend is ready
-    void prepare();
 
     protected:
     void closeEvent(QCloseEvent *event) override;
@@ -221,7 +219,7 @@ class MainWindow : public QMainWindow
     // Store recent journal settings
     void storeRecentJournalSettings() const;
     // Get recent journal settings
-    std::optional<QString> getRecentJournalSettings();
+    void getRecentJournalSettings();
     // Store journal sources in settings
     void storeJournalSourcesToSettings() const;
     // Get journal sources from settings
