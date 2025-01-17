@@ -33,6 +33,8 @@ find_package(
   COMPONENTS Core Gui Widgets Network Charts Xml
   REQUIRED)
 
+add_subdirectory(plot/)
+
 # Build main binary
 qt6_add_executable(
   jv2
@@ -108,10 +110,10 @@ qt6_add_executable(
 
 set_target_properties(jv2 PROPERTIES WIN32_EXECUTABLE ON)
 target_link_libraries(jv2 PRIVATE Qt6::Core Qt6::Widgets Qt6::Network
-                                  Qt6::Charts Qt6::Xml)
+                                  Qt6::Charts Qt6::Xml mildred)
 
 target_include_directories(
   jv2
   PRIVATE ${PROJECT_SOURCE_DIR} ${Qt6Widgets_INCLUDE_DIRS}
           ${Qt6Xml_INCLUDE_DIRS} ${Qt6Network_INCLUDE_DIRS}
-          ${Qt6Charts_INCLUDE_DIRS})
+          ${Qt6Charts_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/plot/src)
