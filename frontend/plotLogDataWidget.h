@@ -46,6 +46,8 @@ class PlotLogDataWidget : public QWidget
     void handleRetrieveSELogProperties(HttpRequestWorker *worker);
 
     private slots:
+    // Log value selection changed
+    void logValuesChanged(const QModelIndex &, const QModelIndex &, const QList<int> &);
 
     signals:
 };

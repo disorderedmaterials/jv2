@@ -16,8 +16,8 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
     ui_.PropertyList->setModel(&logValueFilterProxy_);
     ui_.PropertyList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    connect(ui_.PropertyList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
-            SLOT(onTreeSelectionChanged(const QItemSelection &, const QItemSelection &)));
+    connect(&logValueModel_, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)), this,
+            SLOT(logValuesChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
 
     // Acquire the available log data
     backend_.getNeXuSLogValues(source_, runNumbers_, [=](HttpRequestWorker *worker) { handleRetrieveSELogProperties(worker); });
@@ -52,5 +52,13 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
     }
 
     logValueModel_.setData(logValues_);
+}
+
+// Log value selection changed
+void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles)
+{
+    auto optData = logValueModel_.getData(topLeft);
+    auto &data = optData->get();
+    qDebug() << "Toggled data was " + data.name();
 }
 } // namespace JV2

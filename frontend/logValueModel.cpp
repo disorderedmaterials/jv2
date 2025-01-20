@@ -67,7 +67,7 @@ QVariant LogValueModel::data(const QModelIndex &index, int role) const
         case (Qt::ToolTipRole):
             return data.neXuSLocation();
         case (Qt::CheckStateRole):
-            return data.isSelected();
+            return data.isSelected() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
         default:
             return {};
     }
@@ -91,6 +91,8 @@ bool LogValueModel::setData(const QModelIndex &index, const QVariant &value, int
         return false;
 
     data.setSelected(value.value<Qt::CheckState>() == Qt::Checked);
+
+    emit(dataChanged(index, index));
 
     return true;
 }
