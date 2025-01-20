@@ -8,21 +8,19 @@ namespace JV2
 {
 PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *source,
                                      const std::vector<int> &runNumbers)
-    : QWidget(parent), mainWindow_(parent), backend_(backend), source_(source), runNumbers_(runNumbers)
+    : QWidget(parent), mainWindow_(parent), backend_(backend), source_(source), runNumbers_(runNumbers),
+      logValueFilterProxy_(logValueModel_)
 {
     ui_.setupUi(this);
 
-    ui_.PropertyTree->setModel(&propertyModel_);
-    ui_.PropertyTree->expandAll();
-    ui_.PropertyTree->resizeColumnToContents(0);
-    ui_.PropertyTree->resizeColumnToContents(1);
-    ui_.PropertyTree->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui_.PropertyList->setModel(&logValueFilterProxy_);
+    ui_.PropertyList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    connect(ui_.PropertyTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
+    connect(ui_.PropertyList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
             SLOT(onTreeSelectionChanged(const QItemSelection &, const QItemSelection &)));
 
     // Acquire the available log data
-    backend_.getNexusFields(source_, runNumbers_, [=](HttpRequestWorker *worker) { handleRetrieveSELogProperties(worker); });
+    backend_.getNeXuSLogValues(source_, runNumbers_, [=](HttpRequestWorker *worker) { handleRetrieveSELogProperties(worker); });
 }
 
 PlotLogDataWidget::~PlotLogDataWidget() {}
@@ -33,16 +31,14 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
     if (mainWindow_->handleRequestError(worker, "retrieving log values from run") != Backend::NoError)
         return;
 
-    // Iterate over logs extracted from the target run data and construct our mapped values
-    auto *rootItem = new GenericTreeItem({"Log Value"});
+    // Iterate over log values extracted from the target run data and create a vector of all those available
+    logValues_.reserve(1024);
+    logValues_.clear();
     foreach (const auto &log, worker->jsonResponse().array())
     {
         auto logArray = log.toArray();
         if (logArray.size() < 2)
             continue;
-
-        // First item in the array is the name of the log value set / section
-        auto *sectionItem = rootItem->appendChild({logArray.first().toString()});
 
         // Remove the name item and proceed to iterate over log values
         logArray.removeFirst();
@@ -52,11 +48,9 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
                   [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
 
         foreach (const auto &block, logArrayVar)
-            sectionItem->appendChild({block.toString().split("/").last()}, {block.toString()},
-                                     {Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable});
+            logValues_.emplace_back(block.toString().split("/").last(), block.toString());
     }
 
-    propertyModel_.setRootItem(rootItem);
+    logValueModel_.setData(logValues_);
 }
-
 } // namespace JV2

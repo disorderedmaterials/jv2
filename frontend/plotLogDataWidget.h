@@ -4,7 +4,9 @@
 #pragma once
 
 #include "backend.h"
-#include "genericTreeModel.h"
+#include "logValue.h"
+#include "logValueFilterProxy.h"
+#include "logValueModel.h"
 #include "mainWindow.h"
 #include "ui_plotLogDataWidget.h"
 #include <QWidget>
@@ -25,14 +27,17 @@ class PlotLogDataWidget : public QWidget
     private:
     // User interface object
     Ui::PlotLogDataWidget ui_;
+    // Model and proxy for data
+    LogValueModel logValueModel_;
+    LogValueFilterProxy logValueFilterProxy_;
     // Main Window parent
     MainWindow *mainWindow_{nullptr};
-    // Tree model for properties
-    GenericTreeModel propertyModel_;
     // Main backend
     Backend &backend_;
     // Journal source from which the run numbers came
     const JournalSource *source_{nullptr};
+    // Log values available for plotting
+    std::vector<LogValue> logValues_;
     // Run numbers to display on the plot
     std::vector<int> runNumbers_;
 

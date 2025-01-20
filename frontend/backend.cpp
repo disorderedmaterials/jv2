@@ -173,9 +173,9 @@ void Backend::acquireAllJournalsStop(const HttpRequestWorker::HttpRequestHandler
  * NeXuS Endpoints
  */
 
-// Get NeXuS log values present in specified run files
-void Backend::getNexusFields(const JournalSource *source, const std::vector<int> &runNos,
-                             const HttpRequestWorker::HttpRequestHandler &handler)
+// Get all NeXuS log values present over specified run files
+void Backend::getNeXuSLogValues(const JournalSource *source, const std::vector<int> &runNos,
+                                const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source->sourceObjectData();
 

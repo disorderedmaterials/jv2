@@ -48,6 +48,8 @@ qt6_add_executable(
   journal.h
   lock.cpp
   lock.h
+  logValue.cpp
+  logValue.h
   optionalRef.h
   # Backend
   backend.cpp
@@ -84,6 +86,10 @@ qt6_add_executable(
   journalSourceFilterProxy.h
   journalSourceModel.cpp
   journalSourceModel.h
+  logValueFilterProxy.cpp
+  logValueFilterProxy.h
+  logValueModel.cpp
+  logValueModel.h
   runDataModel.cpp
   runDataModel.h
   runDataFilterProxy.cpp
