@@ -6,6 +6,9 @@
 #include <QString>
 #include <map>
 
+namespace JV2
+{
+
 // Journal Definition
 class Journal
 {
@@ -33,3 +36,4 @@ class Journal
     // Return filename
     const QString &filename() const;
 };
+} // namespace JV2

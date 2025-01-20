@@ -3,6 +3,8 @@
 
 #include "args.h"
 
+namespace JV2
+{
 CLIArgs::CLIArgs() : helpOption_(addHelpOption())
 {
     setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -34,3 +36,4 @@ bool CLIArgs::parseArguments(const QList<QString> &arguments)
 
     return true;
 }
+} // namespace JV2

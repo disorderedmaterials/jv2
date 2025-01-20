@@ -4,6 +4,8 @@
 #include "searchDialog.h"
 #include <QIntValidator>
 
+namespace JV2
+{
 SearchDialog::SearchDialog(QWidget *parent) : QDialog(parent)
 {
     ui_.setupUi(this);
@@ -63,3 +65,4 @@ std::map<QString, QString> SearchDialog::getQuery()
 
     return parameters;
 }
+} // namespace JV2

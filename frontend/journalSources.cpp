@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QSettings>
 
+namespace JV2
+{
 /*
  * Private Functions
  */
@@ -326,3 +328,4 @@ void MainWindow::handleJumpToJournal(HttpRequestWorker *worker)
     backend_.getJournal(currentJournalSource(),
                         [=](HttpRequestWorker *worker) { handleCompleteJournalRunData(worker, runNumber); });
 }
+} // namespace JV2

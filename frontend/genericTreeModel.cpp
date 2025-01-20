@@ -3,6 +3,8 @@
 
 #include "genericTreeModel.h"
 
+namespace JV2
+{
 /*
  * GenericTreeItem
  */
@@ -159,3 +161,4 @@ void GenericTreeModel::setRootItem(GenericTreeItem *rootItem)
     rootItem_ = rootItem;
     endResetModel();
 }
+} // namespace JV2

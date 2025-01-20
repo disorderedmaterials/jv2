@@ -5,6 +5,8 @@
 #include "instrument.h"
 #include <QJsonArray>
 
+namespace JV2
+{
 // Return text string for specified IndexingType type
 QString JournalSource::indexingType(JournalSource::IndexingType type)
 {
@@ -408,3 +410,4 @@ void JournalSource::fromSettings(const QSettings &settings)
                 .toString());
     }
 }
+} // namespace JV2

@@ -10,6 +10,8 @@
 #include <QChartView>
 #include <QWidget>
 
+namespace JV2
+{
 class GraphWidget : public QWidget
 {
     Q_OBJECT
@@ -58,3 +60,4 @@ class GraphWidget : public QWidget
     void runDivide(QString currentDetector, QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 };
+} // namespace JV2

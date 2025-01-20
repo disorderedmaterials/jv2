@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+namespace JV2
+{
 void MainWindow::exportRunDataAsText()
 {
     // Save selection or all items?
@@ -56,3 +58,4 @@ void MainWindow::exportRunDataAsText()
  */
 
 void MainWindow::on_actionExportAsText_triggered() { exportRunDataAsText(); }
+} // namespace JV2

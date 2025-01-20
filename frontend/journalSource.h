@@ -10,6 +10,8 @@
 #include <QSettings>
 #include <QString>
 
+namespace JV2
+{
 // Forward Declarations
 class HttpRequestWorker;
 
@@ -233,3 +235,4 @@ class JournalSource
     // Retrieve data from the supplied QSettings
     void fromSettings(const QSettings &settings);
 };
+} // namespace JV2

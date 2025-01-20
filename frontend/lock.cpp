@@ -4,6 +4,8 @@
 #include "lock.h"
 #include <stdexcept>
 
+namespace JV2
+{
 /*
  * Lock
  */
@@ -50,3 +52,4 @@ void Locker::unlock()
 
     unlocked_ = true;
 }
+} // namespace JV2

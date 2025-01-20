@@ -10,6 +10,8 @@
 #include <QSettings>
 #include <QWidgetAction>
 
+namespace JV2
+{
 /*
  * Private Functions
  */
@@ -215,3 +217,4 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
                                        [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
     }
 }
+} // namespace JV2

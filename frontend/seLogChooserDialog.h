@@ -7,6 +7,8 @@
 #include "optionalRef.h"
 #include "ui_seLogChooserDialog.h"
 
+namespace JV2
+{
 class SELogChooserDialog : public QDialog
 {
     Q_OBJECT
@@ -32,3 +34,4 @@ class SELogChooserDialog : public QDialog
     QString getValue();
     QStringList getValues();
 };
+} // namespace JV2

@@ -3,6 +3,8 @@
 
 #pragma once
 
+namespace JV2
+{
 class Lock
 {
     public:
@@ -44,3 +46,4 @@ class Locker
     // Manually release the lock
     void unlock();
 };
+} // namespace JV2

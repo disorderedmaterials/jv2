@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QTimer>
 
+namespace JV2
+{
 MainWindow::MainWindow(QCommandLineParser &cliParser)
     : QMainWindow(), backend_(cliParser), journalSourceFilterProxy_(journalSourceModel_), runDataFilterProxy_(runDataModel_)
 {
@@ -191,3 +193,4 @@ void MainWindow::waitForBackend()
             });
     pingTimer->start();
 }
+} // namespace JV2

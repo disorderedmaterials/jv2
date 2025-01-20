@@ -6,6 +6,8 @@
 #include <QAbstractItemModel>
 #include <QDialog>
 
+namespace JV2
+{
 class GenericTreeItem
 {
     public:
@@ -52,3 +54,4 @@ class GenericTreeModel : public QAbstractItemModel
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 };
+} // namespace JV2

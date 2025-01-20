@@ -5,6 +5,8 @@
 #include <QDomDocument>
 #include <QFile>
 
+namespace JV2
+{
 /*
  * Private Functions
  */
@@ -103,3 +105,4 @@ OptionalReferenceWrapper<const Instrument> MainWindow::currentInstrument() const
 
     return currentJournalSource_->currentInstrument();
 }
+} // namespace JV2

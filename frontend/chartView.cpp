@@ -14,6 +14,8 @@
 #include <QValueAxis>
 #include <QtGui/QMouseEvent>
 
+namespace JV2
+{
 ChartView::ChartView(QChart *chart, QWidget *parent) : QChartView(chart, parent)
 {
     setRubberBand(QChartView::HorizontalRubberBand);
@@ -317,3 +319,4 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
 
     QChartView::mouseMoveEvent(event);
 }
+} // namespace JV2

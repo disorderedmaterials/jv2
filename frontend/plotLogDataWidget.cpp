@@ -4,28 +4,32 @@
 #include "plotLogDataWidget.h"
 #include <QSplitter>
 
-PlotLogDataWidget::PlotLogDataWidget(QWidget *parent, Backend &backend, const JournalSource* source, const std::vector<int> &runNumbers) : QWidget(parent), backend_(backend), source_(source), runNumbers_(runNumbers)
+namespace JV2
+{
+PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *source,
+                                     const std::vector<int> &runNumbers)
+    : QWidget(parent), mainWindow_(parent), backend_(backend), source_(source), runNumbers_(runNumbers)
 {
     ui_.setupUi(this);
 
-//    propertyModel_.setRootItem(rootItem);
+    //    propertyModel_.setRootItem(rootItem);
     ui_.PropertyTree->setModel(&propertyModel_);
     ui_.PropertyTree->expandAll();
     ui_.PropertyTree->resizeColumnToContents(0);
     ui_.PropertyTree->resizeColumnToContents(1);
     ui_.PropertyTree->setSelectionBehavior(QAbstractItemView::SelectRows);
-    
+
     connect(ui_.PropertyTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
             SLOT(onTreeSelectionChanged(const QItemSelection &, const QItemSelection &)));
 
     // Acquire the available log data
-    backend_.getNexusFields(source_, runNumbers_,
-                                    [=](HttpRequestWorker *worker) { handleRetrieveSELogProperties(worker); });
+    backend_.getNexusFields(source_, runNumbers_, [=](HttpRequestWorker *worker) { handleRetrieveSELogProperties(worker); });
 }
 
-void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker* worker)
-{    // Check for errors
-    if (handleRequestError(worker, "retrieving log values from run") != NoError)
+void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
+{
+    // Check for errors
+    if (mainWindow_->handleRequestError(worker, "retrieving log values from run") != Backend::NoError)
         return;
 
     // Iterate over logs extracted from the target run data and construct our mapped values
@@ -53,3 +57,4 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker* worker)
 }
 
 PlotLogDataWidget::~PlotLogDataWidget() {}
+} // namespace JV2

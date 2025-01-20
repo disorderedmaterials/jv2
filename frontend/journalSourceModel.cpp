@@ -4,6 +4,8 @@
 #include "journalSourceModel.h"
 #include "uniqueName.h"
 
+namespace JV2
+{
 // Model to handle json data in table view
 JournalSourceModel::JournalSourceModel() : QAbstractListModel() {}
 
@@ -151,3 +153,4 @@ QVariant JournalSourceModel::headerData(int section, Qt::Orientation orientation
             return {};
     }
 }
+} // namespace JV2

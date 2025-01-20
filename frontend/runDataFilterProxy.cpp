@@ -6,6 +6,8 @@
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 
+namespace JV2
+{
 RunDataFilterProxy::RunDataFilterProxy(RunDataModel &runDataModel) : runDataModel_(runDataModel)
 {
     setSourceModel(&runDataModel_);
@@ -56,3 +58,4 @@ QString RunDataFilterProxy::getData(const QString &targetData, const QModelIndex
 {
     return runDataModel_.getData(targetData, mapToSource(index));
 }
+} // namespace JV2

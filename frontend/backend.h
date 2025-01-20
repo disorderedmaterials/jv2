@@ -4,13 +4,15 @@
 #pragma once
 
 #include "httpRequestWorker.h"
+#include <QCommandLineParser>
 #include <QNetworkAccessManager>
 #include <QProcess>
 #include <QString>
 
+namespace JV2
+{
 // Forward-declarations
 class JournalSource;
-class QCommandLineParser;
 
 // Backend Process
 class Backend : public QObject
@@ -44,10 +46,21 @@ class Backend : public QObject
     // Create a request
     HttpRequestWorker *createRequest(const QString &url, const HttpRequestWorker::HttpRequestHandler &handler = {});
 
+    public:
+    // Error Codes
+    const inline static QString NoError = QStringLiteral("NoError");
+    const inline static QString QNetworkReplyError = QStringLiteral("QNetworkReplyError");
+    const inline static QString InvalidRequestError = QStringLiteral("InvalidRequestError");
+    const inline static QString NetworkError = QStringLiteral("NetworkError");
+    const inline static QString XMLParseError = QStringLiteral("XMLParseError");
+    const inline static QString CollectionNotFoundError = QStringLiteral("CollectionNotFoundError");
+    const inline static QString JournalNotFoundError = QStringLiteral("JournalNotFoundError");
+    const inline static QString FileNotFoundError = QStringLiteral("FileNotFoundError");
+
     public slots:
     // Start the backend process
     void start();
-    // Stop the backend processs
+    // Stop the backend process
     void stop();
 
     signals:
@@ -129,3 +142,4 @@ class Backend : public QObject
     void generateFinalise(const JournalSource *source, JournalGenerationStyle generationStyle,
                           const HttpRequestWorker::HttpRequestHandler &handler = {});
 };
+} // namespace JV2

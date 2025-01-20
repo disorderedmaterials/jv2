@@ -11,6 +11,8 @@
 #include <QMessageBox>
 #include <QValueAxis>
 
+namespace JV2
+{
 // Handle extracted SE log values for plotting
 void MainWindow::handlePlotSELogValue(HttpRequestWorker *worker)
 {
@@ -283,3 +285,4 @@ void MainWindow::handleCreateSELogPlot(HttpRequestWorker *worker)
     ui_.MainTabs->setCurrentIndex(ui_.MainTabs->count() - 1);
     dateTimeChartView->setFocus();
 }
+} // namespace JV2

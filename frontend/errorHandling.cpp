@@ -4,6 +4,8 @@
 #include "mainWindow.h"
 #include <QNetworkReply>
 
+namespace JV2
+{
 // Perform check for errors on http request, returning the handled error
 QString MainWindow::handleRequestError(HttpRequestWorker *worker, const QString &taskDescription)
 {
@@ -51,3 +53,4 @@ void MainWindow::setErrorPage(const QString &errorTitle, const QString &errorTex
 }
 
 void MainWindow::on_ErrorOKButton_clicked(bool checked) { updateForCurrentSource(JournalSource::JournalSourceState::OK); }
+} // namespace JV2

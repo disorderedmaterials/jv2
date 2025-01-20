@@ -5,6 +5,8 @@
 #include <QDomDocument>
 #include <QFile>
 
+namespace JV2
+{
 // Static Singleton
 // -- Default columns for instrument types
 std::map<Instrument::InstrumentType, Instrument::RunDataColumns> Instrument::defaultColumns_;
@@ -162,3 +164,4 @@ QString Instrument::pathComponent(PathType pathType, bool upperCased) const
     }
     return upperCased ? result.toUpper() : result.toLower();
 }
+} // namespace JV2

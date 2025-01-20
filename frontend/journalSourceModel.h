@@ -7,6 +7,8 @@
 #include "optionalRef.h"
 #include <QAbstractListModel>
 
+namespace JV2
+{
 // Model for JournalSource definitions
 class JournalSourceModel : public QAbstractListModel
 {
@@ -42,3 +44,4 @@ class JournalSourceModel : public QAbstractListModel
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 };
+} // namespace JV2

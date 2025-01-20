@@ -6,6 +6,8 @@
 #include <QJsonDocument>
 #include <QUrl>
 
+namespace JV2
+{
 HttpRequestWorker::HttpRequestWorker(QNetworkAccessManager &manager, const QString &url, HttpRequestHandler handler) : QObject()
 {
     // Set up the request
@@ -71,3 +73,4 @@ QNetworkReply::NetworkError HttpRequestWorker::errorType() const { return errorT
 
 // Return error string (if available)
 const QString &HttpRequestWorker::errorString() const { return errorString_; }
+} // namespace JV2

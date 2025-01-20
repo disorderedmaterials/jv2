@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+namespace JV2
+{
 JournalSourcesDialog::JournalSourcesDialog(QWidget *parent) : QDialog(parent)
 {
     ui_.setupUi(this);
@@ -208,3 +210,4 @@ void JournalSourcesDialog::go(std::vector<std::unique_ptr<JournalSource>> &sourc
 
     exec();
 }
+} // namespace JV2

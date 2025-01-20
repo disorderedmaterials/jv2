@@ -7,6 +7,8 @@
 #include "lock.h"
 #include "ui_journalSourcesDialog.h"
 
+namespace JV2
+{
 // Forward Declarations
 class MainWindow;
 class JournalSource;
@@ -59,3 +61,4 @@ class JournalSourcesDialog : public QDialog
     // Go!
     void go(std::vector<std::unique_ptr<JournalSource>> &sources);
 };
+} // namespace JV2

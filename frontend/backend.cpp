@@ -8,6 +8,8 @@
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
+namespace JV2
+{
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
     QStringList backendArgs;
@@ -301,3 +303,4 @@ void Backend::generateFinalise(const JournalSource *source, JournalGenerationSty
 
     postRequest(createRoute("generate/finalise"), data, handler);
 }
+} // namespace JV2

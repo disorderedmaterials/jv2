@@ -3,5 +3,8 @@
 
 #pragma once
 
+namespace JV2
+{
 #define JV2VERSION "1.99.3"
 #define JV2URL "https://github.com/disorderedmaterials/jv2"
+} // namespace JV2

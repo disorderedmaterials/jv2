@@ -12,11 +12,11 @@ int main(int argc, char *argv[])
     QApplication::setWindowIcon(QIcon(":/icon"));
 
     // Set up and parse command-line arguments
-    CLIArgs parser;
+    JV2::CLIArgs parser;
     if (!parser.parseArguments(QApplication::arguments()))
         return 1;
 
-    MainWindow window(parser);
+    JV2::MainWindow window(parser);
     window.show();
     return QApplication::exec();
 }

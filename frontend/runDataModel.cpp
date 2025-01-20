@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include <QTime>
 
+namespace JV2
+{
 // Model to handle json data in table view
 RunDataModel::RunDataModel() : QAbstractTableModel() {}
 
@@ -169,3 +171,4 @@ QVariant RunDataModel::headerData(int section, Qt::Orientation orientation, int 
             return {};
     }
 }
+} // namespace JV2

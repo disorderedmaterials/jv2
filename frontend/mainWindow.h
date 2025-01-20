@@ -22,6 +22,8 @@
 #include <QSortFilterProxyModel>
 #include <QTimer>
 
+namespace JV2
+{
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -202,13 +204,15 @@ class MainWindow : public QMainWindow
     const inline static QString FileNotFoundError = QStringLiteral("FileNotFoundError");
 
     private:
-    // Perform check for errors on http request, returning the handled error
-    QString handleRequestError(HttpRequestWorker *worker, const QString &taskDescription);
     // Update the error page
     void setErrorPage(const QString &errorTitle, const QString &errorText);
 
     private slots:
     void on_ErrorOKButton_clicked(bool checked);
+
+    public:
+    // Perform check for errors on http request, returning the handled error
+    QString handleRequestError(HttpRequestWorker *worker, const QString &taskDescription);
 
     /*
      * Settings
@@ -305,3 +309,4 @@ class MainWindow : public QMainWindow
     void runDivide(QString currentDetector, QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 };
+} // namespace JV2

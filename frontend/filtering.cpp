@@ -5,6 +5,8 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+namespace JV2
+{
 /*
  * UI
  */
@@ -46,3 +48,4 @@ void MainWindow::on_GroupRunsButton_clicked(bool checked)
 
 // Clears filter parameters
 void MainWindow::on_RunFilterClearButton_clicked(bool checked) { ui_.RunFilterEdit->clear(); }
+} // namespace JV2

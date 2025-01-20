@@ -4,6 +4,8 @@
 #include "mainWindow.h"
 #include <QInputDialog>
 
+namespace JV2
+{
 /*
  * Private Functions
  */
@@ -132,3 +134,4 @@ void MainWindow::on_actionFind_triggered()
 void MainWindow::on_actionFindNext_triggered() { findDown(); }
 void MainWindow::on_actionFindPrevious_triggered() { findUp(); }
 void MainWindow::on_actionSelectAllFound_triggered() { selectAllSearches(); }
+} // namespace JV2

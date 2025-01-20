@@ -3,6 +3,8 @@
 
 #include <QString>
 
+namespace JV2
+{
 // Return unique name for object
 template <class Range, class NameFunction>
 static QString uniqueName(const QString &baseName, const Range &objects, NameFunction nameFunction)
@@ -20,3 +22,4 @@ static QString uniqueName(const QString &baseName, const Range &objects, NameFun
 
     return uniqueName;
 }
+} // namespace JV2

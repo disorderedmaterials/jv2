@@ -14,6 +14,8 @@
 class QNetworkAccessManager;
 class QNetworkReply;
 
+namespace JV2
+{
 // Object for handling an http request
 class HttpRequestWorker : public QObject
 {
@@ -68,3 +70,4 @@ class HttpRequestWorker : public QObject
     // Process request once its complete
     void requestComplete();
 };
+} // namespace JV2
