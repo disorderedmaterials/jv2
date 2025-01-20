@@ -97,6 +97,9 @@ qt6_add_executable(
   journalSourcesDialog.cpp
   journalSourcesDialog.h
   journalSourcesDialog.ui
+  plotLogDataWidget.cpp
+  plotLogDataWidget.h
+  plotLogDataWidget.ui
   searchDialog.cpp
   searchDialog.h
   searchDialog.ui

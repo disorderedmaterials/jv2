@@ -2,6 +2,7 @@
 // Copyright (c) 2025 Team JournalViewer and contributors
 
 #include "mainWindow.h"
+#include "plotLogDataWidget.h"
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QMessageBox>
@@ -200,8 +201,8 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotSELog)
     {
-        backend_.getNexusFields(currentJournalSource(), selectedRunNumbers(),
-                                [=](HttpRequestWorker *worker) { handlePlotSELogValue(worker); });
+        auto *plot = new PlotLogDataWidget(this, backend_, currentJournalSource(), selectedRunNumbers());
+        ui_.MainTabs->addTab(plot, "Test");
     }
     else if (selectedAction == plotDetector)
     {
