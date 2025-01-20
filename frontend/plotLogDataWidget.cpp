@@ -12,7 +12,6 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
 {
     ui_.setupUi(this);
 
-    //    propertyModel_.setRootItem(rootItem);
     ui_.PropertyTree->setModel(&propertyModel_);
     ui_.PropertyTree->expandAll();
     ui_.PropertyTree->resizeColumnToContents(0);
@@ -26,6 +25,8 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
     backend_.getNexusFields(source_, runNumbers_, [=](HttpRequestWorker *worker) { handleRetrieveSELogProperties(worker); });
 }
 
+PlotLogDataWidget::~PlotLogDataWidget() {}
+
 void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
 {
     // Check for errors
@@ -33,8 +34,7 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
         return;
 
     // Iterate over logs extracted from the target run data and construct our mapped values
-
-    auto *rootItem = new GenericTreeItem({"Log Value", "Full Path"});
+    auto *rootItem = new GenericTreeItem({"Log Value"});
     foreach (const auto &log, worker->jsonResponse().array())
     {
         auto logArray = log.toArray();
@@ -42,7 +42,7 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
             continue;
 
         // First item in the array is the name of the log value set / section
-        auto *sectionItem = rootItem->appendChild({logArray.first().toString(), ""});
+        auto *sectionItem = rootItem->appendChild({logArray.first().toString()});
 
         // Remove the name item and proceed to iterate over log values
         logArray.removeFirst();
@@ -52,9 +52,11 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
                   [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
 
         foreach (const auto &block, logArrayVar)
-            sectionItem->appendChild({block.toString().split("/").last(), block.toString()});
+            sectionItem->appendChild({block.toString().split("/").last()}, {block.toString()},
+                                     {Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable});
     }
+
+    propertyModel_.setRootItem(rootItem);
 }
 
-PlotLogDataWidget::~PlotLogDataWidget() {}
 } // namespace JV2

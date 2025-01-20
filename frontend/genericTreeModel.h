@@ -11,21 +11,27 @@ namespace JV2
 class GenericTreeItem
 {
     public:
-    explicit GenericTreeItem(const QList<QVariant> &data);
+    explicit GenericTreeItem(const QList<QVariant> &data, const QList<QString> &toolTips = {},
+                             const QList<Qt::ItemFlags> &flags = {});
     ~GenericTreeItem();
 
     private:
     QList<GenericTreeItem *> children_;
     QList<QVariant> data_;
+    QList<QString> toolTips_;
+    QList<Qt::ItemFlags> flags_;
     GenericTreeItem *parent_{nullptr};
 
     public:
     void appendChild(GenericTreeItem *child);
-    GenericTreeItem *appendChild(const QList<QVariant> &data);
+    GenericTreeItem *appendChild(const QList<QVariant> &data, const QList<QString> &toolTips = {},
+                                 const QList<Qt::ItemFlags> &flags = {});
     GenericTreeItem *child(int row);
     int childCount() const;
     int columnCount() const;
     QVariant data(int column) const;
+    QVariant toolTip(int column) const;
+    Qt::ItemFlags flags(int column) const;
     int row() const;
     void setParent(GenericTreeItem *parent);
     GenericTreeItem *parent();
