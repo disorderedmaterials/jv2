@@ -114,16 +114,19 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
         // Get start and end times
         auto startTime = QDateTime::fromString(timeRange.first()[0].toString(), "yyyy-MM-dd'T'HH:mm:ss");
         auto endTime = QDateTime::fromString(timeRange.first()[1].toString(), "yyyy-MM-dd'T'HH:mm:ss");
+        auto startSecs = startTime.toSecsSinceEpoch();
 
         // Get time / value vectors
         // TODO Need to check / detect enumerated data here
         const auto fieldDataArray = run[QString("data")].toArray();
-        std::vector<double> epochTimes(1024);
-        std::vector<double> values(1024);
+        std::vector<double> epochTimes;
+        epochTimes.reserve(1024);
+        std::vector<double> values;
+        values.reserve(1024);
         foreach (const auto &dataPair, fieldDataArray)
         {
             auto dataPairArray = dataPair.toArray();
-            epochTimes.push_back(startTime.addMSecs(dataPairArray[0].toDouble() * 1000).toMSecsSinceEpoch());
+            epochTimes.push_back(dataPairArray[0].toDouble());
             values.push_back(dataPairArray[1].toDouble());
         }
 
@@ -131,8 +134,32 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
         logValue.addData(dataName, {startTime, endTime, epochTimes, values});
     }
 
+    // Add the data to the plot
+    showData(logValue);
+
     ui_.PropertyList->setEnabled(true);
 }
+
+// Show data from the supplied LogValue on the plot
+void PlotLogDataWidget::showData(const LogValue &logValue)
+{
+    // Add each contained per-run dataset to the plot
+    for (auto &&[dataName, data] : logValue.data())
+    {
+        // Create a display group with some default policies
+        auto group = ui_.Plot->addDisplayGroup();
+        group->setSingleColour({255, 0, 200, 255});
+
+        // Create a renderable and add it to the group
+        auto *renderable = ui_.Plot->addData1D((dataName + "/" + logValue.name()).toStdString());
+        renderable->setData(data.times(), data.values());
+        group->addTarget(renderable);
+        //        entities_.emplace_back(renderable);
+    }
+}
+
+// Hide data from the supplied LogValue from the plot
+void PlotLogDataWidget::hideData(const LogValue &logValue) {}
 
 /*
  * Private Slots
@@ -141,18 +168,27 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
 // Log value selection changed
 void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles)
 {
-    auto optData = logValueModel_.getData(topLeft);
-    auto &data = optData->get();
-    qDebug() << "Toggled data was " + data.name();
+    auto optLogValue = logValueModel_.getData(topLeft);
+    auto &logValue = optLogValue->get();
+    qDebug() << "Toggled data was " + logValue.name();
 
-    // We might already have the data, so check before we go off retrieving it again...
-    // TODO
+    // If the logValue has been selected, then either redisplay or retrieve the data
+    if (logValue.isSelected())
+    {
+        // We might already have the data, so check before we go off retrieving it again...
+        // TODO
 
-    // Disable the property list for now
-    ui_.PropertyList->setDisabled(true);
+        // Disable the property list for now
+        ui_.PropertyList->setDisabled(true);
 
-    // Request the log value data
-    backend_.getNexusLogValueData(journalSource_, runNumbers_, data.neXuSLocation(),
-                                  [=](HttpRequestWorker *worker) { handleRetrieveSELogValueData(worker); });
+        // Request the log value data
+        backend_.getNexusLogValueData(journalSource_, runNumbers_, logValue.neXuSLocation(),
+                                      [=](HttpRequestWorker *worker) { handleRetrieveSELogValueData(worker); });
+    }
+    else
+    {
+        // Just hide the data as this value is no longer selected
+        hideData(logValue);
+    }
 }
 } // namespace JV2

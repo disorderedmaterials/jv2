@@ -13,15 +13,21 @@ class LogValueData
 {
     public:
     LogValueData();
-    LogValueData(const QDateTime &start, const QDateTime &end, const std::vector<double> &epochTimes,
+    LogValueData(const QDateTime &start, const QDateTime &end, const std::vector<double> &times,
                  const std::vector<double> &values);
 
     private:
     // Start and end times
     QDateTime startTime_, endTime_;
-    // Time values in milliseconds since epoch
-    std::vector<double> epochTimes_;
+    // Time points in seconds relative to startTime_
+    std::vector<double> times_;
     // Values
     std::vector<double> values_;
+
+    public:
+    // Return time points in seconds relative to startTime_
+    const std::vector<double> &times() const;
+    // Return values
+    const std::vector<double> &values() const;
 };
 } // namespace JV2

@@ -47,6 +47,10 @@ class PlotLogDataWidget : public QWidget
     void handleRetrieveSELogValues(HttpRequestWorker *worker);
     // Handle retrieved log value data
     void handleRetrieveSELogValueData(HttpRequestWorker *worker);
+    // Show data from the supplied LogValue on the plot
+    void showData(const LogValue &logValue);
+    // Hide data from the supplied LogValue from the plot
+    void hideData(const LogValue &logValue);
 
     private slots:
     // Log value selection changed

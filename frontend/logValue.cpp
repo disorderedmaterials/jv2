@@ -30,4 +30,7 @@ void LogValue::setSelected(bool selected) { selected_ = selected; }
 // Add data for specific run
 void LogValue::addData(QString id, LogValueData data) { data_[id] = std::move(data); }
 
+// Return all data
+const std::map<QString, LogValueData> &LogValue::data() const { return data_; }
+
 } // namespace JV2

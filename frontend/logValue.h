@@ -46,5 +46,7 @@ class LogValue
     public:
     // Add data for specific run
     void addData(QString id, LogValueData data);
+    // Return all data
+    const std::map<QString, LogValueData> &data() const;
 };
 } // namespace JV2
