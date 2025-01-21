@@ -50,6 +50,8 @@ qt6_add_executable(
   lock.h
   logValue.cpp
   logValue.h
+  logValueData.cpp
+  logValueData.h
   optionalRef.h
   # Backend
   backend.cpp

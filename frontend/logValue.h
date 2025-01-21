@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "logValueData.h"
 #include <QString>
 
 namespace JV2
@@ -14,6 +15,9 @@ class LogValue
     LogValue(const QString &name, const QString &location = {});
     ~LogValue() = default;
 
+    /*
+     * Basic Data
+     */
     private:
     // Display name of the property
     QString name_;
@@ -31,5 +35,16 @@ class LogValue
     bool isSelected() const;
     // Set whether the property is selected
     void setSelected(bool selected);
+
+    /*
+     * Run Data
+     */
+    private:
+    // Log value data per-run
+    std::map<QString, LogValueData> data_;
+
+    public:
+    // Add data for specific run
+    void addData(QString id, LogValueData data);
 };
 } // namespace JV2

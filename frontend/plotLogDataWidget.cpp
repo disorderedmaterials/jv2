@@ -6,9 +6,9 @@
 
 namespace JV2
 {
-PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *source,
+PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *journalSource,
                                      const std::vector<int> &runNumbers)
-    : QWidget(parent), mainWindow_(parent), backend_(backend), source_(source), runNumbers_(runNumbers),
+    : QWidget(parent), mainWindow_(parent), backend_(backend), journalSource_(journalSource), runNumbers_(runNumbers),
       logValueFilterProxy_(logValueModel_)
 {
     ui_.setupUi(this);
@@ -20,12 +20,17 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
             SLOT(logValuesChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
 
     // Acquire the available log data
-    backend_.getNeXuSLogValues(source_, runNumbers_, [=](HttpRequestWorker *worker) { handleRetrieveSELogProperties(worker); });
+    backend_.getNeXuSLogValues(journalSource_, runNumbers_,
+                               [=](HttpRequestWorker *worker) { handleRetrieveSELogValues(worker); });
 }
 
 PlotLogDataWidget::~PlotLogDataWidget() {}
 
-void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
+/*
+ * Private Functions
+ */
+
+void PlotLogDataWidget::handleRetrieveSELogValues(HttpRequestWorker *worker)
 {
     // Check for errors
     if (mainWindow_->handleRequestError(worker, "retrieving log values from run") != Backend::NoError)
@@ -54,11 +59,100 @@ void PlotLogDataWidget::handleRetrieveSELogProperties(HttpRequestWorker *worker)
     logValueModel_.setData(logValues_);
 }
 
+// Handle retrieved log value data
+void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
+{
+    // Check network reply
+    if (mainWindow_->handleRequestError(worker, "trying to retrieve log value data") != Backend::NoError)
+    {
+        ui_.PropertyList->setEnabled(true);
+        return;
+    }
+
+    /* The expected result from the backend is as follows:
+     *
+     * result = {
+     *              logValue: "name_of_log_value",
+     *              runNumbers: { run1, run2, run3 ... runN }
+     *              data: {
+     *                  run1: {
+     *                      timeRange: [ datetime, datetime ],
+     *                      data: [ (x,y), (x2,y2), ..., (xn,yn) ]
+     *                  },
+     *                  ...
+     *                  runN: {
+     *                      ...
+     *                  }
+     *              }
+     */
+
+    const auto responseData = worker->jsonResponse().object();
+    auto logValueName = responseData["logValue"].toString().section('/', -1);
+    qDebug() << logValueName;
+
+    // Find the associated LogValue
+    auto valueIt = std::find_if(logValues_.begin(), logValues_.end(),
+                                [logValueName](auto &value) { return value.name() == logValueName; });
+    if (valueIt == logValues_.end())
+    {
+        ui_.PropertyList->setEnabled(true);
+        return;
+    }
+    auto &logValue = *valueIt;
+
+    const auto data = responseData["data"].toObject();
+
+    foreach (const auto &run, data)
+    {
+        // Get the data name (run number)
+        const auto dataName = run[QString("runNumber")].toString();
+        qDebug() << dataName;
+
+        // Extract the time range data
+        const auto timeRange = run[QString("timeRange")].toArray();
+
+        // Get start and end times
+        auto startTime = QDateTime::fromString(timeRange.first()[0].toString(), "yyyy-MM-dd'T'HH:mm:ss");
+        auto endTime = QDateTime::fromString(timeRange.first()[1].toString(), "yyyy-MM-dd'T'HH:mm:ss");
+
+        // Get time / value vectors
+        // TODO Need to check / detect enumerated data here
+        const auto fieldDataArray = run[QString("data")].toArray();
+        std::vector<double> epochTimes(1024);
+        std::vector<double> values(1024);
+        foreach (const auto &dataPair, fieldDataArray)
+        {
+            auto dataPairArray = dataPair.toArray();
+            epochTimes.push_back(startTime.addMSecs(dataPairArray[0].toDouble() * 1000).toMSecsSinceEpoch());
+            values.push_back(dataPairArray[1].toDouble());
+        }
+
+        // Push the new data
+        logValue.addData(dataName, {startTime, endTime, epochTimes, values});
+    }
+
+    ui_.PropertyList->setEnabled(true);
+}
+
+/*
+ * Private Slots
+ */
+
 // Log value selection changed
 void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles)
 {
     auto optData = logValueModel_.getData(topLeft);
     auto &data = optData->get();
     qDebug() << "Toggled data was " + data.name();
+
+    // We might already have the data, so check before we go off retrieving it again...
+    // TODO
+
+    // Disable the property list for now
+    ui_.PropertyList->setDisabled(true);
+
+    // Request the log value data
+    backend_.getNexusLogValueData(journalSource_, runNumbers_, data.neXuSLocation(),
+                                  [=](HttpRequestWorker *worker) { handleRetrieveSELogValueData(worker); });
 }
 } // namespace JV2

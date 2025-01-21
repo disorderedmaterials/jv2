@@ -21,7 +21,8 @@ class PlotLogDataWidget : public QWidget
     Q_OBJECT
 
     public:
-    PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *source, const std::vector<int> &runNumbers);
+    PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *journalSource,
+                      const std::vector<int> &runNumbers);
     ~PlotLogDataWidget();
 
     private:
@@ -35,15 +36,17 @@ class PlotLogDataWidget : public QWidget
     // Main backend
     Backend &backend_;
     // Journal source from which the run numbers came
-    const JournalSource *source_{nullptr};
+    const JournalSource *journalSource_{nullptr};
     // Log values available for plotting
     std::vector<LogValue> logValues_;
     // Run numbers to display on the plot
     std::vector<int> runNumbers_;
 
     private:
-    // Handle retrieved log properties data
-    void handleRetrieveSELogProperties(HttpRequestWorker *worker);
+    // Handle retrieved log values
+    void handleRetrieveSELogValues(HttpRequestWorker *worker);
+    // Handle retrieved log value data
+    void handleRetrieveSELogValueData(HttpRequestWorker *worker);
 
     private slots:
     // Log value selection changed
