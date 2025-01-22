@@ -75,7 +75,6 @@ qt6_add_executable(
   nexusInteraction.cpp
   searching.cpp
   settings.cpp
-  visualisation.cpp
   version.h
   # Models
   genericTreeModel.cpp
