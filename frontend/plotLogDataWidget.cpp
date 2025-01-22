@@ -143,6 +143,9 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
 // Show data from the supplied LogValue on the plot
 void PlotLogDataWidget::showData(const LogValue &logValue)
 {
+    // Record whether the plot is currently empty
+    auto plotEmpty = ui_.Plot->nDataEntities() == 0;
+
     // Add each contained per-run dataset to the plot
     for (auto &&[dataName, data] : logValue.data())
     {
@@ -155,6 +158,10 @@ void PlotLogDataWidget::showData(const LogValue &logValue)
         renderable->setData(data.times(), data.values());
         group->addTarget(renderable);
     }
+
+    // If the plot was empty when we started, auto-scale it now
+    if (plotEmpty)
+        ui_.Plot->showAllData();
 
     emit(summaryTextChanged(summaryText(logValue.name())));
 }
