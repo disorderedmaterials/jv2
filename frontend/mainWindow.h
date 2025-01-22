@@ -286,15 +286,6 @@ class MainWindow : public QMainWindow
     void handleSearchResult(HttpRequestWorker *worker);
 
     /*
-     * Visualisation
-     */
-    private:
-    // Handle extracted SE log values for plotting
-    void handlePlotSELogValue(HttpRequestWorker *worker);
-    // Handle plotting of SE log data
-    void handleCreateSELogPlot(HttpRequestWorker *worker);
-
-    /*
      * Nexus Interaction Stuff To Be Organised
      */
     private slots:
