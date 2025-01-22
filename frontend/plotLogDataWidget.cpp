@@ -151,15 +151,20 @@ void PlotLogDataWidget::showData(const LogValue &logValue)
         group->setSingleColour({255, 0, 200, 255});
 
         // Create a renderable and add it to the group
-        auto *renderable = ui_.Plot->addData1D((dataName + "/" + logValue.name()).toStdString());
+        auto *renderable = ui_.Plot->addData1D((dataName + "/" + logValue.name()));
         renderable->setData(data.times(), data.values());
         group->addTarget(renderable);
-        //        entities_.emplace_back(renderable);
     }
 }
 
 // Hide data from the supplied LogValue from the plot
-void PlotLogDataWidget::hideData(const LogValue &logValue) {}
+void PlotLogDataWidget::hideData(const LogValue &logValue)
+{
+    for (auto &&[dataName, data] : logValue.data())
+    {
+        ui_.Plot->removeData1D((dataName + "/" + logValue.name()));
+    }
+}
 
 /*
  * Private Slots
@@ -176,7 +181,11 @@ void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QMode
     if (logValue.isSelected())
     {
         // We might already have the data, so check before we go off retrieving it again...
-        // TODO
+        if (!logValue.data().empty())
+        {
+            showData(logValue);
+            return;
+        }
 
         // Disable the property list for now
         ui_.PropertyList->setDisabled(true);
