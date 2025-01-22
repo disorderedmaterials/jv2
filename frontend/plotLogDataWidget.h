@@ -56,6 +56,12 @@ class PlotLogDataWidget : public QWidget
     // Log value selection changed
     void logValuesChanged(const QModelIndex &, const QModelIndex &, const QList<int> &);
 
+    public:
+    // Create summary text for the plot
+    QString summaryText(const QString &lastProperty = {}) const;
+
     signals:
+    // Summary text updated
+    void summaryTextChanged(QString);
 };
 } // namespace JV2

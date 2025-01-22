@@ -49,6 +49,9 @@ class MainWindow : public QMainWindow
     void updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState = {});
 
     private slots:
+    // Set tab title
+    void setTabTitle(const QString &title);
+    // Remove tab
     void removeTab(int index);
     // Notification point for backend startup
     void backendStarted(const QString &result);

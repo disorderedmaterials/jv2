@@ -155,6 +155,8 @@ void PlotLogDataWidget::showData(const LogValue &logValue)
         renderable->setData(data.times(), data.values());
         group->addTarget(renderable);
     }
+
+    emit(summaryTextChanged(summaryText(logValue.name())));
 }
 
 // Hide data from the supplied LogValue from the plot
@@ -200,4 +202,27 @@ void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QMode
         hideData(logValue);
     }
 }
+
+/*
+ * Public
+ */
+
+// Create summary text for the plot
+QString PlotLogDataWidget::summaryText(const QString &lastProperty) const
+{
+    if (runNumbers_.empty())
+        return "Nothing";
+
+    // Run number (count)
+    auto result = QString("%1").arg(runNumbers_.front());
+    if (runNumbers_.size() > 1)
+        result += QString("(+%1)").arg(runNumbers_.size() - 1);
+
+    // Last Property
+    if (!lastProperty.isEmpty())
+        result += QString(" / %1").arg(lastProperty);
+
+    return result;
+}
+
 } // namespace JV2

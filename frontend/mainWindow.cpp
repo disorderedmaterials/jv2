@@ -134,6 +134,15 @@ void MainWindow::updateForCurrentSource(std::optional<JournalSource::JournalSour
     ui_.actionRegenerateSource->setEnabled(currentJournalSource_->type() == JournalSource::IndexingType::Generated);
 }
 
+// Set tab title
+void MainWindow::setTabTitle(const QString &title)
+{
+    // Get sender widget and find tab index
+    auto index = ui_.MainTabs->indexOf(dynamic_cast<QWidget *>(sender()));
+    if (index != -1)
+        ui_.MainTabs->setTabText(index, title);
+}
+
 void MainWindow::removeTab(int index) { delete ui_.MainTabs->widget(index); }
 
 /*

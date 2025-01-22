@@ -204,7 +204,9 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     else if (selectedAction == plotSELog)
     {
         auto *plot = new PlotLogDataWidget(this, backend_, currentJournalSource(), selectedRunNumbers());
-        ui_.MainTabs->addTab(plot, "Test");
+        auto index = ui_.MainTabs->addTab(plot, plot->summaryText());
+        connect(plot, SIGNAL(summaryTextChanged(QString)), this, SLOT(setTabTitle(QString)));
+        ui_.MainTabs->setCurrentIndex(index);
     }
     else if (selectedAction == plotDetector)
     {
