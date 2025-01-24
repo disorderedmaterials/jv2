@@ -17,7 +17,10 @@ bool LogValueFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sou
 {
     const auto &logValue = logValueModel_.getData(sourceRow)->get();
 
-    if (showSelectedOnly_ && !logValue.isSelected())
+    // Deal with selected state first
+    if (selectedValueBehaviour_ == SelectedStateBehaviour::HideSelected && logValue.isSelected())
+        return false;
+    else if (selectedValueBehaviour_ == SelectedStateBehaviour::ShowOnlySelected && !logValue.isSelected())
         return false;
 
     return (filterString_.isEmpty() || logValueModel_.getData(sourceRow)->get().name().contains(filterString_));
@@ -30,10 +33,10 @@ void LogValueFilterProxy::setFilterString(const QString &search)
     invalidate();
 }
 
-// Set whether to show only selected log values
-void LogValueFilterProxy::setShowSelectedOnly(bool selectedOnly)
+// Set selected value behaviour
+void LogValueFilterProxy::setSelectedStateBehaviour(SelectedStateBehaviour behaviour)
 {
-    showSelectedOnly_ = selectedOnly;
+    selectedValueBehaviour_ = behaviour;
     invalidate();
 }
 

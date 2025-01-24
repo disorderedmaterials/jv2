@@ -23,7 +23,18 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
     connect(&logValueGroupModel_, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)), this,
             SLOT(logValueGroupChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
 
+    // Set up the shown log value list and model
+    shownLogValueFilterProxy_.setSelectedStateBehaviour(LogValueFilterProxy::SelectedStateBehaviour::ShowOnlySelected);
+    shownLogValueFilterProxy_.sort(0);
+    ui_.ShownLogValueList->setModel(&shownLogValueFilterProxy_);
+    ui_.ShownLogValueList->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    // Acquire the available log data
+    backend_.getNeXuSLogValues(journalSource_, runNumbers_,
+                               [=](HttpRequestWorker *worker) { handleRetrieveSELogValues(worker); });
+
     // Set up the available log value list and model
+    availableLogValueFilterProxy_.setSelectedStateBehaviour(LogValueFilterProxy::SelectedStateBehaviour::HideSelected);
     availableLogValueFilterProxy_.sort(0);
     ui_.AvailableLogValueList->setModel(&availableLogValueFilterProxy_);
     ui_.AvailableLogValueList->setSelectionBehavior(QAbstractItemView::SelectRows);

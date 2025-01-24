@@ -18,14 +18,21 @@ class LogValueFilterProxy : public QSortFilterProxyModel
 
     public:
     LogValueFilterProxy(LogValueModel &journalSourceModel);
+    // Selected Sate Behaviour
+    enum class SelectedStateBehaviour
+    {
+        Ignore,
+        HideSelected,
+        ShowOnlySelected
+    };
 
     private:
     // Target model
     LogValueModel &logValueModel_;
     // Search string
     QString filterString_;
-    // Whether to show only selected log values
-    bool showSelectedOnly_{false};
+    // Behaviour for selected log values in the model
+    SelectedStateBehaviour selectedValueBehaviour_{SelectedStateBehaviour::Ignore};
 
     protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
@@ -33,7 +40,7 @@ class LogValueFilterProxy : public QSortFilterProxyModel
     public:
     // Set filter string, or empty string to disable
     void setFilterString(const QString &search);
-    // Set whether to show only selected log values
-    void setShowSelectedOnly(bool selectedOnly);
+    // Set selected value behaviour
+    void setSelectedStateBehaviour(SelectedStateBehaviour behaviour);
 };
 } // namespace JV2
