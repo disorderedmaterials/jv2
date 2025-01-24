@@ -28,6 +28,7 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
 
     // Set up the shown log value list and model
     shownLogValueFilterProxy_.setSelectedStateBehaviour(LogValueFilterProxy::SelectedStateBehaviour::ShowOnlySelected);
+    shownLogValueFilterProxy_.setSortCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
     shownLogValueFilterProxy_.sort(0);
     ui_.ShownLogValueList->setModel(&shownLogValueFilterProxy_);
     connect(ui_.ShownLogValueList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -39,6 +40,7 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
 
     // Set up the available log value list and model
     availableLogValueFilterProxy_.setSelectedStateBehaviour(LogValueFilterProxy::SelectedStateBehaviour::HideSelected);
+    availableLogValueFilterProxy_.setSortCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
     availableLogValueFilterProxy_.sort(0);
     ui_.AvailableLogValueList->setModel(&availableLogValueFilterProxy_);
     connect(ui_.AvailableLogValueList->selectionModel(),
@@ -270,6 +272,13 @@ void PlotLogDataWidget::on_HideLogValueButton_clicked(bool checked)
     logValueModel_.setSelected(
         shownLogValueFilterProxy_.mapSelectionToSource(ui_.ShownLogValueList->selectionModel()->selection()).indexes(), false);
 }
+
+void PlotLogDataWidget::on_LogValueFilterEdit_textChanged(const QString &text)
+{
+    availableLogValueFilterProxy_.setFilterString(text);
+}
+
+void PlotLogDataWidget::on_LogValueFilterClearButton_clicked(bool checked) { ui_.LogValueFilterEdit->clear(); }
 
 /*
  * Public

@@ -69,6 +69,8 @@ class PlotLogDataWidget : public QWidget
     void shownLogValuesSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_ShowLogValueButton_clicked(bool checked);
     void on_HideLogValueButton_clicked(bool checked);
+    void on_LogValueFilterEdit_textChanged(const QString &text);
+    void on_LogValueFilterClearButton_clicked(bool checked);
 
     public:
     // Create summary text for the plot

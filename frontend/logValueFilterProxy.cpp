@@ -23,7 +23,8 @@ bool LogValueFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     else if (selectedValueBehaviour_ == SelectedStateBehaviour::ShowOnlySelected && !logValue.isSelected())
         return false;
 
-    return (filterString_.isEmpty() || logValueModel_.getData(sourceRow)->get().name().contains(filterString_));
+    return (filterString_.isEmpty() ||
+            logValueModel_.getData(sourceRow)->get().name().contains(filterString_, Qt::CaseSensitivity::CaseInsensitive));
 }
 
 // Set filter string, or empty string to disable
