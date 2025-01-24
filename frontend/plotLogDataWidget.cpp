@@ -210,7 +210,6 @@ void PlotLogDataWidget::logValueChanged(const QModelIndex &topLeft, const QModel
 {
     auto optLogValue = logValueModel_.getData(topLeft);
     auto &logValue = optLogValue->get();
-    qDebug() << "Toggled data was " + logValue.name();
 
     // If the logValue has been selected, then either redisplay or retrieve the data
     if (logValue.isSelected())
