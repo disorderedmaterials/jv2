@@ -60,10 +60,15 @@ class PlotLogDataWidget : public QWidget
     void hideData(const LogValue &logValue);
 
     private slots:
-    // Log value selection changed
+    // Log value model data changed
     void logValueChanged(const QModelIndex &, const QModelIndex &, const QList<int> &);
-    // Log value group selection changed
+    // Log value group model data changed
     void logValueGroupChanged(const QModelIndex &, const QModelIndex &, const QList<int> &);
+    // Log values selection changed
+    void availableLogValuesSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void shownLogValuesSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void on_ShowLogValueButton_clicked(bool checked);
+    void on_HideLogValueButton_clicked(bool checked);
 
     public:
     // Create summary text for the plot

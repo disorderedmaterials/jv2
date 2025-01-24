@@ -28,6 +28,8 @@ class LogValueModel : public QAbstractListModel
     OptionalReferenceWrapper<LogValue> getData(int row) const;
     // Get LogValue at index specified
     OptionalReferenceWrapper<LogValue> getData(const QModelIndex &index) const;
+    // Set selected status of all supplied indices
+    void setSelected(const QModelIndexList &indices, bool selectedState);
 
     /*
      * QAbstractTableModel Overrides

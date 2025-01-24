@@ -14,6 +14,9 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
 {
     ui_.setupUi(this);
 
+    connect(&logValueModel_, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)), this,
+            SLOT(logValueChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
+
     // Create LogValueGroups for each run we've been given and set up the relevant list model
     for (auto runNumber : runNumbers_)
         logValueGroups_.emplace_back(QString::number(runNumber), true);
@@ -27,7 +30,8 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
     shownLogValueFilterProxy_.setSelectedStateBehaviour(LogValueFilterProxy::SelectedStateBehaviour::ShowOnlySelected);
     shownLogValueFilterProxy_.sort(0);
     ui_.ShownLogValueList->setModel(&shownLogValueFilterProxy_);
-    ui_.ShownLogValueList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    connect(ui_.ShownLogValueList->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+            this, SLOT(shownLogValuesSelectionChanged(const QItemSelection &, const QItemSelection &)));
 
     // Acquire the available log data
     backend_.getNeXuSLogValues(journalSource_, runNumbers_,
@@ -37,10 +41,9 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
     availableLogValueFilterProxy_.setSelectedStateBehaviour(LogValueFilterProxy::SelectedStateBehaviour::HideSelected);
     availableLogValueFilterProxy_.sort(0);
     ui_.AvailableLogValueList->setModel(&availableLogValueFilterProxy_);
-    ui_.AvailableLogValueList->setSelectionBehavior(QAbstractItemView::SelectRows);
-
-    connect(&logValueModel_, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)), this,
-            SLOT(logValueChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
+    connect(ui_.AvailableLogValueList->selectionModel(),
+            SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), this,
+            SLOT(availableLogValuesSelectionChanged(const QItemSelection &, const QItemSelection &)));
 
     // Acquire the available log data
     backend_.getNeXuSLogValues(journalSource_, runNumbers_,
@@ -202,7 +205,7 @@ void PlotLogDataWidget::hideData(const LogValue &logValue)
  * Private Slots
  */
 
-// Log value selection changed
+// Log value model data changed
 void PlotLogDataWidget::logValueChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles)
 {
     auto optLogValue = logValueModel_.getData(topLeft);
@@ -233,7 +236,7 @@ void PlotLogDataWidget::logValueChanged(const QModelIndex &topLeft, const QModel
     }
 }
 
-// Log value group selection changed
+// Log value group model data changed
 void PlotLogDataWidget::logValueGroupChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                                              const QList<int> &roles)
 {
@@ -243,6 +246,30 @@ void PlotLogDataWidget::logValueGroupChanged(const QModelIndex &topLeft, const Q
     // We have tagged every data entity on the plot as "RunNumber/Property" so we just need to request that those
     // with a matching tag are shown / hidden
     ui_.Plot->setDataEnabled(QRegularExpression(QString("^%1/.*").arg(group.name())), group.isSelected());
+}
+
+// Log values selection changed
+void PlotLogDataWidget::availableLogValuesSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    ui_.ShowLogValueButton->setDisabled(selected.isEmpty());
+}
+
+void PlotLogDataWidget::shownLogValuesSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    ui_.HideLogValueButton->setDisabled(selected.isEmpty());
+}
+
+void PlotLogDataWidget::on_ShowLogValueButton_clicked(bool checked)
+{
+    logValueModel_.setSelected(
+        availableLogValueFilterProxy_.mapSelectionToSource(ui_.AvailableLogValueList->selectionModel()->selection()).indexes(),
+        true);
+}
+
+void PlotLogDataWidget::on_HideLogValueButton_clicked(bool checked)
+{
+    logValueModel_.setSelected(
+        shownLogValueFilterProxy_.mapSelectionToSource(ui_.ShownLogValueList->selectionModel()->selection()).indexes(), false);
 }
 
 /*

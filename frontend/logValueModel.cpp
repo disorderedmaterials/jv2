@@ -32,6 +32,22 @@ OptionalReferenceWrapper<LogValue> LogValueModel::getData(int row) const
 // Get LogValue at index specified
 OptionalReferenceWrapper<LogValue> LogValueModel::getData(const QModelIndex &index) const { return getData(index.row()); }
 
+// Set selected status of all supplied indices
+void LogValueModel::setSelected(const QModelIndexList &indices, bool selectedState)
+{
+    for (const auto &index : indices)
+    {
+        auto optData = getData(index);
+        if (!optData)
+            continue;
+        auto &data = optData->get();
+
+        data.setSelected(selectedState);
+    }
+
+    emit(dataChanged(indices.front(), indices.back()));
+}
+
 /*
  * QAbstractListModel Overrides
  */
@@ -40,10 +56,7 @@ int LogValueModel::rowCount(const QModelIndex &parent) const { return data_ ? da
 
 int LogValueModel::columnCount(const QModelIndex &parent) const { return 1; }
 
-Qt::ItemFlags LogValueModel::flags(const QModelIndex &index) const
-{
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
-}
+Qt::ItemFlags LogValueModel::flags(const QModelIndex &index) const { return Qt::ItemIsEnabled | Qt::ItemIsSelectable; }
 
 QVariant LogValueModel::data(const QModelIndex &index, int role) const
 {
@@ -66,8 +79,6 @@ QVariant LogValueModel::data(const QModelIndex &index, int role) const
             return data.name();
         case (Qt::ToolTipRole):
             return data.neXuSLocation();
-        case (Qt::CheckStateRole):
-            return data.isSelected() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
         default:
             return {};
     }
