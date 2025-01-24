@@ -12,7 +12,7 @@ namespace JV2
 class LogValue
 {
     public:
-    LogValue(const QString &name, const QString &location = {});
+    LogValue(const QString &name = {}, const QString &location = {});
     ~LogValue() = default;
 
     /*

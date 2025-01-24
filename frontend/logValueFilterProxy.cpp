@@ -15,13 +15,25 @@ LogValueFilterProxy::LogValueFilterProxy(LogValueModel &logValueModel) : logValu
 
 bool LogValueFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    return (searchString_.isEmpty() || logValueModel_.getData(sourceRow)->get().name().contains(searchString_));
+    const auto &logValue = logValueModel_.getData(sourceRow)->get();
+
+    if (showSelectedOnly_ && !logValue.isSelected())
+        return false;
+
+    return (filterString_.isEmpty() || logValueModel_.getData(sourceRow)->get().name().contains(filterString_));
 }
 
-// Set search string
-void LogValueFilterProxy::setSearchString(const QString &search)
+// Set filter string, or empty string to disable
+void LogValueFilterProxy::setFilterString(const QString &search)
 {
-    searchString_ = search;
+    filterString_ = search;
+    invalidate();
+}
+
+// Set whether to show only selected log values
+void LogValueFilterProxy::setShowSelectedOnly(bool selectedOnly)
+{
+    showSelectedOnly_ = selectedOnly;
     invalidate();
 }
 

@@ -23,13 +23,17 @@ class LogValueFilterProxy : public QSortFilterProxyModel
     // Target model
     LogValueModel &logValueModel_;
     // Search string
-    QString searchString_;
+    QString filterString_;
+    // Whether to show only selected log values
+    bool showSelectedOnly_{false};
 
     protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 
     public:
-    // Set search string
-    void setSearchString(const QString &search);
+    // Set filter string, or empty string to disable
+    void setFilterString(const QString &search);
+    // Set whether to show only selected log values
+    void setShowSelectedOnly(bool selectedOnly);
 };
 } // namespace JV2

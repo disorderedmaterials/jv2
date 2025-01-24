@@ -3,28 +3,38 @@
 
 #include "plotLogDataWidget.h"
 #include <QSplitter>
+#include <set>
 
 namespace JV2
 {
 PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *journalSource,
                                      const std::vector<int> &runNumbers)
     : QWidget(parent), mainWindow_(parent), backend_(backend), journalSource_(journalSource), runNumbers_(runNumbers),
-      logValueFilterProxy_(logValueModel_)
+      availableLogValueFilterProxy_(logValueModel_), shownLogValueFilterProxy_(logValueModel_)
 {
     ui_.setupUi(this);
 
-    ui_.PropertyList->setModel(&logValueFilterProxy_);
-    ui_.PropertyList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    // Create LogValueGroups for each run we've been given and set up the relevant list model
+    for (auto runNumber : runNumbers_)
+        logValueGroups_.emplace_back(QString::number(runNumber), true);
+    ui_.RunNumberList->setModel(&logValueGroupModel_);
+    logValueGroupModel_.setData(logValueGroups_);
+
+    connect(&logValueGroupModel_, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)), this,
+            SLOT(logValueGroupChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
+
+    // Set up the available log value list and model
+    availableLogValueFilterProxy_.sort(0);
+    ui_.AvailableLogValueList->setModel(&availableLogValueFilterProxy_);
+    ui_.AvailableLogValueList->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     connect(&logValueModel_, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)), this,
-            SLOT(logValuesChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
+            SLOT(logValueChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
 
     // Acquire the available log data
     backend_.getNeXuSLogValues(journalSource_, runNumbers_,
                                [=](HttpRequestWorker *worker) { handleRetrieveSELogValues(worker); });
 }
-
-PlotLogDataWidget::~PlotLogDataWidget() {}
 
 /*
  * Private Functions
@@ -36,9 +46,8 @@ void PlotLogDataWidget::handleRetrieveSELogValues(HttpRequestWorker *worker)
     if (mainWindow_->handleRequestError(worker, "retrieving log values from run") != Backend::NoError)
         return;
 
-    // Iterate over log values extracted from the target run data and create a vector of all those available
-    logValues_.reserve(1024);
-    logValues_.clear();
+    // Iterate over log values extracted from the target run data and create a unique set of those available
+    std::set<QString> uniqueValues;
     foreach (const auto &log, worker->jsonResponse().array())
     {
         auto logArray = log.toArray();
@@ -49,12 +58,15 @@ void PlotLogDataWidget::handleRetrieveSELogValues(HttpRequestWorker *worker)
         logArray.removeFirst();
 
         auto logArrayVar = logArray.toVariantList();
-        std::sort(logArrayVar.begin(), logArrayVar.end(),
-                  [](QVariant &v1, QVariant &v2) { return v1.toString() < v2.toString(); });
-
         foreach (const auto &block, logArrayVar)
-            logValues_.emplace_back(block.toString().split("/").last(), block.toString());
+            uniqueValues.insert(block.toString());
     }
+
+    // Copy the set to our vector
+    logValues_.clear();
+    logValues_.resize(uniqueValues.size());
+    std::transform(uniqueValues.begin(), uniqueValues.end(), logValues_.begin(),
+                   [](const auto &blockPath) { return LogValue(blockPath.split("/").last(), blockPath); });
 
     logValueModel_.setData(logValues_);
 }
@@ -65,7 +77,7 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
     // Check network reply
     if (mainWindow_->handleRequestError(worker, "trying to retrieve log value data") != Backend::NoError)
     {
-        ui_.PropertyList->setEnabled(true);
+        ui_.AvailableLogValueList->setEnabled(true);
         return;
     }
 
@@ -95,7 +107,7 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
                                 [logValueName](auto &value) { return value.name() == logValueName; });
     if (valueIt == logValues_.end())
     {
-        ui_.PropertyList->setEnabled(true);
+        ui_.AvailableLogValueList->setEnabled(true);
         return;
     }
     auto &logValue = *valueIt;
@@ -137,7 +149,7 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
     // Add the data to the plot
     showData(logValue);
 
-    ui_.PropertyList->setEnabled(true);
+    ui_.AvailableLogValueList->setEnabled(true);
 }
 
 // Show data from the supplied LogValue on the plot
@@ -180,7 +192,7 @@ void PlotLogDataWidget::hideData(const LogValue &logValue)
  */
 
 // Log value selection changed
-void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles)
+void PlotLogDataWidget::logValueChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles)
 {
     auto optLogValue = logValueModel_.getData(topLeft);
     auto &logValue = optLogValue->get();
@@ -197,7 +209,7 @@ void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QMode
         }
 
         // Disable the property list for now
-        ui_.PropertyList->setDisabled(true);
+        ui_.AvailableLogValueList->setDisabled(true);
 
         // Request the log value data
         backend_.getNexusLogValueData(journalSource_, runNumbers_, logValue.neXuSLocation(),
@@ -208,6 +220,18 @@ void PlotLogDataWidget::logValuesChanged(const QModelIndex &topLeft, const QMode
         // Just hide the data as this value is no longer selected
         hideData(logValue);
     }
+}
+
+// Log value group selection changed
+void PlotLogDataWidget::logValueGroupChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                                             const QList<int> &roles)
+{
+    auto optGroup = logValueGroupModel_.getData(topLeft);
+    auto &group = optGroup->get();
+
+    // We have tagged every data entity on the plot as "RunNumber/Property" so we just need to request that those
+    // with a matching tag are shown / hidden
+    ui_.Plot->setDataEnabled(QRegularExpression(QString("^%1/.*").arg(group.name())), group.isSelected());
 }
 
 /*

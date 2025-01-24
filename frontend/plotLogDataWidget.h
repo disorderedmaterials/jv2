@@ -6,6 +6,8 @@
 #include "backend.h"
 #include "logValue.h"
 #include "logValueFilterProxy.h"
+#include "logValueGroup.h"
+#include "logValueGroupModel.h"
 #include "logValueModel.h"
 #include "mainWindow.h"
 #include "ui_plotLogDataWidget.h"
@@ -23,14 +25,17 @@ class PlotLogDataWidget : public QWidget
     public:
     PlotLogDataWidget(MainWindow *parent, Backend &backend, const JournalSource *journalSource,
                       const std::vector<int> &runNumbers);
-    ~PlotLogDataWidget();
+    ~PlotLogDataWidget() = default;
 
     private:
     // User interface object
     Ui::PlotLogDataWidget ui_;
-    // Model and proxy for data
+    // Model and proxies for log values
     LogValueModel logValueModel_;
-    LogValueFilterProxy logValueFilterProxy_;
+    LogValueFilterProxy availableLogValueFilterProxy_;
+    LogValueFilterProxy shownLogValueFilterProxy_;
+    // Model and proxy for log value groups
+    LogValueGroupModel logValueGroupModel_;
     // Main Window parent
     MainWindow *mainWindow_{nullptr};
     // Main backend
@@ -41,6 +46,8 @@ class PlotLogDataWidget : public QWidget
     std::vector<LogValue> logValues_;
     // Run numbers to display on the plot
     std::vector<int> runNumbers_;
+    // Log value groups (per run-number)
+    std::vector<LogValueGroup> logValueGroups_;
 
     private:
     // Handle retrieved log values
@@ -54,7 +61,9 @@ class PlotLogDataWidget : public QWidget
 
     private slots:
     // Log value selection changed
-    void logValuesChanged(const QModelIndex &, const QModelIndex &, const QList<int> &);
+    void logValueChanged(const QModelIndex &, const QModelIndex &, const QList<int> &);
+    // Log value group selection changed
+    void logValueGroupChanged(const QModelIndex &, const QModelIndex &, const QList<int> &);
 
     public:
     // Create summary text for the plot
