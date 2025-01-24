@@ -18,8 +18,16 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
             SLOT(logValueChanged(const QModelIndex &, const QModelIndex &, const QList<int> &)));
 
     // Create LogValueGroups for each run we've been given and set up the relevant list model
+    auto count = 0;
     for (auto runNumber : runNumbers_)
-        logValueGroups_.emplace_back(QString::number(runNumber), true);
+    {
+        // Create a DisplayGroup in the plot so we colourise each associated log value dataset the same
+        auto *group = ui_.Plot->getDisplayGroup(QString::number(runNumber));
+        group->setColourPolicy(Mildred::DisplayGroup::ColourPolicy::Stock);
+        group->setStockColour(Mildred::DisplayGroup::stockColourForIndex(count++));
+
+        logValueGroups_.emplace_back(QString::number(runNumber), true, group);
+    }
     ui_.RunNumberList->setModel(&logValueGroupModel_);
     logValueGroupModel_.setData(logValueGroups_);
 
@@ -177,14 +185,12 @@ void PlotLogDataWidget::showData(const LogValue &logValue)
     // Add each contained per-run dataset to the plot
     for (auto &&[dataName, data] : logValue.data())
     {
-        // Create a display group with some default policies
-        auto group = ui_.Plot->addDisplayGroup();
-        group->setSingleColour({255, 0, 200, 255});
 
-        // Create a renderable and add it to the group
+        // Create a renderable and add it to the group for the run number (dataName)
         auto *renderable = ui_.Plot->addData1D((dataName + "/" + logValue.name()));
         renderable->setData(data.times(), data.values());
-        group->addTarget(renderable);
+
+        ui_.Plot->getDisplayGroup(dataName)->addTarget(renderable);
     }
 
     // If the plot was empty when we started, auto-scale it now

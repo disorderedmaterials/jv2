@@ -5,7 +5,10 @@
 
 namespace JV2
 {
-LogValueGroup::LogValueGroup(const QString &name, bool selected) : name_(name), selected_(selected) {}
+LogValueGroup::LogValueGroup(const QString &name, bool selected, Mildred::DisplayGroup *displayGroup)
+    : name_(name), selected_(selected), displayGroup_(displayGroup)
+{
+}
 
 /*
  * Basic Data
@@ -13,6 +16,9 @@ LogValueGroup::LogValueGroup(const QString &name, bool selected) : name_(name), 
 
 // Return the name of the property
 const QString &LogValueGroup::name() const { return name_; }
+
+// Return the associated DisplayGroup (if set)
+Mildred::DisplayGroup *LogValueGroup::displayGroup() const { return displayGroup_; }
 
 // Return whether the property is selected
 bool LogValueGroup::isSelected() const { return selected_; }

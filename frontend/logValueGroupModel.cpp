@@ -2,6 +2,8 @@
 // Copyright (c) 2024 Team LogValueGroupViewer and contributors
 
 #include "logValueGroupModel.h"
+#include <QIcon>
+#include <QImage>
 
 namespace JV2
 {
@@ -67,6 +69,11 @@ QVariant LogValueGroupModel::data(const QModelIndex &index, int role) const
         case (Qt::DisplayRole):
         case (Qt::EditRole):
             return data.name();
+        case (Qt::DecorationRole):
+            if (data.displayGroup())
+                return data.displayGroup()->colourPolicyIcon({16, 16});
+            else
+                return {};
         case (Qt::CheckStateRole):
             return data.isSelected() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked;
         default:
