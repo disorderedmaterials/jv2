@@ -15,18 +15,18 @@ jobs:
   Cache:
     strategy:
       fail-fast: false
-    runs-on: ubuntu-latest
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Environment
-        uses: "./.github/workflows/setup"
-      - name: "Build (Cache Only)"
-        uses: "./.github/workflows/build"
-        with:
-          cacheOnly: true
-          linuxEnabled: ${{ inputs.cacheLinux }}
-          windowsEnabled: ${{ inputs.cacheWindows }}
-          linuxCacheOnly: ${{ inputs.cacheLinux }}
-          windowsCacheOnly: ${{ inputs.cacheWindows }}
-
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Set Environment Variables
+      uses: "./.github/workflows/setup"
+    - name: "Build (${{ matrix.os }})"
+      uses: "./.github/workflows/build"
+      with:
+        linuxEnabled: ${{ inputs.cacheLinux }}
+        windowsEnabled: ${{ inputs.cacheWindows }}
+        linuxCacheOnly: ${{ inputs.cacheLinux }}
+        windowsCacheOnly: ${{ inputs.cacheWindows }}
