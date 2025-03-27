@@ -52,7 +52,7 @@ runs:
       python3 -m nuitka --standalone --onefile --assume-yes-for-downloads src/jv2backend
 
   - name: Upload Raw Build Artifacts
-    uses: actions/upload-artifact@v3
+    uses: actions/upload-artifact@v4
     with:
       name: windows-build
       path: |
