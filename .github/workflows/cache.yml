@@ -2,6 +2,13 @@ name: Generate Caches
 
 on:
   workflow_dispatch:
+    inputs:
+      cacheLinux:
+        type: boolean
+        default: true
+      cacheWindows:
+        type: boolean
+        default: true
 
 jobs:
 
@@ -18,4 +25,8 @@ jobs:
         uses: "./.github/workflows/build"
         with:
           cacheOnly: true
+          linuxEnabled: ${{ inputs.cacheLinux }}
+          windowsEnabled: ${{ inputs.cacheWindows }}
+          linuxCacheOnly: ${{ inputs.cacheLinux }}
+          windowsCacheOnly: ${{ inputs.cacheWindows }}
 
