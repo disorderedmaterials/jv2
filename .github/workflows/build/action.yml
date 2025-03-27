@@ -21,7 +21,7 @@ runs:
 
 
   - name: Build (Linux)
-    if: runner.os == 'Linux' && inputs.linuxEnabled
+    if: runner.os == 'Linux' && inputs.linuxEnabled == 'true'
     uses: "./.github/workflows/build/linux"
     with:
       cacheOnly: ${{ inputs.linuxCacheOnly }}
@@ -31,7 +31,7 @@ runs:
     uses: "./.github/workflows/build/osx"
 
   - name: Build (Windows)
-    if: runner.os == 'Windows' && inputs.windowsEnabled
+    if: runner.os == 'Windows' && inputs.windowsEnabled == 'true'
     uses: "./.github/workflows/build/windows"
     with:
       cacheOnly: ${{ inputs.windowsCacheOnly }}
