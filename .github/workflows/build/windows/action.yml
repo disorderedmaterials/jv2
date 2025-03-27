@@ -5,11 +5,30 @@ runs:
   using: "composite"
   steps:
 
-  - name: Install Qt
-    uses: jurplel/install-qt-action@v3
+  - name: Install Chocolatey Dependencies
+    shell: bash
+    run: choco install -y ninja
+
+  - uses: actions/setup-python@v5
     with:
-      version: ${{ env.qtVersion }}
-      modules: qtcharts
+      python-version: '3.11'
+
+  - name: Install Python Dependencies
+    shell: bash
+    run: pip3 install aqtinstall
+
+  - name: Retrieve Qt Cache
+    id: cache-qt
+    uses: actions/cache@v4
+    with:
+      key: windows-qt-${{ env.qtVersion }}
+      path: ${{ runner.temp }}\qt
+
+  - name: Install Qt
+    # if: ${{ steps.cache-qt.outputs.cache-hit != 'true' }}
+    shell: bash
+    run: |
+      aqt install-qt --outputdir ${RUNNER_TEMP}/qt windows desktop ${{ env.qtVersion }} win64_msvc2019_64 -m all
 
   - name: Remove /usr/bin/link
     shell: bash
@@ -24,6 +43,9 @@ runs:
     shell: bash
     run: |
       cd frontend
+
+      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64"
+
       cmake --preset ci-windows
       cmake --build --preset build
 
