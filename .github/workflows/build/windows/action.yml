@@ -1,6 +1,11 @@
 name: Build
 description: Build Windows artifacts
 
+inputs:
+  cacheOnly:
+    type: boolean
+    default: false
+
 runs:
   using: "composite"
   steps:
