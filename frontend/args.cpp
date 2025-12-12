@@ -2,6 +2,7 @@
 // Copyright (c) 2025 Team JournalViewer and contributors
 
 #include "args.h"
+#include <QDebug>
 
 namespace JV2
 {
