@@ -25,6 +25,7 @@ PlotLogDataWidget::PlotLogDataWidget(MainWindow *parent, Backend &backend, const
         auto *group = ui_.Plot->getDisplayGroup(QString::number(runNumber));
         group->setColourPolicy(Mildred::DisplayGroup::ColourPolicy::Stock);
         group->setStockColour(Mildred::DisplayGroup::stockColourForIndex(count++));
+        group->setTranslationPolicyX(Mildred::DisplayGroup::TranslationPolicy::Constant);
 
         logValueGroups_.emplace_back(QString::number(runNumber), true, group);
     }
@@ -142,15 +143,24 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
     {
         // Get the data name (run number)
         const auto dataName = run[QString("runNumber")].toString();
-        qDebug() << dataName;
+        auto groupIt = std::find_if(logValueGroups_.begin(), logValueGroups_.end(), [dataName](const auto &group) {  return group.name() == dataName; });
+        if (groupIt == logValueGroups_.end())
+        {
+            qDebug() << QString("Error: LogValueGroup missing for run '%1'.").arg(dataName);
+            continue;
+        }
+        auto &group = *groupIt;
 
         // Extract the time range data
         const auto timeRange = run[QString("timeRange")].toArray();
 
-        // Get start and end times
+        // Store start and end times in the LogValueGroup object for the run
+
         auto startTime = QDateTime::fromString(timeRange.first()[0].toString(), "yyyy-MM-dd'T'HH:mm:ss");
         auto endTime = QDateTime::fromString(timeRange.first()[1].toString(), "yyyy-MM-dd'T'HH:mm:ss");
-        auto startSecs = startTime.toSecsSinceEpoch();
+        group.setTimeRange(startTime, endTime);
+
+        group->setTranslationX();
 
         // Get time / value vectors
         // TODO Need to check / detect enumerated data here
