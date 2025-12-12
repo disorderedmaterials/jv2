@@ -158,9 +158,9 @@ void PlotLogDataWidget::handleRetrieveSELogValueData(HttpRequestWorker *worker)
 
         auto startTime = QDateTime::fromString(timeRange.first()[0].toString(), "yyyy-MM-dd'T'HH:mm:ss");
         auto endTime = QDateTime::fromString(timeRange.first()[1].toString(), "yyyy-MM-dd'T'HH:mm:ss");
-        group.setTimeRange(startTime, endTime);
+        // group.setTimeRange(startTime, endTime);
 
-        group->setTranslationX();
+        // group->setTranslationX();
 
         // Get time / value vectors
         // TODO Need to check / detect enumerated data here
