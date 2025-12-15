@@ -22,6 +22,9 @@ runs:
     shell: bash
     run: pip3 install aqtinstall
 
+  - name: Setup MSVC Compiler
+    uses: ilammy/msvc-dev-cmd@v1
+
   - name: Retrieve Qt Cache
     id: cache-qt
     uses: actions/cache@v4
@@ -40,8 +43,7 @@ runs:
     run: |
       cd frontend
 
-      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64"
-      export PATH="${Qt6_DIR}\bin;$PATH"
+      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64\lib\cmake\Qt6"
       ls -R ${Qt6_DIR}
 
       cmake --preset ci-windows
