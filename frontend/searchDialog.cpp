@@ -13,14 +13,14 @@ SearchDialog::SearchDialog(QWidget *parent) : QDialog(parent)
     connect(ui_.RunTitleCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
     connect(ui_.RunNumberCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
     connect(ui_.UserCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
-    connect(ui_.RunNumberCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
+    connect(ui_.ExperimentIdentifierCheckBox, SIGNAL(clicked(bool)), this, SLOT(updateButtonStates(bool)));
 }
 
 // Update button states to reflect selected options
 void SearchDialog::updateButtonStates(bool dummy)
 {
     auto searchEnabled = ui_.RunTitleCheckBox->isChecked() || ui_.RunNumberCheckBox->isChecked() ||
-                         ui_.UserCheckBox->isChecked() || ui_.RunNumberCheckBox->isChecked();
+                         ui_.UserCheckBox->isChecked() || ui_.ExperimentIdentifierCheckBox->isChecked();
     ui_.SearchButton->setEnabled(searchEnabled);
 }
 
