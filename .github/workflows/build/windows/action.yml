@@ -48,7 +48,7 @@ runs:
     run: |
       cd frontend
 
-      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64"
+      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64\lib\cmake\Qt6"
 
       cmake --preset ci-windows
       cmake --build --preset build
