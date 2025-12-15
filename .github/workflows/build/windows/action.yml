@@ -33,16 +33,7 @@ runs:
     if: ${{ steps.cache-qt.outputs.cache-hit != 'true' }}
     shell: bash
     run: |
-      aqt install-qt --outputdir ${RUNNER_TEMP}\qt windows desktop ${{ env.qtVersion }} win64_msvc2019_64 -m all
-
-  - name: Remove /usr/bin/link
-    shell: bash
-    run: |
-      echo "Removing /usr/bin/link.exe since it will conflict with our MSVC paths..."
-      rm -rf /usr/bin/link.exe
-
-  - name: Setup MSVC Compiler
-    uses: ilammy/msvc-dev-cmd@v1
+      aqt install-qt --outputdir ${RUNNER_TEMP}/qt windows desktop ${{ env.qtVersion }} win64_msvc2019_64 -m all
 
   - name: Build Frontend
     shell: bash
