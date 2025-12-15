@@ -18,6 +18,11 @@ runs:
     with:
       python-version: '3.11'
 
+  - name: Setup cmake
+    uses: jwlawson/actions-setup-cmake@v2
+    with:
+      cmake-version: '3.x'
+
   - name: Install Python Dependencies
     shell: bash
     run: pip3 install aqtinstall
@@ -43,8 +48,7 @@ runs:
     run: |
       cd frontend
 
-      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64\lib\cmake\Qt6"
-      ls -R ${Qt6_DIR}
+      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64"
 
       cmake --preset ci-windows
       cmake --build --preset build
