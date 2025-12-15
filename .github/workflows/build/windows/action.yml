@@ -42,6 +42,7 @@ runs:
 
       Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64"
       export PATH="${Qt6_DIR}\bin;$PATH"
+      ls -R ${Qt6_DIR}
 
       cmake --preset ci-windows
       cmake --build --preset build
