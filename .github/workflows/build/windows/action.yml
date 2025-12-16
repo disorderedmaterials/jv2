@@ -48,7 +48,7 @@ runs:
     run: |
       cd frontend
 
-      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64\lib\cmake\Qt6"
+      Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64"
 
       mkdir build && cd build
       cmake ../ -G Ninja -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
