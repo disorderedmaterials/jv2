@@ -27,9 +27,6 @@ runs:
     shell: bash
     run: pip3 install aqtinstall
 
-  - name: Setup MSVC Compiler
-    uses: ilammy/msvc-dev-cmd@v1
-
   - name: Retrieve Qt Cache
     id: cache-qt
     uses: actions/cache@v4
@@ -42,6 +39,9 @@ runs:
     shell: bash
     run: |
       aqt install-qt --outputdir ${RUNNER_TEMP}/qt windows desktop ${{ env.qtVersion }} win64_msvc2019_64 -m all
+
+  - name: Setup MSVC Compiler
+    uses: ilammy/msvc-dev-cmd@v1
 
   - name: Build Frontend
     shell: bash
