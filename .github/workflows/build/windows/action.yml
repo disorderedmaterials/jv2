@@ -50,8 +50,10 @@ runs:
 
       Qt6_DIR="${RUNNER_TEMP}\qt\${{ env.qtVersion }}\msvc2019_64\lib\cmake\Qt6"
 
-      cmake --preset ci-windows
-      cmake --build --preset build
+      mkdir build && cd build
+      cmake ../ -G Ninja -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
+      #cmake --preset ci-windows
+      #cmake --build --preset build
 
   - name: Deploy Runtime Libs
     shell: bash
