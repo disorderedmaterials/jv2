@@ -10,10 +10,6 @@ runs:
   using: "composite"
   steps:
 
-  - name: Install Chocolatey Dependencies
-    shell: bash
-    run: choco install -y ninja
-
   - uses: actions/setup-python@v5
     with:
       python-version: '3.11'
@@ -42,8 +38,6 @@ runs:
 
   - name: Setup MSVC Compiler
     uses: ilammy/msvc-dev-cmd@v1
-    with:
-      toolset: 14.41.17.11
 
   - name: Build Frontend
     shell: bash
