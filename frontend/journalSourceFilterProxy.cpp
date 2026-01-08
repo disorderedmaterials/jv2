@@ -6,6 +6,8 @@
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 
+namespace JV2
+{
 JournalSourceFilterProxy::JournalSourceFilterProxy(JournalSourceModel &journalSourceModel)
     : journalSourceModel_(journalSourceModel)
 {
@@ -16,3 +18,4 @@ bool JournalSourceFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex
 {
     return (!showAvailableOnly_ || journalSourceModel_.getData(sourceRow)->isAvailable());
 }
+} // namespace JV2

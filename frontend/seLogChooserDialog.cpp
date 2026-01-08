@@ -3,6 +3,8 @@
 
 #include "seLogChooserDialog.h"
 
+namespace JV2
+{
 SELogChooserDialog::SELogChooserDialog(QWidget *parent, GenericTreeItem *rootItem) : QDialog(parent)
 {
     ui_.setupUi(this);
@@ -62,3 +64,4 @@ QStringList SELogChooserDialog::getValues()
 
     return result;
 }
+} // namespace JV2

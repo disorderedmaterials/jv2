@@ -11,6 +11,8 @@
 #include <QJsonArray>
 #include <QXYSeries>
 
+namespace JV2
+{
 GraphWidget::GraphWidget(QWidget *parent, QChart *chart, QString type) : QWidget(parent)
 {
     type_ = type;
@@ -338,3 +340,4 @@ void GraphWidget::modifyAgainstWorker(HttpRequestWorker *worker, bool checked)
         ui_.chartView->chart()->axes()[1]->setMin(min);
     }
 }
+} // namespace JV2

@@ -12,6 +12,8 @@
 #include <QObject>
 #include <QVector>
 
+namespace JV2
+{
 // JSON Run Data Model
 class RunDataModel : public QAbstractTableModel
 {
@@ -52,3 +54,4 @@ class RunDataModel : public QAbstractTableModel
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 };
+} // namespace JV2

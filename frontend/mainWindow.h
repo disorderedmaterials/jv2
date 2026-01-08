@@ -22,6 +22,8 @@
 #include <QSortFilterProxyModel>
 #include <QTimer>
 
+namespace JV2
+{
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -47,6 +49,9 @@ class MainWindow : public QMainWindow
     void updateForCurrentSource(std::optional<JournalSource::JournalSourceState> newState = {});
 
     private slots:
+    // Set tab title
+    void setTabTitle(const QString &title);
+    // Remove tab
     void removeTab(int index);
     // Notification point for backend startup
     void backendStarted(const QString &result);
@@ -202,13 +207,15 @@ class MainWindow : public QMainWindow
     const inline static QString FileNotFoundError = QStringLiteral("FileNotFoundError");
 
     private:
-    // Perform check for errors on http request, returning the handled error
-    QString handleRequestError(HttpRequestWorker *worker, const QString &taskDescription);
     // Update the error page
     void setErrorPage(const QString &errorTitle, const QString &errorText);
 
     private slots:
     void on_ErrorOKButton_clicked(bool checked);
+
+    public:
+    // Perform check for errors on http request, returning the handled error
+    QString handleRequestError(HttpRequestWorker *worker, const QString &taskDescription);
 
     /*
      * Settings
@@ -279,15 +286,6 @@ class MainWindow : public QMainWindow
     void handleSearchResult(HttpRequestWorker *worker);
 
     /*
-     * Visualisation
-     */
-    private:
-    // Handle extracted SE log values for plotting
-    void handlePlotSELogValue(HttpRequestWorker *worker);
-    // Handle plotting of SE log data
-    void handleCreateSELogPlot(HttpRequestWorker *worker);
-
-    /*
      * Nexus Interaction Stuff To Be Organised
      */
     private slots:
@@ -305,3 +303,4 @@ class MainWindow : public QMainWindow
     void runDivide(QString currentDetector, QString run, bool checked);
     void monDivide(QString currentRun, QString mon, bool checked);
 };
+} // namespace JV2

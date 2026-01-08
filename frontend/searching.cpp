@@ -5,6 +5,8 @@
 #include "searchDialog.h"
 #include <QMessageBox>
 
+namespace JV2
+{
 /*
  * UI
  */
@@ -158,3 +160,4 @@ void MainWindow::handleSearchResult(HttpRequestWorker *worker)
 
     updateForCurrentSource(JournalSource::JournalSourceState::OK);
 }
+} // namespace JV2

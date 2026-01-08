@@ -186,7 +186,7 @@
       </layout>
      </item>
      <item>
-      <widget class="ChartView" name="chartView"/>
+      <widget class="JV2::ChartView" name="chartView" native="true"/>
      </item>
     </layout>
    </item>
@@ -194,14 +194,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QChartView</class>
-   <extends>QGraphicsView</extends>
-   <header>QtCharts</header>
-  </customwidget>
-  <customwidget>
-   <class>ChartView</class>
-   <extends>QChartView</extends>
+   <class>JV2::ChartView</class>
+   <extends>QWidget</extends>
    <header>chartView.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

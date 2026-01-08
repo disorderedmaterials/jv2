@@ -7,6 +7,8 @@
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
 
+namespace JV2
+{
 class ChartView : public QChartView
 {
     Q_OBJECT
@@ -43,3 +45,4 @@ class ChartView : public QChartView
     QGraphicsSimpleTextItem *coordStartLabelX_;
     QGraphicsSimpleTextItem *coordStartLabelY_;
 };
+} // namespace JV2

@@ -4,6 +4,8 @@
 #include "mainWindow.h"
 #include <QMessageBox>
 
+namespace JV2
+{
 /*
  * UI
  */
@@ -197,3 +199,4 @@ void MainWindow::handleGenerateScanStop(HttpRequestWorker *worker)
 
     sourceBeingGenerated_ = nullptr;
 }
+} // namespace JV2

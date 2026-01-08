@@ -2,7 +2,10 @@
 // Copyright (c) 2025 Team JournalViewer and contributors
 
 #include "args.h"
+#include <QDebug>
 
+namespace JV2
+{
 CLIArgs::CLIArgs() : helpOption_(addHelpOption())
 {
     setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
@@ -34,3 +37,4 @@ bool CLIArgs::parseArguments(const QList<QString> &arguments)
 
     return true;
 }
+} // namespace JV2

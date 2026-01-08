@@ -3,11 +3,16 @@
 
 #include "genericTreeModel.h"
 
+namespace JV2
+{
 /*
  * GenericTreeItem
  */
 
-GenericTreeItem::GenericTreeItem(const QList<QVariant> &data) : data_(data) {}
+GenericTreeItem::GenericTreeItem(const QList<QVariant> &data, const QList<QString> &toolTips, const QList<Qt::ItemFlags> &flags)
+    : data_(data), toolTips_(toolTips), flags_(flags)
+{
+}
 
 GenericTreeItem::~GenericTreeItem() { qDeleteAll(children_); }
 
@@ -17,9 +22,10 @@ void GenericTreeItem::appendChild(GenericTreeItem *item)
     item->setParent(this);
 }
 
-GenericTreeItem *GenericTreeItem::appendChild(const QList<QVariant> &data)
+GenericTreeItem *GenericTreeItem::appendChild(const QList<QVariant> &data, const QList<QString> &toolTips,
+                                              const QList<Qt::ItemFlags> &flags)
 {
-    auto *item = new GenericTreeItem(data);
+    auto *item = new GenericTreeItem(data, toolTips, flags);
     item->setParent(this);
     children_.append(item);
     return item;
@@ -47,8 +53,22 @@ int GenericTreeItem::columnCount() const { return data_.count(); }
 QVariant GenericTreeItem::data(int column) const
 {
     if (column < 0 || column >= data_.count())
-        return QVariant();
+        return {};
     return data_.at(column);
+}
+
+QVariant GenericTreeItem::toolTip(int column) const
+{
+    if (column < 0 || column >= toolTips_.count())
+        return {};
+    return toolTips_.at(column);
+}
+
+Qt::ItemFlags GenericTreeItem::flags(int column) const
+{
+    if (column < 0 || column >= flags_.count())
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return flags_.at(column);
 }
 
 void GenericTreeItem::setParent(GenericTreeItem *parent) { parent_ = parent; }
@@ -70,7 +90,7 @@ GenericTreeModel::~GenericTreeModel()
 QModelIndex GenericTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!rootItem_ || !hasIndex(row, column, parent))
-        return QModelIndex();
+        return {};
 
     GenericTreeItem *parentItem;
 
@@ -82,19 +102,19 @@ QModelIndex GenericTreeModel::index(int row, int column, const QModelIndex &pare
     GenericTreeItem *childItem = parentItem->child(row);
     if (childItem)
         return createIndex(row, column, childItem);
-    return QModelIndex();
+    return {};
 }
 
 QModelIndex GenericTreeModel::parent(const QModelIndex &index) const
 {
     if (!rootItem_ || !index.isValid())
-        return QModelIndex();
+        return {};
 
-    GenericTreeItem *childItem = static_cast<GenericTreeItem *>(index.internalPointer());
-    GenericTreeItem *parentItem = childItem->parent();
+    auto *childItem = static_cast<GenericTreeItem *>(index.internalPointer());
+    auto *parentItem = childItem->parent();
 
     if (parentItem == rootItem_)
-        return QModelIndex();
+        return {};
 
     return createIndex(parentItem->row(), 0, parentItem);
 }
@@ -123,14 +143,16 @@ int GenericTreeModel::columnCount(const QModelIndex &parent) const
 QVariant GenericTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QVariant();
+        return {};
 
-    if (role != Qt::DisplayRole)
-        return QVariant();
+    auto *item = static_cast<GenericTreeItem *>(index.internalPointer());
 
-    GenericTreeItem *item = static_cast<GenericTreeItem *>(index.internalPointer());
+    if (role == Qt::DisplayRole)
+        return item->data(index.column());
+    else if (role == Qt::ToolTipRole)
+        return item->toolTip(index.column());
 
-    return item->data(index.column());
+    return {};
 }
 
 Qt::ItemFlags GenericTreeModel::flags(const QModelIndex &index) const
@@ -138,7 +160,9 @@ Qt::ItemFlags GenericTreeModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    return QAbstractItemModel::flags(index);
+    auto *item = static_cast<GenericTreeItem *>(index.internalPointer());
+
+    return item->flags(index.column());
 }
 
 QVariant GenericTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -159,3 +183,4 @@ void GenericTreeModel::setRootItem(GenericTreeItem *rootItem)
     rootItem_ = rootItem;
     endResetModel();
 }
+} // namespace JV2

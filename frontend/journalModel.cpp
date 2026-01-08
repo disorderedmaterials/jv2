@@ -3,6 +3,8 @@
 
 #include "journalModel.h"
 
+namespace JV2
+{
 // Model to handle json data in table view
 JournalModel::JournalModel() : QAbstractListModel() {}
 
@@ -70,3 +72,4 @@ QVariant JournalModel::headerData(int section, Qt::Orientation orientation, int 
             return {};
     }
 }
+} // namespace JV2

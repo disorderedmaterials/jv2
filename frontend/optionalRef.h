@@ -6,4 +6,7 @@
 #include <memory>
 #include <optional>
 
+namespace JV2
+{
 template <class T> using OptionalReferenceWrapper = std::optional<std::reference_wrapper<T>>;
+}

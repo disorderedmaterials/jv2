@@ -11,6 +11,8 @@
 #include <QNetworkReply>
 #include <QSettings>
 
+namespace JV2
+{
 /*
  * Private Functions
  */
@@ -162,3 +164,4 @@ void MainWindow::getJournalSourcesFromSettings(QCommandLineParser &cliParser)
     if (cliParser.isSet(CLIArgs::HideIDAaaS))
         idaaasDataCache->setAvailable(false);
 }
+} // namespace JV2

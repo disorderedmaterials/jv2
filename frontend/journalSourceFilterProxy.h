@@ -3,12 +3,14 @@
 
 #pragma once
 
+#include <QModelIndex>
 #include <QObject>
 #include <QSortFilterProxyModel>
 
+namespace JV2
+{
 // Forward Declarations
 class JournalSourceModel;
-class QModelIndex;
 
 class JournalSourceFilterProxy : public QSortFilterProxyModel
 {
@@ -26,3 +28,4 @@ class JournalSourceFilterProxy : public QSortFilterProxyModel
     protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 };
+} // namespace JV2

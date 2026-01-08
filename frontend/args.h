@@ -7,6 +7,8 @@
 #include <QList>
 #include <QString>
 
+namespace JV2
+{
 class CLIArgs : public QCommandLineParser
 {
     public:
@@ -31,3 +33,4 @@ class CLIArgs : public QCommandLineParser
     const inline static QString UseWaitress = QStringLiteral("use-waitress");
     const inline static QString DebugBackend = QStringLiteral("debug-backend");
 };
+} // namespace JV2

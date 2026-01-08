@@ -5,6 +5,8 @@
 
 #include "ui_searchDialog.h"
 
+namespace JV2
+{
 // Forward Declarations
 class MainWindow;
 
@@ -32,3 +34,4 @@ class SearchDialog : public QDialog
     // Get search query
     std::map<QString, QString> getQuery();
 };
+} // namespace JV2

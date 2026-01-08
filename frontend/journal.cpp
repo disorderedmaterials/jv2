@@ -3,6 +3,8 @@
 
 #include "journal.h"
 
+namespace JV2
+{
 Journal::Journal(QString name) : name_(name) {}
 
 /*
@@ -20,3 +22,4 @@ void Journal::setFilename(const QString &filename) { filename_ = filename; }
 
 // Return filename
 const QString &Journal::filename() const { return filename_; }
+} // namespace JV2

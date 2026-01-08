@@ -8,6 +8,8 @@
 #include <QCommandLineParser>
 #include <QProcessEnvironment>
 
+namespace JV2
+{
 Backend::Backend(const QCommandLineParser &args) : process_()
 {
     QStringList backendArgs;
@@ -171,9 +173,9 @@ void Backend::acquireAllJournalsStop(const HttpRequestWorker::HttpRequestHandler
  * NeXuS Endpoints
  */
 
-// Get NeXuS log values present in specified run files
-void Backend::getNexusFields(const JournalSource *source, const std::vector<int> &runNos,
-                             const HttpRequestWorker::HttpRequestHandler &handler)
+// Get all NeXuS log values present over specified run files
+void Backend::getNeXuSLogValues(const JournalSource *source, const std::vector<int> &runNos,
+                                const HttpRequestWorker::HttpRequestHandler &handler)
 {
     auto data = source->sourceObjectData();
 
@@ -301,3 +303,4 @@ void Backend::generateFinalise(const JournalSource *source, JournalGenerationSty
 
     postRequest(createRoute("generate/finalise"), data, handler);
 }
+} // namespace JV2

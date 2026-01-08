@@ -2,6 +2,7 @@
 // Copyright (c) 2025 Team JournalViewer and contributors
 
 #include "mainWindow.h"
+#include "plotLogDataWidget.h"
 #include <QInputDialog>
 #include <QJsonArray>
 #include <QMessageBox>
@@ -9,6 +10,8 @@
 #include <QSettings>
 #include <QWidgetAction>
 
+namespace JV2
+{
 /*
  * Private Functions
  */
@@ -200,8 +203,10 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
     }
     else if (selectedAction == plotSELog)
     {
-        backend_.getNexusFields(currentJournalSource(), selectedRunNumbers(),
-                                [=](HttpRequestWorker *worker) { handlePlotSELogValue(worker); });
+        auto *plot = new PlotLogDataWidget(this, backend_, currentJournalSource(), selectedRunNumbers());
+        auto index = ui_.MainTabs->addTab(plot, plot->summaryText());
+        connect(plot, SIGNAL(summaryTextChanged(QString)), this, SLOT(setTabTitle(QString)));
+        ui_.MainTabs->setCurrentIndex(index);
     }
     else if (selectedAction == plotDetector)
     {
@@ -214,3 +219,4 @@ void MainWindow::runDataContextMenuRequested(QPoint pos)
                                        [=](HttpRequestWorker *worker) { plotMonSpectra(worker); });
     }
 }
+} // namespace JV2

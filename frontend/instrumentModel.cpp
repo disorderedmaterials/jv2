@@ -3,6 +3,8 @@
 
 #include "instrumentModel.h"
 
+namespace JV2
+{
 // Model to handle json data in table view
 InstrumentModel::InstrumentModel() : QAbstractListModel() {}
 
@@ -70,3 +72,4 @@ QVariant InstrumentModel::headerData(int section, Qt::Orientation orientation, i
             return {};
     }
 }
+} // namespace JV2

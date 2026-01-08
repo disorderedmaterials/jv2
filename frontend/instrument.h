@@ -6,6 +6,8 @@
 #include <QString>
 #include <map>
 
+namespace JV2
+{
 // Instrument Definition
 class Instrument
 {
@@ -87,3 +89,4 @@ class Instrument
     // Return specified path component for this instrument (lowercased by default)
     QString pathComponent(PathType pathType, bool upperCased = false) const;
 };
+} // namespace JV2
