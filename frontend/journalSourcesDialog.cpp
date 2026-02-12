@@ -37,9 +37,9 @@ void JournalSourcesDialog::currentSourceChanged(const QModelIndex &currentIndex,
     // Update individual controls
     // -- Type
     if (currentSource_->type() == JournalSource::IndexingType::Network)
-        ui_.NetworkTypeRadioButton->setEnabled(true);
+        ui_.NetworkTypeRadioButton->setChecked(true);
     else
-        ui_.GeneratedTypeRadioButton->setEnabled(true);
+        ui_.GeneratedTypeRadioButton->setChecked(true);
     // -- Journal Location
     ui_.JournalRootURLEdit->setText(currentSource_->journalRootUrl());
     ui_.JournalIndexFileEdit->setText(currentSource_->journalIndexFilename());
