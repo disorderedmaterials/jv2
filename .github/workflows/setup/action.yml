@@ -8,7 +8,7 @@ runs:
     shell: bash
     run: |
       set -ex
-      echo "pythonVersion=3.10" >> ${GITHUB_ENV}
+      echo "pythonVersion=3.11" >> ${GITHUB_ENV}
       echo "qtVersion=6.4.2" >> ${GITHUB_ENV}
 
   - name: Get Code Version

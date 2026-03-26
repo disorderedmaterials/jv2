@@ -41,7 +41,7 @@ runs:
 
   - name: Install Python Dependencies
     shell: bash
-    run: pip3 install aqtinstall
+    run: pip3 install py7zr==1.1.0 aqtinstall conan
 
 #  - name: Retrieve Qt Cache
 #    id: cache-qt
