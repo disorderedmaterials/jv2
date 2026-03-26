@@ -23,21 +23,23 @@ runs:
     shell: bash
     run: pip3 install aqtinstall
 
-  - name: Retrieve Qt Cache
-    id: cache-qt
-    uses: actions/cache@v4
-    with:
-      key: windows-qt-${{ env.qtVersion }}
-      path: ${{ runner.temp }}\qt
+#  - name: Retrieve Qt Cache
+#    id: cache-qt
+#    uses: actions/cache@v4
+#    with:
+#      key: windows-qt-${{ env.qtVersion }}
+#      path: ${{ runner.temp }}\qt
 
   - name: Install Qt
-    if: ${{ steps.cache-qt.outputs.cache-hit != 'true' }}
+#    if: ${{ steps.cache-qt.outputs.cache-hit != 'true' }}
     shell: bash
     run: |
       aqt install-qt --outputdir ${RUNNER_TEMP}/qt windows desktop ${{ env.qtVersion }} win64_msvc2019_64 -m all
 
   - name: Setup MSVC Compiler
     uses: ilammy/msvc-dev-cmd@v1
+    with:
+      toolset: 19.44
 
   - name: Build Frontend
     shell: bash
