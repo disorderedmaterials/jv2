@@ -67,6 +67,7 @@ runs:
       cd frontend
 
       Qt6_DIR="${RUNNER_TEMP}/qt/${{ env.qtVersion }}/msvc2019_64"
+      export PATH="${Qt6_DIR}\bin;$PATH"
       echo $Qt6_DIR
       ls $QT6_DIR
 
